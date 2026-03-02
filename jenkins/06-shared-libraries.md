@@ -130,19 +130,112 @@ pipeline {
 
 ## 🔄 Shared Library Loading Types
 
-### 1️⃣ Global Library (Recommended)
+### 1️⃣ Implicit (Global) Shared Library ⭐
 
-* Configured in Jenkins UI
-* Auto-available to all pipelines
+### 🧠 What it means
 
-### 2️⃣ Folder-Level Library
+An **implicit shared library** is configured **globally in Jenkins** and is **automatically available** to all pipelines.
 
-* Scoped to a folder
-* Used by a specific team
+👉 You do **NOT** need to import it explicitly in the Jenkinsfile.
 
-### 3️⃣ Inline Library
+---
 
-* Loaded directly in Jenkinsfile
+### 🧩 How it works internally
+
+```
+Jenkins Controller
+   |
+   v
+Global Shared Library (Configured in UI)
+   |
+   v
+Available to all Jenkinsfiles
+```
+
+Jenkins loads the library **before pipeline execution starts**.
+
+---
+
+### 📌 Example: Implicit Shared Library
+
+**Library configured in Jenkins UI as:** `global-lib`
+
+Jenkinsfile:
+
+```
+pipeline {
+  agent any
+  stages {
+    stage('Build') {
+      steps {
+        buildApp()   // Directly usable
+      }
+    }
+  }
+}
+```
+
+✔️ No `@Library` annotation needed
+
+---
+
+### ✅ When to use Implicit Libraries
+
+* Organization-wide standards
+* Security, logging, notifications
+* Mandatory pipeline behavior
+
+---
+
+### 2️⃣ Explicit Shared Library
+
+### 🧠 What it means
+
+An **explicit shared library** must be **declared inside the Jenkinsfile** using the `@Library` annotation.
+
+👉 Jenkins loads it **only for that pipeline**.
+
+---
+
+### 📌 Example: Explicit Shared Library
+
+```
+@Library('my-shared-lib@v1.2') _
+
+pipeline {
+  agent any
+  stages {
+    stage('CI') {
+      steps {
+        buildApp()
+      }
+    }
+  }
+}
+```
+
+✔️ Version-controlled usage
+✔️ Pipeline-specific behavior
+
+---
+
+### ✅ When to use Explicit Libraries
+
+* Team-specific pipelines
+* Version-pinned logic
+* Experimental features
+
+---
+
+### 🆚 Implicit vs Explicit Shared Libraries
+
+| Feature            | Implicit               | Explicit          |
+| ------------------ | ---------------------- | ----------------- |
+| Jenkinsfile import | ❌ Not required         | ✅ Required        |
+| Scope              | Global                 | Pipeline-specific |
+| Version pinning    | ❌ Not possible         | ✅ Yes             |
+| Governance         | Centralized            | Flexible          |
+| Risk               | Higher (global impact) | Lower             |
 
 ---
 
@@ -227,4 +320,4 @@ Want next?
 * Shared libraries with Kubernetes & Helm
 * Common mistakes in shared libraries
 
-Just s
+Just say 👍
