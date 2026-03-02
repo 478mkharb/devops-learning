@@ -1,0 +1,230 @@
+## 📚 What are Shared Libraries in Jenkins?
+
+### 🧠 Definition
+
+**Jenkins Shared Libraries** are **reusable Groovy code modules** that allow you to **share common pipeline logic across multiple Jenkins pipelines**.
+
+👉 Instead of copying the same pipeline code into every `Jenkinsfile`, you write it **once** and reuse it everywhere.
+
+---
+
+## ❓ Why Shared Libraries are needed
+
+Without shared libraries:
+
+* ❌ Duplicate Jenkinsfile code
+* ❌ Hard to maintain changes
+* ❌ Inconsistent pipelines
+
+With shared libraries:
+
+* ✅ DRY (Don’t Repeat Yourself)
+* ✅ Centralized pipeline logic
+* ✅ Easy updates across teams
+* ✅ Enterprise-scale CI/CD
+
+---
+
+## 🏗️ How Shared Libraries Work (High-Level)
+
+```
+Jenkinsfile
+   |
+   v
+📚 Shared Library (Git Repo)
+   |
+   v
+Reusable Pipeline Logic
+```
+
+Jenkins loads the library **at runtime** from Git.
+
+---
+
+## 📂 Standard Shared Library Structure
+
+A Jenkins shared library **must follow this structure**:
+
+```
+shared-lib-repo/
+ ├── vars/
+ │    └── buildApp.groovy
+ ├── src/
+ │    └── com/company/utils.groovy
+ └── resources/
+      └── config.yaml
+```
+
+---
+
+## 📁 Key Directories Explained
+
+### 1️⃣ `vars/` – Global Pipeline Functions
+
+* Each file becomes a **global pipeline step**
+* Easy to call directly from Jenkinsfile
+
+Example:
+
+```
+buildApp()
+```
+
+---
+
+### 2️⃣ `src/` – Helper Classes (Advanced)
+
+* Standard Groovy classes
+* Used for complex logic
+
+Example:
+
+```
+import com.company.Utils
+Utils.deploy()
+```
+
+---
+
+### 3️⃣ `resources/` – Static Files
+
+* YAML / JSON / templates
+* Loaded at runtime
+
+---
+
+## 📌 Example: Simple Shared Library
+
+### 🔹 `vars/buildApp.groovy`
+
+```
+def call() {
+  stage('Build') {
+    sh 'mvn clean package'
+  }
+}
+```
+
+---
+
+## 📌 Using Shared Library in Jenkinsfile
+
+```
+@Library('my-shared-lib') _
+
+pipeline {
+  agent any
+  stages {
+    stage('CI') {
+      steps {
+        buildApp()
+      }
+    }
+  }
+}
+```
+
+✔️ Pipeline stays clean & readable
+
+---
+
+## 🔄 Shared Library Loading Types
+
+### 1️⃣ Global Library (Recommended)
+
+* Configured in Jenkins UI
+* Auto-available to all pipelines
+
+### 2️⃣ Folder-Level Library
+
+* Scoped to a folder
+* Used by a specific team
+
+### 3️⃣ Inline Library
+
+* Loaded directly in Jenkinsfile
+
+---
+
+## 🌿 Versioning Shared Libraries
+
+You can pin library versions:
+
+```
+@Library('my-shared-lib@v1.2') _
+```
+
+Options:
+
+* Branch
+* Tag
+* Commit SHA
+
+---
+
+## 🧩 Real-World Example (Enterprise)
+
+### Scenario
+
+Company has **50 microservices**.
+
+Shared logic:
+
+* Build Docker image
+* Push to registry
+* Deploy to Kubernetes
+
+Instead of repeating code:
+
+```
+buildDocker()
+pushImage()
+deployK8s()
+```
+
+All logic lives in **one shared library**.
+
+---
+
+## 🆚 Shared Libraries vs Copy-Paste
+
+| Feature          | Copy-Paste | Shared Library |
+| ---------------- | ---------- | -------------- |
+| Reusability      | ❌          | ✅              |
+| Maintainability  | ❌          | ✅              |
+| Version control  | ❌          | ✅              |
+| Enterprise-ready | ❌          | ✅              |
+
+---
+
+## ⚠️ Best Practices
+
+* ✅ Keep libraries small & focused
+* ✅ Version libraries
+* ❌ Avoid heavy logic in Jenkinsfile
+* ❌ Don’t hardcode credentials
+
+---
+
+## 🎤 Interview Golden Lines
+
+* 📚 *Shared libraries enable reusable, versioned Jenkins pipeline logic*
+* 🧩 *They help scale CI/CD across teams*
+* 🔄 *Changes propagate without touching Jenkinsfiles*
+
+---
+
+## 💡 Pro Interview Tip
+
+> “Shared libraries are essential when Jenkins pipelines need to scale across multiple teams and services.”
+
+---
+
+Want next?
+
+* Advanced shared library patterns
+* Library testing strategies
+* Shared libraries with Kubernetes & Helm
+* Common mistakes in shared libraries
+
+Just s
