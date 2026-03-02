@@ -199,7 +199,8 @@ GET /users/10
 
 ---
 
-## 7️⃣ Six REST Constraints (System Rules) - Important
+## **Six REST Constraints (System Rules) - Important**
+
 
 Let’s understand them like **system rules**.
 
