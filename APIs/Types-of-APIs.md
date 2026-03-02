@@ -273,23 +273,3 @@ Client ⇄ Server (open connection)
 
 ---
 
-## 🎯 DevOps Takeaway
-
-As a DevOps engineer:
-
-* You mostly **consume REST**
-* You sometimes **support GraphQL**
-* You often **run gRPC internally**
-* You **monitor WebSockets**, not design them
-
----
-
-## ⏭ What’s Next (Part 3)
-
-Choose one:
-
-1️⃣ Real DevOps APIs (Jenkins, Kubernetes, AWS, Terraform) with curl examples
-2️⃣ API Security + Monitoring (JWT, OAuth, rate limits, Prometheus)
-3️⃣ Architecture patterns (API Gateway, BFF, Service Mesh)
-
-👉 Reply with **NEXT: <number>**
