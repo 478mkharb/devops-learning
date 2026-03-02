@@ -247,3 +247,110 @@ What actually happens:
 * Ideal for locked‑down cloud environments
 
 ---
+# AWS SSM Networking – 5 Interview Questions with Answers 🎯
+
+These questions focus on **AWS SSM networking (ports, SG, NACL)** and **Ansible + SSM**, exactly the depth expected in **mid–senior DevOps interviews**.
+
+---
+
+## 1️⃣ What ports are required for AWS Systems Manager (SSM)?
+
+### ✅ Answer
+
+AWS SSM requires **only outbound HTTPS (TCP 443)** from the EC2 instance.
+
+* ❌ No inbound ports are required
+* ❌ SSH (22) is NOT needed
+* ❌ RDP (3389) is NOT needed
+
+The SSM Agent communicates with AWS services using **outbound HTTPS connections only**.
+
+📌 This is why SSM works in locked-down environments.
+
+---
+
+## 2️⃣ What Security Group rules are needed for SSM to work?
+
+### ✅ Answer
+
+Security Groups are **stateful**, so configuration is simple:
+
+**Inbound rules:**
+
+* ❌ None required
+
+**Outbound rules:**
+
+* ✅ Allow TCP 443 to AWS (or 0.0.0.0/0)
+
+Because SGs are stateful, return traffic is automatically allowed.
+
+---
+
+## 3️⃣ What Network ACL rules are required for SSM and why are they different from SGs?
+
+### ✅ Answer
+
+NACLs are **stateless**, so both request and response traffic must be explicitly allowed.
+
+**Outbound NACL rules:**
+
+* ✅ Allow TCP 443 (EC2 → AWS)
+
+**Inbound NACL rules:**
+
+* ✅ Allow TCP 1024–65535 (ephemeral ports)
+
+The ephemeral ports are required for **return traffic from AWS services**.
+
+📌 This difference is a very common production issue.
+
+---
+
+## 4️⃣ Why does AWS SSM not require any inbound ports on EC2 instances?
+
+### ✅ Answer
+
+SSM uses an **agent-based, outbound-only model**:
+
+* The SSM Agent runs on the EC2 instance
+* It maintains an outbound HTTPS connection to AWS
+* AWS never initiates a connection to the instance
+
+This design:
+
+* Improves security
+* Eliminates bastion hosts
+* Avoids inbound firewall rules
+
+---
+
+## 5️⃣ How does Ansible use AWS SSM without opening SSH ports?
+
+### ✅ Answer
+
+Ansible does **not connect to the EC2 instance** when using SSM.
+
+Flow:
+
+```text
+Ansible → AWS SSM API → SSM Service → SSM Agent → EC2
+```
+
+* Ansible uses the `aws_ssm` connection plugin
+* Communicates with AWS via APIs (HTTPS 443)
+* The SSM Agent executes commands locally
+
+📌 SSH is completely bypassed.
+
+---
+
+## Interview Summary (Quick Revision 🧠)
+
+* SSM → outbound HTTPS only
+* SG → outbound 443 is enough
+* NACL → outbound 443 + inbound ephemeral ports
+* No inbound access ever
+* Ansible talks to AWS, not EC2
+
+---
