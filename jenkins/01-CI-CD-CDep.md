@@ -128,6 +128,8 @@ Continuous Delivery ensures that **every successful CI build is always ready for
       v
 🌍 Deploy to Production
 ```
+👉 UAT stands for User Acceptance Testing.
+It’s the final testing phase where real users or business stakeholders verify that the application works as expected from a business point of view.
 
 👉 ❓ *Checkpoint:* Is the release approved by humans?
 
