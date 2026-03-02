@@ -128,7 +128,13 @@ Continuous Delivery ensures that **every successful CI build is always ready for
       v
 🌍 Deploy to Production
 ```
-👉 UAT stands for User Acceptance Testing.
+### 🚧 What does “Deployed to Staging” mean?
+
+Deployed to staging means:
+👉 The application is released to a pre-production environment that closely mirrors production, so it can be tested safely before real users see it.
+
+Think of staging as a rehearsal before the live show 🎭.
+### UAT stands for User Acceptance Testing.
 It’s the final testing phase where real users or business stakeholders verify that the application works as expected from a business point of view.
 
 👉 ❓ *Checkpoint:* Is the release approved by humans?
