@@ -6,9 +6,83 @@ This explains **end-to-end** how a **Git webhook automatically triggers a Jenkin
 
 ## 🧠 What is a Git Webhook?
 
-A **Git webhook** is an **HTTP callback** sent by Git (GitHub/GitLab/Bitbucket) to Jenkins **when a Git event is created**.
+A **Git webhook** is a real-world implementation of an **HTTP callback**.
 
-👉 Key point: **Jenkins does NOT create the event — Git does**.
+👉 When a Git event occurs, Git **calls back** Jenkins using an HTTP request.
+
+---
+
+## 🌐 What is an HTTP Callback? (Core Concept)
+
+### 🧠 Definition
+
+An **HTTP callback** is an **HTTP request sent by one system to another system to notify it that an event has occurred**.
+
+👉 Instead of repeatedly checking (polling), the sender **notifies automatically**.
+
+---
+
+### 📞 Simple Analogy
+
+* ❌ Polling: *"Did something happen? Did something happen?"*
+* ✅ Callback: *"I’ll call you when it happens."*
+
+That **call** = HTTP callback ☎️
+
+---
+
+### 🔔 HTTP Callback in Git → Jenkins
+
+| Role              | System                |
+| ----------------- | --------------------- |
+| Event creator     | Git (GitHub / GitLab) |
+| Callback sender   | Git                   |
+| Callback receiver | Jenkins               |
+
+---
+
+### 🔄 Callback Flow (Important)
+
+```
+Developer Action
+   ↓
+Git Server creates event
+   ↓
+Git sends HTTP POST (callback)
+   ↓
+Jenkins webhook endpoint
+   ↓
+Pipeline is triggered
+```
+
+---
+
+### 📦 Callback Payload (Simplified)
+
+```
+POST /github-webhook/
+{
+  "event": "push",
+  "repo": "payment-service",
+  "branch": "main",
+  "commit": "abc123"
+}
+```
+
+---
+
+## ⚡ How Is a Git Event Created? (Very Important)
+
+A **Git event is created automatically inside the Git server** when a specific action happens in the repository.
+
+### 🧩 Common Git Events
+
+Git providers generate events for actions like:
+
+* 📤 `push`
+* 🔀 `pull_request` / `merge_request`
+* 🏷️ tag creation
+* 🗑️ branch deletion
 
 ---
 
