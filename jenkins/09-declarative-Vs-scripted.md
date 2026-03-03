@@ -222,7 +222,7 @@ steps
 ## 🎤 Interview One-Liners
 
 * 📜 *Declarative pipeline is structured and recommended*
-* 📜 *Jenkins validates Declarative pipeline **before execution** whereas Errors appear in Scripted pipeline **during execution**
+* 📜 *Jenkins validates Declarative pipeline **before execution** whereas Errors appear in Scripted pipeline **during execution***
 * 🧠 *Scripted pipeline offers maximum flexibility*
 * ⚖️ *Declarative for standard CI/CD, Scripted for complex logic*
 
