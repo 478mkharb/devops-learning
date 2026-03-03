@@ -17,6 +17,7 @@ Git stores everything as **objects**:
 ```
 Commit → Tree → Blobs
 ```
+<img width="987" height="544" alt="image" src="https://github.com/user-attachments/assets/4035175a-c136-4489-a26d-2f721cfc4e68" />
 
 ---
 
