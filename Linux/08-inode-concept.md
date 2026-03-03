@@ -26,6 +26,25 @@ Each inode contains:
 
 ---
 
+## 🔗 Inode–Directory Mapping Diagram
+
+```text
+Directory (/)                     Inode Table                  Data Blocks
+-----------------                -----------------             ----------------
+file1.txt  ───────────────▶  [Inode 101]  ───────────────▶  [Data Block A]
+file2.log  ───────────────▶  [Inode 102]  ───────────────▶  [Data Block B]
+file3.txt  ───────────────▶  [Inode 101]  ───────────────▶  [Data Block A]
+```
+
+📌 Explanation:
+
+* Directory stores **filename → inode number mapping** 🗂️
+* Inode stores **metadata + pointers to data blocks** 🧠
+* Actual file content is stored in **data blocks** 💾
+* `file1.txt` and `file3.txt` are **hard links** (same inode)
+
+---
+
 ## 🔗 Relationship Between Filename and Inode
 
 * A **filename** is just a human-readable label 🏷️
