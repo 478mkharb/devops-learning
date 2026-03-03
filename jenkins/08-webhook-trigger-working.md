@@ -79,21 +79,6 @@ A **Git event is created automatically inside the Git server** when a specific a
 
 Git providers generate events for actions like:
 
-* 📤 `push`
-* 🔀 `pull_request` / `merge_request`
-* 🏷️ tag creation
-* 🗑️ branch deletion
-
----
-
-## ⚡ How Is a Git Event Created? (Very Important)
-
-A **Git event is created automatically inside the Git server** when a specific action happens in the repository.
-
-### 🧩 Common Git Events
-
-Git providers generate events for actions like:
-
 * 📤 `push` (most common for CI)
 * 🔀 `pull_request` / `merge_request`
 * 🏷️ `tag creation`
@@ -381,12 +366,3 @@ Each branch gets its **own pipeline run**.
 > “In multibranch pipelines, webhooks trigger branch indexing, which then triggers the correct pipeline.”
 
 ---
-
-Want next?
-
-* GitHub vs GitLab webhook differences
-* Webhook troubleshooting
-* Jenkins webhook security
-* Webhooks in Kubernetes-based Jenkins
-
-Just say 👍
