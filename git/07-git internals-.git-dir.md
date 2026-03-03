@@ -265,11 +265,3 @@ Understanding this helps explain:
 * Git = **stateful system**
 
 ---
-
-If you want next:
-
-* 🔬 How Git branches are lightweight (internals)
-* 🚨 Git disaster recovery scenarios
-* 🧠 Git vs SVN internals (interview bonus)
-
-Just say 👍
