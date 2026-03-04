@@ -282,6 +282,45 @@ Terraform will:
 
 ---
 
+# 🔒 Terraform Lock File – Purpose (Brief)
+
+Terraform automatically creates a **dependency lock file**:
+
+```
+.terraform.lock.hcl
+```
+
+It is generated when running:
+
+```
+terraform init
+```
+
+### Purpose
+
+The lock file **pins the exact versions of provider plugins** used in the project so that every user and CI/CD pipeline installs the **same provider versions**.
+
+Example entry:
+
+```
+provider "registry.terraform.io/hashicorp/aws" {
+  version = "5.0.0"
+}
+```
+
+### Why It Is Important
+
+* Ensures **consistent Terraform runs** across machines
+* Prevents unexpected provider upgrades
+* Stores **checksums** to verify provider integrity
+* Makes builds **reproducible in CI/CD pipelines**
+
+### Best Practice
+
+Always **commit `.terraform.lock.hcl` to version control (Git)** so the whole team uses the same provider versions.
+
+---
+
 # 🎤 Interview One-Line Answer
 
 `terraform init` initializes the Terraform working directory by downloading provider plugins, configuring the backend, installing modules, and creating the dependency lock file required for Terraform operations.
