@@ -293,3 +293,176 @@ These deployment strategies are commonly implemented using:
 * Application Load Balancers
 * Route53
 * ECS / EKS
+
+---
+
+# Role of ALB and ASG in Deployment Strategies
+
+In AWS production environments, **Application Load Balancer (ALB)** and **Auto Scaling Groups (ASG)** are key components that enable safe deployments with minimal downtime.
+
+They work together to:
+
+* distribute traffic
+* launch new instances
+* remove unhealthy instances
+* shift traffic gradually between versions
+
+---
+
+# 1. Auto Scaling Group (ASG) Role in Deployments
+
+ASG manages the **lifecycle of EC2 instances** during deployments.
+
+Responsibilities:
+
+* Launch new instances with the new version
+* Maintain desired capacity
+* Replace unhealthy instances
+* Terminate old instances after deployment
+
+Example deployment flow:
+
+```
+ASG launches new EC2 instances (v2)
+        │
+        ▼
+Instances pass health checks
+        │
+        ▼
+Old instances (v1) are terminated
+```
+
+ASG also supports:
+
+* Rolling updates
+* Instance refresh
+* Lifecycle hooks
+
+These features help automate deployments safely.
+
+---
+
+# 2. Application Load Balancer (ALB) Role in Deployments
+
+ALB controls **how traffic is routed between application versions**.
+
+It helps ensure that users only reach **healthy instances**.
+
+Responsibilities:
+
+* Distribute traffic across instances
+* Perform health checks
+* Route traffic to specific target groups
+* Enable gradual traffic shifting
+
+Example ALB routing:
+
+```
+Users
+  │
+  ▼
+Application Load Balancer
+  │
+  ├── Target Group Blue (v1)
+  │
+  └── Target Group Green (v2)
+```
+
+ALB can also support:
+
+* path based routing
+* host based routing
+* weighted traffic shifting
+
+---
+
+# 3. Example: Blue-Green Deployment with ALB and ASG
+
+```
+Users
+   │
+   ▼
+Application Load Balancer
+   │
+   ├── Target Group Blue
+   │        │
+   │        ▼
+   │     ASG Blue
+   │     EC2 (v1)
+   │
+   └── Target Group Green
+            │
+            ▼
+         ASG Green
+         EC2 (v2)
+```
+
+Deployment process:
+
+1. ASG launches new instances (Green environment).
+2. Instances pass ALB health checks.
+3. Traffic is switched from Blue → Green.
+4. Old instances are terminated.
+
+---
+
+# 4. Example: Rolling Deployment with ASG
+
+```
+Step 1
+ASG replaces 1 instance
+
+[v2] v1 v1 v1
+
+Step 2
+
+[v2 v2] v1 v1
+
+Step 3
+
+[v2 v2 v2] v1
+
+Step 4
+
+[v2 v2 v2 v2]
+```
+
+ALB ensures traffic only goes to **healthy instances during each step**.
+
+---
+
+# 5. Example: Canary Deployment Using ALB
+
+```
+Users
+ │
+ ▼
+Application Load Balancer
+ │
+ ├── 90% → Target Group v1
+ │
+ └── 10% → Target Group v2
+```
+
+If monitoring shows no errors:
+
+```
+50% → v2
+100% → v2
+```
+
+---
+
+# Key Takeaway
+
+```
+ASG = manages instances
+ALB = manages traffic
+```
+
+Together they enable:
+
+* rolling deployments
+* blue green deployments
+* canary releases
+* zero downtime deployments
