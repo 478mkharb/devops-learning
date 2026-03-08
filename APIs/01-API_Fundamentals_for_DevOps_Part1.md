@@ -1,10 +1,6 @@
 # 🚀 API – Complete Guide (DevOps & System Design)
 
-[![API](https://img.shields.io/badge/API-Concept-blue)](#-1-what-is-an-api)
-
-[![REST](https://img.shields.io/badge/REST-Architecture-green)](#-12-what-is-rest)
-
-[![DevOps](https://img.shields.io/badge/DevOps-Learning-orange)](https://github.com)
+[![API](https://img.shields.io/badge/API-Concept-blue)](#-1-what-is-an-api) [![REST](https://img.shields.io/badge/REST-Architecture-green)](#-12-what-is-rest) [![DevOps](https://img.shields.io/badge/DevOps-Learning-orange)](https://github.com)
 
 A **beginner → advanced guide** to understand APIs, REST, RESTful services, Web Services, and modern API‑driven architecture used in **cloud, DevOps, and microservices systems**.
 
