@@ -1,0 +1,606 @@
+# DevOps L2 Mock Interview – Revision Notes
+
+## 1. Linux Troubleshooting – Server Slow Scenario
+
+### Interview Question
+
+A production server suddenly becomes slow and API response time increases significantly. What troubleshooting steps would you take?
+
+### Structured Troubleshooting Approach
+
+#### Step 1 – Check System Load
+
+Command:
+
+```
+uptime
+```
+
+or
+
+```
+top
+```
+
+Reason:
+Identify system load and compare with number of CPU cores.
+
+---
+
+#### Step 2 – Identify CPU-consuming Processes
+
+Command:
+
+```
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head
+```
+
+or
+
+```
+top
+```
+
+Reason:
+Find processes consuming excessive CPU.
+
+---
+
+#### Step 3 – Check Memory Usage
+
+Command:
+
+```
+free -m
+```
+
+Check for OOM events:
+
+```
+dmesg | grep -i oom
+```
+
+---
+
+#### Step 4 – Check Disk Usage
+
+Command:
+
+```
+df -h
+```
+
+Reason:
+If disk reaches 100%, applications become slow or fail.
+
+---
+
+#### Step 5 – Check Inode Usage
+
+Command:
+
+```
+df -i
+```
+
+Reason:
+If inodes are exhausted, new files cannot be created even if disk space exists.
+
+---
+
+#### Step 6 – Check Disk I/O
+
+Command:
+
+```
+iostat -x 1
+```
+
+or
+
+```
+iotop
+```
+
+High I/O wait indicates disk bottleneck.
+
+---
+
+#### Step 7 – Check Network
+
+Command:
+
+```
+ss -tulpn
+```
+
+Check for abnormal number of connections.
+
+---
+
+#### Step 8 – Check Logs
+
+Command:
+
+```
+journalctl -xe
+```
+
+Also inspect:
+
+```
+/var/log/syslog
+/var/log/messages
+```
+
+---
+
+## 2. Linux Load Average
+
+### Interview Question
+
+What does load average mean in Linux?
+
+### Definition
+
+Load average represents the number of processes that are:
+
+* Running on CPU
+* Waiting for CPU
+* Waiting for uninterruptible I/O
+
+States counted:
+
+* R (Running)
+* D (Uninterruptible sleep – usually disk I/O)
+
+---
+
+### Load Average Interpretation
+
+Example:
+
+```
+load average: 12.15, 11.90, 10.50
+```
+
+| Value | Meaning         |
+| ----- | --------------- |
+| 12.15 | Last 1 minute   |
+| 11.90 | Last 5 minutes  |
+| 10.50 | Last 15 minutes |
+
+---
+
+### CPU Core Rule
+
+Healthy load ≈ Number of CPU cores
+
+Example:
+
+4 CPU cores:
+
+| Load | Meaning          |
+| ---- | ---------------- |
+| 1    | One CPU utilized |
+| 4    | Full utilization |
+| 8    | Overloaded       |
+| 12   | Severe overload  |
+
+---
+
+## 3. Kubernetes CrashLoopBackOff
+
+### Interview Question
+
+What does CrashLoopBackOff mean and how do you troubleshoot it?
+
+### Meaning
+
+CrashLoopBackOff occurs when:
+
+Container starts → crashes → Kubernetes restarts it → crashes again.
+
+Kubernetes applies exponential restart delay:
+
+10s → 20s → 40s → 80s.
+
+---
+
+### Troubleshooting Steps
+
+#### Step 1 – Check Pod Status
+
+```
+kubectl get pods -n <namespace>
+```
+
+---
+
+#### Step 2 – Describe Pod
+
+```
+kubectl describe pod <podname> -n <namespace>
+```
+
+Look for:
+
+* Events
+* Restart count
+* Probe failures
+
+---
+
+#### Step 3 – Check Logs
+
+```
+kubectl logs <podname>
+```
+
+If container restarted:
+
+```
+kubectl logs <podname> --previous
+```
+
+---
+
+#### Step 4 – Check Exit Codes
+
+Example:
+
+Exit Code 137 → OOMKilled
+
+---
+
+### Common Causes
+
+| Cause                          | Explanation                           |
+| ------------------------------ | ------------------------------------- |
+| Application crash              | Code error                            |
+| OOMKilled                      | Memory limit exceeded                 |
+| Liveness probe failure         | Kubernetes keeps restarting container |
+| Missing environment variables  | App fails during startup              |
+| Missing ConfigMap/Secret       | Configuration missing                 |
+| Dependency service unavailable | Cannot connect to DB or API           |
+
+---
+
+## 4. Kubernetes Cross-Namespace Communication
+
+### Interview Question
+
+How do pods communicate across namespaces?
+
+### Kubernetes Service DNS
+
+Format:
+
+```
+service-name.namespace.svc.cluster.local
+```
+
+Example:
+
+```
+orders-service.orders.svc.cluster.local
+```
+
+Short DNS also works:
+
+```
+orders-service.orders
+```
+
+---
+
+### Troubleshooting Steps
+
+#### Step 1 – Verify Service
+
+```
+kubectl get svc -n orders
+```
+
+---
+
+#### Step 2 – Check Endpoints
+
+```
+kubectl get endpoints orders-service -n orders
+```
+
+If endpoints are empty, service is not linked to pods.
+
+---
+
+#### Step 3 – Check Labels
+
+Service uses label selectors.
+
+Check service selector:
+
+```
+kubectl describe svc orders-service
+```
+
+Check pod labels:
+
+```
+kubectl get pods --show-labels
+```
+
+---
+
+#### Step 4 – Test DNS Inside Pod
+
+```
+kubectl exec -it payments-pod -n payments -- sh
+```
+
+Test DNS:
+
+```
+nslookup orders-service.orders
+```
+
+Test connectivity:
+
+```
+curl orders-service.orders:8080
+```
+
+---
+
+#### Step 5 – Check Network Policies
+
+```
+kubectl get networkpolicy -A
+```
+
+Network policies can block traffic.
+
+---
+
+## 5. CI/CD Failure – Docker Build Error
+
+### Interview Question
+
+Jenkins pipeline fails with:
+
+```
+no space left on device
+```
+
+But server shows 200GB free disk.
+
+---
+
+### Possible Reasons
+
+1. Docker storage full
+2. Inodes exhausted
+3. Overlay filesystem full
+4. /tmp partition full
+5. Docker layer cache full
+
+---
+
+### Troubleshooting Steps
+
+#### Step 1 – Check Disk Usage
+
+```
+df -h
+```
+
+---
+
+#### Step 2 – Check Inodes
+
+```
+df -i
+```
+
+---
+
+#### Step 3 – Check Docker Storage
+
+```
+docker system df
+```
+
+---
+
+#### Step 4 – Check Docker Directory
+
+```
+du -sh /var/lib/docker
+```
+
+---
+
+### Cleanup Commands
+
+Remove unused Docker resources:
+
+```
+docker system prune -a
+```
+
+Remove dangling images:
+
+```
+docker image prune
+```
+
+---
+
+### Jenkins Maintenance
+
+Old builds accumulate under:
+
+```
+/var/lib/jenkins/jobs
+```
+
+Enable Jenkins feature:
+
+"Discard Old Builds"
+
+---
+
+### Best Practice Architecture
+
+Jenkins Master should only orchestrate builds.
+
+Architecture:
+
+Jenkins Master
+↓
+Jenkins Agents
+↓
+Docker Builds
+
+Benefits:
+
+* scalable
+* isolated builds
+* prevents master overload
+
+---
+### 6. Jenkins Cannot Access Kubernetes Cluster 
+
+### Interview Question
+
+Jenkins pipeline deployment to Kubernetes is failing with a connection or authentication error. Jenkins cannot access the Kubernetes cluster. How would you troubleshoot this issue?
+
+---
+
+### Answer (L2 Troubleshooting Approach)
+
+This issue typically occurs when Jenkins cannot authenticate or communicate with the Kubernetes API server. A structured troubleshooting process is expected in DevOps L2 interviews.
+
+---
+
+### Step 1 — Verify kubeconfig configuration
+
+Jenkins needs a **kubeconfig file** to know which cluster to connect to and which credentials to use.
+
+Test from the Jenkins server or agent:
+
+kubectl get nodes
+
+If this fails, Jenkins does not have proper cluster access.
+
+Common problems:
+
+* kubeconfig file missing
+* wrong API server endpoint
+* incorrect credentials
+
+---
+
+### Step 2 — Check authentication credentials
+
+Kubernetes authentication can be done using:
+
+* Service account token
+* Client certificates
+* Cloud IAM roles (EKS/GKE/AKS)
+
+Common error:
+
+"You must be logged in to the server"
+
+Fix:
+
+* Verify token in kubeconfig
+* Update credentials stored in Jenkins
+
+---
+
+### Step 3 — Verify RBAC permissions
+
+Sometimes Jenkins can connect to the cluster but does not have permission to create or modify resources.
+
+Example error:
+
+User "jenkins" cannot create deployments
+
+Check permissions:
+
+kubectl auth can-i create deployment
+
+Fix:
+Create RoleBinding or ClusterRoleBinding to give Jenkins the required permissions.
+
+---
+
+### Step 4 — Check network connectivity to Kubernetes API server
+
+Jenkins must reach the Kubernetes API server (usually port **6443**).
+
+Test connectivity:
+
+curl https://<k8s-api-server>:6443
+
+Possible causes:
+
+* firewall blocking traffic
+* security group restriction
+* private cluster endpoint
+
+---
+
+### Step 5 — Verify kubectl availability on Jenkins agent
+
+If the pipeline runs on an agent container, kubectl might not be installed.
+
+Example error:
+
+kubectl: command not found
+
+Fix:
+
+* Install kubectl on Jenkins node
+* Use a Docker image containing kubectl
+
+---
+
+### Step 6 — Check Jenkins Kubernetes plugin configuration
+
+If Jenkins dynamically creates agents using Kubernetes plugin:
+
+Manage Jenkins → Configure System → Kubernetes Cloud
+
+Verify:
+
+* Kubernetes API URL
+* credentials
+* namespace
+
+---
+
+### Step 7 — Verify correct cluster context
+
+Sometimes kubeconfig contains multiple clusters and the wrong context is selected.
+
+Check:
+
+kubectl config current-context
+
+Switch if necessary.
+
+---
+
+### Step 8 — Check Jenkins logs
+
+Logs often show authentication or connectivity errors.
+
+Typical location:
+
+/var/log/jenkins/jenkins.log
+
+---
+
