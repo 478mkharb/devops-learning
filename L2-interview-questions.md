@@ -968,7 +968,7 @@ systemctl restart jenkins
 
 ---
 
-## 10. Pod Running But Application Not Accessible
+## Pod Running But Application Not Accessible
 
 ### Steps
 
@@ -1007,5 +1007,313 @@ kubectl logs <pod>
 * label mismatch
 * wrong targetPort
 * readiness probe failing
+
+---
+
+# Maven Question
+
+## Scenario
+
+Jenkins Maven build fails with:
+
+```
+Could not resolve dependencies for project
+```
+
+## Troubleshooting Steps
+
+### Step 1: Check Jenkins build logs
+
+```
+mvn clean install
+```
+
+Look for the exact dependency error.
+
+### Step 2: Check pom.xml
+
+Example dependency:
+
+```
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-core</artifactId>
+  <version>5.2.0</version>
+</dependency>
+```
+
+Verify:
+
+* dependency version exists
+* groupId and artifactId correct
+
+### Step 3: Check Maven repository connectivity
+
+```
+curl https://repo.maven.apache.org
+```
+
+### Step 4: Clear corrupted Maven cache
+
+```
+rm -rf ~/.m2/repository
+```
+
+### Root Causes
+
+* dependency version removed
+* corrupted .m2 cache
+* repository connectivity issue
+
+---
+
+# Maven Question
+
+## Scenario
+
+Maven build time increased from 5 minutes to 20 minutes.
+
+## Troubleshooting
+
+### Check Maven cache
+
+```
+ls ~/.m2/repository
+```
+
+If deleted, dependencies are re-downloaded.
+
+### Check if tests are running
+
+```
+mvn clean install -DskipTests
+```
+
+### Enable parallel builds
+
+```
+mvn clean install -T 1C
+```
+
+### Check Jenkins agent resources
+
+```
+top
+free -h
+```
+
+### Possible Causes
+
+* missing .m2 cache
+* tests executing
+* low CPU/memory
+
+---
+
+# CI/CD Question
+
+## Scenario
+
+Jenkins pipeline fails with:
+
+```
+Cannot connect to the Docker daemon
+```
+
+## Troubleshooting
+
+### Check Docker installation
+
+```
+docker --version
+```
+
+### Check Docker service
+
+```
+systemctl status docker
+```
+
+Start Docker
+
+```
+systemctl start docker
+```
+
+### Check Jenkins permissions
+
+```
+groups jenkins
+```
+
+Add Jenkins to docker group
+
+```
+usermod -aG docker jenkins
+systemctl restart jenkins
+```
+
+### Check docker socket
+
+```
+ls -l /var/run/docker.sock
+```
+
+---
+
+# CI/CD Question
+
+## Scenario
+
+Jenkins pipeline succeeds but new application version is not deployed to Kubernetes.
+
+## Troubleshooting
+
+### Check Jenkins deployment stage
+
+Verify pipeline step:
+
+```
+kubectl apply -f deployment.yaml
+```
+
+### Check Kubernetes deployment
+
+```
+kubectl get deployments
+```
+
+### Check rollout status
+
+```
+kubectl rollout status deployment/app
+```
+
+### Verify image version
+
+```
+kubectl describe deployment app
+```
+
+Possible Issue:
+
+* same image tag used
+* rollout not triggered
+
+Fix:
+
+```
+kubectl rollout restart deployment app
+```
+
+---
+
+# Ansible Question
+
+## Scenario
+
+Playbook fails with:
+
+```
+UNREACHABLE! Failed to connect via ssh
+```
+
+## Troubleshooting
+
+### Test Ansible connectivity
+
+```
+ansible all -m ping
+```
+
+### Verify inventory
+
+```
+ansible-inventory --list
+```
+
+### Test SSH manually
+
+```
+ssh user@host
+```
+
+### Configure SSH key
+
+```
+ssh-keygen
+ssh-copy-id user@host
+```
+
+### Root Causes
+
+* wrong SSH key
+* wrong username
+* port 22 blocked
+
+---
+
+# Ansible Question
+
+## Scenario
+
+Ansible playbook runs successfully but configuration is not applied.
+
+## Troubleshooting
+
+Check playbook execution
+
+```
+ansible-playbook playbook.yml -vvv
+```
+
+Check task results.
+
+Verify module execution.
+
+Example:
+
+```
+ansible webservers -m shell -a "nginx -v"
+```
+
+Check idempotency issues.
+
+---
+
+
+# Linux Question
+
+## Scenario
+
+Disk space suddenly becomes full.
+
+## Troubleshooting
+
+Check filesystem usage
+
+```
+df -h
+```
+
+Find large directories
+
+```
+du -sh /*
+```
+
+Check log files
+
+```
+/var/log
+```
+
+Clear logs
+
+```
+truncate -s 0 /var/log/app.log
+```
+
+Use logrotate.
 
 ---
