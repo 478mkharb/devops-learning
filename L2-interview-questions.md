@@ -604,3 +604,408 @@ Typical location:
 
 ---
 
+## Kubernetes Pod Stuck in Pending
+
+### Problem
+
+Deployment has 3 replicas but one pod shows **Pending**.
+
+### Troubleshooting Steps
+
+1. Check pod status
+
+```
+kubectl get pods -o wide
+```
+
+2. Describe the pod (most important)
+
+```
+kubectl describe pod <pod-name>
+```
+
+Look at **Events** section.
+
+Possible messages:
+
+* insufficient CPU
+* node selector mismatch
+* PVC not bound
+
+3. Check cluster nodes
+
+```
+kubectl get nodes
+kubectl describe node <node-name>
+```
+
+4. Check ResourceQuota
+
+```
+kubectl get resourcequota -n <namespace>
+```
+
+5. Check PVC
+
+```
+kubectl get pvc
+kubectl describe pvc <pvc-name>
+```
+
+### Example Root Causes
+
+* insufficient CPU/memory
+* node selector mismatch
+* storage unavailable
+
+---
+
+## Kubernetes ImagePullBackOff
+
+### Problem
+
+Pod fails with **ImagePullBackOff**.
+
+### Troubleshooting Steps
+
+1. Check pods
+
+```
+kubectl get pods
+```
+
+2. Describe pod
+
+```
+kubectl describe pod <pod-name>
+```
+
+3. Verify image exists
+   Check container registry.
+
+4. Check imagePullSecrets
+
+```
+kubectl get secrets
+```
+
+### Example Fix
+
+Build and push image:
+
+```
+docker build -t myapp:v1 .
+docker push myrepo/myapp:v1
+```
+
+---
+
+## Linux Server Slow
+
+### Steps
+
+1. Check load
+
+```
+uptime
+```
+
+2. Check CPU
+
+```
+top
+```
+
+3. Check memory
+
+```
+free -h
+```
+
+4. Check processes
+
+```
+ps aux --sort=-%cpu | head
+```
+
+5. Check disk
+
+```
+df -h
+```
+
+6. Check IO
+
+```
+iostat -x 1
+```
+
+### Example Causes
+
+* memory leak
+* high CPU process
+* disk full
+
+---
+
+## Git Commit Pushed to Wrong Branch
+
+### Scenario
+
+Commit pushed to **main instead of dev**.
+
+### Steps
+
+1. Find commit
+
+```
+git log
+```
+
+2. Switch to dev
+
+```
+git checkout dev
+```
+
+3. Cherry pick commit
+
+```
+git cherry-pick <commit-id>
+```
+
+4. Push branch
+
+```
+git push origin dev
+```
+
+5. Remove from main
+
+```
+git revert <commit-id>
+```
+
+---
+
+## AWS EC2 Website Not Reachable
+
+### Check AWS Networking
+
+1. Security Group
+
+* allow port 80/443
+
+2. Network ACL
+
+3. Route table
+
+```
+0.0.0.0/0 → Internet Gateway
+```
+
+### Check Server
+
+Check service
+
+```
+systemctl status nginx
+```
+
+Check port
+
+```
+ss -tulpn
+```
+
+Check logs
+
+```
+tail -f /var/log/nginx/error.log
+```
+
+---
+
+## Terraform Resource Already Exists
+
+### Solution: Import resource
+
+1. Write resource block
+
+```
+resource "aws_instance" "web" {
+}
+```
+
+2. Import resource
+
+```
+terraform import aws_instance.web i-123456789
+```
+
+3. Verify state
+
+```
+terraform state list
+```
+
+4. Run plan
+
+```
+terraform plan
+```
+
+---
+
+## Docker Container Exits Immediately
+
+### Steps
+
+1. Check container
+
+```
+docker ps -a
+```
+
+2. Check logs
+
+```
+docker logs <container-id>
+```
+
+3. Inspect container
+
+```
+docker inspect <container-id>
+```
+
+4. Run interactive shell
+
+```
+docker run -it <image> /bin/bash
+```
+
+### Common Reasons
+
+* application crash
+* wrong CMD
+* missing environment variables
+
+---
+
+## Ansible SSH UNREACHABLE
+
+### Steps
+
+1. Test ansible connectivity
+
+```
+ansible all -m ping
+```
+
+2. Verify inventory
+
+```
+ansible-inventory --list
+```
+
+3. Test manual SSH
+
+```
+ssh user@host
+```
+
+4. Configure key
+
+```
+ssh-keygen
+ssh-copy-id user@host
+```
+
+### Possible Causes
+
+* SSH key missing
+* wrong user
+* firewall blocking port 22
+
+---
+
+## Jenkins OutOfMemoryError
+
+### Steps
+
+Check logs
+
+```
+journalctl -u jenkins
+```
+
+Check system memory
+
+```
+free -h
+```
+
+Increase heap size
+
+Edit:
+
+```
+/etc/default/jenkins
+```
+
+Example
+
+```
+JENKINS_JAVA_OPTIONS="-Xms2g -Xmx4g"
+```
+
+Restart Jenkins
+
+```
+systemctl restart jenkins
+```
+
+---
+
+## 10. Pod Running But Application Not Accessible
+
+### Steps
+
+1. Check pods
+
+```
+kubectl get pods
+```
+
+2. Check service
+
+```
+kubectl get svc
+```
+
+3. Check endpoints
+
+```
+kubectl get endpoints <service>
+```
+
+4. Verify labels
+
+```
+kubectl get pods --show-labels
+```
+
+5. Check logs
+
+```
+kubectl logs <pod>
+```
+
+### Example Issues
+
+* label mismatch
+* wrong targetPort
+* readiness probe failing
+
+---
