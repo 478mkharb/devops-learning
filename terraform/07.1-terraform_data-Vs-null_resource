@@ -1,0 +1,272 @@
+# Terraform `terraform_data` vs `null_resource` (Detailed Guide)
+
+## 1. Overview
+
+Terraform historically used **`null_resource`** when engineers needed to run scripts or trigger actions that were not directly related to infrastructure creation. However, `null_resource` had several design problems.
+
+Terraform introduced **`terraform_data`** as a safer and more predictable replacement.
+
+Both resources do **not create cloud infrastructure**, but they are used for **orchestration and triggering logic inside Terraform**.
+
+---
+
+# 2. `null_resource`
+
+## Purpose
+
+`null_resource` is used as a **container for provisioners** or automation steps.
+
+It allows Terraform to execute:
+
+* shell scripts
+* remote commands
+* configuration tasks
+
+It was commonly used before configuration tools like Ansible were integrated.
+
+---
+
+## Example: Using `null_resource` to Run a Script
+
+```hcl
+resource "aws_instance" "web" {
+  ami           = "ami-123456"
+  instance_type = "t2.micro"
+}
+
+resource "null_resource" "bootstrap" {
+
+  triggers = {
+    instance_id = aws_instance.web.id
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y nginx"
+    ]
+  }
+}
+```
+
+### What Happens
+
+1. Terraform creates EC2 instance
+2. `null_resource` runs after instance creation
+3. Script installs nginx
+
+Flow:
+
+```
+Terraform Apply
+      |
+Create EC2
+      |
+null_resource triggered
+      |
+Run script (install nginx)
+```
+
+---
+
+## Problem with `null_resource`
+
+`null_resource` often causes problems because:
+
+### 1. Unpredictable re‑execution
+
+If triggers change incorrectly, Terraform re-runs the script every apply.
+
+### 2. Hard to track dependencies
+
+Provisioners run outside normal Terraform resource lifecycle.
+
+### 3. State becomes messy
+
+Because Terraform cannot fully track side effects.
+
+### 4. Provisioners are discouraged
+
+Terraform documentation recommends avoiding heavy use of provisioners.
+
+---
+
+# 3. `terraform_data`
+
+Terraform introduced **`terraform_data`** to replace many `null_resource` use cases.
+
+It is part of the **Terraform built-in provider**.
+
+## Purpose
+
+`terraform_data` is used for:
+
+* storing computed values
+* creating dependency triggers
+* passing data between modules
+* replacing `null_resource` triggers
+
+---
+
+## Example: Using `terraform_data`
+
+```hcl
+resource "aws_instance" "web" {
+  ami           = "ami-123456"
+  instance_type = "t2.micro"
+}
+
+resource "terraform_data" "trigger" {
+
+  triggers_replace = [
+    aws_instance.web.id
+  ]
+}
+```
+
+### What Happens
+
+If the instance is replaced, Terraform will also replace the `terraform_data` resource.
+
+Flow:
+
+```
+EC2 recreated
+     |
+terraform_data replaced
+     |
+Dependent resources triggered
+```
+
+---
+
+# 4. Example: Cluster Bootstrap Comparison
+
+## Old Method (null_resource)
+
+```hcl
+resource "null_resource" "cluster_bootstrap" {
+
+  triggers = {
+    instance_ids = join(",", aws_instance.cluster[*].id)
+  }
+
+  provisioner "remote-exec" {
+
+    inline = [
+      "bootstrap-cluster.sh"
+    ]
+  }
+}
+```
+
+### Behaviour
+
+If any node changes → script runs again.
+
+But Terraform cannot fully track side effects.
+
+---
+
+## Modern Method (terraform_data)
+
+```hcl
+resource "terraform_data" "cluster_state" {
+
+  input = {
+    node_ips = aws_instance.cluster[*].private_ip
+  }
+}
+```
+
+Now the cluster data is stored safely inside Terraform state.
+
+Other modules can depend on it.
+
+---
+
+# 5. Key Differences
+
+| Feature                   | null_resource | terraform_data        |
+| ------------------------- | ------------- | --------------------- |
+| Creates infrastructure    | No            | No                    |
+| Stored in Terraform state | Yes           | Yes                   |
+| Main use                  | Run scripts   | Store data / triggers |
+| Provisioners supported    | Yes           | No                    |
+| Recommended by Terraform  | No            | Yes                   |
+| Deterministic behaviour   | Poor          | Better                |
+
+---
+
+# 6. When to Use Each
+
+## Use `terraform_data`
+
+When you need:
+
+* dependency triggers
+* value storage
+* orchestration between modules
+
+Example:
+
+* passing cluster node IPs
+* tracking resource changes
+
+---
+
+## Avoid `null_resource`
+
+Avoid unless absolutely necessary.
+
+Typical legacy uses:
+
+* running bootstrap scripts
+* executing shell commands
+
+Modern workflows prefer:
+
+* cloud-init
+* configuration management tools
+* container images
+
+---
+
+# 7. Real DevOps Best Practice
+
+Instead of running configuration using Terraform provisioners:
+
+Preferred architecture:
+
+```
+Terraform
+   |
+Create Infrastructure
+   |
+Cloud-init / Packer Image
+   |
+Instance boots already configured
+```
+
+This makes Terraform runs **idempotent and predictable**.
+
+---
+
+# 8. Interview Answer
+
+Difference between `terraform_data` and `null_resource`:
+
+`null_resource` is a legacy Terraform resource used mainly to run provisioners or scripts based on triggers.
+
+`terraform_data` is a modern Terraform resource used to store values and create dependency triggers inside Terraform without executing provisioners.
+
+Terraform recommends using **terraform_data instead of null_resource whenever possible**.
+
+---
+
+# 9. Key Takeaway
+
+```
+null_resource  → old workaround
+terraform_data → modern Terraform design
+```
