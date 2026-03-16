@@ -243,6 +243,205 @@ journalctl -xe
 * `chattr` → file immutability
 
 ---
+# Netcat and Nmap Commands in Linux (DevOps & Security Use Cases)
+
+## 1. Netcat (nc)
+
+Netcat is a networking utility used for reading and writing data across network connections using TCP or UDP. It is often called the **"Swiss Army knife" of networking**.
+
+### Basic Syntax
+
+```
+nc [options] host port
+```
+
+### Common Use Cases
+
+#### 1. Check if a Port is Open
+
+```
+nc -zv 192.168.1.10 80
+```
+
+* `-z` : Scan without sending data
+* `-v` : Verbose output
+
+#### 2. Start a Simple TCP Server
+
+```
+nc -l 9000
+```
+
+* `-l` : Listen mode
+
+#### 3. Send a File Between Machines
+
+Sender:
+
+```
+nc -l -p 4444 < file.txt
+```
+
+Receiver:
+
+```
+nc 192.168.1.20 4444 > file.txt
+```
+
+#### 4. Chat Between Two Machines
+
+Server:
+
+```
+nc -l 1234
+```
+
+Client:
+
+```
+nc 192.168.1.20 1234
+```
+
+#### 5. Test HTTP Service
+
+```
+echo "GET / HTTP/1.0" | nc google.com 80
+```
+
+---
+
+## 2. Nmap (Network Mapper)
+
+Nmap is a network scanning and security auditing tool used to discover hosts and services on a network.
+
+### Basic Syntax
+
+```
+nmap [scan type] [options] target
+```
+
+### Common Use Cases
+
+#### 1. Scan a Single Host
+
+```
+nmap 192.168.1.10
+```
+
+#### 2. Scan Specific Port
+
+```
+nmap -p 22 192.168.1.10
+```
+
+#### 3. Scan Multiple Ports
+
+```
+nmap -p 22,80,443 192.168.1.10
+```
+
+#### 4. Scan Entire Subnet
+
+```
+nmap 192.168.1.0/24
+```
+
+#### 5. Detect Service Version
+
+```
+nmap -sV 192.168.1.10
+```
+
+#### 6. OS Detection
+
+```
+sudo nmap -O 192.168.1.10
+```
+
+#### 7. Aggressive Scan (Most Used in Labs)
+
+```
+sudo nmap -A 192.168.1.10
+```
+
+This performs:
+
+* OS detection
+* Version detection
+* Script scanning
+* Traceroute
+
+---
+
+## Netcat vs Nmap
+
+| Feature           | Netcat                    | Nmap             |
+| ----------------- | ------------------------- | ---------------- |
+| Purpose           | Data transfer & debugging | Network scanning |
+| Port scanning     | Basic                     | Advanced         |
+| Security auditing | Limited                   | Extensive        |
+| Server creation   | Yes                       | No               |
+
+---
+
+## DevOps / Security Practical Example
+
+### Step 1: Check open port with Netcat
+
+```
+nc -zv 10.0.0.5 22
+```
+
+### Step 2: Scan host with Nmap
+
+```
+nmap -sV 10.0.0.5
+```
+
+### Step 3: Scan full network
+
+```
+nmap 10.0.0.0/24
+```
+
+This helps identify:
+
+* Running servers
+* Open ports
+* Vulnerable services
+
+---
+
+## Important Netcat Options
+
+| Option | Meaning                   |
+| ------ | ------------------------- |
+| -l     | Listen mode               |
+| -p     | Port                      |
+| -u     | UDP mode                  |
+| -v     | Verbose                   |
+| -z     | Scan without sending data |
+
+---
+
+## Important Nmap Options
+
+| Option | Meaning            |
+| ------ | ------------------ |
+| -sS    | TCP SYN scan       |
+| -sT    | TCP connect scan   |
+| -sU    | UDP scan           |
+| -p     | Port specification |
+| -A     | Aggressive scan    |
+| -O     | OS detection       |
+
+---
+
+## Interview Tip (DevOps / Security)
+
+**Netcat:** Used for debugging network services, testing connectivity, and transferring files.
+
+**Nmap:** Used for network discovery, vulnerability scanning, and security auditing.
 
 ## 💡 DevOps Tip
 
