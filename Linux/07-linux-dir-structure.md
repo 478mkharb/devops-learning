@@ -18,7 +18,7 @@ Linux follows a **single-rooted directory structure** 🌳 where everything star
 ├── root       → Root user home directory
 ├── lib        → Essential shared libraries
 ├── lib64      → 64-bit libraries
-├── usr        → User applications & libraries
+├── usr        → User System Resources
 │   ├── bin
 │   ├── sbin
 │   └── lib
