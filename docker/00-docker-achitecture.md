@@ -324,3 +324,4 @@ This architecture is the **foundation for Kubernetes**, where:
 
 * Docker (or container runtime) runs on nodes
 * Kubernetes controls containers via CRI
+<img width="1024" height="1536" alt="docker_architecture" src="https://github.com/user-attachments/assets/d8e3b9cf-2a06-454b-af6a-4da38ad1e835" />
