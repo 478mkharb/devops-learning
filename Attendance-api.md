@@ -1,4 +1,4 @@
-# 📘 Attendance API – Complete Setup & Learning Guide (No Docker)
+# 📘 Attendance API – Complete Setup & Learning Guide (EC2 Ubuntu 22 | No Docker)
 
 ---
 
@@ -25,106 +25,117 @@ Router (attendance.py)
         ↓
 Database Layer (PostgreSQL)
         ↓
-(Optional) Redis Cache
+Redis Cache
         ↓
 Response
 ```
 
 ---
 
-## 📁 Directory Structure (Important Files)
+## 📁 Project Structure (Reference)
 
-| File/Folder          | Purpose                            |
-| -------------------- | ---------------------------------- |
-| app.py               | Entry point, initializes Flask app |
-| config.yaml          | Stores DB & Redis configuration    |
-| router/attendance.py | Contains API endpoints             |
-| client/postgres      | DB connection logic                |
-| client/redis         | Redis connection logic             |
-| models               | Data structures                    |
+(From OT-Microservices repo)
+
+* app.py → Flask entry point
+* config.yaml → Config for DB & Redis
+* router/attendance.py → API routes
+* client/postgres → DB logic
+* client/redis → Cache logic
 
 ---
 
-## ⚙️ Prerequisites (Ubuntu 22 VM)
+# ⚙️ EC2 SETUP (Ubuntu 22.04)
 
-Install required tools:
+---
+
+## 🪜 STEP 1 — Launch EC2
+
+* OS: Ubuntu 22.04
+* Instance: t2.micro
+* Open Ports:
+
+  * 22 (SSH)
+  * 8000 (App)
+
+---
+
+## 🪜 STEP 2 — Connect to EC2
 
 ```bash
-sudo apt update
-sudo apt install python3.11 python3.11-venv python3-pip git postgresql redis-server -y
+ssh ubuntu@<EC2-PUBLIC-IP>
 ```
 
 ---
 
-## 🐍 Python Environment Setup
+## 🪜 STEP 3 — System Update
 
 ```bash
-cd attendance-api
-python3.11 -m venv venv
-source venv/bin/activate
-pip install poetry
-poetry install
+sudo apt update && sudo apt upgrade -y
 ```
 
 ---
 
-## 🗄️ PostgreSQL Setup
-
-Start service:
+## 🪜 STEP 4 — Install Base Packages
 
 ```bash
+sudo apt install git curl wget unzip -y
+```
+
+---
+
+## 🪜 STEP 5 — Install Python + Build Dependencies
+
+```bash
+sudo apt install python3.11 python3.11-venv python3-pip -y
+sudo apt install libpq-dev gcc -y
+```
+
+👉 Required for psycopg2 build
+
+---
+
+## 🪜 STEP 6 — Install PostgreSQL
+
+```bash
+sudo apt install postgresql postgresql-contrib -y
 sudo systemctl start postgresql
+sudo systemctl enable postgresql
 ```
 
-Open PostgreSQL:
+---
+
+### 🔹 Setup Database
 
 ```bash
 sudo -u postgres psql
 ```
 
-Create DB:
-
 ```sql
 CREATE DATABASE attendance_db;
-```
-
-Switch DB:
-
-```sql
 \c attendance_db
-```
 
-Create table:
-
-```sql
 CREATE TABLE records (
     id VARCHAR(50),
     name VARCHAR(100),
     status VARCHAR(20),
     date DATE
 );
-```
 
-Set password:
-
-```sql
 ALTER USER postgres PASSWORD 'password';
 ```
 
-Exit:
-
-```sql
+```bash
 \q
 ```
 
 ---
 
-## 🔴 Redis Setup
-
-Start Redis:
+## 🪜 STEP 7 — Install Redis
 
 ```bash
+sudo apt install redis-server -y
 sudo systemctl start redis
+sudo systemctl enable redis
 ```
 
 Test:
@@ -141,9 +152,50 @@ PONG
 
 ---
 
-## ⚙️ Config File Fix (CRITICAL)
+## 🪜 STEP 8 — Clone Repository
 
-Edit `config.yaml`:
+```bash
+git clone https://github.com/OT-MICROSERVICES/attendance-api.git
+cd attendance-api
+```
+
+---
+
+## 🪜 STEP 9 — Setup Python Virtual Environment
+
+```bash
+python3.11 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## 🪜 STEP 10 — Install Dependencies
+
+### 🔹 Option A (Recommended)
+
+```bash
+pip install poetry
+poetry install
+```
+
+---
+
+### 🔹 Option B (Manual Fixes if errors come)
+
+```bash
+pip install flask flask-caching redis psycopg2-binary
+```
+
+---
+
+## 🪜 STEP 11 — Fix Config (VERY IMPORTANT)
+
+Edit file:
+
+```bash
+nano config.yaml
+```
 
 ```yaml
 postgres:
@@ -161,16 +213,19 @@ redis:
 
 ---
 
-## 🚀 Running the Application
+## 🪜 STEP 12 — Update app.py for local run
 
-Add this in `app.py` (if not present):
+Add at bottom:
 
 ```python
 if __name__ == "__main__":
+    print("Starting Attendance API...")
     app.run(host="0.0.0.0", port=8000, debug=True)
 ```
 
-Run:
+---
+
+## 🪜 STEP 13 — Run Application
 
 ```bash
 python app.py
@@ -179,14 +234,12 @@ python app.py
 Expected:
 
 ```
-Running on http://127.0.0.1:8000
+Running on http://0.0.0.0:8000
 ```
 
 ---
 
-## 🧪 API Testing
-
-### 🔹 Health Check
+## 🪜 STEP 14 — Test API (Inside EC2)
 
 ```bash
 curl http://localhost:8000/api/v1/attendance/health
@@ -194,10 +247,20 @@ curl http://localhost:8000/api/v1/attendance/health
 
 ---
 
+## 🪜 STEP 15 — Test from Browser
+
+```text
+http://<EC2-PUBLIC-IP>:8000/api/v1/attendance/health
+```
+
+---
+
+# 🧪 API Testing
+
 ### 🔹 Create Record
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/attendance/create \
+curl -X POST http://<EC2-IP>:8000/api/v1/attendance/create \
 -H "Content-Type: application/json" \
 -d '{"id":"1","name":"Mukesh","status":"present","date":"2026-04-03"}'
 ```
@@ -207,116 +270,90 @@ curl -X POST http://localhost:8000/api/v1/attendance/create \
 ### 🔹 Fetch Record
 
 ```bash
-curl "http://localhost:8000/api/v1/attendance/search?id=1"
+curl "http://<EC2-IP>:8000/api/v1/attendance/search?id=1"
 ```
 
 ---
 
-## ⚡ Redis Caching Behavior
+# ⚡ Redis Behavior
 
 * First request → DB hit
-* Next requests → Redis cache
-
-Check Redis:
-
-```bash
-redis-cli
-KEYS *
-```
+* Next request → Redis cache
 
 ---
 
-## 🧨 Failure Testing (VERY IMPORTANT)
+# 🧨 Failure Testing
 
-### 🔹 Stop Redis
+### 🔴 Stop Redis
 
 ```bash
 sudo systemctl stop redis
 ```
 
-👉 API fails (current implementation)
+👉 API fails (tight coupling)
 
 ---
 
-### 🔹 Start Redis
+### 🔴 Start Redis
 
 ```bash
 sudo systemctl start redis
 ```
 
-👉 API works again
-
 ---
 
-### 🔹 Stop PostgreSQL
+### 🔴 Stop PostgreSQL
 
 ```bash
 sudo systemctl stop postgresql
 ```
 
-👉 API completely fails
+👉 API fails completely
 
 ---
 
-## 🧠 Key Learnings
+# 🧠 Key Learnings
 
-### 🔹 1. Dependency Types
+### 🔹 Infra Setup
 
-| Component  | Type                                       |
-| ---------- | ------------------------------------------ |
-| PostgreSQL | Hard dependency                            |
-| Redis      | Soft dependency (but tightly coupled here) |
-
----
-
-### 🔹 2. Common Errors Faced
-
-* Python version mismatch
-* Missing dependencies (Flask, psycopg2)
-* Wrong DB host (Docker vs localhost)
-* Table not created
-* Redis not running
+* EC2 provisioning
+* Package installation
+* Service management (systemctl)
 
 ---
 
-### 🔹 3. Important Concepts
+### 🔹 Backend Concepts
 
-* Flask routing
-* REST APIs
-* Database schema
-* Redis caching
-* Debugging services
-
----
-
-## 🚀 Next Improvements (Production Level)
-
-* Use Gunicorn instead of Flask dev server
-* Add NGINX reverse proxy
-* Implement Redis fallback (graceful handling)
-* Add logging & monitoring
-* Create systemd service
+* Flask API flow
+* Routing
+* DB interaction
+* Cache layer
 
 ---
 
-## 🧠 Summary
+### 🔹 Debugging
 
-This project helped understand:
+* psycopg2 missing
+* Redis connection refused
+* DB schema missing
+
+---
+
+# 🚀 Production Improvements
+
+* Gunicorn (WSGI server)
+* NGINX reverse proxy
+* systemd service for app
+* Separate DB instance
+
+---
+
+# 🧠 Summary
 
 ```
-Backend + Database + Cache + Debugging + Infra
+EC2 + Flask + PostgreSQL + Redis + Debugging
 ```
 
 ---
 
-## 👨‍💻 Author Notes
-
-This setup was done manually on VM (no Docker) to understand:
-
-* Real service dependencies
-* System-level debugging
-* DevOps workflow
-
----
-
-🔥 End of Guide
+🔥 End of EC2 Guide
