@@ -1,18 +1,14 @@
-# Employee API – Production-Grade Setup SOP (EC2 Ubuntu 22.04 | No Docker)
+# Employee API
 
 ---
 
 ## 1. Objective
-
-This document provides a **step-by-step Standard Operating Procedure (SOP)** to:
 
 * Provision a fresh Ubuntu EC2 instance
 * Install all required dependencies
 * Configure ScyllaDB
 * Execute database migrations using golang-migrate
 * Run and validate the Employee API
-
-This guide is **reproducible, DevOps-aligned, and production-oriented**.
 
 ---
 
@@ -25,7 +21,7 @@ Client → Go (Gin) API → Business Logic → ScyllaDB
 
 ---
 
-## 3. Project Structure (Detailed Explanation)
+## 3. Project Structure
 
 ### Root Level
 
@@ -419,7 +415,7 @@ CREATE KEYSPACE employee ...
 
 ---
 
-## 19. DevOps Mapping
+## 19. Layers Mapping
 
 | Layer      | Tool           |
 | ---------- | -------------- |
@@ -431,22 +427,3 @@ CREATE KEYSPACE employee ...
 
 ---
 
-## 20. Future Enhancements
-
-* systemd service
-* NGINX reverse proxy
-* Redis enablement
-* CI/CD pipeline (Jenkins)
-* Infrastructure automation (Terraform)
-
----
-
-## 21. Summary
-
-```
-Go + Gin + ScyllaDB + golang-migrate + Makefile
-```
-
-This setup is fully aligned with real-world DevOps workflows and is reproducible across environments.
-
----
