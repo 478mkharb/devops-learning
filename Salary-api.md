@@ -1,131 +1,78 @@
-# 💰 Salary API – Production Setup Guide
+# 💰 Salary API – Production Setup Guide (Scylla + Redis + Migrations)
 
-A complete step-by-step guide to install, configure, and run the **Salary Microservice** using **Spring Boot + ScyllaDB (Cassandra-compatible) + Redis + Swagger**.
+End-to-end, **repeatable** setup for the Salary microservice with **ScyllaDB (Cassandra-compatible)**, **Redis**, **Swagger**, and **Makefile-driven migrations**.
 
 ---
 
-# 📌 Tech Stack
+## 📌 Tech Stack
 
-* Java 17
+* Java 17 (OpenJDK)
 * Spring Boot 3.x
-* ScyllaDB (Cassandra compatible)
+* ScyllaDB (Cassandra protocol)
 * Redis
 * Maven Wrapper
-* Swagger (SpringDoc OpenAPI)
+* Swagger (springdoc-openapi)
+* golang-migrate (for Cassandra migrations)
 
 ---
 
-# 🚀 1. Prerequisites
+## 🚀 1. Prerequisites
 
 ```bash
 sudo apt update
-sudo apt install -y openjdk-17-jdk curl git
-```
-
-Verify:
-
-```bash
+sudo apt install -y openjdk-17-jdk curl git make
 java -version
 ```
 
 ---
 
-# ⚙️ 2. Install ScyllaDB (Official Script)
+## ⚙️ 2. Install ScyllaDB (official)
 
 ```bash
 curl -sSf https://get.scylladb.com/server | sudo bash
-sudo apt install scylla -y
+sudo apt install -y scylla
 ```
 
----
-
-# 🔧 3. Setup ScyllaDB
+### Configure (recommended answers)
 
 ```bash
 sudo scylla_setup
 ```
 
-### Recommended choices:
-
-| Option             | Selection   |
-| ------------------ | ----------- |
-| Kernel Check       | YES         |
-| Service Auto Start | YES         |
-| NTP                | YES         |
-| RAID/XFS           | NO (for VM) |
-| Coredumps          | NO          |
-| System Config      | NO          |
-| IOTune             | YES         |
+* Kernel check: YES
+* Auto start service: YES
+* NTP: YES
+* RAID/XFS: NO (VM)
+* Coredumps: NO
+* System config: NO
+* IOTune: YES
 
 ---
 
-# ▶️ 4. Start Scylla
+## ▶️ 3. Start Scylla
 
 ```bash
-sudo systemctl start scylla-server
 sudo systemctl enable scylla-server
-```
-
-Check status:
-
-```bash
+sudo systemctl start scylla-server
 nodetool status
 ```
 
-Expected:
-
-```text
-UN 127.0.0.1
-```
+Expected: `UN 127.0.0.1`
 
 ---
 
-# 🗄️ 5. Setup Database
+## 🔴 4. Install Redis
 
 ```bash
-cqlsh
-```
-
-```sql
-CREATE KEYSPACE salary_keyspace
-WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-
-USE salary_keyspace;
-
-CREATE TABLE employee_salary (
-  id text PRIMARY KEY,
-  name text,
-  salary float,
-  process_date text,
-  status text
-);
-```
-
----
-
-# 🔴 6. Install Redis
-
-```bash
-sudo apt install redis-server -y
-sudo systemctl start redis
+sudo apt install -y redis-server
 sudo systemctl enable redis
-```
-
-Verify:
-
-```bash
-redis-cli ping
-```
-
-Expected:
-
-```text
-PONG
+sudo systemctl start redis
+redis-cli ping   # PONG
 ```
 
 ---
 
-# 📦 7. Clone Project
+## 📦 5. Clone Project
 
 ```bash
 git clone <your-repo-url>
@@ -134,7 +81,100 @@ cd salary-api
 
 ---
 
-# ⚙️ 8. Configure application.yml
+## 🗄️ 6. Migrations (golang-migrate)
+
+### 6.1 Install migrate CLI
+
+```bash
+curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
+sudo mv migrate /usr/local/bin/
+migrate -version
+```
+
+### 6.2 Verify migration files
+
+`migration/000001_create_employee_salary_table.up.sql`
+
+```sql
+CREATE KEYSPACE IF NOT EXISTS salary_keyspace
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+USE salary_keyspace;
+
+CREATE TABLE IF NOT EXISTS employee_salary (
+  id text PRIMARY KEY,
+  name text,
+  salary float,
+  process_date text,
+  status text
+);
+```
+
+`migration/000001_create_employee_salary_table.down.sql`
+
+```sql
+DROP TABLE IF EXISTS salary_keyspace.employee_salary;
+```
+
+> Note: Cassandra/Scylla does **not** support `INSERT ... SELECT` or joins. Use migrations + application writes.
+
+---
+
+## 🧰 7. Makefile (migration + app)
+
+Ensure your `Makefile` contains (TAB-indented commands):
+
+```makefile
+# CONFIG
+CASSANDRA_HOST=127.0.0.1
+CASSANDRA_PORT=9042
+KEYSPACE=salary_keyspace
+
+MIGRATION_PATH=./migration
+DB_URL=cassandra://$(CASSANDRA_HOST):$(CASSANDRA_PORT)/$(KEYSPACE)
+
+# MIGRATIONS
+run-migrations:
+	migrate -source file://$(MIGRATION_PATH) -database "$(DB_URL)" up
+
+migrate-down:
+	migrate -source file://$(MIGRATION_PATH) -database "$(DB_URL)" down
+
+migrate-version:
+	migrate -source file://$(MIGRATION_PATH) -database "$(DB_URL)" version
+
+# APP
+run:
+	./mvnw spring-boot:run
+
+build:
+	./mvnw clean install
+```
+
+> ⚠️ Ensure keyspace is `salary_keyspace` (not `employee_db`).
+
+---
+
+## 🧪 8. Run Migrations
+
+```bash
+make run-migrations
+```
+
+Verify:
+
+```bash
+cqlsh -e "DESCRIBE KEYSPACES;"
+cqlsh -e "USE salary_keyspace; DESCRIBE TABLES;"
+```
+
+Expected table: `employee_salary`
+
+---
+
+## ⚙️ 9. Application Configuration
+
+`src/main/resources/application.yml`
 
 ```yaml
 server:
@@ -161,13 +201,9 @@ management:
 
 ---
 
-# 📄 9. Fix Entity Mapping
+## 📄 10. Entity Mapping (CRITICAL)
 
-Ensure file:
-
-```bash
-src/main/java/.../model/Employee.java
-```
+`src/main/java/.../model/Employee.java`
 
 ```java
 @Table("employee_salary")
@@ -183,35 +219,34 @@ public class Employee {
 }
 ```
 
+> Table name **must match** migration (`employee_salary`). Types must align (float ↔ float).
+
 ---
 
-# 📘 10. Fix Swagger Configuration
+## 📘 11. Swagger Configuration
 
-File:
-
-```bash
-src/main/java/.../swagger/OpenAPIConfig.java
-```
+`src/main/java/.../swagger/OpenAPIConfig.java`
 
 ```java
 Server devServer = new Server();
-devServer.setUrl("/");
+devServer.setUrl("/"); // use same host/port as UI
 ```
 
 ---
 
-# ▶️ 11. Run Application
+## ▶️ 12. Run Application
 
 ```bash
-./mvnw clean
+make run
+# or
 ./mvnw spring-boot:run
 ```
 
 ---
 
-# 🧪 12. Test APIs
+## 🧪 13. API Testing
 
-## ➤ Create Record
+### ➤ Create Record
 
 ```bash
 curl -X POST http://localhost:8082/api/v1/salary/create/record \
@@ -225,7 +260,7 @@ curl -X POST http://localhost:8082/api/v1/salary/create/record \
 }'
 ```
 
-## ➤ Get All
+### ➤ Get All
 
 ```bash
 curl http://localhost:8082/api/v1/salary/search/all
@@ -233,65 +268,60 @@ curl http://localhost:8082/api/v1/salary/search/all
 
 ---
 
-# 📊 13. Swagger UI
-
-Open:
+## 📊 14. Swagger UI
 
 ```text
-http://<IP>:8082/swagger-ui/index.html
+http://<HOST>:8082/swagger-ui/index.html
 ```
+
+* Click endpoint → **Try it out** → **Execute**
+* With `devServer.setUrl("/")`, Swagger uses the same host/port
 
 ---
 
-# 🛠️ Troubleshooting
+## 🛠️ Troubleshooting
 
-## ❌ 500 Error
+### ❌ 500 on POST
 
-* Table mismatch
-* Wrong data types
+* Table mismatch (`@Table` vs DB)
+* Column/type mismatch
 
-## ❌ Swagger calling 8080
+### ❌ Swagger calls wrong port
 
-Fix:
+* Ensure `devServer.setUrl("/")`
 
-```java
-devServer.setUrl("/");
-```
+### ❌ Migration fails (keyspace)
 
-## ❌ Empty API response
+* Use `salary_keyspace` (not `employee_db`)
 
-* Data inserted in wrong table
+### ❌ `make run-migrations` not found
+
+* Add target in Makefile
+* Ensure TAB indentation
+
+### ❌ `Permission denied` running `.sql`
+
+* Use `make run-migrations` or `cqlsh -f <file>`
 
 ---
 
-# 📌 Final Architecture
+## 🧱 Architecture
 
 ```text
-Client → Salary API → ScyllaDB
-                 → Redis
+Client → Salary API (8082)
+                 → ScyllaDB (9042)
+                 → Redis (6379)
 ```
 
 ---
 
-# 🏁 Status
+## 🏁 Status Checklist
 
-✔ Scylla Installed
-✔ Redis Installed
-✔ API Running
-✔ Swagger Working
-✔ Data Persisting
-
----
-
-# 🚀 Next Steps
-
-* Integrate with employee-api
-* Add API Gateway
-* Dockerize services
-* Deploy on Kubernetes
+* [x] Scylla installed & running
+* [x] Redis installed & running
+* [x] Migrations automated via Makefile
+* [x] API running on 8082
+* [x] Swagger working with correct base URL
+* [x] Data persists in `employee_salary`
 
 ---
-
-# 👨‍💻 Author
-
-Mukesh Kharb
