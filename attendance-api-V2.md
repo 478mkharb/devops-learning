@@ -4,7 +4,7 @@
 
 ## Objective
 
-* Provision a fresh EC2 Ubuntu server
+* Provision a EC2 with Ubuntu 22
 * Install all required dependencies
 * Configure database and cache
 * Setup Liquibase migrations
