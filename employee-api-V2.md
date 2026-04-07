@@ -285,10 +285,9 @@ make swagger
 Edit Swagger route:
 
 ```go
-r.GET("/swagger/*any", ginSwagger.WrapHandler(
-    swaggerFiles.Handler,
-    ginSwagger.URL("/swagger/doc.json"),
-))
+        url := ginSwagger.URL("http://192.168.122.167:8080/swagger/doc.json")
+        router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
+        router.Run(":8080")
 ```
 
 ---
