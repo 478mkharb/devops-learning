@@ -1,10 +1,8 @@
-# 📘 Attendance API – End-to-End Setup SOP (EC2 Ubuntu 22.04 | No Docker)
+# Attendance API
 
 ---
 
-## 🧠 Objective
-
-This document is a **production-style Standard Operating Procedure (SOP)** to:
+## Objective
 
 * Provision a fresh EC2 Ubuntu server
 * Install all required dependencies
@@ -15,7 +13,7 @@ This document is a **production-style Standard Operating Procedure (SOP)** to:
 
 ---
 
-# 🏗️ Architecture Overview
+# Architecture Overview
 
 ```
 Client → Flask App → Router Layer
@@ -88,7 +86,7 @@ Handles external systems (DB & Cache)
 
 ---
 
-# ⚙️ STEP 1 — Launch EC2 Instance
+# STEP 1 — Launch EC2 Instance
 
 * OS: Ubuntu 22.04
 * Instance: t2.micro
@@ -99,7 +97,7 @@ Handles external systems (DB & Cache)
 
 ---
 
-# ⚙️ STEP 2 — Connect to Server
+# STEP 2 — Connect to Server
 
 ```bash
 ssh ubuntu@<EC2-IP>
@@ -107,7 +105,7 @@ ssh ubuntu@<EC2-IP>
 
 ---
 
-# ⚙️ STEP 3 — Update System
+# STEP 3 — Update System
 
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -115,7 +113,7 @@ sudo apt update && sudo apt upgrade -y
 
 ---
 
-# ⚙️ STEP 4 — Install Base Packages
+# STEP 4 — Install Base Packages
 
 ```bash
 sudo apt install git curl wget unzip -y
@@ -123,7 +121,7 @@ sudo apt install git curl wget unzip -y
 
 ---
 
-# ⚙️ STEP 5 — Install Python 3.11
+# STEP 5 — Install Python 3.11
 
 ```bash
 sudo apt install python3.11 python3.11-venv python3.11-distutils -y
@@ -137,7 +135,7 @@ python3.11 --version
 
 ---
 
-# ⚙️ STEP 6 — Install PostgreSQL
+# STEP 6 — Install PostgreSQL
 
 ```bash
 sudo apt install postgresql postgresql-contrib -y
@@ -164,7 +162,7 @@ Exit:
 
 ---
 
-# ⚙️ STEP 7 — Install Redis
+# STEP 7 — Install Redis
 
 ```bash
 sudo apt install redis-server -y
@@ -180,7 +178,7 @@ redis-cli ping
 
 ---
 
-# ⚙️ STEP 8 — Install Liquibase
+# STEP 8 — Install Liquibase
 
 ```bash
 wget https://github.com/liquibase/liquibase/releases/download/v4.27.0/liquibase-4.27.0.tar.gz
@@ -201,7 +199,7 @@ liquibase --version
 
 ---
 
-# ⚙️ STEP 9 — Install Poetry
+# STEP 9 — Install Poetry
 
 ```bash
 pip install --user poetry
@@ -212,7 +210,7 @@ source ~/.bashrc
 
 ---
 
-# ⚙️ STEP 10 — Clone Project
+# STEP 10 — Clone Project
 
 ```bash
 git clone https://github.com/OT-MICROSERVICES/attendance-api.git
@@ -221,7 +219,7 @@ cd attendance-api
 
 ---
 
-# ⚙️ STEP 11 — Fix pyproject.toml
+# STEP 11 — Fix pyproject.toml
 
 ### Remove:
 
@@ -237,7 +235,7 @@ package-mode = false
 
 ---
 
-# ⚙️ STEP 12 — Configure Liquibase
+# STEP 12 — Configure Liquibase
 
 ```bash
 nano liquibase.properties
@@ -256,7 +254,7 @@ classpath=/opt/liquibase/internal/lib/postgresql.jar
 
 ---
 
-# ⚙️ STEP 13 — Update Makefile
+# STEP 13 — Update Makefile
 
 ```makefile
 .PHONY: build fmt run test migrate setup
@@ -278,7 +276,7 @@ setup: build migrate run
 
 ---
 
-# 🚀 STEP 14 — Run Application
+# STEP 14 — Run Application
 
 ```bash
 make setup
@@ -286,7 +284,7 @@ make setup
 
 ---
 
-# 🧪 STEP 15 — Test API
+# STEP 15 — Test API
 
 ```bash
 curl http://localhost:8000/api/v1/attendance/health
@@ -294,7 +292,7 @@ curl http://localhost:8000/api/v1/attendance/health
 
 ---
 
-# 🧠 Key Learnings
+# Important Points
 
 * Dependency isolation using Poetry
 * DB version control using Liquibase
@@ -303,13 +301,5 @@ curl http://localhost:8000/api/v1/attendance/health
 
 ---
 
-# 🚀 Future Enhancements
-
-* systemd service
-* Ansible automation
-* Terraform infra provisioning
-* Jenkins CI/CD pipeline
-
----
 
 🔥 End of SOP
