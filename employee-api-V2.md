@@ -8,6 +8,7 @@
 * Install all required dependencies
 * Configure ScyllaDB
 * Execute database migrations using golang-migrate
+* Generate and configure Swagger documentation
 * Run and validate the Employee API
 
 ---
@@ -17,6 +18,7 @@
 ```
 Client → Go (Gin) API → Business Logic → ScyllaDB
                                      → Redis (optional)
+                                     → Swagger Docs
 ```
 
 ---
@@ -25,17 +27,17 @@ Client → Go (Gin) API → Business Logic → ScyllaDB
 
 ### Root Level
 
-| Component       | Description                                |
-| --------------- | ------------------------------------------ |
-| main.go         | Application entry point                    |
-| config.yaml     | Runtime configuration (DB, Redis)          |
-| Makefile        | Build, migration, and execution automation |
-| go.mod / go.sum | Dependency management                      |
-| migration/      | Database schema (SQL migrations)           |
-| migration.json  | Migration tool configuration               |
-| docs/           | Swagger API documentation                  |
-| static/         | Static assets                              |
-| Dockerfile      | Containerization (future use)              |
+| Component       | Description                           |
+| --------------- | ------------------------------------- |
+| main.go         | Application entry point               |
+| config.yaml     | Runtime configuration (DB, Redis)     |
+| Makefile        | Build, migration, swagger automation  |
+| go.mod / go.sum | Dependency management                 |
+| migration/      | Database schema (SQL migrations)      |
+| migration.json  | Migration tool configuration          |
+| docs/           | Swagger generated files (DO NOT EDIT) |
+| static/         | Static assets                         |
+| Dockerfile      | Containerization (future use)         |
 
 ---
 
@@ -102,7 +104,7 @@ Handles external integrations.
 | *.up.sql   | Schema creation |
 | *.down.sql | Rollback schema |
 
-This project uses **golang-migrate CLI**, not manual cqlsh execution.
+Uses golang-migrate CLI.
 
 ---
 
@@ -110,19 +112,15 @@ This project uses **golang-migrate CLI**, not manual cqlsh execution.
 
 ### Step 1 — Launch Instance
 
-* OS: Ubuntu 22.04
-* Instance: t2.micro
-* Open ports:
-
-  * 22 (SSH)
-  * 8080 (Application)
+* Ubuntu 22.04
+* Open ports: 22, 8080
 
 ---
 
 ### Step 2 — Connect
 
 ```bash
-ssh ubuntu@<EC2-PUBLIC-IP>
+ssh ubuntu@<EC2-IP>
 ```
 
 ---
@@ -135,7 +133,7 @@ sudo apt update && sudo apt upgrade -y
 
 ---
 
-### Step 4 — Install Base Packages
+### Step 4 — Base Packages
 
 ```bash
 sudo apt install git curl wget unzip jq -y
@@ -143,10 +141,17 @@ sudo apt install git curl wget unzip jq -y
 
 ---
 
-## 5. Install Go
+## 5. Install Go (IMPORTANT)
 
 ```bash
-sudo apt install golang-go -y
+wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
+```
+
+```bash
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 Verify:
@@ -172,30 +177,18 @@ sudo apt install scylla -y
 sudo scylla_setup
 ```
 
-Recommended:
-
-* IOTune → YES
-* Dedicated machine → NO
-
----
-
-### Enable Developer Mode (Mandatory for low RAM)
+Enable dev mode:
 
 ```bash
 sudo nano /etc/scylla/scylla.yaml
 ```
 
-Update:
-
 ```yaml
 developer_mode: true
 ```
 
-Restart:
-
 ```bash
 sudo systemctl restart scylla-server
-sudo systemctl status scylla-server
 ```
 
 ---
@@ -213,15 +206,9 @@ CREATE KEYSPACE employee WITH replication = {
 };
 ```
 
-Exit:
-
-```bash
-exit
-```
-
 ---
 
-## 9. Clone Repository
+## 9. Clone Repo
 
 ```bash
 git clone https://github.com/OT-MICROSERVICES/employee-api.git
@@ -238,15 +225,11 @@ go mod tidy
 
 ---
 
-## 11. Configure Migration (CRITICAL STEP)
-
-Edit:
+## 11. Migration Setup
 
 ```bash
 nano migration.json
 ```
-
-### Correct Configuration:
 
 ```json
 {
@@ -254,56 +237,58 @@ nano migration.json
 }
 ```
 
-Notes:
-
-* Do NOT use Docker IP (172.x.x.x)
-* Always use localhost for local setup
-
 ---
 
-## 12. Install golang-migrate CLI
+## 12. Install migrate CLI
 
 ```bash
 curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
 sudo mv migrate /usr/local/bin/
 ```
 
-Verify:
-
-```bash
-migrate -version
-```
-
 ---
 
-## 13. Run Database Migration
+## 13. Run Migration
 
 ```bash
 make run-migrations
 ```
 
-This executes:
+---
+
+## 14. Swagger Setup (CRITICAL)
+
+### Install swag (compatible version)
 
 ```bash
-migrate -source file://migration -database <connection-string> up
+go install github.com/swaggo/swag/cmd/swag@v1.8.12
+```
+
+```bash
+echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ---
 
-## 14. Configure Application
+### Generate Docs
 
 ```bash
-nano config.yaml
+rm -rf docs/*
+make swagger
 ```
 
-```yaml
-scylladb:
-  host: 127.0.0.1
-  port: 9042
-  keyspace: employee
+---
 
-redis:
-  enabled: false
+### Fix CORS Issue
+
+Edit Swagger route:
+
+```go
+r.GET("/swagger/*any", ginSwagger.WrapHandler(
+    swaggerFiles.Handler,
+    ginSwagger.URL("/swagger/doc.json"),
+))
 ```
 
 ---
@@ -314,17 +299,9 @@ redis:
 go run main.go
 ```
 
-Expected:
-
-```
-Listening and serving HTTP on :8080
-```
-
 ---
 
-## 16. API Validation
-
-### Health Check
+## 16. API Testing
 
 ```bash
 curl http://localhost:8080/api/v1/employee/health
@@ -332,98 +309,52 @@ curl http://localhost:8080/api/v1/employee/health
 
 ---
 
-### Create Employee
+## 17. Swagger Access
 
-```bash
-curl -X POST http://localhost:8080/api/v1/employee/create \
--H "Content-Type: application/json" \
--d '{
-  "id": "1",
-  "name": "Mukesh",
-  "designation": "DevOps",
-  "department": "Engineering",
-  "joining_date": "2026-04-05",
-  "address": "Delhi",
-  "office_location": "Delhi",
-  "status": "Active",
-  "email": "mukesh@test.com",
-  "phone_number": "9999999999"
-}'
+```
+http://<EC2-IP>:8080/swagger/index.html
 ```
 
 ---
 
-### Fetch Employee
+## 18. Common Issues
 
-```bash
-curl "http://localhost:8080/api/v1/employee/search?id=1"
-```
+### Swagger LeftDelim Error
 
----
-
-## 17. Swagger Documentation
-
-After starting the application:
-
-```
-http://localhost:8080/swagger/index.html
-```
-
----
-
-## 18. Common Issues and Fixes
-
-### Issue: migrate connection timeout
-
-Cause: Wrong IP (Docker IP used)
+Cause: Version mismatch
 
 Fix:
 
-```json
-127.0.0.1 instead of 172.x.x.x
-```
-
----
-
-### Issue: go command not found
-
 ```bash
-sudo apt install golang-go -y
+go install swag@v1.8.12
 ```
 
 ---
 
-### Issue: Scylla not starting
+### Swagger localhost issue
 
-```bash
-journalctl -u scylla-server
-```
-
-Ensure:
-
-```yaml
-developer_mode: true
-```
+Fix: Use relative path `/swagger/doc.json`
 
 ---
 
-### Issue: Keyspace does not exist
+### Migration timeout
 
-```sql
-CREATE KEYSPACE employee ...
+Use localhost instead of Docker IP
+
+---
+
+### Go not found
+
+Fix PATH and extraction
+
+---
+
+## 19. Final State
+
 ```
-
----
-
-## 19. Layers Mapping
-
-| Layer      | Tool           |
-| ---------- | -------------- |
-| Build      | Go modules     |
-| Migration  | golang-migrate |
-| Config     | YAML + Viper   |
-| DB         | ScyllaDB       |
-| Automation | Makefile       |
-
----
-
+Go Installed
+ScyllaDB Running
+Migration Working
+Swagger Working
+API Functional
+```
