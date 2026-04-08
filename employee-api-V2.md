@@ -1,123 +1,78 @@
-# Employee API
+# 🚀 Employee API — Production Setup Guide (EC2 | Ubuntu 22)
 
 ---
 
-## 1. Objective
+## 📌 Overview
 
-* Provision a fresh Ubuntu EC2 instance
-* Install all required dependencies
-* Configure ScyllaDB
-* Execute database migrations using golang-migrate
-* Generate and configure Swagger documentation
-* Run and validate the Employee API
+This document provides a **step-by-step, production-grade setup** of the Employee API from scratch on a **fresh EC2 Ubuntu 22 instance**, following the original project structure strictly.
+
+It includes:
+
+* Infrastructure setup
+* Dependency installation
+* Database configuration (ScyllaDB)
+* Cache configuration (Redis)
+* Migration execution
+* Swagger setup
+* API validation
+
+Each step includes **WHY it is required**.
 
 ---
 
-## 2. Architecture
+# 🏗️ Architecture
 
 ```
-Client → Go (Gin) API → Business Logic → ScyllaDB
-                                     → Redis (optional)
-                                     → Swagger Docs
+Client → Gin (Go API)
+            ↓
+        ScyllaDB (Primary DB)
+            ↓
+        Redis (Cache Layer)
+            ↓
+        Swagger (API Docs)
 ```
 
 ---
 
-## 3. Project Structure
+# 📁 Directory Structure (Important)
 
-### Root Level
-
-| Component       | Description                           |
-| --------------- | ------------------------------------- |
-| main.go         | Application entry point               |
-| config.yaml     | Runtime configuration (DB, Redis)     |
-| Makefile        | Build, migration, swagger automation  |
-| go.mod / go.sum | Dependency management                 |
-| migration/      | Database schema (SQL migrations)      |
-| migration.json  | Migration tool configuration          |
-| docs/           | Swagger generated files (DO NOT EDIT) |
-| static/         | Static assets                         |
-| Dockerfile      | Containerization (future use)         |
-
----
-
-### api/
-
-Contains core API handlers.
-
-| File      | Purpose                 |
-| --------- | ----------------------- |
-| api.go    | Business logic handlers |
-| health.go | Health check endpoint   |
+```
+employee-api/
+├── api/                # Business logic handlers
+├── client/             # DB & Redis connections
+├── config/             # Config loader (Viper)
+├── middleware/         # Logging middleware
+├── model/              # Data models
+├── routes/             # Route registration
+├── migration/          # DB schema
+├── docs/               # Swagger docs
+├── main.go             # Entry point
+├── config.yaml         # Runtime config
+├── migration.json      # Migration DB config
+├── Makefile            # Automation
+```
 
 ---
 
-### client/
+# ⚙️ STEP 1 — Launch EC2 Instance
 
-Handles external integrations.
+### Configuration:
 
-| File        | Purpose             |
-| ----------- | ------------------- |
-| scylladb.go | ScyllaDB connection |
-| redis.go    | Redis connection    |
+* OS: Ubuntu 22.04
+* Instance: t2.micro
+* Ports:
 
----
+  * 22 (SSH)
+  * 8080 (API)
 
-### config/
+### WHY?
 
-| File     | Purpose                       |
-| -------- | ----------------------------- |
-| viper.go | Loads config.yaml using Viper |
-
----
-
-### middleware/
-
-| File       | Purpose                  |
-| ---------- | ------------------------ |
-| logging.go | Request/response logging |
+* EC2 provides isolated environment
+* Port 8080 is used by Gin server
 
 ---
 
-### model/
-
-| File        | Purpose               |
-| ----------- | --------------------- |
-| employee.go | Employee schema       |
-| health.go   | Health response model |
-| config.go   | Config struct         |
-
----
-
-### routes/
-
-| File      | Purpose            |
-| --------- | ------------------ |
-| routes.go | Route registration |
-
----
-
-### migration/
-
-| File       | Purpose         |
-| ---------- | --------------- |
-| *.up.sql   | Schema creation |
-| *.down.sql | Rollback schema |
-
-Uses golang-migrate CLI.
-
----
-
-## 4. EC2 Setup
-
-### Step 1 — Launch Instance
-
-* Ubuntu 22.04
-* Open ports: 22, 8080
-
----
-
-### Step 2 — Connect
+# 🔐 STEP 2 — Connect to Server
 
 ```bash
 ssh ubuntu@<EC2-IP>
@@ -125,59 +80,71 @@ ssh ubuntu@<EC2-IP>
 
 ---
 
-### Step 3 — System Update
+# 🔄 STEP 3 — System Update
 
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
+### WHY?
+
+* Ensures latest security patches
+* Prevents dependency conflicts
+
 ---
 
-### Step 4 — Base Packages
+# 📦 STEP 4 — Install Base Packages
 
 ```bash
-sudo apt install git curl wget unzip jq -y
+sudo apt install -y git curl wget unzip jq
 ```
+
+### WHY?
+
+* git → clone repo
+* curl/wget → download binaries
+* jq → JSON parsing/debugging
 
 ---
 
-## 5. Install Go (IMPORTANT)
+# 🟢 STEP 5 — Install Go (Runtime)
 
 ```bash
 wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
-```
 
-```bash
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Verify:
+### Verify:
 
 ```bash
 go version
 ```
 
+### WHY?
+
+* Required to compile & run API
+* Version compatibility avoids Swagger/tooling issues
+
 ---
 
-## 6. Install ScyllaDB
+# 🧠 STEP 6 — Install ScyllaDB (Database)
 
 ```bash
 curl -sSf https://get.scylladb.com/server | sudo bash
-sudo apt install scylla -y
+sudo apt install -y scylla
 ```
 
----
-
-## 7. Configure ScyllaDB
+### Configure:
 
 ```bash
 sudo scylla_setup
 ```
 
-Enable dev mode:
+### Enable dev mode:
 
 ```bash
 sudo nano /etc/scylla/scylla.yaml
@@ -189,11 +156,23 @@ developer_mode: true
 
 ```bash
 sudo systemctl restart scylla-server
+sudo systemctl enable scylla-server
 ```
+
+### Verify:
+
+```bash
+nodetool status
+```
+
+### WHY?
+
+* Primary DB for employee data
+* Cassandra-compatible scalable DB
 
 ---
 
-## 8. Database Initialization
+# 🗄️ STEP 7 — Create Keyspace
 
 ```bash
 cqlsh
@@ -206,9 +185,14 @@ CREATE KEYSPACE employee WITH replication = {
 };
 ```
 
+### WHY?
+
+* Logical database container
+* Required before migrations
+
 ---
 
-## 9. Clone Repo
+# 📥 STEP 8 — Clone Repository
 
 ```bash
 git clone https://github.com/OT-MICROSERVICES/employee-api.git
@@ -217,15 +201,34 @@ cd employee-api
 
 ---
 
-## 10. Install Dependencies
+# 🔧 STEP 9 — Install Dependencies
 
 ```bash
 go mod tidy
 ```
 
+### WHY?
+
+* Resolves all Go dependencies
+* Ensures build reproducibility
+
 ---
 
-## 11. Migration Setup
+# 🧰 STEP 10 — Install Migration Tool
+
+```bash
+curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
+sudo mv migrate /usr/local/bin/
+```
+
+### WHY?
+
+* Executes SQL schema files
+* Version control for DB schema
+
+---
+
+# ⚙️ STEP 11 — Configure Migration
 
 ```bash
 nano migration.json
@@ -237,62 +240,104 @@ nano migration.json
 }
 ```
 
----
+### WHY?
 
-## 12. Install migrate CLI
-
-```bash
-curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
-sudo mv migrate /usr/local/bin/
-```
+* Connects migration tool to DB
 
 ---
 
-## 13. Run Migration
+# 🧱 STEP 12 — Run Migrations
 
 ```bash
 make run-migrations
 ```
 
+### Verify:
+
+```bash
+cqlsh
+USE employee;
+DESCRIBE TABLES;
+```
+
+### WHY?
+
+* Creates required tables
+* Without this API fails at runtime
+
 ---
 
-## 14. Swagger Setup (CRITICAL)
+# ⚡ STEP 13 — Install Redis (Cache)
 
-### Install swag (compatible version)
+```bash
+sudo apt install -y redis-server
+sudo systemctl start redis
+sudo systemctl enable redis
+```
+
+### Verify:
+
+```bash
+redis-cli ping
+```
+
+### WHY?
+
+* Improves performance via caching
+* Reduces DB load
+
+---
+
+# ⚙️ STEP 14 — Configure Redis
+
+Edit config.yaml:
+
+```yaml
+redis:
+  enabled: true
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  database: 0
+```
+
+### WHY?
+
+* Enables cache layer
+* Without this Redis is unused
+
+---
+
+# 📚 STEP 15 — Setup Swagger
 
 ```bash
 go install github.com/swaggo/swag/cmd/swag@v1.8.12
-```
 
-```bash
 echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
-
----
-
-### Generate Docs
 
 ```bash
 rm -rf docs/*
 make swagger
 ```
 
----
+### FIX (Important)
 
-### Fix CORS Issue
-
-Edit Swagger route:
+Edit main.go:
 
 ```go
-        url := ginSwagger.URL("http://192.168.122.167:8080/swagger/doc.json")
-        router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
-        router.Run(":8080")
+url := ginSwagger.URL("/swagger/doc.json")
 ```
+
+### WHY?
+
+* Enables API documentation UI
+* Fixes CORS issues
 
 ---
 
-## 15. Run Application
+# ▶️ STEP 16 — Run Application
 
 ```bash
 go run main.go
@@ -300,15 +345,23 @@ go run main.go
 
 ---
 
-## 16. API Testing
+# ✅ STEP 17 — API Validation
+
+### Health Check
 
 ```bash
 curl http://localhost:8080/api/v1/employee/health
 ```
 
+### Expected:
+
+```json
+{"message":"Employee API is up and running"}
+```
+
 ---
 
-## 17. Swagger Access
+# 🌐 STEP 18 — Swagger UI
 
 ```
 http://<EC2-IP>:8080/swagger/index.html
@@ -316,44 +369,60 @@ http://<EC2-IP>:8080/swagger/index.html
 
 ---
 
-## 18. Common Issues
+# 🧪 STEP 19 — Test API
 
-### Swagger LeftDelim Error
-
-Cause: Version mismatch
-
-Fix:
+### Create Employee
 
 ```bash
-go install swag@v1.8.12
+curl -X POST http://localhost:8080/api/v1/employee/create \
+-H "Content-Type: application/json" \
+-d '{
+  "id": "1",
+  "name": "Mukesh"
+}'
 ```
 
 ---
 
-### Swagger localhost issue
+# 🔍 Troubleshooting
 
-Fix: Use relative path `/swagger/doc.json`
+### Port already in use
 
----
-
-### Migration timeout
-
-Use localhost instead of Docker IP
-
----
-
-### Go not found
-
-Fix PATH and extraction
-
----
-
-## 19. Final State
-
+```bash
+fuser -k 8080/tcp
 ```
-Go Installed
-ScyllaDB Running
-Migration Working
-Swagger Working
-API Functional
-```
+
+### Swagger CORS issue
+
+* Use relative path `/swagger/doc.json`
+
+### Migration failure
+
+* Check keyspace name
+
+---
+
+# 🏁 Final Checklist
+
+* [x] Go installed
+* [x] ScyllaDB running
+* [x] Keyspace created
+* [x] Migration successful
+* [x] Redis running
+* [x] Swagger working
+* [x] API responding
+
+---
+
+# 🎯 Conclusion
+
+You now have a **production-ready Employee API** with:
+
+* Scalable DB (ScyllaDB)
+* Optional cache (Redis)
+* Fully documented API (Swagger)
+* Clean modular architecture
+
+---
+
+🔥 End of README
