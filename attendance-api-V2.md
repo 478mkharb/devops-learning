@@ -468,6 +468,119 @@ poetry run gunicorn -w 2 -b 0.0.0.0:8000 app:app
 
 ---
 
+# 🔧 STEP 17 — Configure systemd Service (Gunicorn Auto-Start)
+
+## Why?
+
+Ensure the API runs as a **background service**, starts on boot, and auto-restarts on failure.
+
+**Detailed Explanation:**
+
+* `systemd` manages Linux services (start/stop/restart/status)
+* Keeps Gunicorn running independently of terminal session
+* Restarts service automatically if it crashes
+* Enables auto-start on system reboot
+* Standard practice for production deployments
+
+---
+
+## 🔧 Create Service File
+
+```bash
+sudo nano /etc/systemd/system/attendance.service
+```
+
+---
+
+## 📄 Add Configuration
+
+```ini
+[Unit]
+Description=Attendance API Gunicorn Service
+After=network.target
+
+[Service]
+User=mukesh
+WorkingDirectory=/home/mukesh/attendance-api
+ExecStart=/home/mukesh/.local/bin/poetry run gunicorn -w 2 -b 0.0.0.0:8000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+---
+
+## ⚠️ Important Notes
+
+* Replace `mukesh` with your EC2 username if different
+* Ensure correct project path
+* Ensure Poetry path is correct:
+
+  ```bash
+  which poetry
+  ```
+
+---
+
+## 🔄 Reload systemd
+
+```bash
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+```
+
+---
+
+## ▶️ Start Service
+
+```bash
+sudo systemctl start attendance
+```
+
+---
+
+## 🔁 Enable Auto Start
+
+```bash
+sudo systemctl enable attendance
+```
+
+---
+
+## 🔍 Verify
+
+```bash
+sudo systemctl status attendance
+```
+
+Expected:
+
+```
+Active: active (running)
+```
+
+---
+
+## 🔎 Test API
+
+```bash
+curl http://localhost:8000/api/v1/attendance/health
+```
+
+---
+
+## 🧠 Service Lifecycle Commands
+
+```bash
+sudo systemctl stop attendance
+sudo systemctl start attendance
+sudo systemctl restart attendance
+sudo systemctl status attendance
+```
+
+---
+
 # ✅ Final Validation Checklist
 
 * [x] PostgreSQL running
