@@ -1,10 +1,10 @@
-# 💰 Salary API – Production Setup Guide (Scylla + Redis + Migrations)
+# Salary API
 
 End-to-end, **repeatable** setup for the Salary microservice with **ScyllaDB (Cassandra-compatible)**, **Redis**, **Swagger**, and **Makefile-driven migrations**.
 
 ---
 
-## 📌 Tech Stack
+## Tech Stack
 
 * Java 17 (OpenJDK)
 * Spring Boot 3.x
@@ -16,7 +16,7 @@ End-to-end, **repeatable** setup for the Salary microservice with **ScyllaDB (Ca
 
 ---
 
-## 🚀 1. Prerequisites
+## 1. Prerequisites
 
 ```bash
 sudo apt update
@@ -26,7 +26,7 @@ java -version
 
 ---
 
-## ⚙️ 2. Install ScyllaDB (official)
+## 2. Install ScyllaDB (official)
 
 ```bash
 curl -sSf https://get.scylladb.com/server | sudo bash
@@ -49,7 +49,7 @@ sudo scylla_setup
 
 ---
 
-## ▶️ 3. Start Scylla
+## 3. Start Scylla
 
 ```bash
 sudo systemctl enable scylla-server
@@ -61,7 +61,7 @@ Expected: `UN 127.0.0.1`
 
 ---
 
-## 🔴 4. Install Redis
+## 4. Install Redis
 
 ```bash
 sudo apt install -y redis-server
@@ -72,7 +72,7 @@ redis-cli ping   # PONG
 
 ---
 
-## 📦 5. Clone Project
+## 5. Clone Project
 
 ```bash
 git clone <your-repo-url>
@@ -81,7 +81,7 @@ cd salary-api
 
 ---
 
-## 🗄️ 6. Migrations (golang-migrate)
+## 6. Migrations (golang-migrate)
 
 ### 6.1 Install migrate CLI
 
@@ -120,7 +120,7 @@ DROP TABLE IF EXISTS salary_keyspace.employee_salary;
 
 ---
 
-## 🧰 7. Makefile (migration + app)
+## 7. Makefile (migration + app)
 
 Ensure your `Makefile` contains (TAB-indented commands):
 
@@ -151,11 +151,11 @@ build:
 	./mvnw clean install
 ```
 
-> ⚠️ Ensure keyspace is `salary_keyspace` (not `employee_db`).
+> Ensure keyspace is `salary_keyspace` (not `employee_db`).
 
 ---
 
-## 🧪 8. Run Migrations
+## 8. Run Migrations
 
 ```bash
 make run-migrations
@@ -172,7 +172,7 @@ Expected table: `employee_salary`
 
 ---
 
-## ⚙️ 9. Application Configuration
+## 9. Application Configuration
 
 `src/main/resources/application.yml`
 
@@ -201,7 +201,7 @@ management:
 
 ---
 
-## 📄 10. Entity Mapping (CRITICAL)
+## 10. Entity Mapping (CRITICAL)
 
 `src/main/java/.../model/Employee.java`
 
@@ -223,7 +223,7 @@ public class Employee {
 
 ---
 
-## 📘 11. Swagger Configuration
+## 11. Swagger Configuration
 
 `src/main/java/.../swagger/OpenAPIConfig.java`
 
@@ -234,7 +234,7 @@ devServer.setUrl("/"); // use same host/port as UI
 
 ---
 
-## ▶️ 12. Run Application
+## 12. Run Application
 
 ```bash
 make run
@@ -244,7 +244,7 @@ make run
 
 ---
 
-## 🧪 13. API Testing
+## 13. API Testing
 
 ### ➤ Create Record
 
@@ -268,7 +268,7 @@ curl http://localhost:8082/api/v1/salary/search/all
 
 ---
 
-## 📊 14. Swagger UI
+## 14. Swagger UI
 
 ```text
 http://<HOST>:8082/swagger-ui/index.html
@@ -305,7 +305,7 @@ http://<HOST>:8082/swagger-ui/index.html
 
 ---
 
-## 🧱 Architecture
+## Architecture
 
 ```text
 Client → Salary API (8082)
