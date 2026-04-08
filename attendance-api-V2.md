@@ -1,149 +1,123 @@
-# Attendance API
+# 📘 Attendance API — End-to-End SOP (Ubuntu 22 EC2)
 
 ---
 
-## Objective
+## 🎯 Objective
 
-* Provision a EC2 with Ubuntu 22
-* Install all required dependencies
-* Configure database and cache
-* Setup Liquibase migrations
-* Configure Poetry environment
-* Run the application using Makefile
+This document provides a **step-by-step, production-oriented setup** of the Attendance Microservice from scratch on a fresh Ubuntu 22 EC2 instance.
+
+It covers:
+
+* System preparation
+* Dependency installation
+* Database + cache setup
+* Migration using Liquibase
+* Application execution (Flask + Gunicorn)
+* Validation & troubleshooting
 
 ---
 
-# Architecture Overview
+# 🧱 Architecture Overview
 
 ```
-Client → Flask App → Router Layer
-                      ↓
-              PostgreSQL (DB)
-                      ↓
-                  Redis (Cache)
-```
-
----
-
-# 📁 Directory Structure Explanation
-
-## 🔹 Root Level
-
-| Folder/File            | Purpose                              |
-| ---------------------- | ------------------------------------ |
-| `app.py`               | Entry point of Flask application     |
-| `config.yaml`          | Stores DB & Redis configuration      |
-| `pyproject.toml`       | Dependency management using Poetry   |
-| `Makefile`             | Automation for build, run, migration |
-| `liquibase.properties` | DB migration configuration           |
-| `migration/`           | Contains Liquibase changelog         |
-| `scripts/`             | Helper scripts (e.g., DB init)       |
-| `Dockerfile`           | Container build (future use)         |
-| `README.md`            | Documentation                        |
-
----
-
-## 🔹 client/
-
-Handles external systems (DB & Cache)
-
-| Folder      | Purpose                     |
-| ----------- | --------------------------- |
-| `postgres/` | PostgreSQL connection logic |
-| `redis/`    | Redis connection logic      |
-| `tests/`    | Unit tests for client layer |
-
----
-
-## 🔹 router/
-
-| File            | Purpose        |
-| --------------- | -------------- |
-| `attendance.py` | API endpoints  |
-| `cache.py`      | Cache handling |
-| `tests/`        | API tests      |
-
----
-
-## 🔹 models/
-
-| File           | Purpose                   |
-| -------------- | ------------------------- |
-| `user_info.py` | Data model for attendance |
-| `message.py`   | API response models       |
-| `tests/`       | Model tests               |
-
----
-
-## 🔹 utils/
-
-| File              | Purpose                   |
-| ----------------- | ------------------------- |
-| `validator.py`    | Input validation          |
-| `json_encoder.py` | Custom JSON serialization |
-| `log_encoder.py`  | Structured logging        |
-| `tests/`          | Utility tests             |
-
----
-
-# STEP 1 — Launch EC2 Instance
-
-* OS: Ubuntu 22.04
-* Instance: t2.micro
-* Open Ports:
-
-  * 22 (SSH)
-  * 8000 (App)
-
----
-
-# STEP 2 — Connect to Server
-
-```bash
-ssh ubuntu@<EC2-IP>
+Client → Gunicorn → Flask App → Router Layer
+                                  ↓
+                         PostgreSQL (DB)
+                                  ↓
+                               Redis (Cache)
 ```
 
 ---
 
-# STEP 3 — Update System
+# 📁 Directory Structure
+
+```
+attendance-api/
+├── app.py                # Entry point (Flask app instance)
+├── config.yaml           # DB + Redis configuration
+├── pyproject.toml        # Dependency management (Poetry)
+├── Makefile              # Automation (optional usage)
+├── liquibase.properties  # DB migration config
+├── migration/            # Liquibase changelog
+├── client/               # DB & Redis connectors
+├── router/               # API routes
+├── models/               # Data models
+├── utils/                # Helpers (validation, logging)
+```
+
+---
+
+# 🚀 STEP 1 — System Preparation
+
+## Why?
+
+Ensure system is updated and basic tools are available.
+
+**Detailed Explanation:**
+
+* `apt update` refreshes package index so latest versions can be installed
+* `apt upgrade` ensures system packages are patched (security + compatibility)
+* Tools installed:
+
+  * `git` → required to clone repository
+  * `curl/wget` → used for downloading binaries (Liquibase, Go, etc.)
+  * `unzip` → used for extracting archives
+* Skipping this step may lead to dependency mismatch or installation failures
 
 ```bash
 sudo apt update && sudo apt upgrade -y
+sudo apt install -y git curl wget unzip
 ```
 
 ---
 
-# STEP 4 — Install Base Packages
+# 🐍 STEP 2 — Install Python 3.11
+
+## Why?
+
+Project requires modern Python runtime compatible with dependencies.
+
+**Detailed Explanation:**
+
+* The project dependencies (Flask, Peewee, Redis client) are built/tested on Python 3.11
+* Older versions may cause runtime or installation issues
+* `python3.11-venv` → enables isolated virtual environments
+* `python3.11-distutils` → required by some build tools
+* Ensures consistency across environments (local, EC2, CI/CD)
 
 ```bash
-sudo apt install git curl wget unzip -y
-```
-
----
-
-# STEP 5 — Install Python 3.11
-
-```bash
-sudo apt install python3.11 python3.11-venv python3.11-distutils -y
-```
-
-Verify:
-
-```bash
+sudo apt install -y python3.11 python3.11-venv python3.11-distutils
 python3.11 --version
 ```
 
 ---
 
-# STEP 6 — Install PostgreSQL
+# 🗄️ STEP 3 — Install PostgreSQL
+
+## Why?
+
+Primary database to store attendance records.
+
+**Detailed Explanation:**
+
+* PostgreSQL is a reliable relational database used for structured data
+* Stores attendance records in normalized schema
+* ACID compliance ensures data integrity
+* Used by Peewee ORM in this project
+* `systemctl enable` ensures DB starts automatically on reboot
+
+**DB Setup Purpose:**
+
+* `attendance_db` → dedicated database for this service
+* Setting password ensures authentication for application access
 
 ```bash
-sudo apt install postgresql postgresql-contrib -y
+sudo apt install -y postgresql postgresql-contrib
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-### Setup DB
+## Setup DB
 
 ```bash
 sudo -u postgres psql
@@ -154,39 +128,69 @@ CREATE DATABASE attendance_db;
 ALTER USER postgres PASSWORD 'password';
 ```
 
-Exit:
-
-```bash
-\q
-```
-
 ---
 
-# STEP 7 — Install Redis
+# ⚡ STEP 4 — Install Redis
+
+## Why?
+
+Used for caching layer to improve performance.
+
+**Detailed Explanation:**
+
+* Redis is an in-memory datastore → extremely fast reads/writes
+* Used to cache frequently accessed data
+* Reduces load on PostgreSQL
+* Improves API response time
+* Helps in scalability (high request handling)
+* `redis-cli ping` ensures connectivity
+
+**In this project:**
+
+* Redis is used via client layer (`client/redis`)
+* Optional but recommended for performance optimization
 
 ```bash
-sudo apt install redis-server -y
+sudo apt install -y redis-server
 sudo systemctl start redis
 sudo systemctl enable redis
-```
-
-Test:
-
-```bash
 redis-cli ping
 ```
 
+Expected: `PONG`
+
 ---
 
-# STEP 8 — Install Liquibase
+# 🔄 STEP 5 — Install Liquibase
+
+## Why?
+
+Liquibase manages **database schema versioning** using changelog.
+
+**Detailed Explanation:**
+
+* Acts like Git for database schema
+* Uses XML changelog (`db.changelog-master.xml`) as source of truth
+* Automatically applies schema changes (tables, indexes, constraints)
+* Tracks applied changes in `databasechangelog` table
+* Prevents duplicate execution of migrations
+
+**Benefits:**
+
+* Consistent DB structure across environments
+* No manual SQL execution required
+* Safe incremental updates
+* Easy rollback support
+
+**Why critical here:**
+
+* Project does NOT include raw SQL setup scripts
+* Without Liquibase, tables won’t exist → API fails
 
 ```bash
 wget https://github.com/liquibase/liquibase/releases/download/v4.27.0/liquibase-4.27.0.tar.gz
-
 sudo mkdir -p /opt/liquibase
-
-sudo tar -xvf liquibase-4.27.0.tar.gz -C /opt/liquibase --strip-components=1
-
+sudo tar -xvf liquibase-4.27.0.tar.gz -C /opt/liquibase
 sudo chmod +x /opt/liquibase/liquibase
 sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
 ```
@@ -199,18 +203,42 @@ liquibase --version
 
 ---
 
-# STEP 9 — Install Poetry
+# 📦 STEP 6 — Install Poetry
+
+## Why?
+
+Poetry manages dependencies and virtual environments cleanly.
+
+**Detailed Explanation:**
+
+* Replaces pip + venv with unified tool
+* Handles dependency resolution via `pyproject.toml`
+* Creates isolated virtual environment
+* Ensures same dependency versions using `poetry.lock`
+
+**Benefits:**
+
+* No global package conflicts
+* Reproducible builds
+* Cleaner dependency management
+
+**In this project:**
+
+* All libraries (Flask, Redis, Peewee) are defined in Poetry config
+* Must use `poetry run` to execute application
 
 ```bash
 pip install --user poetry
 
 echo 'export PATH=$PATH:$HOME/.local/bin' >> ~/.bashrc
 source ~/.bashrc
+
+poetry --version
 ```
 
 ---
 
-# STEP 10 — Clone Project
+# 📥 STEP 7 — Clone Project
 
 ```bash
 git clone https://github.com/OT-MICROSERVICES/attendance-api.git
@@ -219,87 +247,269 @@ cd attendance-api
 
 ---
 
-# STEP 11 — Fix pyproject.toml
+# ⚙️ STEP 8 — Fix pyproject.toml
 
-### Remove:
+## Why?
 
-```toml
+Prevent Poetry packaging issues.
+
+**Detailed Explanation:**
+
+* Project is not structured as a Python package (no proper module layout)
+* Default Poetry behavior expects installable package
+* Removing `packages` avoids packaging errors
+* Adding `package-mode = false` tells Poetry:
+  → "Just manage dependencies, don’t treat as package"
+
+**Without this fix:**
+
+* `poetry install` may fail or behave incorrectly
+
+Remove:
+
+```
 packages = [{include = "attendance_api"}]
 ```
 
-### Add:
+Add:
 
-```toml
+```
 package-mode = false
 ```
 
 ---
 
-# STEP 12 — Configure Liquibase
+# 📦 STEP 9 — Install Dependencies
+
+```bash
+poetry install --no-root --no-interaction --no-ansi
+```
+
+---
+
+# 🔗 STEP 10 — Configure Liquibase
+
+Edit:
 
 ```bash
 nano liquibase.properties
 ```
 
-```properties
-changeLogFile=migration/db.changelog-master.xml
+Set:
 
-url=jdbc:postgresql://localhost:5432/attendance_db
+```properties
+url=jdbc:postgresql://127.0.0.1:5432/attendance_db
+driver=org.postgresql.Driver
 username=postgres
 password=password
-
-driver=org.postgresql.Driver
+changeLogFile=migration/db.changelog-master.xml
 classpath=/opt/liquibase/internal/lib/postgresql.jar
 ```
 
 ---
 
-# STEP 13 — Update Makefile
+# 🧬 STEP 11 — Run DB Migration
 
-```makefile
-.PHONY: build fmt run test migrate setup
+## Why?
 
-build:
-	poetry install --no-root --no-interaction --no-ansi
+Creates required tables automatically.
 
-fmt:
-	poetry run pylint router/ client/ models/ utils/ app.py
+**Detailed Explanation:**
 
-run:
-	poetry run python app.py
+* Reads changelog XML file
+* Executes SQL operations defined in changesets
+* Creates:
 
-migrate:
-	liquibase update --driver-properties-file=liquibase.properties
+  * Application tables (e.g., `records`)
+  * Liquibase tracking tables
 
-setup: build migrate run
-```
+**Verification importance:**
 
----
+* Ensures DB schema exists before app starts
+* Missing tables = runtime errors in API
 
-# STEP 14 — Run Application
+**Internal working:**
+
+* Liquibase checks `databasechangelog`
+* Applies only new changes
 
 ```bash
-make setup
+liquibase update --defaultsFile=liquibase.properties
+```
+
+Verify:
+
+```bash
+sudo -u postgres psql
+\c attendance_db
+\dt
 ```
 
 ---
 
-# STEP 15 — Test API
+# 🧠 STEP 12 — Application Config
+
+Edit:
+
+```bash
+nano config.yaml
+```
+
+Ensure:
+
+```yaml
+postgres:
+  database: attendance_db
+  host: 127.0.0.1
+  port: 5432
+  user: postgres
+  password: password
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+```
+
+---
+
+# ▶️ STEP 13 — Run Application (Development)
+
+## Why?
+
+Flask CLI is required to properly start app.
+
+**Detailed Explanation:**
+
+* `app.py` defines Flask app but may not call `app.run()` explicitly
+* Flask CLI loads app context correctly
+* Enables environment-based execution
+
+**Why not `python app.py`:**
+
+* May not trigger server start
+* Silent failures possible
+
+**Flask CLI advantages:**
+
+* Better debugging
+* Proper app discovery
+* Supports environment configs
+
+```bash
+poetry run flask --app app run --host=0.0.0.0 --port=8000
+```
+
+---
+
+# 🔎 STEP 14 — Verify API
 
 ```bash
 curl http://localhost:8000/api/v1/attendance/health
 ```
 
----
+Expected:
 
-# Important Points
-
-* Dependency isolation using Poetry
-* DB version control using Liquibase
-* Service automation using Makefile
-* Layered microservice architecture
+```json
+{"message":"Attendance API is running fine and ready to serve requests"}
+```
 
 ---
 
+# 📘 STEP 15 — Swagger UI
 
-🔥 End of SOP
+Access:
+
+```
+http://<SERVER-IP>:8000/apidocs/
+```
+
+---
+
+# 🚀 STEP 16 — Run with Gunicorn (Production)
+
+## Why?
+
+Gunicorn provides:
+
+* Multi-worker support
+* Stability
+* Production readiness
+
+**Detailed Explanation:**
+
+* Gunicorn is a WSGI HTTP server for Python apps
+* Sits between client and Flask app
+
+**How it works:**
+Client → Gunicorn → Flask
+
+**Key advantages:**
+
+* Multiple workers handle concurrent requests
+* Better CPU utilization
+* Automatic worker restart on failure
+* Production-safe compared to Flask dev server
+
+**Why needed in production:**
+
+* Flask dev server is single-threaded and not secure
+* Gunicorn ensures high availability and performance
+
+**Worker concept:**
+
+* `-w 2` → 2 parallel processes handling requests
+* More workers = better concurrency (within limits)
+
+```bash
+poetry add gunicorn
+poetry run gunicorn -w 2 -b 0.0.0.0:8000 app:app
+```
+
+---
+
+# ✅ Final Validation Checklist
+
+* [x] PostgreSQL running
+* [x] Redis running
+* [x] Liquibase migration success
+* [x] API responding
+* [x] Swagger accessible
+* [x] Gunicorn running
+
+---
+
+# 🛠️ Troubleshooting
+
+## App not starting
+
+* Use Flask CLI instead of `python app.py`
+
+## DB connection error
+
+* Check config.yaml credentials
+
+## Migration failure
+
+* Verify liquibase.properties
+
+## Port not open
+
+```bash
+lsof -i :8000
+```
+
+---
+
+# 🏁 Conclusion
+
+This SOP ensures:
+
+* Reproducible setup
+* Clean dependency management
+* Production-grade runtime
+* Proper microservice architecture adherence
+
+---
+
+🔥 Attendance API is now fully operational and production-ready.
