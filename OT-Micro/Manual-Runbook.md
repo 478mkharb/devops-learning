@@ -1,16 +1,14 @@
-# 🚀 OT-Microservices — Manual Runbook (DEV MODE)
+# 🚀 OT-Microservices — Clean Manual Runbook (DEV MODE)
 
-> Purpose: **Single reference** to start all services manually, verify Swagger, and demonstrate databases during a live demo.
+> Purpose: **Simple, reliable commands for demo** (Start → Verify → No mixing, No sleep required)
 
 ---
 
-# 📁 Log Directory Setup
+# 📁 Setup Logs
 
 ```bash
 mkdir -p ~/logs
 ```
-
-````
 
 ---
 
@@ -20,7 +18,7 @@ mkdir -p ~/logs
 fuser -k 8080/tcp
 fuser -k 8081/tcp
 fuser -k 8082/tcp
-````
+```
 
 ---
 
@@ -33,59 +31,58 @@ sudo systemctl start redis
 sudo systemctl start nginx
 ```
 
-## ✅ Verify Infra
-
-```bash
-sudo systemctl status scylla-server
-sudo systemctl status postgresql
-sudo systemctl status redis
-sudo systemctl status nginx
-```
-
 ---
 
-# 🧠 3. Employee API (Go)
+# 🧠 3. Employee API
+
+## ▶ Start
 
 ```bash
 cd ~/OT-Micro/employee-api
-
-# Run
 nohup go run main.go > ~/logs/employee-api.log 2>&1 &
+```
 
-# Verify
+## ✅ Verify
+
+```bash
 lsof -i :8080
 curl http://localhost:8080/api/v1/employee/health
 ```
 
 ---
 
-# 🐍 4. Attendance API (Python + Gunicorn)
+# 🐍 4. Attendance API
+
+## ▶ Start
 
 ```bash
 cd ~/OT-Micro/attendance-api
-
 nohup poetry run gunicorn app:app \
   --log-config log.conf \
   -b 0.0.0.0:8081 > ~/logs/attendance.log 2>&1 &
+```
 
-# Verify
+## ✅ Verify
+
+```bash
 lsof -i :8081
 curl http://localhost:8081/api/v1/attendance/health
 ```
 
 ---
 
-# ☕ 5. Salary API (Spring Boot)
+# ☕ 5. Salary API
+
+## ▶ Start
 
 ```bash
 cd ~/OT-Micro/salary-api
-
 nohup ./mvnw spring-boot:run > ~/logs/salary.log 2>&1 &
+```
 
-# Wait for startup
-sleep 10
+## ✅ Verify
 
-# Verify
+```bash
 lsof -i :8082
 curl http://localhost:8082/actuator/health
 ```
@@ -95,19 +92,14 @@ curl http://localhost:8082/actuator/health
 # 🔍 6. Swagger Validation
 
 ```bash
-# Employee
 curl -I http://localhost:8080/swagger/index.html
-
-# Attendance
 curl -I http://localhost:8081/apidocs/
-
-# Salary
 curl -I http://localhost:8082/swagger-ui/index.html
 ```
 
 ---
 
-# 🌐 7. Access URLs (Demo Ready)
+# 🌐 7. Access URLs
 
 ## UI
 
@@ -118,24 +110,24 @@ http://192.168.122.167/
 ## APIs
 
 ```
-Employee   → http://192.168.122.167:8080/api/v1/employee/health
-Attendance → http://192.168.122.167:8081/api/v1/attendance/health
-Salary     → http://192.168.122.167:8082/actuator/health
+http://192.168.122.167:8080/api/v1/employee/health
+http://192.168.122.167:8081/api/v1/attendance/health
+http://192.168.122.167:8082/actuator/health
 ```
 
 ## Swagger
 
 ```
-Employee   → http://192.168.122.167:8080/swagger/index.html
-Attendance → http://192.168.122.167:8081/apidocs/
-Salary     → http://192.168.122.167:8082/swagger-ui/index.html
+http://192.168.122.167:8080/swagger/index.html
+http://192.168.122.167:8081/apidocs/
+http://192.168.122.167:8082/swagger-ui/index.html
 ```
 
 ---
 
-# 🗄️ 8. Database Demo Commands (IMPORTANT FOR INTERVIEW)
+# 🗄️ 8. Database Demo Commands
 
-## 🔹 ScyllaDB (Employee + Salary)
+## 🔹 ScyllaDB
 
 ```bash
 cqlsh
@@ -144,21 +136,15 @@ cqlsh
 ```sql
 DESCRIBE KEYSPACES;
 USE employee_db;
-DESCRIBE TABLES;
 SELECT * FROM employee;
-```
 
-### Salary DB
-
-```sql
 USE salary_keyspace;
-DESCRIBE TABLES;
 SELECT * FROM employee_salary;
 ```
 
 ---
 
-## 🔹 PostgreSQL (Attendance)
+## 🔹 PostgreSQL
 
 ```bash
 psql -U postgres -h 127.0.0.1 -d attendance_db
@@ -171,7 +157,7 @@ SELECT * FROM attendance;
 
 ---
 
-## 🔹 Redis (Cache Demo)
+## 🔹 Redis
 
 ```bash
 redis-cli
@@ -180,12 +166,11 @@ redis-cli
 ```bash
 PING
 KEYS *
-GET "employee_*"
 ```
 
 ---
 
-# 📊 9. Logs (Live Debug)
+# 📊 9. Logs
 
 ```bash
 tail -f ~/logs/employee-api.log
@@ -195,41 +180,36 @@ tail -f ~/logs/salary.log
 
 ---
 
-# 🧪 10. Quick API Test Commands
+# 🧪 10. Quick API Test
 
 ```bash
-# Employee
 curl http://localhost:8080/api/v1/employee/search/all | jq
-
-# Attendance
 curl http://localhost:8081/api/v1/attendance/search | jq
-
-# Salary
 curl http://localhost:8082/api/v1/salary/search/all | jq
 ```
 
 ---
 
-# 🧠 Demo Flow (Use This in Interview)
+# 🧠 Demo Flow
 
-1. Start infra
-2. Start all APIs
-3. Show UI (Nginx)
-4. Open Swagger
-5. Hit APIs via curl
-6. Show DB data (cqlsh + psql)
+1. Start Infra
+2. Start APIs (one by one)
+3. Verify APIs
+4. Open UI
+5. Show Swagger
+6. Show DB data
 7. Show logs
 
 ---
 
-# ✅ Final Checklist
+# ✅ Checklist
 
-* [ ] All ports running (8080, 8081, 8082)
-* [ ] Swagger accessible
-* [ ] UI loads
+* [ ] Ports active (8080,8081,8082)
+* [ ] APIs responding
+* [ ] Swagger working
+* [ ] UI accessible
 * [ ] DB queries working
-* [ ] Logs updating
 
 ---
 
-🔥 Ready for Demo
+🔥 Clean • Simple • Demo Ready
