@@ -18,6 +18,9 @@ import React, { useEffect, useState } from "react";
 import { StatsCard, Card } from "tabler-react";
 import C3Chart from "react-c3js";
 
+// ─────────────────────────────────────────────
+// Utility
+// ─────────────────────────────────────────────
 function countByKey(data, key) {
   const result = {};
   data.forEach(item => {
@@ -27,6 +30,9 @@ function countByKey(data, key) {
   return result;
 }
 
+// ─────────────────────────────────────────────
+// EMPLOYEE CARDS
+// ─────────────────────────────────────────────
 export function ListAllEmployees() {
   const [data, setData] = useState([]);
 
@@ -76,31 +82,52 @@ export function ListEmployeeInActiveEmployee() {
   );
 }
 
-export function StatusDistribution() {
+// ───────────────────────────
+// ATTENDANCE DISTRIBUTION 
+// ───────────────────────────
+export function AttendanceDistribution() {
   const [data, setData] = useState({});
+  const [presentRate, setPresentRate] = useState(0);
 
   useEffect(() => {
     fetch("/api/v1/attendance/search/all")
       .then(res => res.json())
       .then(res => {
-        const result = {};
+        const result = { Present: 0, Absent: 0 };
+
         res.forEach(item => {
-          const status = item.status || "Unknown";
-          result[status] = (result[status] || 0) + 1;
+          if (item.status === "Present") result.Present++;
+          else if (item.status === "Absent") result.Absent++;
         });
+
+        const total = result.Present + result.Absent;
+        const percentage = total ? ((result.Present / total) * 100).toFixed(1) : 0;
+
         setData(result);
+        setPresentRate(percentage);
       })
-      .catch(() => setData({}));
+      .catch(() => {
+        setData({ Present: 0, Absent: 0 });
+        setPresentRate(0);
+      });
   }, []);
 
   return (
     <Card>
       <Card.Header>
-        <Card.Title>Status Distribution</Card.Title>
+        <Card.Title>Attendance Distribution</Card.Title>
       </Card.Header>
+
       <Card.Body>
         <C3Chart
-          data={{ columns: Object.entries(data), type: "donut" }}
+          data={{
+            columns: Object.entries(data),
+            type: "donut",
+            colors: {
+              Present: "#28a745",
+              Absent: "#dc3545",
+            },
+          }}
           size={{ height: 220 }}
         />
       </Card.Body>
@@ -108,6 +135,48 @@ export function StatusDistribution() {
   );
 }
 
+// ─────────────────────────────────────────────
+// TODAY ATTENDANCE WIDGET
+// ─────────────────────────────────────────────
+export function TodayAttendanceStats() {
+  const [todayStats, setTodayStats] = useState({
+    present: 0,
+    absent: 0,
+  });
+
+  useEffect(() => {
+    fetch("/api/v1/attendance/search/all")
+      .then(res => res.json())
+      .then(res => {
+        const today = new Date().toISOString().split("T")[0];
+
+        let present = 0;
+        let absent = 0;
+
+        res.forEach(item => {
+          if (item.date === today) {
+            if (item.status === "Present") present++;
+            else if (item.status === "Absent") absent++;
+          }
+        });
+
+        setTodayStats({ present, absent });
+      })
+      .catch(() => setTodayStats({ present: 0, absent: 0 }));
+  }, []);
+
+  return (
+    <StatsCard
+      layout={1}
+      total={`${todayStats.present}/${todayStats.present + todayStats.absent}`}
+      label="Today's Attendance (P/A)"
+    />
+  );
+}
+
+// ─────────────────────────────────────────────
+// ROLE DISTRIBUTION
+// ─────────────────────────────────────────────
 export function RoleDistribution() {
   const [data, setData] = useState({});
 
@@ -133,6 +202,9 @@ export function RoleDistribution() {
   );
 }
 
+// ─────────────────────────────────────────────
+// LOCATION DISTRIBUTION
+// ─────────────────────────────────────────────
 export function LocationDistribution() {
   const [data, setData] = useState({});
 
@@ -175,7 +247,7 @@ import {
   ListAllEmployees,
   ListEmployeeActiveEmployee,
   ListEmployeeInActiveEmployee,
-  StatusDistribution,
+  AttendanceDistribution,
   RoleDistribution,
   LocationDistribution
 } from "./EmployeeData";
@@ -185,19 +257,46 @@ function Home() {
     <SiteWrapper>
       <Page.Content title="Dashboard">
 
+        {/* ===== TOP CARDS ===== */}
         <Grid.Row className="mb-4">
-          <Grid.Col md={3}><ListAllEmployees /></Grid.Col>
-          <Grid.Col md={3}><ListEmployeeActiveEmployee /></Grid.Col>
-          <Grid.Col md={3}><ListEmployeeInActiveEmployee /></Grid.Col>
+
           <Grid.Col md={3}>
-            <StatsCard layout={1} total="4" label="Office Locations" />
+            <ListAllEmployees />
           </Grid.Col>
+
+          <Grid.Col md={3}>
+            <ListEmployeeActiveEmployee />
+          </Grid.Col>
+
+          <Grid.Col md={3}>
+            <ListEmployeeInActiveEmployee />
+          </Grid.Col>
+
+          <Grid.Col md={3}>
+            <StatsCard
+              layout={1}
+              total="4"
+              label="Office Locations"
+            />
+          </Grid.Col>
+
         </Grid.Row>
 
+        {/* ===== DONUT CHARTS IN ONE ROW ===== */}
         <Grid.Row>
-          <Grid.Col md={4}><StatusDistribution /></Grid.Col>
-          <Grid.Col md={4}><RoleDistribution /></Grid.Col>
-          <Grid.Col md={4}><LocationDistribution /></Grid.Col>
+
+         <Grid.Col md={4}>
+           <AttendanceDistribution />
+         </Grid.Col>
+
+           <Grid.Col md={4}>
+             <RoleDistribution />
+           </Grid.Col>
+
+           <Grid.Col md={4}>
+             <LocationDistribution />
+           </Grid.Col>
+
         </Grid.Row>
 
       </Page.Content>
