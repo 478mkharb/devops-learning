@@ -51,7 +51,7 @@ sudo systemctl status nginx
 # 🧠 3. Employee API (Go)
 
 ```bash
-cd $BASE_DIR/employee-api
+cd ~/OT-Micro/employee-api
 
 # Run
 nohup go run main.go > $LOG_DIR/employee-api.log 2>&1 &
@@ -66,7 +66,7 @@ curl http://localhost:8080/api/v1/employee/health
 # 🐍 4. Attendance API (Python + Gunicorn)
 
 ```bash
-cd $BASE_DIR/attendance-api
+cd ~/OT-Micro/attendance-api
 
 nohup poetry run gunicorn app:app \
   --log-config log.conf \
@@ -82,7 +82,7 @@ curl http://localhost:8081/api/v1/attendance/health
 # ☕ 5. Salary API (Spring Boot)
 
 ```bash
-cd $BASE_DIR/salary-api
+cd ~/OT-Micro/salary-api
 
 nohup ./mvnw spring-boot:run > $LOG_DIR/salary.log 2>&1 &
 
@@ -116,23 +116,23 @@ curl -I http://localhost:8082/swagger-ui/index.html
 ## UI
 
 ```
-http://$HOST_IP/
+http://192.168.122.167/
 ```
 
 ## APIs
 
 ```
-Employee   → http://$HOST_IP:8080/api/v1/employee/health
-Attendance → http://$HOST_IP:8081/api/v1/attendance/health
-Salary     → http://$HOST_IP:8082/actuator/health
+Employee   → http://192.168.122.167:8080/api/v1/employee/health
+Attendance → http://192.168.122.167:8081/api/v1/attendance/health
+Salary     → http://192.168.122.167:8082/actuator/health
 ```
 
 ## Swagger
 
 ```
-Employee   → http://$HOST_IP:8080/swagger/index.html
-Attendance → http://$HOST_IP:8081/apidocs/
-Salary     → http://$HOST_IP:8082/swagger-ui/index.html
+Employee   → http://192.168.122.167:8080/swagger/index.html
+Attendance → http://192.168.122.167:8081/apidocs/
+Salary     → http://192.168.122.167:8082/swagger-ui/index.html
 ```
 
 ---
