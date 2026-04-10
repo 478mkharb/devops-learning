@@ -161,11 +161,13 @@ function AttendanceList() {
     ])
     .then(([attendance, employees]) => {
 
+      // Create ID → Name map
       const employeeMap = {};
       employees.forEach(emp => {
         employeeMap[emp.id] = emp.name;
       });
 
+      // Merge attendance + employee
       let merged = attendance.map(a => ({
         id: a.id,
         name: employeeMap[a.id] || "Unknown",
@@ -174,6 +176,7 @@ function AttendanceList() {
         date: new Date(a.date).toLocaleDateString()
       }));
 
+      // Sort latest first
       merged.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
 
       setData(merged);
@@ -181,6 +184,7 @@ function AttendanceList() {
     .catch(() => setData([]));
   };
 
+  // 🔍 Search filter
   const filteredData = data.filter(item =>
     item.id.toLowerCase().includes(search.toLowerCase()) ||
     item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -201,6 +205,7 @@ function AttendanceList() {
 
               <Card.Body>
 
+                {/* 🔍 Search */}
                 <Form.Group>
                   <Form.Input
                     placeholder="Search by ID, Name, Status..."
@@ -209,6 +214,7 @@ function AttendanceList() {
                   />
                 </Form.Group>
 
+                {/* 📊 Table */}
                 <Table>
                   <Table.Header>
                     <Table.ColHeader>Employee ID</Table.ColHeader>
