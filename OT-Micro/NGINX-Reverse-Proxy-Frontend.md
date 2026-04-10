@@ -82,7 +82,7 @@ server {
     listen 80;
     server_name _;
 
-    root /home/mukesh/frontend/build;
+    root /home/mukesh/OT-Micro/frontend/build;
     index index.html;
 
     # =========================
@@ -94,11 +94,23 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
+    location /employee/ {
+        proxy_pass http://127.0.0.1:8080/api/v1/employee/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
     # =========================
     # ATTENDANCE API
     # =========================
     location /api/v1/attendance/ {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://127.0.0.1:8081;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /attendance/ {
+        proxy_pass http://127.0.0.1:8081/api/v1/attendance/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -112,8 +124,29 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
+    location /actuator/ {
+        proxy_pass http://127.0.0.1:8082/actuator/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
     # =========================
-    # FRONTEND (REACT)
+    # SWAGGER / DOCS
+    # =========================
+    location /swagger/ {
+        proxy_pass http://127.0.0.1:8080/swagger/;
+    }
+
+    location /apidocs {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /salary-documentation {
+        proxy_pass http://127.0.0.1:8082;
+    }
+
+    # =========================
+    # FRONTEND
     # =========================
     location / {
         try_files $uri $uri/ /index.html;
