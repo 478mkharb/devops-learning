@@ -4,17 +4,13 @@
 
 ---
 
-# 📁 Base Assumptions
+# 📁 Log Directory Setup
 
 ```bash
-BASE_DIR=~/OT-Micro
-LOG_DIR=~/logs
-HOST_IP=192.168.122.167
+mkdir -p ~/logs
 ```
 
-```bash
-mkdir -p $LOG_DIR
-```
+````
 
 ---
 
@@ -24,7 +20,7 @@ mkdir -p $LOG_DIR
 fuser -k 8080/tcp
 fuser -k 8081/tcp
 fuser -k 8082/tcp
-```
+````
 
 ---
 
@@ -54,7 +50,7 @@ sudo systemctl status nginx
 cd ~/OT-Micro/employee-api
 
 # Run
-nohup go run main.go > $LOG_DIR/employee-api.log 2>&1 &
+nohup go run main.go > ~/logs/employee-api.log 2>&1 &
 
 # Verify
 lsof -i :8080
@@ -70,7 +66,7 @@ cd ~/OT-Micro/attendance-api
 
 nohup poetry run gunicorn app:app \
   --log-config log.conf \
-  -b 0.0.0.0:8081 > $LOG_DIR/attendance.log 2>&1 &
+  -b 0.0.0.0:8081 > ~/logs/attendance.log 2>&1 &
 
 # Verify
 lsof -i :8081
@@ -84,7 +80,7 @@ curl http://localhost:8081/api/v1/attendance/health
 ```bash
 cd ~/OT-Micro/salary-api
 
-nohup ./mvnw spring-boot:run > $LOG_DIR/salary.log 2>&1 &
+nohup ./mvnw spring-boot:run > ~/logs/salary.log 2>&1 &
 
 # Wait for startup
 sleep 10
@@ -192,9 +188,9 @@ GET "employee_*"
 # 📊 9. Logs (Live Debug)
 
 ```bash
-tail -f $LOG_DIR/employee-api.log
-tail -f $LOG_DIR/attendance.log
-tail -f $LOG_DIR/salary.log
+tail -f ~/logs/employee-api.log
+tail -f ~/logs/attendance.log
+tail -f ~/logs/salary.log
 ```
 
 ---
