@@ -22,36 +22,124 @@ It includes:
 ## ✅ Final Working Code (Relevant Section)
 
 ```javascript
-handleSubmit(values, { resetForm, setSubmitting }) {
-  const payload = {
-    id: String(values.id),
-    name: values.name,
-    status: values.status,
-    date: values.date
+import React from "react";
+import { Page, Grid, Form, Button, Card } from "tabler-react";
+import SiteWrapper from "./SiteWrapper.react";
+
+class AttendanceForm extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      id: "",
+      status: "",
+      date: ""
+    };
+  }
+
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
   };
 
-  fetch('/api/v1/attendance/create', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("API failed");
-    return res.json();
-  })
-  .then(() => {
-    alert("Attendance Created ✅");
-    resetForm();
-    window.location.reload();
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Failed ❌");
-  })
-  .finally(() => setSubmitting(false));
+  handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      id: this.state.id,
+      status: this.state.status,
+      date: this.state.date
+    };
+
+    fetch("/api/v1/attendance/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(() => {
+        alert("Attendance added successfully!");
+
+        this.setState({
+          id: "",
+          status: "",
+          date: ""
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error adding attendance");
+      });
+  };
+
+  render() {
+    return (
+      <SiteWrapper>
+        <Page.Content title="Add Attendance">
+
+          <Grid.Row>
+            <Grid.Col md={6}>
+              <Card>
+                <Card.Header>
+                  <Card.Title>Add Attendance</Card.Title>
+                </Card.Header>
+
+                <Card.Body>
+                  <Form onSubmit={this.handleSubmit}>
+
+                    <Form.Group label="Employee ID">
+                      <Form.Input
+                        name="id"
+                        value={this.state.id}
+                        onChange={this.handleChange}
+                        placeholder="Enter Employee ID"
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group label="Status">
+                      <Form.Select
+                        name="status"
+                        value={this.state.status}
+                        onChange={this.handleChange}
+                        required
+                      >
+                        <option value="">Select Status</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                      </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group label="Date">
+                      <Form.Input
+                        type="date"
+                        name="date"
+                        value={this.state.date}
+                        onChange={this.handleChange}
+                        required
+                      />
+                    </Form.Group>
+
+                    <Button color="primary" type="submit">
+                      Submit
+                    </Button>
+
+                  </Form>
+                </Card.Body>
+              </Card>
+            </Grid.Col>
+          </Grid.Row>
+
+        </Page.Content>
+      </SiteWrapper>
+    );
+  }
 }
+
+export default AttendanceForm;
 ```
 
 ## 🧠 WHY
@@ -72,56 +160,114 @@ handleSubmit(values, { resetForm, setSubmitting }) {
 ## ✅ FULL FILE
 
 ```javascript
-import React from "react";
-import { Page, Grid, Table } from "tabler-react";
+import React, { useEffect, useState } from "react";
+import { Page, Grid, Table, Form, Card } from "tabler-react";
 import SiteWrapper from "./SiteWrapper.react";
 
-class AttendanceList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { data: [] };
-  }
+function AttendanceList() {
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
 
-  loadData() {
-    fetch("/api/v1/attendance/search/all")
-      .then((response) => response.json())
-      .then((data) => {
-        this.setState({ data: data });
-      })
-      .catch((err) => console.error("Error:", err));
-  }
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  componentDidMount() {
-    this.loadData();
-  }
+  const loadData = () => {
+    Promise.all([
+      fetch("/api/v1/attendance/search/all")
+        .then(res => res.json())
+        .catch(() => []),
 
-  render() {
-    return (
-      <SiteWrapper>
-        <Page.Card title="Attendance List"></Page.Card>
-        <Grid.Col md={6} lg={10}>
-          <Table>
-            <Table.Header>
-              <Table.ColHeader>ID</Table.ColHeader>
-              <Table.ColHeader>Name</Table.ColHeader>
-              <Table.ColHeader>Status</Table.ColHeader>
-              <Table.ColHeader>Date</Table.ColHeader>
-            </Table.Header>
-            <Table.Body>
-              {this.state.data.map((item, i) => (
-                <Table.Row key={i}>
-                  <Table.Col>{item.id}</Table.Col>
-                  <Table.Col>{item.name}</Table.Col>
-                  <Table.Col>{item.status}</Table.Col>
-                  <Table.Col>{item.date}</Table.Col>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </Grid.Col>
-      </SiteWrapper>
-    );
-  }
+      fetch("/api/v1/employee/search/all")
+        .then(res => res.json())
+        .catch(() => [])
+    ])
+    .then(([attendance, employees]) => {
+
+      // Create ID → Name map
+      const employeeMap = {};
+      employees.forEach(emp => {
+        employeeMap[emp.id] = emp.name;
+      });
+
+      // Merge attendance + employee
+      let merged = attendance.map(a => ({
+        id: a.id,
+        name: employeeMap[a.id] || "Unknown",
+        status: a.status,
+        rawDate: a.date,
+        date: new Date(a.date).toLocaleDateString()
+      }));
+
+      // Sort latest first
+      merged.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+
+      setData(merged);
+    })
+    .catch(() => setData([]));
+  };
+
+  // 🔍 Search filter
+  const filteredData = data.filter(item =>
+    item.id.toLowerCase().includes(search.toLowerCase()) ||
+    item.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.status.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <SiteWrapper>
+      <Page.Content title="Attendance List">
+
+        <Grid.Row>
+          <Grid.Col md={12}>
+
+            <Card>
+              <Card.Header>
+                <Card.Title>Attendance List</Card.Title>
+              </Card.Header>
+
+              <Card.Body>
+
+                {/* 🔍 Search */}
+                <Form.Group>
+                  <Form.Input
+                    placeholder="Search by ID, Name, Status..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </Form.Group>
+
+                {/* 📊 Table */}
+                <Table>
+                  <Table.Header>
+                    <Table.ColHeader>Employee ID</Table.ColHeader>
+                    <Table.ColHeader>Name</Table.ColHeader>
+                    <Table.ColHeader>Status</Table.ColHeader>
+                    <Table.ColHeader>Date</Table.ColHeader>
+                  </Table.Header>
+
+                  <Table.Body>
+                    {filteredData.map(item => (
+                      <Table.Row key={item.id + item.rawDate}>
+                        <Table.Col>{item.id}</Table.Col>
+                        <Table.Col>{item.name}</Table.Col>
+                        <Table.Col>{item.status}</Table.Col>
+                        <Table.Col>{item.date}</Table.Col>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+
+                </Table>
+
+              </Card.Body>
+            </Card>
+
+          </Grid.Col>
+        </Grid.Row>
+
+      </Page.Content>
+    </SiteWrapper>
+  );
 }
 
 export default AttendanceList;
@@ -144,7 +290,17 @@ export default AttendanceList;
 ## ✅ CORE LOGIC
 
 ```javascript
-loadData() {
+import React from "react";
+import { Page, Grid, Table } from "tabler-react";
+import SiteWrapper from "./SiteWrapper.react";
+
+class ListSalary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { data: [] };
+  }
+
+  loadData() {
   Promise.all([
     fetch("/api/v1/employee/search/all").then(res => res.json()),
     fetch("/api/v1/salary/search/all").then(res => res.json())
@@ -155,16 +311,57 @@ loadData() {
       salaryMap[s.id] = s;
     });
 
-    const merged = employees.map(emp => ({
-      ...emp,
-      salary: salaryMap[emp.id] ? salaryMap[emp.id].salary : "N/A",
-      processDate: salaryMap[emp.id] ? salaryMap[emp.id].processDate : "N/A",
-      status: salaryMap[emp.id] ? salaryMap[emp.id].status : "N/A"
-    }));
+    const merged = employees.map(emp => {
+      return {
+        ...emp,
+        salary: salaryMap[emp.id] ? salaryMap[emp.id].salary : "N/A",
+        processDate: salaryMap[emp.id] ? salaryMap[emp.id].processDate : "N/A",
+        status: salaryMap[emp.id] ? salaryMap[emp.id].status : "N/A"
+      };
+    });
 
+    console.log("Merged Data:", merged);
     this.setState({ data: merged });
-  });
+  })
+  .catch(err => console.error("Error:", err));
 }
+
+  componentDidMount() {
+    this.loadData();
+  }
+
+  render() {
+    return (
+      <SiteWrapper>
+        <Page.Card title="Salary List"></Page.Card>
+        <Grid.Col md={6} lg={10} className="align-self-center">
+          <Table>
+            <Table.Header>
+              <Table.ColHeader>ID</Table.ColHeader>
+              <Table.ColHeader>Name</Table.ColHeader>
+              <Table.ColHeader>Salary</Table.ColHeader>
+              <Table.ColHeader>Process Date</Table.ColHeader>
+              <Table.ColHeader>Status</Table.ColHeader>
+            </Table.Header>
+            <Table.Body>
+              {this.state.data.map((item, i) => (
+                <Table.Row key={i}>
+                  <Table.Col>{item.id}</Table.Col>
+                  <Table.Col>{item.name}</Table.Col>
+                  <Table.Col>{item.salary}</Table.Col>
+                  <Table.Col>{item.processDate}</Table.Col>
+                  <Table.Col>{item.status}</Table.Col>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </Grid.Col>
+      </SiteWrapper>
+    );
+  }
+}
+
+export default ListSalary;
 ```
 
 ## 🧠 WHY
@@ -185,54 +382,218 @@ loadData() {
 
 ```javascript
 import React, { useEffect, useState } from "react";
-import { Grid, StatsCard, Card } from "tabler-react";
+import { StatsCard, Card } from "tabler-react";
 import C3Chart from "react-c3js";
 
+// ─────────────────────────────────────────────
+// Utility
+// ─────────────────────────────────────────────
 function countByKey(data, key) {
   const result = {};
   data.forEach(item => {
-    const value = item[key];
+    const value = item[key] || "Unknown";
     result[value] = (result[value] || 0) + 1;
   });
   return result;
 }
 
+// ─────────────────────────────────────────────
+// EMPLOYEE CARDS
+// ─────────────────────────────────────────────
 export function ListAllEmployees() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     fetch("/api/v1/employee/search/all")
       .then(res => res.json())
-      .then(setData);
+      .then(setData)
+      .catch(() => setData([]));
   }, []);
 
   return (
-    <Grid.Col sm={3}>
-      <StatsCard total={data.length} label="Total Employees" />
-    </Grid.Col>
+    <StatsCard layout={1} total={data.length} label="Total Employees" />
   );
 }
 
+export function ListEmployeeActiveEmployee() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/v1/employee/search/all")
+      .then(res => res.json())
+      .then(setData)
+      .catch(() => setData([]));
+  }, []);
+
+  const active = data.filter(e => e.status === "Current Employee").length;
+
+  return (
+    <StatsCard layout={1} total={active} label="Active Employees" />
+  );
+}
+
+export function ListEmployeeInActiveEmployee() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/v1/employee/search/all")
+      .then(res => res.json())
+      .then(setData)
+      .catch(() => setData([]));
+  }, []);
+
+  const inactive = data.filter(e => e.status === "Ex-Employee").length;
+
+  return (
+    <StatsCard layout={1} total={inactive} label="Ex Employees" />
+  );
+}
+
+// ───────────────────────────
+// ATTENDANCE DISTRIBUTION 
+// ───────────────────────────
+export function AttendanceDistribution() {
+  const [data, setData] = useState({});
+  const [presentRate, setPresentRate] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/v1/attendance/search/all")
+      .then(res => res.json())
+      .then(res => {
+        const result = { Present: 0, Absent: 0 };
+
+        res.forEach(item => {
+          if (item.status === "Present") result.Present++;
+          else if (item.status === "Absent") result.Absent++;
+        });
+
+        const total = result.Present + result.Absent;
+        const percentage = total ? ((result.Present / total) * 100).toFixed(1) : 0;
+
+        setData(result);
+        setPresentRate(percentage);
+      })
+      .catch(() => {
+        setData({ Present: 0, Absent: 0 });
+        setPresentRate(0);
+      });
+  }, []);
+
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Attendance Distribution</Card.Title>
+      </Card.Header>
+
+      <Card.Body>
+        <C3Chart
+          data={{
+            columns: Object.entries(data),
+            type: "donut",
+            colors: {
+              Present: "#28a745",
+              Absent: "#dc3545",
+            },
+          }}
+          size={{ height: 220 }}
+        />
+      </Card.Body>
+    </Card>
+  );
+}
+
+// ─────────────────────────────────────────────
+// TODAY ATTENDANCE WIDGET
+// ─────────────────────────────────────────────
+export function TodayAttendanceStats() {
+  const [todayStats, setTodayStats] = useState({
+    present: 0,
+    absent: 0,
+  });
+
+  useEffect(() => {
+    fetch("/api/v1/attendance/search/all")
+      .then(res => res.json())
+      .then(res => {
+        const today = new Date().toISOString().split("T")[0];
+
+        let present = 0;
+        let absent = 0;
+
+        res.forEach(item => {
+          if (item.date === today) {
+            if (item.status === "Present") present++;
+            else if (item.status === "Absent") absent++;
+          }
+        });
+
+        setTodayStats({ present, absent });
+      })
+      .catch(() => setTodayStats({ present: 0, absent: 0 }));
+  }, []);
+
+  return (
+    <StatsCard
+      layout={1}
+      total={`${todayStats.present}/${todayStats.present + todayStats.absent}`}
+      label="Today's Attendance (P/A)"
+    />
+  );
+}
+
+// ─────────────────────────────────────────────
+// ROLE DISTRIBUTION
+// ─────────────────────────────────────────────
 export function RoleDistribution() {
   const [data, setData] = useState({});
 
   useEffect(() => {
     fetch("/api/v1/employee/search/all")
       .then(res => res.json())
-      .then(res => setData(countByKey(res, "designation")));
+      .then(res => setData(countByKey(res, "designation")))
+      .catch(() => setData({}));
   }, []);
 
   return (
-    <Grid.Col sm={4}>
-      <Card>
-        <Card.Header>
-          <Card.Title>Role Distribution</Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <C3Chart data={{ columns: Object.entries(data), type: "donut" }} />
-        </Card.Body>
-      </Card>
-    </Grid.Col>
+    <Card>
+      <Card.Header>
+        <Card.Title>Role Distribution</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <C3Chart
+          data={{ columns: Object.entries(data), type: "donut" }}
+          size={{ height: 220 }}
+        />
+      </Card.Body>
+    </Card>
+  );
+}
+
+// ─────────────────────────────────────────────
+// LOCATION DISTRIBUTION
+// ─────────────────────────────────────────────
+export function LocationDistribution() {
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    fetch("/api/v1/employee/search/all")
+      .then(res => res.json())
+      .then(res => setData(countByKey(res, "office_location")))
+      .catch(() => setData({}));
+  }, []);
+
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Location Distribution</Card.Title>
+      </Card.Header>
+      <Card.Body>
+        <C3Chart
+          data={{ columns: Object.entries(data), type: "donut" }}
+          size={{ height: 220 }}
+        />
+      </Card.Body>
+    </Card>
   );
 }
 ```
