@@ -80,7 +80,7 @@ export function StatusDistribution() {
   const [data, setData] = useState({});
 
   useEffect(() => {
-    fetch("/api/v1/attendance/search/all")
+    fetch("/api/v1/employee/search/all")
       .then(res => res.json())
       .then(res => {
         const result = {};
