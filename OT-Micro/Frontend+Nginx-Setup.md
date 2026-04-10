@@ -160,7 +160,7 @@ sudo nano /etc/nginx/sites-available/frontend
 ### 🔥 Final Production Config
 
 ```nginx
-erver {
+server {
     listen 80;
     server_name _;
 
