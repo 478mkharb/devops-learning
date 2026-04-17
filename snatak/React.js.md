@@ -1,4 +1,4 @@
-# 📘 ReactJS Guidebook (Beginner → DevOps Perspective)
+# 📘 ReactJS Guidebook
 
 <p align="center">
   <img width="120" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />
