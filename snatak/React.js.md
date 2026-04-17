@@ -23,10 +23,11 @@ ReactJS is a frontend library that helps developers build reusable UI components
 
 Example:
 
-javascript
+```javascript
 function App() {
   return <h1>Employee Dashboard</h1>;
 }
+```
 
 👉 React converts this UI into something the browser can understand.
 
@@ -49,8 +50,9 @@ npm (Node Package Manager) is used to install and manage dependencies.
 
 Example:
 
-bash
+```bash
 npm install
+```
 
 👉 It reads `package.json` and installs required libraries.
 
@@ -62,8 +64,9 @@ npx is used to run packages without installing them globally.
 
 Example:
 
-bash
+```bash
 npx create-react-app employee-ui
+```
 
 👉 It downloads and runs the package temporarily.
 
@@ -71,9 +74,10 @@ npx create-react-app employee-ui
 
 ## 🔹 Step 1: Create React App
 
-bash
+```bash
 npx create-react-app employee-ui
 cd employee-ui
+```
 
 👉 This downloads a template project and sets everything up.
 
@@ -81,12 +85,14 @@ cd employee-ui
 
 ## 🔹 Project Structure
 
+```
 employee-ui/
  ├── package.json
  ├── node_modules/
  ├── public/
  ├── src/
  └── build/
+```
 
 ---
 
@@ -114,8 +120,9 @@ employee-ui/
 
 ### public/index.html
 
-html
+```html
 <div id="root"></div>
+```
 
 👉 Entry point for React
 
@@ -123,13 +130,14 @@ html
 
 ### src/index.js
 
-javascript
+```javascript
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+```
 
 👉 Connects React to HTML
 
@@ -137,7 +145,7 @@ root.render(<App />);
 
 ### src/App.js (Real API Example)
 
-javascript
+```javascript
 import { useEffect, useState } from 'react';
 
 function App() {
@@ -160,6 +168,7 @@ function App() {
 }
 
 export default App;
+```
 
 👉 Real-world behavior:
 
@@ -170,26 +179,31 @@ export default App;
 
 ## 🔹 Install Dependencies
 
-bash
+```bash
 npm install
+```
 
 ---
 
 ## 🔹 Run Application (Development)
 
-bash
+```bash
 npm start
+```
 
 👉 Runs on:
 
+```
 http://localhost:3000
+```
 
 ---
 
 ## 🔹 react-scripts Role
 
-json
+```json
 "start": "react-scripts start"
+```
 
 👉 Handles:
 
@@ -203,7 +217,9 @@ json
 
 👉 Combines multiple files into one optimized file.
 
+```
 src → main.js
+```
 
 ---
 
@@ -218,7 +234,9 @@ src → main.js
 
 ## 🔹 API Flow (Important)
 
+```
 Browser → React → API → Response → UI update
+```
 
 👉 React depends on backend APIs for data.
 
@@ -226,15 +244,18 @@ Browser → React → API → Response → UI update
 
 ## 🔹 Build Process
 
-bash
+```bash
 npm run build
+```
 
 👉 Generates:
 
+```
 build/
  ├── index.html
  ├── static/js/main.js
  ├── static/css/main.css
+```
 
 ---
 
@@ -287,8 +308,10 @@ After build:
 
 Flow:
 
+```
 Browser → NGINX → React build
                 → Backend APIs
+```
 
 ---
 
@@ -322,8 +345,9 @@ Check backend, endpoint, and routing.
 
 Run:
 
-bash
+```bash
 npm install
+```
 
 ---
 
