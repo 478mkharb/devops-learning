@@ -45,6 +45,7 @@ This README walks through everything step by step, using both **simple explanati
   <img width="600" height="auto" alt="ChatGPT Image Apr 18, 2026, 09_42_22 AM" src="https://github.com/user-attachments/assets/471c5a11-6a0f-4bc0-9528-af5f5304e22f" />
 </p>
 
+[![Watch the demo](https://img.youtube.com/vi/NHrsLjhjmi4/0.jpg)](https://www.youtube.com/watch?v=NHrsLjhjmi4)
 ---
 
 ## 🔄 Java Execution Flow
