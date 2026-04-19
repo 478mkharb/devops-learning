@@ -28,6 +28,10 @@ flowchart LR
     B --> C[Binary Executable]
     C --> D[Operating System]
     D --> E[Output]
+    style A fill:#2f6c00,stroke:#000,stroke-width:2px
+    style B fill:#2d3d46,stroke:#000,stroke-width:2px
+    style C fill:#2d2c00,stroke:#000,stroke-width:2px
+    style D fill:#2e1065,stroke:#000,stroke-width:2px
 ```
 
 👉 Go has **no JVM and no intermediate layer**.
@@ -63,9 +67,9 @@ flowchart LR
     E --> F[Output]
 
 %% Darkest fills
-    style A fill:#1e88e5,stroke:#000,stroke-width:2px
-    style B fill:#2e7d32,stroke:#000,stroke-width:2px
-    style C fill:#ef6c00,stroke:#000,stroke-width:2px
+    style A fill:#2e1065,stroke:#000,stroke-width:2px
+    style B fill:#6b0000,stroke:#000,stroke-width:2px
+    style C fill:#bf360c,stroke:#000,stroke-width:2px
     style J1 fill:#c2185b,stroke:#000,stroke-width:2px
     style J2 fill:#c2185b,stroke:#000,stroke-width:2px
     style J3 fill:#c2185b,stroke:#000,stroke-width:2px
