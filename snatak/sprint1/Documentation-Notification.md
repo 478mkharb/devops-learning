@@ -1,9 +1,17 @@
 # Notification API — OT-Microservices
-
+<p align="center">
+  <img src="https://img.shields.io/badge/service-notification--api-blue" />
+  <img src="https://img.shields.io/badge/language-python-yellow" />
+  <img src="https://img.shields.io/badge/framework-flask-pink" />
+  <img src="https://img.shields.io/badge/database-scylladb-green" />
+  <img src="https://img.shields.io/badge/search-elasticsearch-orange" />
+  <img src="https://img.shields.io/badge/email-smtp%20(mailhog)-navy" />
+</p>
 
 | Author       | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer |
 | ------------ | ---------- | ------- | --------------- | -------------- | ------------ | ----------- | ----------- | ----------- |
-| Mukesh Kharb | 22/04/2026 | 1.0     | Mukesh Kharb    | 22/04/2026     | Team         | Mohit Kumar |Faisal Khan  | Mahesh Kumar| 
+| Mukesh Kharb | 22/04/2026 | 1.0     | Mukesh Kharb    | 22/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar| 
+
 ---
 
 ## Purpose
@@ -22,15 +30,15 @@ By decoupling notification processing from core business services, this microser
 
 ## Pre-requisites
 
-Before deploying the application, ensure the following requirements are satisfied:
-
-* Ubuntu 22.04 or compatible Linux OS
-* Python 3.x installed
-* pip package manager available
-* ScyllaDB service running and accessible
-* ElasticSearch running on port 9200
-* SMTP server credentials configured
-* Network connectivity between microservices
+| Requirement                | Description                                      |
+|---------------------------|--------------------------------------------------|
+| Operating System          | Ubuntu 22.04 or compatible Linux OS              |
+| Python                    | Python 3.x installed                             |
+| Package Manager           | pip3 available                                   |
+| Database                  | ScyllaDB service running and accessible          |
+| Search Engine             | ElasticSearch 7.x running on port 9200           |
+| SMTP Tool                 | MailHog installed for email testing              |
+| Network                   | Connectivity between all microservices           |
 
 ---
 
@@ -52,23 +60,25 @@ Before deploying the application, ensure the following requirements are satisfie
 | Name   | Version | Description         |
 | ------ | ------- | ------------------- |
 | Python | 3.x     | Runtime environment |
-| pip    | latest  | Package installer   |
+| pip3   | latest  | Package installer   |
 
 ### Run Time Dependency
 
-| Name          | Version | Description               |
-| ------------- | ------- | ------------------------- |
-| Flask         | latest  | Web framework for API     |
-| elasticsearch | 7.17    | Search and data retrieval |
-| emails        | latest  | SMTP email handling       |
+| Name              | Version | Description                        |
+| ----------------- | ------- | ---------------------------------- |
+| cassandra-driver  | latest  | ScyllaDB connection               |
+| elasticsearch     | 7.17.0  | Indexing & search                 |
+| emails            | latest  | SMTP email handling               |
+| schedule          | latest  | Job scheduling                    |
+| pyyaml            | latest  | Config file handling              |
 
 ### Other Dependency
 
 | Name          | Version | Description               |
 | ------------- | ------- | ------------------------- |
 | ScyllaDB      | latest  | Primary database          |
-| ElasticSearch | 7.17    | Indexing and fast queries |
-| SMTP Server   | -       | Email delivery service    |
+| ElasticSearch | 7.17    | Indexing layer            |
+| MailHog       | 1.0.1   | SMTP testing tool         |
 
 ---
 
@@ -79,10 +89,12 @@ Before deploying the application, ensure the following requirements are satisfie
 | 5000            | Notification API |
 | 9042            | ScyllaDB         |
 | 9200            | ElasticSearch    |
+| 8025            | MailHog UI       |
 
 | Outbound Traffic | Description |
 | ---------------- | ----------- |
 | 587              | SMTP Email  |
+| 1025             | MailHog SMTP |
 
 ---
 
@@ -97,25 +109,23 @@ Before deploying the application, ensure the following requirements are satisfie
 
 ## Architecture
 
-<img width="1000" height="auto" alt="ChatGPT Image Apr 22, 2026, 10_45_21 AM" src="https://github.com/user-attachments/assets/f5689fe3-115f-4d2d-aab5-a57db493ae4d" />
-
-
+<img width="1000" height="auto" src="https://github.com/user-attachments/assets/f5689fe3-115f-4d2d-aab5-a57db493ae4d" />
 
 ---
 
 ## Dataflow Diagram
 
-><img width="1774" height="887" alt="ChatGPT Image Apr 22, 2026, 12_17_51 PM" src="https://github.com/user-attachments/assets/af0a0905-f395-417d-8189-8cbc0bf76a99" />
-y
+<img width="1774" height="887" src="https://github.com/user-attachments/assets/af0a0905-f395-417d-8189-8cbc0bf76a99" />
 
 ### Explanation
 
-1. Salary data is generated by Salary API
-2. Data is stored in ScyllaDB
-3. Indexed into ElasticSearch for faster querying
-4. Notification API fetches relevant data
-5. PDF salary slip is generated
-6. Email is sent via SMTP
+1. Salary data is generated by Salary API  
+2. Data is stored in ScyllaDB  
+3. Bridge Script syncs data from ScyllaDB to ElasticSearch (only new records using ES exists check, default `notified: False`)  
+4. Notification Worker fetches only records where `notified = False`  
+5. PDF salary slip is generated  
+6. Email is sent via SMTP  
+7. After sending email, Worker updates `notified = True` to prevent duplicate emails  
 
 ---
 
@@ -126,6 +136,8 @@ y
 #### Build Dependency
 
 ```bash
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install python3-pip python3-venv -y
 python3 -m venv venv
 source venv/bin/activate
 ```
@@ -133,15 +145,24 @@ source venv/bin/activate
 #### Run Time Dependency
 
 ```bash
-pip install -r requirements.txt
+pip3 install cassandra-driver elasticsearch==7.17.0 emails schedule pyyaml
 ```
 
 #### Other Dependency
 
 ```bash
-sudo systemctl start scylla-server
+sudo apt-get install elasticsearch -y
+sudo systemctl enable elasticsearch
 sudo systemctl start elasticsearch
 curl http://localhost:9200
+```
+
+Install MailHog:
+```bash
+wget https://github.com/mailhog/MailHog/releases/download/v1.0.1/MailHog_linux_amd64
+chmod +x MailHog_linux_amd64
+sudo mv MailHog_linux_amd64 /usr/local/bin/mailhog
+nohup mailhog > ~/mailhog.log 2>&1 &
 ```
 
 ---
@@ -150,33 +171,55 @@ curl http://localhost:9200
 
 ```bash
 git clone https://github.com/OT-MICROSERVICES/notification-worker.git
-cd notification-api
-pip install -r requirements.txt
+cd notification-worker
 ```
 
 ---
 
 ### Step3: Application Deployment
 
+Create config file:
+
 ```bash
-python3 notification_api.py --mode api
+nano config.yaml
 ```
 
-Verify deployment:
+Example:
+
+```yaml
+smtp:
+  from: "admin@test.com"
+  smtp_server: "127.0.0.1"
+  smtp_port: "1025"
+
+elasticsearch:
+  host: "127.0.0.1"
+  port: 9200
+```
+
+Start Bridge Script:
 
 ```bash
-curl http://localhost:5000/health
+nohup python3 ~/scylla_to_es_sync.py > ~/sync.log 2>&1 &
+```
+
+Start Notification Worker:
+
+```bash
+export CONFIG_FILE=$(pwd)/config.yaml
+nohup python3 notification_api.py --mode scheduled > ~/notification.log 2>&1 &
 ```
 
 ---
 
 ## Monitoring (Health Checks)
 
-| Check                | Command                                                           | Expected Result |
-| -------------------- | ----------------------------------------------------------------- | --------------- |
-| API Health           | curl [http://localhost:5000/health](http://localhost:5000/health) | {"status":"UP"} |
-| ElasticSearch        | curl [http://localhost:9200](http://localhost:9200)               | Cluster info    |
-| ScyllaDB             | nodetool status                                                   | Node UP         |
+| Check         | Command                          | Expected Result |
+| ------------- | -------------------------------- | --------------- |
+| Sync Logs     | tail -f ~/sync.log               | Sync running    |
+| Worker Logs   | tail -f ~/notification.log       | Worker running  |
+| ElasticSearch | curl http://localhost:9200       | Cluster info    |
+| MailHog UI    | http://<IP>:8025                 | Dashboard       |
 
 ---
 
@@ -185,8 +228,8 @@ curl http://localhost:5000/health
 ### Application Logs
 
 ```bash
-tail -f ~/logs/notification.log
-grep ERROR ~/logs/notification.log
+tail -f ~/notification.log
+grep ERROR ~/notification.log
 ```
 
 ### System Logs
@@ -200,8 +243,8 @@ cat /var/log/syslog
 ### Event Logs
 
 ```bash
-grep "Notification" ~/logs/notification.log
-grep "PDF" ~/logs/notification.log
+grep "Notification" ~/notification.log
+grep "PDF" ~/notification.log
 ```
 
 ### Debugging Commands
@@ -216,95 +259,41 @@ ps aux | grep notification
 
 ## Disaster Recovery
 
-In the event of a disaster affecting the application's functionality, it is important to have a robust disaster recovery plan in place at the **regional level**. This ensures that critical systems and data can be restored even if an entire AWS region becomes unavailable.
+In case of failures, recovery strategies should be in place.
 
-Disasters may include region-wide outages, natural disasters, cyberattacks, or large-scale infrastructure failures.
+### Strategy
 
-### Regional DR Strategy
+* Backup ScyllaDB data using snapshots  
+* Backup Elasticsearch indices  
 
-* Deploy a **secondary (DR) region** with standby infrastructure
-* Replicate critical data (ScyllaDB snapshots, ElasticSearch snapshots) to another region
-* Store backups in cross-region storage (e.g., S3 with cross-region replication)
-
-### EC2 Recovery (Cross-Region)
-
-* Maintain AMIs of Notification API instances
-* Launch instances in DR region using same configuration
-* Reattach security groups, IAM roles, and environment configs
-
-### Database Recovery (Cross-Region)
+### Database Recovery
 
 ```bash
 nodetool snapshot
-# Transfer snapshots to DR region
 nodetool refresh
 ```
 
-### ElasticSearch Recovery (Cross-Region)
+### ElasticSearch Recovery
 
 ```bash
 curl -X PUT "localhost:9200/_snapshot/backup/snap1"
 curl -X POST "localhost:9200/_snapshot/backup/snap1/_restore"
 ```
 
-### Traffic Failover
-
-* Use DNS failover (Route 53) to redirect traffic to DR region
-* Validate health checks before switching traffic
-
-### Notification Retry
-
-```bash
-curl -X POST http://<dr-endpoint>/notification/send -H "Content-Type: application/json" -d '{"id":"1","name":"Mukesh","email":"your-email@gmail.com"}'
-```
-
 ---
 
 ## High Availability
 
-Ensuring high availability of the application is crucial to minimize downtime and provide seamless service to users. High Availability (HA) is achieved by distributing the system across **multiple Availability Zones (AZs)** within a region.
+To ensure high availability:
 
-### Multi-AZ Architecture
-
-* Deploy Notification API instances across **2 or more AZs**
-* Use AWS Application Load Balancer (ALB) to distribute traffic
-* Enable health checks to route traffic only to healthy instances
-
-### Implementation Strategy
-
-* Auto Scaling Group spans multiple AZs
-* Minimum 2 instances running across different AZs
-* Stateless application design ensures easy failover
+* Deploy multiple worker instances  
+* Keep application stateless  
+* Use database and search clustering  
 
 ### Fault Tolerance
 
-* If one AZ fails → traffic automatically routed to another AZ
-* No data loss due to externalized storage (DB + ES)
-
-### Supporting Components
-
-* ScyllaDB cluster deployed across AZs
-* ElasticSearch cluster with multi-node setup across AZs
-
-### Monitoring
-
-* Use CloudWatch for AZ-level monitoring
-* Configure alarms for instance and ALB health
-
-### Note
-
-Disaster Recovery (DR) focuses on **region-level recovery**, whereas High Availability (HA) focuses on **AZ-level fault tolerance within a region**.
-
----
-
-The system is designed for high availability using distributed deployment.
-
-* Notification API deployed on multiple EC2 instances
-* AWS Application Load Balancer distributes traffic
-* Auto Scaling Groups ensure scaling
-* Stateless architecture avoids data dependency
-* Failover handled automatically by ALB
-* Database and search clusters provide redundancy
+* Worker retries prevent data loss  
+* Elasticsearch ensures data buffering  
 
 ---
 
@@ -312,35 +301,29 @@ The system is designed for high availability using distributed deployment.
 
 | Issue                       | Cause              | Solution              |
 | --------------------------- | ------------------ | --------------------- |
-| ModuleNotFoundError: emails | Missing dependency | pip install emails    |
-| Port already in use         | Service conflict   | Kill process on 5000  |
+| ModuleNotFoundError         | Missing dependency | pip3 install module   |
+| Duplicate Emails            | Logic issue        | Check notified flag   |
 | ElasticSearch not reachable | Service down       | Restart elasticsearch |
-| Email not sent              | SMTP issue         | Verify credentials    |
+| MailHog not accessible      | Port blocked       | Open port 8025        |
 
 ---
 
 ## FAQs
 
-* What is the purpose of the Notification API?
-  >It generates salary PDFs and sends them via email.
+* What is the purpose of the Notification API?  
+  > It generates salary PDFs and sends them via email.
 
-* Is the Notification API stateful?
-  >No, it is stateless.
+* Is the Notification API stateful?  
+  > No, it is stateless.
 
-* How can I verify the service is running?
-  >curl [http://localhost:5000/health](http://localhost:5000/health)
+* How can I verify the service is running?  
+  > Check logs or MailHog UI.
 
-* Which database is used?
-  >ScyllaDB.
+* Which database is used?  
+  > ScyllaDB.
 
-* What happens if ElasticSearch fails?
-  >Data can be re-indexed from ScyllaDB.
-
-* How are emails sent?
-  >Using SMTP protocol.
-
-* Where are logs stored?
-  > ~/logs/notification.log
+* How are duplicate emails prevented?  
+  > Using ES exists check and notified flag.
 
 ---
 
@@ -348,7 +331,7 @@ The system is designed for high availability using distributed deployment.
 
 | Name   | Email                                                                             |
 | ------ | --------------------------------------------------------------------------------- |
-| Mukesh | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) |
+| Mukesh | mukesh.Kharb.snaatak@mygurukulam.co |
 
 ---
 
