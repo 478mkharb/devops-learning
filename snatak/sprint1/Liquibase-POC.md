@@ -17,11 +17,11 @@
 
 ---
 
-# 1. Introduction (Start Here)
+# 1. Introduction
 
 This document explains how database changes are managed using Liquibase.
 
-If you are new, think of Liquibase as:
+Think of Liquibase as:
 
 > "A tool that keeps track of database changes just like Git keeps track of code changes."
 
@@ -65,7 +65,7 @@ Database Release Management means:
 
 ---
 
-# 4. Architecture (How it Works)
+# 4. Architecture
 
 ```mermaid
 flowchart LR
@@ -75,7 +75,7 @@ flowchart LR
     Database --> Application
 ```
 
-### Flow in simple words:
+### Flow 
 
 1. Developer writes DB change in a file
 2. Liquibase reads that file
