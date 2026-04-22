@@ -105,7 +105,8 @@ Before deploying the application, ensure the following requirements are satisfie
 
 ## Dataflow Diagram
 
-User → Salary API → ScyllaDB → ElasticSearch → Notification API → PDF Generation → SMTP → Email Delivery
+><img width="1774" height="887" alt="ChatGPT Image Apr 22, 2026, 12_17_51 PM" src="https://github.com/user-attachments/assets/af0a0905-f395-417d-8189-8cbc0bf76a99" />
+y
 
 ### Explanation
 
