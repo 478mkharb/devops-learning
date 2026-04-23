@@ -8,7 +8,7 @@
 <br/>
 
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)](https://www.postgresql.org)
-[![Liquibase Docs](https://img.shields.io/badge/Docs-Liquibase-blue)](https://docs.liquibase.com)
+[![Liquibase Docs](https://img.shields.io/badge/Docs-Liquibase-navy)](https://docs.liquibase.com)
 
 </div>
 
