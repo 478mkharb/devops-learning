@@ -2,10 +2,13 @@
 
 # Database Change Management | Liquibase POC
 
-![Liquibase](https://img.shields.io/badge/Tool-Liquibase-blue)
-![Database](https://img.shields.io/badge/DB-PostgreSQL-green)
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-orange)
-![Status](https://img.shields.io/badge/POC-Completed-success)
+<img width="300" height="auto" alt="liquibase" src="https://github.com/user-attachments/assets/833a51d1-e27d-46a2-96dd-0cea2f8a2684" />
+
+
+<br/>
+
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)](https://www.postgresql.org)
+[![Liquibase Docs](https://img.shields.io/badge/Docs-Liquibase-blue)](https://docs.liquibase.com)
 
 </div>
 
@@ -17,217 +20,136 @@
 
 ---
 
-# 1. Introduction
+# 1. Objective
 
-This document explains how database changes are managed using Liquibase.
-
-Think of Liquibase as:
-
-> "A tool that keeps track of database changes just like Git keeps track of code changes."
-
-### Simple Example
-
-Without Liquibase:
-
-* Developer runs SQL manually
-* Another developer forgets to run it
-* Database becomes inconsistent
-
-With Liquibase:
-
-* Changes are written once
-* Stored in files
-* Automatically applied everywhere
+Demonstrate that Liquibase can manage database schema changes in a version-controlled, repeatable way.
 
 ---
 
-# 2. What is Database Release Management?
+# 2. Problem Statement
 
-Database Release Management means:
-
-| Activity        | Description                      |
-| --------------- | -------------------------------- |
-| Change Tracking | Store DB changes in files        |
-| Version Control | Maintain history of changes      |
-| Deployment      | Apply changes automatically      |
-| Rollback        | Undo changes if something breaks |
+| Issue                | Impact                   |
+| -------------------- | ------------------------ |
+| Manual SQL execution | Errors and inconsistency |
+| No version tracking  | Hard to manage changes   |
+| No rollback          | Risky deployments        |
 
 ---
 
-# 3. Pre-requisites
+# 3. Proposed Solution
+
+Use Liquibase to:
+
+* Track database changes using changelog files
+* Apply changes automatically
+* Maintain execution history
+* Support rollback
+
+---
+
+# 4. Database Release Management Flow
+
+><img width="800" height="auto" alt="ChatGPT Image Apr 23, 2026, 07_22_47 AM" src="https://github.com/user-attachments/assets/9796f312-8805-4f45-9042-26bbebdea92c" />
+
+
+---
+
+# 5. Pre-requisites
 
 | Component | Requirement         |
 | --------- | ------------------- |
-| OS        | Ubuntu 22.04        |
+| OS        | Linux / Ubuntu      |
 | Java      | 11+                 |
-| DB        | PostgreSQL          |
-| Tool      | Liquibase Installed |
+| Database  | PostgreSQL running  |
+| Tool      | Liquibase installed |
 
 ---
 
-# 4. Architecture
+# 6. Implementation (POC)
 
-```mermaid
-flowchart LR
-    Dev[Developer writes DB change] --> File[Changelog File]
-    File --> Liquibase
-    Liquibase --> Database
-    Database --> Application
-```
-
-### Flow 
-
-1. Developer writes DB change in a file
-2. Liquibase reads that file
-3. Liquibase updates database
-4. Application uses updated database
-
----
-
-# 5. Directory Structure and File Paths
-
-```bash
-liquibase-poc/
-├── migration/
-│   ├── db.changelog-master.xml
-│   ├── 001-create-employee-table.xml
-│   └── 002-add-column.xml
-├── liquibase.properties
-└── scripts/
-```
-
-## File Explanation
-
-| File                          | Purpose                    |
-| ----------------------------- | -------------------------- |
-| db.changelog-master.xml       | Main file (starting point) |
-| 001-create-employee-table.xml | Creates table              |
-| 002-add-column.xml            | Updates table              |
-| liquibase.properties          | DB connection config       |
-
----
-
-# 6. Step-by-Step Setup
-
-## Step 1 — Install Liquibase
+## Install Liquibase
 
 ```bash
 wget https://github.com/liquibase/liquibase/releases/download/v4.27.0/liquibase-4.27.0.tar.gz
+sudo tar -xvf liquibase-4.27.0.tar.gz
 ```
 
 ---
 
-## Step 2 — Configure liquibase.properties
-
-```properties
-url=jdbc:postgresql://localhost:5432/sample_db
-username=postgres
-password=password
-changeLogFile=migration/db.changelog-master.xml
-```
-
----
-
-## Step 3 — Define Changelog (IMPORTANT)
-
-### Main File (Entry Point)
-
-```xml
-<databaseChangeLog>
-    <include file="migration/001-create-employee-table.xml"/>
-</databaseChangeLog>
-```
-
----
-
-### Actual Change File
-
-```xml
-<databaseChangeLog>
-  <changeSet id="1" author="mukesh">
-    <createTable tableName="employee">
-      <column name="id" type="INT"/>
-      <column name="name" type="VARCHAR(50)"/>
-    </createTable>
-  </changeSet>
-</databaseChangeLog>
-```
-
----
-
-## Step 4 — Run Migration
+## Clone Project
 
 ```bash
-liquibase update
+git clone https://github.com/OT-MICROSERVICES/attendance-api.git
+cd attendance-api
 ```
 
 ---
 
-## Step 5 — Verify
+## Migration Directory Structure
+
+```text
+migration/
+└── db.changelog-master.xml
+```
+
+* Main entry file for Liquibase execution
+
+---
+
+## Configure Liquibase
+
+<img width="1012" height="auto" alt="image" src="https://github.com/user-attachments/assets/b9f20eee-f4b4-4dbb-bf91-28306d8920b4" />
+
+
+---
+
+## Changelog Details
+
+<img width="1563" height="689" alt="image" src="https://github.com/user-attachments/assets/c074f299-6e98-4e9e-a523-285df939f298" />
+
+
+---
+
+## Run Migration
+
+<img width="1500" height="auto" alt="image" src="https://github.com/user-attachments/assets/9bca6967-4162-4df2-88d1-1ba294434982" />
+
+
+---
+
+## Verify
 
 ```bash
-psql -U postgres -d sample_db
+psql -U postgres -d attendance_db
 \dt
 ```
+><img width="1268" height="522" alt="image" src="https://github.com/user-attachments/assets/6bbf811e-8dc2-4d5a-a1e7-848ed250ee2e" />
 
 ---
 
-# 7. Database Release Flow (Real Flow)
+# 7. Testing Methodology
 
-| Step | What Happens                 |
-| ---- | ---------------------------- |
-| 1    | Developer writes change file |
-| 2    | File pushed to Git           |
-| 3    | Liquibase runs               |
-| 4    | DB updated                   |
-| 5    | App uses new schema          |
+| Test          | Expected Result          |
+| ------------- | ------------------------ |
+| First run     | Table created            |
+| Second run    | No duplicate execution   |
+| New changeSet | Only new changes applied |
 
 ---
 
-# 8. Backup & Rollback
+# 8. Predicted Outcome
 
-## Backup
-
-```bash
-pg_dump sample_db > backup.sql
-```
-
-## Rollback
-
-```bash
-liquibase rollbackCount 1
-```
+* Consistent schema across environments
+* Controlled DB changes
+* Reduced manual effort
 
 ---
 
-# 9. Best Practices
+# 9. Summary
 
-| Practice           | Why Important           |
-| ------------------ | ----------------------- |
-| Keep small changes | Easy to debug           |
-| Use clear names    | Easy to understand      |
-| Test locally       | Avoid production issues |
-
----
-
-# 10. Key Takeaways
-
-* Liquibase tracks database changes
-* Ensures same DB across environments
-* Supports rollback
-* Works well with automation
-
----
-
-# 11. Conclusion
-
-Liquibase makes database management:
-
-* Simple
-* Reliable
-* Automated
-
-Even beginners can manage database changes safely using this approach.
+* Liquibase enables version-controlled database changes using changelog files
+* Ensures consistent schema across environments by applying only new changes
+* Provides reliable migration execution with built-in tracking
 
 ---
 
@@ -241,11 +163,9 @@ Even beginners can manage database changes safely using this approach.
 
 # References
 
-| Source                   | Link                                                                                             |
-| ------------------------ | ------------------------------------------------------------------------------------------------ |
-| Liquibase Official Docs  | [https://docs.liquibase.com](https://docs.liquibase.com)                                         |
-| Liquibase GitHub         | [https://github.com/liquibase/liquibase](https://github.com/liquibase/liquibase)                 |
-| PostgreSQL Documentation | [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)                             |
-| JDBC URL Format          | [https://jdbc.postgresql.org/documentation/use/](https://jdbc.postgresql.org/documentation/use/) |
+| Source          | Link                                                                 |
+| --------------- | -------------------------------------------------------------------- |
+| Liquibase Docs  | [https://docs.liquibase.com](https://docs.liquibase.com)             |
+| PostgreSQL Docs | [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/) |
 
 ---
