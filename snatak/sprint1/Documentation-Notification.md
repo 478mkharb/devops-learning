@@ -13,6 +13,40 @@
 | Mukesh Kharb | 22/04/2026 | 1.0     | Mukesh Kharb    | 22/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar| 
 
 ---
+## 📚 Table of Contents
+
+- [Purpose](#purpose)
+- [Pre-requisites](#pre-requisites)
+- [System Requirements](#system-requirements)
+- [Dependencies](#dependencies)
+  - [Build Time Dependency](#build-time-dependency)
+  - [Run Time Dependency](#run-time-dependency)
+  - [Other Dependency](#other-dependency)
+- [Important Ports](#important-ports)
+- [Others](#others)
+- [Architecture](#architecture)
+- [Dataflow Diagram](#dataflow-diagram)
+  - [Explanation](#explanation)
+- [Step-by-step Installation of Notification API](#step-by-step-installation-of-notification-api)
+  - [Step1: Installation of Software Dependencies](#step1-installation-of-software-dependencies)
+  - [Step2: Build / Artifact Generation](#step2-build--artifact-generation)
+  - [Step3: Application Deployment](#step3-application-deployment)
+- [Monitoring (Health Checks)](#monitoring-health-checks)
+- [Logging](#logging)
+  - [Application Logs](#application-logs)
+  - [System Logs](#system-logs)
+  - [Event Logs](#event-logs)
+  - [Debugging Commands](#debugging-commands)
+- [Disaster Recovery](#disaster-recovery)
+  - [Strategy](#strategy)
+  - [Database Recovery](#database-recovery)
+  - [ElasticSearch Recovery](#elasticsearch-recovery)
+- [High Availability](#high-availability)
+  - [Fault Tolerance](#fault-tolerance)
+- [Troubleshooting](#troubleshooting)
+- [FAQs](#faqs)
+- [Contact Information](#contact-information)
+- [References](#references)
 
 ## Purpose
 
