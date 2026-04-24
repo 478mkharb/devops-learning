@@ -1,11 +1,15 @@
 # Notification API — OT-Microservices
 <p align="center">
-  <img src="https://img.shields.io/badge/service-notification--api-blue" />
-  <img src="https://img.shields.io/badge/language-python-yellow" />
-  <img src="https://img.shields.io/badge/framework-flask-pink" />
-  <img src="https://img.shields.io/badge/database-scylladb-green" />
-  <img src="https://img.shields.io/badge/search-elasticsearch-orange" />
-  <img src="https://img.shields.io/badge/email-smtp%20(mailhog)-navy" />
+<img width="100" height="auto" alt="icons8-python-480" src="https://github.com/user-attachments/assets/b1316bf8-6ac2-49c6-9385-bc4808078654" />
+</p>
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/OT--Microservices-Notification--API-blue?style=for-the-badge" /></a>
+  <a href="https://docs.python.org/3/"><img src="https://img.shields.io/badge/Python-Documentation-yellow?style=for-the-badge" /></a>
+  <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Flask-Framework-black?style=for-the-badge" /></a>
+  <a href="https://docs.scylladb.com/"><img src="https://img.shields.io/badge/ScyllaDB-Docs-green?style=for-the-badge" /></a>
+  <a href="https://www.elastic.co/guide/index.html"><img src="https://img.shields.io/badge/ElasticSearch-Docs-orange?style=for-the-badge" /></a>
+  <a href="https://github.com/mailhog/MailHog"><img src="https://img.shields.io/badge/MailHog-SMTP--Testing-blueviolet?style=for-the-badge" /></a>
+  <a href="https://github.com/lavr/python-emails"><img src="https://img.shields.io/badge/Python--Emails-Library-red?style=for-the-badge" /></a>
 </p>
 
 | Author       | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer |
