@@ -1,13 +1,33 @@
+<div align="center">
+
 # VCS Design | Authentication & Authorization Strategy
 
-<p align="center">
+<br/>
+
+<p>
+  <a href="https://git-scm.com/">
+    <img src="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" width="80" />
+  </a>
+  <a href="https://github.com/">
+    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="80" />
+  </a>
+  <a href="https://about.gitlab.com/">
+    <img src="https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png" width="80" />
+  </a>
+</p>
+
+<br/>
+
+<p>
   <img src="https://img.shields.io/badge/Domain-VCS-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Security-Authn%20%26%20Authz-green?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Type-Design-orange?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Standard-Enterprise-purple?style=for-the-badge" />
 </p>
----
 
+</div>
+
+---
 | Author       | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer  |
 | ------------ | ---------- | ------- | --------------- | -------------- | ------------ | ----------- | ----------- | ------------ |
 | Mukesh Kharb | 16/04/2026 | 1.0     | Mukesh Kharb    | 16/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar |
@@ -16,19 +36,19 @@
 
 ## Table of Contents
 
-* [1. Introduction](#1-introduction)
-* [2. Why Authentication & Authorization Matters](#2-why-authentication--authorization-matters)
-* [3. Authentication Strategies](#3-authentication-strategies)
-* [4. Authorization Models](#4-authorization-models)
-* [5. Strategy Comparison](#5-strategy-comparison)
-* [6. Advantages & Disadvantages](#6-advantages--disadvantages)
-* [7. Architecture](#7-architecture)
-* [8. Implementation (Step-by-Step)](#8-implementation-step-by-step)
-* [9. Best Practices](#9-best-practices)
-* [10. FAQs](#10-faqs)
-* [11. Conclusion](#11-conclusion)
-* [12. Contact Information](#12-contact-information)
-* [13. References](#13-references)
+* [Introduction](#1-introduction)
+* [Why Authentication & Authorization Matters](#2-why-authentication--authorization-matters)
+* [Authentication Strategies](#3-authentication-strategies)
+* [Authorization Models](#4-authorization-models)
+* [Strategy Comparison](#5-strategy-comparison)
+* [Advantages & Disadvantages](#6-advantages--disadvantages)
+* [Architecture](#7-architecture)
+* [Implementation](#8-implementation)
+* [Best Practices](#9-best-practices)
+* [FAQs](#10-faqs)
+* [Conclusion](#11-conclusion)
+* [Contact Information](#12-contact-information)
+* [References](#13-references)
 
 ---
 
