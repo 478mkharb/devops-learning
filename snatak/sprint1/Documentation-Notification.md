@@ -23,7 +23,6 @@
   - [Run Time Dependency](#run-time-dependency)
   - [Other Dependency](#other-dependency)
 - [Important Ports](#important-ports)
-- [Others](#others)
 - [Architecture](#architecture)
 - [Dataflow Diagram](#dataflow-diagram)
 - [Step-by-step Installation of Notification API](#step-by-step-installation-of-notification-api)
