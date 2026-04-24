@@ -26,7 +26,6 @@
 - [Others](#others)
 - [Architecture](#architecture)
 - [Dataflow Diagram](#dataflow-diagram)
-  - [Explanation](#explanation)
 - [Step-by-step Installation of Notification API](#step-by-step-installation-of-notification-api)
   - [Step1: Installation of Software Dependencies](#step1-installation-of-software-dependencies)
   - [Step2: Build / Artifact Generation](#step2-build--artifact-generation)
