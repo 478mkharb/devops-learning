@@ -1,249 +1,291 @@
-<div align="center">
+<h1 align="center">Documentation: PostgreSQL Setup & Run (POC)</h1>
 
-<h1>OT-Microservices</h1>
-<h3>Setup and Manual Runbook for POC</h3>
-
-<br/>
-
-<p>
-  <img src="https://img.shields.io/badge/Go-EmployeeAPI-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Python-AttendanceAPI-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Java-SalaryAPI-orange?style=for-the-badge" />
+<p align="center">
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="120"/>
 </p>
 
-<p>
-  <img src="https://img.shields.io/badge/Flask-NotificationAPI-lightgrey?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/ScyllaDB-Database-blueviolet?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/PostgreSQL-AttendanceDB-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/NGINX-Frontend-red?style=for-the-badge" />
+<p align="center">
+  <a href="https://www.postgresql.org/docs/">
+    <img src="https://img.shields.io/badge/Database-PostgreSQL-blue?style=for-the-badge" />
+  </a>
+  <a href="https://docs.liquibase.com/">
+    <img src="https://img.shields.io/badge/Tool-Liquibase-orange?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/OT-MICROSERVICES/attendance-api">
+    <img src="https://img.shields.io/badge/Service-AttendanceAPI-green?style=for-the-badge" />
+  </a>
 </p>
-
-</div>
-
----
 
 | Author       | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer  |
 | ------------ | ---------- | ------- | --------------- | -------------- | ------------ | ----------- | ----------- | ------------ |
-| Mukesh Kharb | 25/04/2026 | 2.0     | Mukesh Kharb    | 26/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar |
+| Mukesh Kharb | 26/04/2026 | 1.0     | Mukesh Kharb    | 26/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar |
 
 ---
 
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Architecture Overview](#architecture-overview)
-* [Setup for Execution](#setup-for-execution)
-
-  * [Setup Logs](#setup-logs)
-  * [Initial Cleanup (Ports)](#initial-cleanup-ports)
-  * [Start Infrastructure](#start-infrastructure)
-  * [Employee API (Go)](#employee-api-go)
-  * [Attendance API (Python)](#attendance-api-python)
-  * [Salary API (Java)](#salary-api-java)
-  * [Notification API (Python)](#notification-api-python)
-  * [Frontend (React via NGINX)](#frontend-react-via-nginx)
+* [What is PostgreSQL](#what-is-postgresql)
+* [Why PostgreSQL in this Project](#why-postgresql-in-this-project)
+* [Architecture Context](#architecture-context)
+* [Prerequisites](#prerequisites)
+* [Installation Steps](#installation-steps)
+* [Database Setup](#database-setup)
+* [Liquibase Configuration](#liquibase-configuration)
+* [Run Migrations](#run-migrations)
+* [Run Application](#run-application)
 * [Verification](#verification)
-
-  * [Frontend UI](#frontend-ui)
-  * [Frontend Logs](#frontend-logs)
-  * [Functional API Tests](#functional-api-tests)
-  * [Swagger Validation](#swagger-validation)
-  * [Backend Logs](#backend-logs)
-  * [Notification Test](#notification-test)
-* [Stop Services](#stop-services)
-* [FAQs](#faqs)
-* [Repository](#repository)
-* [Contact Information](#contact-information)
-* [References](#references)
+* [Troubleshooting](#troubleshooting)
+* [Summary](#summary)
 
 ---
 
 ## Introduction
 
-OT-Microservices is a polyglot microservices-based Employee Management System where each service is independently deployed, owns its own database, and communicates via REST APIs. NGINX acts as a reverse proxy and serves as the single entry point for frontend and backend services.
+> PostgreSQL is used as the primary relational database for the Attendance microservice.
+
+In microservices architecture, each service owns its database. Here, the attendance-api uses PostgreSQL to store structured attendance records and supports SQL-based querying.
 
 ---
 
-## Architecture Overview
+## What is PostgreSQL?
 
-><img width="1536" height="1024" alt="ChatGPT Image Apr 26, 2026, 10_41_56 AM" src="https://github.com/user-attachments/assets/0c394672-3e22-47f2-8b84-a87742fc62fe" />
+> PostgreSQL is an open-source relational database system.
 
+* Supports SQL queries (SELECT, JOIN, GROUP BY)
+* ACID compliant
+* Highly reliable and production-ready
 
 ---
 
-## Setup for Execution
+## Why PostgreSQL in this Project
 
-### Setup Logs
+| Reason          | Explanation                                      |
+| --------------- | ------------------------------------------------ |
+| Structured Data | Attendance has tabular format (ID, status, date) |
+| SQL Queries     | Easy filtering using WHERE, GROUP BY             |
+| Reliability     | Strong consistency guarantees                    |
+| Compatibility   | Works well with Liquibase                        |
+
+---
+
+## Architecture Context
+><img width="auto" height="500" alt="ChatGPT Image Apr 26, 2026, 11_20_27 PM" src="https://github.com/user-attachments/assets/98192cd0-1f38-4f11-ab44-37c29eb27361" />
+
+As per project structure, PostgreSQL is used only by attendance-api.
+
+---
+## Installation Steps
+
+### Step 1 — Update System
 
 ```bash
-mkdir -p ~/logs
+sudo apt update && sudo apt upgrade -y
 ```
 
-### Initial Cleanup (Ports)
+### Step 2 — Install PostgreSQL
 
 ```bash
-fuser -k 8080/tcp 2>/dev/null
-fuser -k 8081/tcp 2>/dev/null
-fuser -k 8082/tcp 2>/dev/null
-fuser -k 5000/tcp 2>/dev/null
+sudo apt install postgresql postgresql-contrib -y
 ```
 
-### Start Infrastructure
+### Step 3 — Start Service
 
 ```bash
-sudo systemctl start scylla-server
 sudo systemctl start postgresql
-sudo systemctl start redis
-sudo systemctl start nginx
+sudo systemctl enable postgresql
+```
+
+### Step 4 — Verify
+
+```bash
+sudo systemctl status postgresql
 ```
 
 ---
 
-### Employee API (Go)
+## Database Setup
+
+### Access PostgreSQL
 
 ```bash
-cd ~/OT-Micro/employee-api
-nohup go run main.go > ~/logs/employee-api.log 2>&1 &
+sudo -u postgres psql
 ```
 
-### Attendance API (Python)
+### Create Database
+
+```sql
+CREATE DATABASE attendance_db;
+```
+
+### Set Password
+
+```sql
+ALTER USER postgres PASSWORD 'password';
+```
+
+### Exit
 
 ```bash
-cd ~/OT-Micro/attendance-api
-nohup poetry run gunicorn app:app -b 0.0.0.0:8081 > ~/logs/attendance.log 2>&1 &
+\q
 ```
 
-### Salary API (Java)
+---
+
+## Liquibase Configuration
+
+PostgreSQL schema is managed using Liquibase.
+
+Example configuration:
+
+```properties
+url=jdbc:postgresql://127.0.0.1:5432/attendance_db
+username=postgres
+password=password
+driver=org.postgresql.Driver
+changeLogFile=migration/db.changelog-master.xml
+```
+
+---
+
+## Run Migrations
+
+### Command
 
 ```bash
-cd ~/OT-Micro/salary-api
-nohup ./mvnw spring-boot:run > ~/logs/salary.log 2>&1 &
+make run-migrations
 ```
 
-### Notification API (Python)
+OR
 
 ```bash
-cd ~/OT-Micro/notification-worker
-pip3 install -r requirements.txt
-nohup python3 notification_api.py --mode api > ~/logs/notification.log 2>&1 &
+liquibase update --driver-properties-file=liquibase.properties
 ```
 
-### Frontend (React via NGINX)
+### What Happens
+
+* Creates tables
+* Maintains changelog
+* Ensures version control
+
+---
+
+## Run Application
 
 ```bash
-cd ~/OT-Micro/frontend
-npm install
-npm run build
-sudo systemctl restart nginx
+make setup
 ```
+
+OR manually:
+
+```bash
+poetry install
+liquibase update
+poetry run python app.py
+```
+
+Project uses Poetry for dependency management.
 
 ---
 
 ## Verification
 
-### Frontend UI
-
-```
-http://localhost/
-```
-
-### Frontend Logs
+### Check Tables
 
 ```bash
-tail -f /var/log/nginx/access.log
-tail -f /var/log/nginx/error.log
+psql -U postgres -h 127.0.0.1 -d attendance_db
 ```
 
-### Functional API Tests
-
-```bash
-curl http://localhost:8080/api/v1/employee/search/all | jq
-curl http://localhost:8081/api/v1/attendance/search | jq
-curl http://localhost:8082/api/v1/salary/search/all | jq
+```sql
+\dt
 ```
 
-### Swagger Validation
+Expected tables:
+
+* databasechangelog
+* databasechangeloglock
+* records
+
+### API Test
 
 ```bash
-curl -I http://localhost:8080/swagger/index.html
-curl -I http://localhost:8081/apidocs/
-curl -I http://localhost:8082/swagger-ui/index.html
-```
-
-### Backend Logs
-
-```bash
-tail -f ~/logs/employee-api.log
-tail -f ~/logs/attendance.log
-tail -f ~/logs/salary.log
-tail -f ~/logs/notification.log
-```
-
-### Notification Test
-
-```bash
-curl -X POST http://localhost:5000/notification/send \
--H "Content-Type: application/json" \
--d '{"id":"1","name":"Mukesh","email":"your-email@gmail.com"}'
+curl http://localhost:8000/api/v1/attendance/health
 ```
 
 ---
 
-## Stop Services
+## Troubleshooting
+
+### PostgreSQL not starting
 
 ```bash
-fuser -k 8080/tcp
-fuser -k 8081/tcp
-fuser -k 8082/tcp
-fuser -k 5000/tcp
-sudo systemctl stop nginx
+sudo systemctl restart postgresql
 ```
+
+### Connection refused
+
+* Check port 5432
+* Verify service is running
+
+### Authentication error
+
+```bash
+psql -U postgres -h 127.0.0.1
+```
+
+(Use TCP instead of socket)
+
+### Migration failure
+
+* Verify DB name
+* Check liquibase.properties
+
+---
+
+## Summary
+
+* PostgreSQL is the source of truth for attendance data
+* Liquibase manages schema changes
+* Poetry manages dependencies
+* Fully integrated with attendance-api
 
 ---
 
 ## FAQs
 
-**1. Why are services not starting?**
+**Q1. Why use PostgreSQL instead of NoSQL here?**
 
-> Ports may be occupied or dependent services (DB/Redis) are not running.
+> Attendance data is structured and benefits from SQL queries like filtering, grouping, and date-based operations.
 
-**2. Why am I getting 502 Bad Gateway from NGINX?**
+**Q2. What happens if Liquibase migrations are not run?**
 
-> Backend service is down. Verify using curl on respective ports (8080, 8081, 8082).
+> Required tables will not be created, and the application will fail when trying to read/write data.
 
-**3. Why APIs are returning empty data?**
+**Q3. Why use 127.0.0.1 instead of Docker IP (172.x)?**
 
-> Database might not be initialized or migrations not executed.
+> For local POC setup, services run on the same host, so localhost ensures stable connectivity.
 
-**4. Why notification service is failing?**
+**Q4. How to verify PostgreSQL is working correctly?**
 
-> Missing Python dependencies (e.g., emails module). Run `pip3 install -r requirements.txt`.
-
-**5. Why frontend is not loading properly?**
-
-> React build not generated or NGINX not restarted. Run `npm run build` and restart NGINX.
-
----
-
-## Repository
-
-[https://github.com/opstree/OT-Microservices](https://github.com/opstree/OT-Microservices)
+> Use `psql` to connect and run `\dt` to check tables or test API endpoints using curl.
 
 ---
 
 ## Contact Information
 
-| Name         | Email                                                                             |
-| ------------ | --------------------------------------------------------------------------------- |
-| Mukesh Kharb | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) |
+| Name         | Email                                                                             | Role            |
+| ------------ | --------------------------------------------------------------------------------- | --------------- |
+| Mukesh Kharb | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) | DevOps Engineer |
 
 ---
 
 ## References
 
-| Resource   | Link                                                     |
-| ---------- | -------------------------------------------------------- |
-| Git Docs   | [https://git-scm.com/docs](https://git-scm.com/docs)     |
-| NGINX Docs | [https://nginx.org/en/docs/](https://nginx.org/en/docs/) |
+| Resource                 | Link                                                                       | Description                                           |
+| ------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------- |
+| PostgreSQL Official Docs | [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)       | Official PostgreSQL documentation                     |
+| Liquibase Documentation  | [https://docs.liquibase.com/](https://docs.liquibase.com/)                 | Database migration tool documentation                 |
+| OT Microservices Repo    | [https://github.com/OT-MICROSERVICES](https://github.com/OT-MICROSERVICES) | Source code for microservices project                 |
+| Attendance API Config    | Internal Project Files                                                     | PostgreSQL + Liquibase configuration used in this POC |
 
 ---
