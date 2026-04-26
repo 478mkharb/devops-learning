@@ -6,30 +6,16 @@
 <br/>
 
 <p>
-  <a href="https://go.dev/">
-    <img src="https://img.shields.io/badge/Go-EmployeeAPI-blue?style=for-the-badge" />
-  </a>
-  <a href="https://www.python.org/">
-    <img src="https://img.shields.io/badge/Python-AttendanceAPI-green?style=for-the-badge" />
-  </a>
-  <a href="https://www.java.com/">
-    <img src="https://img.shields.io/badge/Java-SalaryAPI-orange?style=for-the-badge" />
-  </a>
+  <img src="https://img.shields.io/badge/Go-EmployeeAPI-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Python-AttendanceAPI-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Java-SalaryAPI-orange?style=for-the-badge" />
 </p>
 
 <p>
-  <a href="https://flask.palletsprojects.com/">
-    <img src="https://img.shields.io/badge/Flask-NotificationAPI-lightgrey?style=for-the-badge" />
-  </a>
-  <a href="https://www.scylladb.com/">
-    <img src="https://img.shields.io/badge/ScyllaDB-Database-blueviolet?style=for-the-badge" />
-  </a>
-  <a href="https://www.postgresql.org/">
-    <img src="https://img.shields.io/badge/PostgreSQL-AttendanceDB-blue?style=for-the-badge" />
-  </a>
-  <a href="https://nginx.org/">
-    <img src="https://img.shields.io/badge/NGINX-ReverseProxy-red?style=for-the-badge" />
-  </a>
+  <img src="https://img.shields.io/badge/Flask-NotificationAPI-lightgrey?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/ScyllaDB-Database-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/PostgreSQL-AttendanceDB-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/NGINX-Frontend-red?style=for-the-badge" />
 </p>
 
 </div>
@@ -38,15 +24,32 @@
 
 | Author       | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer  |
 | ------------ | ---------- | ------- | --------------- | -------------- | ------------ | ----------- | ----------- | ------------ |
-| Mukesh Kharb | 25/04/2026 | 1.0     | Mukesh Kharb    | 25/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar |
+| Mukesh Kharb | 25/04/2026 | 2.0     | Mukesh Kharb    | 26/04/2026     | Team         | Mohit Kumar | Faisal Khan | Mahesh Kumar |
 
 ---
 
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Execution Steps](#execution-steps)
+* [Architecture Overview](#architecture-overview)
+* [Setup for Execution](#setup-for-execution)
+
+  * [Setup Logs](#setup-logs)
+  * [Initial Cleanup (Ports)](#initial-cleanup-ports)
+  * [Start Infrastructure](#start-infrastructure)
+  * [Employee API (Go)](#employee-api-go)
+  * [Attendance API (Python)](#attendance-api-python)
+  * [Salary API (Java)](#salary-api-java)
+  * [Notification API (Python)](#notification-api-python)
+  * [Frontend (React via NGINX)](#frontend-react-via-nginx)
 * [Verification](#verification)
+
+  * [Frontend UI](#frontend-ui)
+  * [Frontend Logs](#frontend-logs)
+  * [Functional API Tests](#functional-api-tests)
+  * [Swagger Validation](#swagger-validation)
+  * [Backend Logs](#backend-logs)
+  * [Notification Test](#notification-test)
 * [Stop Services](#stop-services)
 * [FAQs](#faqs)
 * [Repository](#repository)
@@ -57,7 +60,14 @@
 
 ## Introduction
 
-This document provides a structured runbook to set up and execute the OT-Microservices stack for POC. It ensures proper sequencing of infrastructure, services, validation, and shutdown.
+OT-Microservices is a polyglot microservices-based Employee Management System where each service is independently deployed, owns its own database, and communicates via REST APIs. NGINX acts as a reverse proxy and serves as the single entry point for frontend and backend services.
+
+---
+
+## Architecture Overview
+
+><img width="1536" height="1024" alt="ChatGPT Image Apr 26, 2026, 10_41_56 AM" src="https://github.com/user-attachments/assets/0c394672-3e22-47f2-8b84-a87742fc62fe" />
+
 
 ---
 
@@ -87,6 +97,8 @@ sudo systemctl start redis
 sudo systemctl start nginx
 ```
 
+---
+
 ### Employee API (Go)
 
 ```bash
@@ -98,9 +110,7 @@ nohup go run main.go > ~/logs/employee-api.log 2>&1 &
 
 ```bash
 cd ~/OT-Micro/attendance-api
-nohup poetry run gunicorn app:app \
-  --log-config log.conf \
-  -b 0.0.0.0:8081 > ~/logs/attendance.log 2>&1 &
+nohup poetry run gunicorn app:app -b 0.0.0.0:8081 > ~/logs/attendance.log 2>&1 &
 ```
 
 ### Salary API (Java)
@@ -118,47 +128,31 @@ pip3 install -r requirements.txt
 nohup python3 notification_api.py --mode api > ~/logs/notification.log 2>&1 &
 ```
 
-### Database Commands
-
-#### ScyllaDB
+### Frontend (React via NGINX)
 
 ```bash
-cqlsh
-```
-
-```sql
-DESCRIBE KEYSPACES;
-USE employee_db;
-SELECT * FROM employee;
-USE salary_keyspace;
-SELECT * FROM employee_salary;
-```
-
-#### PostgreSQL
-
-```bash
-psql -U postgres -h 127.0.0.1 -d attendance_db
-```
-
-```sql
-\dt
-SELECT * FROM attendance;
-```
-
-#### Redis
-
-```bash
-redis-cli
-```
-
-```bash
-PING
-KEYS *
+cd ~/OT-Micro/frontend
+npm install
+npm run build
+sudo systemctl restart nginx
 ```
 
 ---
 
 ## Verification
+
+### Frontend UI
+
+```
+http://localhost/
+```
+
+### Frontend Logs
+
+```bash
+tail -f /var/log/nginx/access.log
+tail -f /var/log/nginx/error.log
+```
 
 ### Functional API Tests
 
@@ -176,7 +170,7 @@ curl -I http://localhost:8081/apidocs/
 curl -I http://localhost:8082/swagger-ui/index.html
 ```
 
-### Logs
+### Backend Logs
 
 ```bash
 tail -f ~/logs/employee-api.log
@@ -209,17 +203,25 @@ sudo systemctl stop nginx
 
 ## FAQs
 
-**Why are services not starting?**
+**1. Why are services not starting?**
 
-> Ports may be occupied. Run cleanup before starting.
+> Ports may be occupied or dependent services (DB/Redis) are not running.
 
-**Why APIs are not accessible?**
+**2. Why am I getting 502 Bad Gateway from NGINX?**
 
-> Ensure services and infrastructure are running.
+> Backend service is down. Verify using curl on respective ports (8080, 8081, 8082).
 
-**Why logs are empty?**
+**3. Why APIs are returning empty data?**
 
-> Verify nohup execution and log directory.
+> Database might not be initialized or migrations not executed.
+
+**4. Why notification service is failing?**
+
+> Missing Python dependencies (e.g., emails module). Run `pip3 install -r requirements.txt`.
+
+**5. Why frontend is not loading properly?**
+
+> React build not generated or NGINX not restarted. Run `npm run build` and restart NGINX.
 
 ---
 
@@ -239,11 +241,9 @@ sudo systemctl stop nginx
 
 ## References
 
-| Resource        | Link                                                                 |
-| --------------- | -------------------------------------------------------------------- |
-| Git Docs        | [https://git-scm.com/docs](https://git-scm.com/docs)                 |
-| NGINX Docs      | [https://nginx.org/en/docs/](https://nginx.org/en/docs/)             |
-| PostgreSQL Docs | [https://www.postgresql.org/docs/](https://www.postgresql.org/docs/) |
-| ScyllaDB Docs   | [https://docs.scylladb.com/](https://docs.scylladb.com/)             |
+| Resource   | Link                                                     |
+| ---------- | -------------------------------------------------------- |
+| Git Docs   | [https://git-scm.com/docs](https://git-scm.com/docs)     |
+| NGINX Docs | [https://nginx.org/en/docs/](https://nginx.org/en/docs/) |
 
 ---
