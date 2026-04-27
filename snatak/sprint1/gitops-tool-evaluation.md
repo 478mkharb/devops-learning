@@ -1,10 +1,21 @@
-<h1 align="center">Documentation: VCS Design + POC | GitOps | Tools Evaluation</h1>
+<h1 align="center">Documentation of GitOps Tools Evaluation</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/GitOps-Automation-blue?style=for-the-badge&logo=git" />
-  <img src="https://img.shields.io/badge/ArgoCD-Kubernetes-red?style=for-the-badge&logo=argo" />
-  <img src="https://img.shields.io/badge/FluxCD-Continuous_Delivery-green?style=for-the-badge&logo=flux" />
-  <img src="https://img.shields.io/badge/JenkinsX-CI/CD-orange?style=for-the-badge&logo=jenkins" />
+  <a href="https://about.gitlab.com/topics/gitops/" target="_blank">
+    <img src="https://img.shields.io/badge/GitOps-Automation-blue?style=for-the-badge&logo=git" />
+  </a>
+  
+  <a href="https://argo-cd.readthedocs.io/" target="_blank">
+    <img src="https://img.shields.io/badge/ArgoCD-Kubernetes-red?style=for-the-badge&logo=argo" />
+  </a>
+  
+  <a href="https://fluxcd.io/" target="_blank">
+    <img src="https://img.shields.io/badge/FluxCD-Continuous_Delivery-green?style=for-the-badge&logo=flux" />
+  </a>
+  
+  <a href="https://jenkins-x.io/" target="_blank">
+    <img src="https://img.shields.io/badge/JenkinsX-CI%2FCD-orange?style=for-the-badge&logo=jenkins" />
+  </a>
 </p>
 
 ---
@@ -20,7 +31,7 @@
 * [Introduction](#introduction)
 * [What is GitOps](#what-is-gitops)
 * [Why GitOps](#why-gitops)
-* [VCS Design Overview](#vcs-design-overview)
+* [Gitops Flow Overview](#gitops-flow-overview)
 * [GitOps Tools](#gitops-tools)
 * [Tools Comparison](#tools-comparison)
 * [Conclusion](#conclusion)
@@ -61,28 +72,9 @@ It improves reliability, auditability, and consistency across environments.
 
 ---
 
-## VCS Design Overview
+## GitOps Flow Overview
 
-```text
-Developer Change
-      ↓
-Feature Branch
-      ↓
-Pull Request Review
-      ↓
-Merge to Main
-      ↓
-GitOps Tool Detects Change
-      ↓
-Deploy to Kubernetes
-```
-
-| Branch    | Purpose             |
-| --------- | ------------------- |
-| main      | Production state    |
-| develop   | Integration testing |
-| feature/* | New features        |
-| hotfix/*  | Emergency fixes     |
+><img width="800" height="auto" alt="ChatGPT Image Apr 27, 2026, 10_34_24 PM" src="https://github.com/user-attachments/assets/fc52c7aa-b236-4642-b4d2-8008eb25223d" />
 
 ---
 
@@ -99,15 +91,8 @@ Deploy to Kubernetes
 ---
 
 ## Tools Comparison
+><img width="800" height="auto" alt="ChatGPT Image Apr 27, 2026, 10_25_04 PM" src="https://github.com/user-attachments/assets/ac604e43-bcd0-4846-bef8-b747c54acee7" />
 
-| Criteria          | Argo CD       | FluxCD          | Jenkins X   | Fleet              |
-| ----------------- | ------------- | --------------- | ----------- | ------------------ |
-| UI Dashboard      | Yes           | Limited         | Yes         | Yes                |
-| Kubernetes Native | Yes           | Yes             | Yes         | Yes                |
-| Multi Cluster     | Yes           | Yes             | Moderate    | Strong             |
-| Ease of Setup     | High          | Moderate        | Moderate    | Moderate           |
-| Terraform Focus   | No            | No              | No          | No                 |
-| Best Use Case     | Enterprise CD | Lightweight Ops | Full DevOps | Large Cluster Mgmt |
 
 ---
 
