@@ -1,66 +1,131 @@
 # OT-Microservices Start Script (Production EC2)
-
 ```bash
+# ==========================================================
+# PATCHED start.sh  (Production Safe)
+# Auto rebuild salary-api jar if missing
+# Smart waits
+# ==========================================================
+
 #!/bin/bash
-set -euo pipefail
+set +e
 
-echo "🚀 Starting OT-Microservices Stack..."
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-PUBLIC_IP=$(curl -s ifconfig.me || hostname -I | awk '{print $1}')
-LOG_DIR=~/logs
-mkdir -p "$LOG_DIR"
+ok(){ echo -e "${GREEN}✅ $1${NC}"; }
+bad(){ echo -e "${RED}❌ $1${NC}"; }
+warn(){ echo -e "${YELLOW}⚠ $1${NC}"; }
 
-SERVICES=(redis-server postgresql scylla-server elasticsearch nginx employee-api attendance-api salary-api notification-api)
+PUBLIC_IP=$(curl -s ifconfig.me 2>/dev/null)
+[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(hostname -I | awk '{print $1}')
 
-wait_service() {
-  local svc=$1
-  for i in {1..20}; do
-    if systemctl is-active --quiet "$svc"; then
-      echo "✅ $svc is active"
-      return 0
-    fi
-    sleep 2
-  done
-  echo "❌ $svc failed to become active"
-  return 1
-}
+echo "=================================================="
+echo "🚀 Starting OT-Microservices Stack"
+echo "=================================================="
 
-for svc in "${SERVICES[@]}"; do
-  if systemctl list-unit-files | grep -q "^${svc}"; then
-    echo "▶ Starting $svc"
-    sudo systemctl start "$svc" || true
-    wait_service "$svc" || true
-  else
-    echo "⚠ Skipping $svc (not installed)"
-  fi
+# Infra first
+for svc in redis-server postgresql scylla-server elasticsearch nginx
+do
+  sudo systemctl start $svc
+  sleep 2
 done
 
-echo ""
-echo "🔍 Quick Health Checks"
-curl -fsS http://localhost/api/v1/employee/health && echo "  Employee OK" || echo "  Employee FAIL"
-curl -fsS http://localhost/api/v1/attendance/health && echo "  Attendance OK" || echo "  Attendance FAIL"
-curl -fsS http://localhost:8082/actuator/health && echo "  Salary OK" || echo "  Salary FAIL"
-curl -fsS http://localhost/notification/health && echo "  Notification OK" || echo "  Notification FAIL"
-redis-cli ping && echo "  Redis OK" || echo "  Redis FAIL"
-curl -fsS localhost:9200 >/dev/null && echo "  Elasticsearch OK" || echo "  Elasticsearch FAIL"
+# Employee + Attendance
+sudo systemctl start employee-api
+sudo systemctl start attendance-api
+
+# ------------------------------------------------
+# Salary API jar auto-check
+# ------------------------------------------------
+JAR=~/OT-Micro/salary-api/target/salary-0.1.0-RELEASE.jar
+
+if [ ! -f "$JAR" ]; then
+    warn "Salary JAR missing. Rebuilding..."
+    cd ~/OT-Micro/salary-api
+    mvn clean package -DskipTests
+fi
+
+sudo systemctl start salary-api
+
+# Notification
+sudo systemctl start notification-api
 
 echo ""
+echo "=================================================="
+echo "🔍 HEALTH CHECKS"
+echo "=================================================="
+
+curl -fsS http://localhost/api/v1/employee/health >/dev/null \
+&& ok "Employee API OK" || bad "Employee API DOWN"
+
+curl -fsS http://localhost/api/v1/attendance/health >/dev/null \
+&& ok "Attendance API OK" || bad "Attendance API DOWN"
+
+echo ""
+echo "⏳ Waiting for Salary API (max 60 sec)..."
+
+SALARY_OK=false
+for i in {1..60}
+do
+    if curl -fsS http://localhost:8082/actuator/health >/dev/null 2>&1; then
+        SALARY_OK=true
+        break
+    fi
+    sleep 1
+done
+
+if [ "$SALARY_OK" = true ]; then
+    ok "Salary API OK"
+else
+    bad "Salary API DOWN after 60 sec"
+fi
+
+echo ""
+echo "⏳ Waiting for Notification API (max 20 sec)..."
+
+NOTIFY_OK=false
+for i in {1..20}
+do
+    if curl -fsS http://localhost:5000/health >/dev/null 2>&1; then
+        NOTIFY_OK=true
+        break
+    fi
+    sleep 1
+done
+
+if [ "$NOTIFY_OK" = true ]; then
+    ok "Notification API OK"
+else
+    bad "Notification API DOWN"
+fi
+
+redis-cli ping >/dev/null && ok "Redis OK" || bad "Redis DOWN"
+curl -fsS localhost:9200 >/dev/null && ok "Elasticsearch OK" || bad "Elasticsearch DOWN"
+
+echo ""
+echo "=================================================="
 echo "🌐 ACCESS URLS"
+echo "=================================================="
+
 echo "Frontend            -> http://$PUBLIC_IP/"
 echo "Employee API        -> http://$PUBLIC_IP/api/v1/employee/health"
 echo "Attendance API      -> http://$PUBLIC_IP/api/v1/attendance/health"
 echo "Salary API          -> http://$PUBLIC_IP/api/v1/salary/search/all"
 echo "Salary Health       -> http://$PUBLIC_IP:8082/actuator/health"
 echo "Notification Health -> http://$PUBLIC_IP/notification/health"
-
 echo ""
-echo "📘 Swagger URLs"
+echo "=================================================="
+echo "📘 SWAGGER / API DOCS"
+echo "=================================================="
+
 echo "Employee Swagger    -> http://$PUBLIC_IP:8080/swagger/index.html"
 echo "Attendance Swagger  -> http://$PUBLIC_IP:8081/apidocs/"
 echo "Salary Swagger      -> http://$PUBLIC_IP:8082/swagger-ui/index.html"
-
 echo ""
-echo "✅ OT-Microservices started successfully"
+ok "Startup completed"
+echo "=================================================="
 ```
 # OT-Microservices Stop Script (Production EC2)
 
@@ -96,135 +161,64 @@ echo "✅ OT-Microservices stopped successfully"
 ```
 # Cleanup script
 ```
-#!/bin/bash
 # ==========================================================
-# OT-Microservices Full Cleanup Script
-# File: cleanup.sh
-# Usage:
-#   chmod +x cleanup.sh
-#   ./cleanup.sh
-#
-# Safe cleanup before ./start.sh
-# Combines:
-#   Memory cleanup
-#   Old build cleanup
-#   Logs cleanup
-#   Temp files cleanup
+# PATCHED cleanup.sh  (Production Safe)
+# Keeps required salary-api jar
 # ==========================================================
 
+#!/bin/bash
 set +e
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-ok()   { echo -e "${GREEN}✅ $1${NC}"; }
-warn() { echo -e "${YELLOW}⚠ $1${NC}"; }
-info() { echo -e "${BLUE}▶ $1${NC}"; }
-
 echo "=================================================="
-echo "🧹 OT-Microservices Full Safe Cleanup"
+echo "🧹 OT-Microservices Safe Cleanup"
 echo "=================================================="
 
-# --------------------------------------------------
-# Initial Usage
-# --------------------------------------------------
-info "Disk usage before cleanup:"
-df -h /
-echo ""
-
-info "Memory before cleanup:"
+echo "▶ Memory Before:"
 free -h
 echo ""
 
-# --------------------------------------------------
-# Sync + Drop Cache
-# --------------------------------------------------
-info "Syncing filesystem buffers..."
+echo "▶ Disk Before:"
+df -h /
+echo ""
+
 sudo sync
-
-info "Dropping Linux cache..."
 echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null
-ok "Kernel cache cleared"
 
-# --------------------------------------------------
-# Refresh Swap
-# --------------------------------------------------
-if swapon --show | grep -q "/"; then
-    info "Refreshing swap..."
-    sudo swapoff -a
-    sudo swapon -a
-    ok "Swap refreshed"
-else
-    warn "No swap configured"
-fi
-
-# --------------------------------------------------
-# Frontend Cleanup
-# --------------------------------------------------
-info "Cleaning frontend build/cache..."
+# Frontend safe cleanup
 rm -rf ~/OT-Micro/frontend/build
 rm -rf ~/OT-Micro/frontend/node_modules/.cache
-ok "Frontend cache removed"
 
-# --------------------------------------------------
-# Salary API Cleanup
-# --------------------------------------------------
-info "Cleaning Salary API old target builds..."
-rm -rf ~/OT-Micro/salary-api/target/*
-ok "Old JAR/build artifacts removed"
+# Salary API safe cleanup (preserve real jar)
+find ~/OT-Micro/salary-api/target -type f -name "*.original" -delete 2>/dev/null
+find ~/OT-Micro/salary-api/target -type f -name "*.tmp" -delete 2>/dev/null
+find ~/OT-Micro/salary-api/target -type f -name "*.log" -delete 2>/dev/null
 
-# --------------------------------------------------
-# Python Cache Cleanup
-# --------------------------------------------------
-info "Cleaning Python caches..."
+# Python cache cleanup
 find ~/OT-Micro -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
 find ~/OT-Micro -type f -name "*.pyc" -delete 2>/dev/null
-ok "Python cache removed"
 
-# --------------------------------------------------
-# Temp Files
-# --------------------------------------------------
-info "Cleaning temp PDFs..."
+# Temp files
 rm -f /tmp/*salary*.pdf
-ok "Temp PDFs removed"
-
-# --------------------------------------------------
-# Logs Cleanup
-# --------------------------------------------------
-info "Cleaning old logs..."
 rm -f ~/notification.log
+
+# Logs cleanup
 sudo journalctl --vacuum-time=7d >/dev/null 2>&1
-ok "Logs cleaned"
-
-# --------------------------------------------------
-# Apt Cache
-# --------------------------------------------------
-info "Cleaning apt cache..."
 sudo apt clean >/dev/null 2>&1
-ok "APT cache cleaned"
 
-# --------------------------------------------------
-# Final Usage
-# --------------------------------------------------
 echo ""
-info "Disk usage after cleanup:"
-df -h /
-echo ""
-
-info "Memory after cleanup:"
+echo "▶ Memory After:"
 free -h
 echo ""
 
-info "Project size:"
-du -sh ~/OT-Micro 2>/dev/null
+echo "▶ Disk After:"
+df -h /
+echo ""
+
+echo "▶ Project Size:"
+du -sh ~/OT-Micro
 
 echo ""
+echo "✅ Cleanup complete"
+echo "Now run ./start.sh"
 echo "=================================================="
-ok "Cleanup completed successfully"
-echo "Now run: ./start.sh"
-echo "=================================================="
-
 ```
