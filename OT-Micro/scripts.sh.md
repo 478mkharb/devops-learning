@@ -62,3 +62,35 @@ echo "Salary Swagger      -> http://$PUBLIC_IP:8082/swagger-ui/index.html"
 echo ""
 echo "✅ OT-Microservices started successfully"
 ```
+# OT-Microservices Stop Script (Production EC2)
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+echo "🛑 Stopping OT-Microservices Stack..."
+
+SERVICES=(notification-api salary-api attendance-api employee-api nginx elasticsearch scylla-server postgresql redis-server)
+
+for svc in "${SERVICES[@]}"; do
+  if systemctl list-unit-files | grep -q "^${svc}"; then
+    echo "▶ Stopping $svc"
+    sudo systemctl stop "$svc" || true
+    sleep 1
+    if systemctl is-active --quiet "$svc"; then
+      echo "⚠ $svc still active"
+    else
+      echo "✅ $svc stopped"
+    fi
+  else
+    echo "⚠ Skipping $svc (not installed)"
+  fi
+done
+
+echo ""
+echo "🔍 Remaining Ports"
+ss -tulpn | egrep '80|5000|6379|8080|8081|8082|9200|9042' || true
+
+echo ""
+echo "✅ OT-Microservices stopped successfully"
+```
