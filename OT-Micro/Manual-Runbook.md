@@ -292,3 +292,156 @@ redis-cli keys '*'
 ```
 
 ---
+
+---
+
+## 13. Start Services Script
+
+Create file:
+
+```bash
+nano ~/start-ot-micro.sh
+chmod +x ~/start-ot-micro.sh
+```
+
+```bash
+#!/bin/bash
+set -e
+
+SERVICES=(redis-server postgresql nginx elasticsearch scylla-server employee-api attendance-api salary-api notification-api)
+
+for svc in "${SERVICES[@]}"; do
+  if systemctl list-unit-files | grep -q "^${svc}"; then
+    echo "Starting $svc ..."
+    sudo systemctl start "$svc"
+  else
+    echo "Skipping $svc (not installed)"
+  fi
+done
+
+echo "Waiting for services..."
+sleep 8
+
+echo "===== STATUS ====="
+for svc in "${SERVICES[@]}"; do
+  systemctl is-active "$svc" 2>/dev/null || true
+done
+
+echo "All possible services started."
+```
+
+---
+
+## 14. Stop Services Script
+
+Create file:
+
+```bash
+nano ~/stop-ot-micro.sh
+chmod +x ~/stop-ot-micro.sh
+```
+
+```bash
+#!/bin/bash
+set -e
+
+SERVICES=(notification-api salary-api attendance-api employee-api nginx elasticsearch scylla-server postgresql redis-server)
+
+for svc in "${SERVICES[@]}"; do
+  if systemctl list-unit-files | grep -q "^${svc}"; then
+    echo "Stopping $svc ..."
+    sudo systemctl stop "$svc" || true
+  else
+    echo "Skipping $svc (not installed)"
+  fi
+done
+
+echo "All possible services stopped."
+```
+
+---
+
+## 15. Access URLs
+
+Replace `<EC2-PUBLIC-IP>` with your server IP.
+
+### Frontend
+
+```text
+http://<EC2-PUBLIC-IP>/
+```
+
+### Employee API
+
+```text
+http://<EC2-PUBLIC-IP>/api/v1/employee/health
+http://<EC2-PUBLIC-IP>/api/v1/employee/search/all
+```
+
+### Attendance API
+
+```text
+http://<EC2-PUBLIC-IP>/api/v1/attendance/health
+http://<EC2-PUBLIC-IP>/api/v1/attendance/search/all
+```
+
+### Salary API
+
+```text
+http://<EC2-PUBLIC-IP>/api/v1/salary/search/all
+http://<EC2-PUBLIC-IP>:8082/actuator/health
+```
+
+### Notification API
+
+```text
+http://<EC2-PUBLIC-IP>/notification/health
+http://<EC2-PUBLIC-IP>:5000/health
+```
+
+### Swagger / API Docs (if enabled)
+
+```text
+http://<EC2-PUBLIC-IP>:8080/swagger/index.html
+http://<EC2-PUBLIC-IP>:8081/apidocs/
+http://<EC2-PUBLIC-IP>:8082/swagger-ui/index.html
+```
+
+---
+
+## 16. Quick Curl Validation Commands
+
+```bash
+curl http://localhost/api/v1/employee/health
+curl http://localhost/api/v1/attendance/health
+curl http://localhost/api/v1/salary/search/all
+curl http://localhost:8082/actuator/health
+curl http://localhost/notification/health
+curl localhost:9200/_cat/indices?v
+redis-cli ping
+```
+
+### Process Salary Test
+
+```bash
+curl -X POST http://localhost/api/v1/salary/create/record \
+-H "Content-Type: application/json" \
+-d '{
+"id":"1",
+"name":"Mukesh Kharb",
+"salary":50000,
+"processDate":"2026-04-30"
+}'
+```
+
+---
+
+## 17. Logs / Debug Commands
+
+```bash
+journalctl -u employee-api -f
+journalctl -u attendance-api -f
+journalctl -u salary-api -f
+journalctl -u notification-api -f
+journalctl -u nginx -f
+```
