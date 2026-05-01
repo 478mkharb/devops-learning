@@ -513,6 +513,38 @@ info "Project Size After:"
 du -sh "$BASE" 2>/dev/null || true
 
 # ==========================================================
+# DEMO DATA RESET
+# ==========================================================
+echo ""
+info "Resetting demo data..."
+
+# ---------- SCYLLA ----------
+if command -v cqlsh >/dev/null 2>&1; then
+    cqlsh 127.0.0.1 -e "TRUNCATE employee_db.employee_info;" 2>/dev/null \
+        && ok "Employee data cleared" \
+        || warn "Employee truncate failed"
+
+    cqlsh 127.0.0.1 -e "TRUNCATE salary_keyspace.employee_salary;" 2>/dev/null \
+        && ok "Salary data cleared" \
+        || warn "Salary truncate failed"
+fi
+
+# ---------- POSTGRES ----------
+sudo -u postgres psql attendance_db -c \
+"TRUNCATE TABLE records RESTART IDENTITY CASCADE;" >/dev/null 2>&1 \
+&& ok "Attendance data cleared" \
+|| warn "Attendance truncate failed"
+
+# ---------- REDIS ----------
+redis-cli FLUSHALL >/dev/null 2>&1 \
+&& ok "Redis cache cleared" \
+|| warn "Redis flush failed"
+
+# ---------- ELASTICSEARCH ----------
+curl -s -X DELETE http://localhost:9200/salary_records >/dev/null 2>&1 || true
+curl -s -X DELETE http://localhost:9200/attendance_records >/dev/null 2>&1 || true
+ok "Elasticsearch indexes cleared"
+# ==========================================================
 # READY STATUS
 # ==========================================================
 echo ""
