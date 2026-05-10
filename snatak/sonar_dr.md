@@ -1,7 +1,7 @@
 <h1 align="center">Documentation - SonarQube Disaster Recovery on AWS EC2</h1>
 
 <p align="center">
-  <img width="120" height="auto" src="https://upload.wikimedia.org/wikipedia/commons/e/e6/SonarQubeLogo.svg" />
+  <img width="300" height="auto" alt="DV-SonarQube" src="https://github.com/user-attachments/assets/36f08d50-e4ca-4704-9020-f0c5c8cb18dc" />
 </p>
 
 <p align="center">
@@ -45,11 +45,11 @@
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
-2. [Important Directories](#2-important-directories)
-3. [Backup & Recovery Flow](#3-backup--recovery-flow)
-4. [Backup Strategy](#4-backup-strategy)
-5. [Recovery Strategy](#5-recovery-strategy)
-6. [DR Methods](#6-dr-methods)
+2. [SonarQube PostgreSQL Integration](#2-sonarqube-postgresql-integration)
+3. [Important Directories](#3-important-directories)
+4. [Backup & Recovery Flow](#4-backup--recovery-flow)
+5. [Backup Strategy](#5-backup-strategy)
+6. [Recovery Strategy](#6-recovery-strategy)
 7. [MTTR](#7-mttr)
 8. [Best Practices](#8-best-practices)
 9. [Troubleshooting](#9-troubleshooting)
@@ -64,44 +64,64 @@ This document explains how Disaster Recovery (DR) can be implemented for SonarQu
 
 ---
 
-## 2. Important Directories
+## 2. SonarQube PostgreSQL Integration
 
-| Directory                 | Description                   |
-| ------------------------- | ----------------------------- |
-| /opt/sonarqube/conf       | SonarQube configuration files |
-| /opt/sonarqube/data       | SonarQube application data    |
-| /opt/sonarqube/extensions | Plugins and extensions        |
-| /opt/sonarqube/logs       | SonarQube logs                |
+SonarQube uses PostgreSQL as the primary database for storing projects, analysis history, quality gates, users, issues, and metrics.
 
----
+The database connectivity is configured in:
 
-## 3. Backup & Recovery Flow
-
-```mermaid
-graph TD
-    A[SonarQube EC2 Server] --> B[PostgreSQL Database]
-    B --> C[Database Backup]
-    A --> D[EC2 AMI Backup]
-    A --> E[EBS Snapshot]
-    C --> F[S3 Backup Storage]
-    D --> F
-    E --> F
-    F --> G[Recovery During Failure]
+```bash
+/opt/sonarqube/conf/sonar.properties
 ```
 
-> Screenshot Placeholder: Add Backup and Recovery Flow Diagram Here
+### PostgreSQL Configuration Example
+
+```properties
+sonar.jdbc.username=sonar
+sonar.jdbc.password=********
+sonar.jdbc.url=jdbc:postgresql://<db-host>:5432/sonarDB
+```
+
+### Why Configuration Backup is Required
+
+| Component            | Purpose                                    |
+| -------------------- | ------------------------------------------ |
+| PostgreSQL Database  | Stores SonarQube analysis data             |
+| sonar.properties     | Stores database connectivity configuration |
+| Extensions / Plugins | Maintains plugin compatibility             |
+| EC2 / EBS Backup     | Speeds up infrastructure recovery          |
+
+Without the `sonar.properties` backup, SonarQube cannot reconnect to PostgreSQL after recovery.
 
 ---
 
-## 4. Backup Strategy
+## 3. Important Directories
 
-| Component           | Backup Method        | Automation          | Frequency |
-| ------------------- | -------------------- | ------------------- | --------- |
-| PostgreSQL Database | pg_dump              | Cron Job            | Daily     |
-| EC2 Server          | AMI Backup           | AWS Backup / Lambda | Weekly    |
-| EBS Volume          | Snapshot             | AWS Backup Policy   | Daily     |
-| Configuration Files | tar backup + S3 sync | Cron Job            | Weekly    |
-| Plugins             | File backup          | Cron Job            | Weekly    |
+| Directory / File                     | Description                          |
+| ------------------------------------ | ------------------------------------ |
+| /opt/sonarqube/conf/sonar.properties | Database and SonarQube configuration |
+| /opt/sonarqube/data                  | SonarQube application data           |
+| /opt/sonarqube/extensions            | SonarQube plugins and extensions     |
+| /opt/sonarqube/logs                  | SonarQube logs                       |
+
+---
+
+## 4. Backup & Recovery Flow
+
+><img width="1536" height="656" alt="sonar" src="https://github.com/user-attachments/assets/9951315c-2b49-452d-9327-9e74a1682744" />
+
+
+---
+
+## 5. Backup Strategy
+
+SonarQube stores analysis data inside PostgreSQL, while application configuration and plugins are stored separately on the server filesystem. Therefore, both database and filesystem-level backups are required for complete disaster recovery.
+
+| Component           | What It Contains                              | Backup Method        | Automation | Frequency      |
+| ------------------- | --------------------------------------------- | -------------------- | ---------- | -------------- |
+| PostgreSQL Database | Projects, issues, users, analysis history     | pg_dump              | Cron Job   | Daily          |
+| sonar.properties    | Database connectivity configuration           | tar backup + S3 sync | Cron Job   | Weekly         |
+| EC2 / EBS           | Server and application disk including plugins | AMI + Snapshot       | AWS Backup | Weekly / Daily |
 
 ### PostgreSQL Backup
 
@@ -120,6 +140,12 @@ The above cron job automatically takes PostgreSQL backup daily at 1 AM.
 
 ### SonarQube Configuration Backup
 
+The following file is important during recovery because it stores PostgreSQL connectivity configuration:
+
+```bash
+/opt/sonarqube/conf/sonar.properties
+```
+
 ```bash
 tar -czvf sonarqube-config.tar.gz \
 /opt/sonarqube/conf \
@@ -136,6 +162,8 @@ aws ec2 create-image \
 
 ### EBS Snapshot Backup
 
+EBS snapshots help recover the complete SonarQube server filesystem, including SonarQube binaries, logs, plugins, and configuration files.
+
 ```bash
 aws ec2 create-snapshot \
 --volume-id vol-xxxxxxxx \
@@ -146,15 +174,7 @@ EBS snapshots are generally automated using AWS Backup Policies or Lambda schedu
 
 ---
 
-## 5. Recovery Strategy
-
-| Failure Scenario        | Recovery Method                 |
-| ----------------------- | ------------------------------- |
-| EC2 Failure             | Launch EC2 from AMI             |
-| Database Corruption     | Restore PostgreSQL dump         |
-| EBS Failure             | Restore EBS snapshot            |
-| Config Corruption       | Restore config backup           |
-| Complete Server Failure | Rebuild using AMI and DB backup |
+## 6. Recovery Strategy
 
 ### Database Recovery
 
@@ -164,29 +184,7 @@ psql -U sonar sonarDB < sonarqube_backup.sql
 systemctl start sonarqube
 ```
 
-### Production Recovery Flow
-
-```text
-Failure Detected
-       ↓
-CloudWatch Alarm Triggered
-       ↓
-DR Automation Triggered
-       ↓
-New EC2 Launched from AMI
-       ↓
-EBS Snapshot Attached
-       ↓
-PostgreSQL Backup Restored
-       ↓
-SonarQube Service Started
-       ↓
-Load Balancer / DNS Updated
-       ↓
-Service Validation
-```
-
-### Production Recovery Implementation
+### Recovery Implementation
 
 | Step                   | Production Implementation            |
 | ---------------------- | ------------------------------------ |
@@ -195,14 +193,6 @@ Service Validation
 | Database Recovery      | Automated PostgreSQL restore scripts |
 | Configuration Recovery | Retrieved from S3 or Git repository  |
 | Validation             | Health checks and service monitoring |
-
-### EBS Snapshot Recovery Process
-
-```text
-Snapshot → New Volume → Attach → Mount → Start Service
-```
-
-In production, these steps are generally automated using Lambda, Terraform, Systems Manager Automation, or shell scripts.
 
 ---
 
