@@ -106,9 +106,10 @@ Without the `sonar.properties` backup, SonarQube cannot reconnect to PostgreSQL 
 
 ---
 
-## 4. Backup & Recovery Flow
+## 4. Backup Flow
 
-><img width="1536" height="656" alt="sonar" src="https://github.com/user-attachments/assets/9951315c-2b49-452d-9327-9e74a1682744" />
+><img width="1536" height="645" alt="sonar" src="https://github.com/user-attachments/assets/67f759a8-bfeb-49e0-9532-d3f5caa10be6" />
+
 
 
 ---
