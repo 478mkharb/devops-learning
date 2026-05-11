@@ -3,15 +3,15 @@
 <table border="1" cellpadding="8" cellspacing="0" style="text-align:center; margin:auto;">
   <tbody>
     <th>Total</th>
-      <td>17</td>
+      <td>27</td>
     </tr>
     <tr>
       <th>To Do</th>
-      <td>00</td>
+      <td>09</td>
     </tr>
     <tr>
       <th>In Progress</th>
-      <td>00</td>
+      <td>01</td>
     </tr>
     <tr>
       <th>Internal Review</th>
@@ -23,11 +23,11 @@
     </tr>
     <tr>
       <th>L1</th>
-      <td>02</td>
+      <td>01</td>
     </tr>
     <tr>
       <th>L2</th>
-      <td>15</td>
+      <td>16</td>
     </tr>
     </tbody>
 </table>
