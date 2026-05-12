@@ -1,35 +1,70 @@
 <div align="center">
 
-<table border="1" cellpadding="8" cellspacing="0" style="text-align:center; margin:auto;">
-  <tbody>
-    <th>Total</th>
-      <td>27</td>
-    </tr>
-    <tr>
-      <th>To Do</th>
-      <td>09</td>
-    </tr>
-    <tr>
-      <th>In Progress</th>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>Internal Review</th>
-      <td>00</td>
-    </tr>
-    <tr>
-      <th>L0</th>
-      <td>00</td>
-    </tr>
-    <tr>
-      <th>L1</th>
-      <td>01</td>
-    </tr>
-    <tr>
-      <th>L2</th>
-      <td>16</td>
-    </tr>
-    </tbody>
+<table>
+
+<tr>
+<th>Sprint</th>
+<th>Total</th>
+<th>To Do</th>
+<th>IP</th>
+<th>IR</th>
+<th>L0</th>
+<th>L1</th>
+<th>L2</th>
+</tr>
+
+<tr>
+<td><b>Sprint 0</b></td> <!-- Sprint Name -->
+<td>08</td> <!-- Total -->
+<td>00</td> <!-- To Do -->
+<td>00</td> <!-- In Progress -->
+<td>00</td> <!-- Internal Review -->
+<td>00</td> <!-- L0 -->
+<td>00</td> <!-- L1 -->
+<td>08</td> <!-- L2 -->
+</tr>
+
+<tr>
+<td><b>Sprint 1</b></td> <!-- Sprint Name -->
+<td>09</td> <!-- Total -->
+<td>00</td> <!-- To Do -->
+<td>00</td> <!-- In Progress -->
+<td>00</td> <!-- Internal Review -->
+<td>00</td> <!-- L0 -->
+<td>01</td> <!-- L1 -->
+<td>08</td> <!-- L2 -->
+</tr>
+
+<tr>
+<td><b>Sprint 2</b></td> <!-- Sprint Name -->
+<td>10</td> <!-- Total -->
+<td>08</td> <!-- To Do -->
+<td>02</td> <!-- In Progress -->
+<td>00</td> <!-- Internal Review -->
+<td>00</td> <!-- L0 -->
+<td>00</td> <!-- L1 -->
+<td>00</td> <!-- L2 -->
+</tr>
+
+<tr>
+<td><b>Grand Total</b></td> <!-- Final Summary -->
+
+<td><b>27</b></td> <!-- Grand Total -->
+
+<td><b>08</b></td> <!-- Total To Do -->
+
+<td><b>02</b></td> <!-- Total In Progress -->
+
+<td><b>00</b></td> <!-- Total Internal Review -->
+
+<td><b>00</b></td> <!-- Total L0 -->
+
+<td><b>01</b></td> <!-- Total L1 -->
+
+<td><b>16</b></td> <!-- Total L2 -->
+
+</tr>
+
 </table>
 
 </div>
