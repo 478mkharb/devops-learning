@@ -1,17 +1,11 @@
-<h1 align="center">Documentation - React CI | DAST</h1>
+<h1 align="center">Documentation - React CI | DAST </h1>
 
 <div align="center">
-
-<img width="150" height="auto" alt="React-CI" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />
-
-<p align="center">
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-Documentation-61DAFB?style=for-the-badge&logo=react&logoColor=black" /></a>
-  <a href="https://www.zaproxy.org/docs/"><img src="https://img.shields.io/badge/OWASP_ZAP-Docs-red?style=for-the-badge" /></a>
-  <a href="https://portswigger.net/burp/documentation/dast"><img src="https://img.shields.io/badge/Burp_Suite-Documentation-orange?style=for-the-badge" /></a>
-  
-</p>
-
+<img width="100" alt="React" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="200" alt="OWASP ZAP" src="https://www.zaproxy.org/img/zap-by-checkmarx.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </div>
+
+<br/>
 
 ---
 
@@ -105,7 +99,7 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 ## 4. Flow Diagram of DAST Checks
 
-><img width="1693" height="929" alt="ChatGPT Image May 12, 2026, 08_41_43 AM" src="https://github.com/user-attachments/assets/77631d81-a357-44de-b774-e6f3a9b8a3fc" />
+><img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/9e5fadf7-9087-46b4-9e77-7f01fbd8e485" />
 
 ---
 
@@ -136,19 +130,21 @@ OWASP ZAP is the most suitable DAST tool for React CI because it is open source,
 
 ## 7. Contact Info
 
-| Name         | Email                                                                             |
-| ------------ | --------------------------------------------------------------------------------- |
+| Name | ✉️ Contact |
+|---|---|
 | Mukesh Kharb | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) |
-
 ---
 
 <a id="8-references"></a>
 
 ## 8. References
 
-| S.No | Resource                 | Link                                               |
-| ---- | ------------------------ | -------------------------------------------------- |
-| 1    | React Documentation      | [View](https://react.dev/)                         |
-| 2    | OWASP ZAP Documentation  | [View](https://www.zaproxy.org/docs/)              |
-| 3    | StackHawk Documentation  | [View](https://www.stackhawk.com/docs/)            |
-| 4    | Burp Suite Documentation | [View](https://portswigger.net/burp/documentation) |
+| S.No | Description | Click to view |
+|---|---|---|
+| 1 | Cross-Site Scripting Vulnerability | [![XSS](https://img.shields.io/badge/XSS_SECURITY-DAST_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-community/attacks/xss/) |
+| 2 | SQL Injection | [![SQL Injection](https://img.shields.io/badge/SQL_INJECTION-DAST_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-community/attacks/SQL_Injection) |
+| 3 | Dynamic Application Security Testing | [![DAST](https://img.shields.io/badge/DAST_TESTING-SECURITY_SCANNING-2F4F4F?style=flat-square)](https://owasp.org/www-community/Vulnerability_Scanning_Tools) |
+| 4 | OWASP ZAP Automated Scanner | [![OWASP ZAP](https://img.shields.io/badge/OWASP_ZAP-AUTOMATED_SCANNER-2F4F4F?style=flat-square)](https://www.zaproxy.org/) |
+| 5 | Cross-Site Request Forgery Protection | [![CSRF](https://img.shields.io/badge/CSRF_SECURITY-REQUEST_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-community/attacks/csrf) |
+| 6 | Secure HTTP Security Headers | [![Security Headers](https://img.shields.io/badge/SECURITY_HEADERS-HTTP_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-project-secure-headers/) |
+
