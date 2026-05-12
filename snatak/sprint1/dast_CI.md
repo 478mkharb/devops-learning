@@ -103,9 +103,84 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 ---
 
-<a id="5-various-dast-tools"></a>
+<a id="5-flow-diagram-of-dast-checks"></a>
+## 5. Frontend Verification
 
-## 5. Various DAST Tools with Comparison
+| Validation      | Command                                                |
+| --------------- | ------------------------------------------------------ |
+| Verify Frontend | `curl http://<EC2-PUBLIC-IP>`                          |
+| Employee API    | `curl http://<EC2-PUBLIC-IP>/api/v1/employee/health`   |
+| Attendance API  | `curl http://<EC2-PUBLIC-IP>/api/v1/attendance/health` |
+| Salary API      | `curl http://<EC2-PUBLIC-IP>/actuator/health`          |
+
+Expected:
+
+```text
+HTTP 200 OK
+```
+
+---
+
+<a id="6-owasp-zap-scan-execution"></a>
+
+## 6. OWASP ZAP Scan Execution
+
+### 6.1 Install OWASP ZAP
+
+```bash
+sudo snap install zaproxy --classic
+```
+Verify installation:
+
+```bash
+zaproxy --version
+```
+
+---
+
+### 6.2 Baseline Scan
+
+```bash
+zap-baseline.py -t http://<EC2-PUBLIC-IP>
+```
+---
+
+### 6.3 Full Active CLI Scan
+
+```bash
+zap-full-scan.py -t http://<EC2-PUBLIC-IP>
+```
+
+---
+
+### 6.4 Scan API Routes
+
+```bash
+zap-baseline.py -t http://<EC2-PUBLIC-IP>/api/v1/employee/health
+zap-baseline.py -t http://<EC2-PUBLIC-IP>/api/v1/attendance/health
+zap-baseline.py -t http://<EC2-PUBLIC-IP>/actuator/health
+```
+### 6.5 Generate Reports
+
+```bash
+zap-baseline.py -t http://<EC2-PUBLIC-IP> -r dast-report.html
+zap-baseline.py -t http://<EC2-PUBLIC-IP> -J dast-report.json
+```
+---
+## 7. Viewing Reports
+
+```bash
+xdg-open dast-report.html
+```
+```bash
+cat dast-report.json
+```
+
+---
+
+<a id="8-various-dast-tools"></a>
+
+## 8. Various DAST Tools with Comparison
 
 | Tool       | Type        | Highlight                            | React CI Friendly | API Scanning | Automation | Docker Support | CI/CD Support |
 | ---------- | ----------- | ------------------------------------ | ----------------- | ------------ | ---------- | -------------- | ------------- |
@@ -118,26 +193,26 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 ---
 
-<a id="6-conclusion"></a>
+<a id="9-conclusion"></a>
 
-## 6. Conclusion
+## 9. Conclusion
 
 OWASP ZAP is the most suitable DAST tool for React CI because it is open source, highly automated, Docker-friendly, and integrates easily with modern CI/CD pipelines.
 
 ---
 
-<a id="7-contact-info"></a>
+<a id="10-contact-info"></a>
 
-## 7. Contact Info
+## 10. Contact Info
 
 | Name | ✉️ Contact |
 |---|---|
 | Mukesh Kharb | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) |
 ---
 
-<a id="8-references"></a>
+<a id="11-references"></a>
 
-## 8. References
+## 11. References
 
 | S.No | Description | Click to view |
 |---|---|---|
@@ -147,4 +222,3 @@ OWASP ZAP is the most suitable DAST tool for React CI because it is open source,
 | 4 | OWASP ZAP Automated Scanner | [![OWASP ZAP](https://img.shields.io/badge/OWASP_ZAP-AUTOMATED_SCANNER-2F4F4F?style=flat-square)](https://www.zaproxy.org/) |
 | 5 | Cross-Site Request Forgery Protection | [![CSRF](https://img.shields.io/badge/CSRF_SECURITY-REQUEST_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-community/attacks/csrf) |
 | 6 | Secure HTTP Security Headers | [![Security Headers](https://img.shields.io/badge/SECURITY_HEADERS-HTTP_PROTECTION-2F4F4F?style=flat-square)](https://owasp.org/www-project-secure-headers/) |
-
