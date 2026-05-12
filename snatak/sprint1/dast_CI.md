@@ -7,8 +7,8 @@
 <p align="center">
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-Documentation-61DAFB?style=for-the-badge&logo=react&logoColor=black" /></a>
   <a href="https://www.zaproxy.org/docs/"><img src="https://img.shields.io/badge/OWASP_ZAP-Docs-red?style=for-the-badge" /></a>
-  <a href="https://portswigger.net/burp/documentation"><img src="https://img.shields.io/badge/Burp_Suite-Documentation-orange?style=for-the-badge" /></a>
-  <a href="https://www.jenkins.io/doc/"><img src="https://img.shields.io/badge/Jenkins-Documentation-blue?style=for-the-badge&logo=jenkins&logoColor=white" /></a>
+  <a href="https://portswigger.net/burp/documentation/dast"><img src="https://img.shields.io/badge/Burp_Suite-Documentation-orange?style=for-the-badge" /></a>
+  
 </p>
 
 </div>
@@ -53,11 +53,10 @@
 2. [DAST Characteristics](#2-dast-characteristics)
 3. [Why DAST is Required in React CI](#3-why-dast-is-required-in-react-ci)
 4. [Flow Diagram of DAST Checks](#4-flow-diagram-of-dast-checks)
-5. [Various DAST Tools](#5-various-dast-tools)
-6. [Comparison of DAST Tools](#6-comparison-of-dast-tools)
-7. [Conclusion](#7-conclusion)
-8. [Contact Info](#8-contact-info)
-9. [References](#9-references)
+5. [Various DAST Tools with Comparison](#5-various-dast-tools-with-comparison)
+6. [Conclusion](#6-conclusion)
+7. [Contact Info](#7-contact-info)
+8. [References](#8-references)
 
 ---
 
@@ -71,18 +70,20 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 <a id="2-dast-characteristics"></a>
 
+<table>
+<tr>
+
 ## 2. DAST Characteristics
 
-| Feature              | Description                    |
-| -------------------- | ------------------------------ |
-| Testing Type         | Black-box security testing     |
-| Scan Target          | Running application            |
-| Source Code Required | No                             |
-| Main Purpose         | Detect runtime vulnerabilities |
-| Common Risks         | XSS, CSRF, SQL Injection       |
-| CI/CD Support        | Yes                            |
-| OWASP Coverage       | OWASP Top 10                   |
-
+| Feature | Description |
+|---|---|
+| Testing Type | Black-box security testing |
+| Scan Target | Running application |
+| Source Code Required | No |
+| Main Purpose | Detect runtime vulnerabilities |
+| Common Risks | [![XSS](https://img.shields.io/badge/XSS-2f2f2f)](https://owasp.org/www-community/attacks/xss/) [![CSRF](https://img.shields.io/badge/CSRF-3a3a3a)](https://owasp.org/www-community/attacks/csrf) [![SQL Injection](https://img.shields.io/badge/SQL_Injection-4a4a4a)](https://owasp.org/www-community/attacks/SQL_Injection) |
+| CI/CD Support | Yes |
+| OWASP Coverage | [![OWASP Top 10](https://img.shields.io/badge/OWASP_Top_10-2025-2f2f2f)](https://owasp.org/Top10/2025/) |
 ---
 
 <a id="3-why-dast-is-required-in-react-ci"></a>
@@ -94,7 +95,7 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 | XSS Detection             | Identifies malicious script injection vulnerabilities |
 | API Security              | Protects backend APIs consumed by React apps          |
 | Authentication Validation | Detects weak authentication/session issues            |
-| Security Headers Check    | Finds missing CSP, HSTS, and header misconfigurations |
+| Security Headers Check    | Finds missing [![CSP](https://img.shields.io/badge/CSP-2f2f2f)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) [![HSTS](https://img.shields.io/badge/HSTS-3a3a3a)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security) and header misconfigurations |
 | Shift-Left Security       | Detects vulnerabilities earlier in CI pipeline        |
 | Automated Validation      | Enables continuous security scanning on every build   |
 
@@ -110,43 +111,30 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 <a id="5-various-dast-tools"></a>
 
-## 5. Various DAST Tools
+## 5. Various DAST Tools with Comparison
 
-| Tool       | Type        | Highlight                            | CI/CD Support |
-| ---------- | ----------- | ------------------------------------ | ------------- |
-| OWASP ZAP  | Open Source | Most widely used automated DAST tool | Excellent     |
-| StackHawk  | Commercial  | Developer-friendly CI integration    | Excellent     |
-| Burp Suite | Commercial  | Advanced enterprise security testing | Excellent     |
-| Acunetix   | Commercial  | Fast vulnerability scanning          | Good          |
-| Nikto      | Open Source | Lightweight web scanner              | Moderate      |
+| Tool       | Type        | Highlight                            | React CI Friendly | API Scanning | Automation | Docker Support | CI/CD Support |
+| ---------- | ----------- | ------------------------------------ | ----------------- | ------------ | ---------- | -------------- | ------------- |
+| OWASP ZAP  | Open Source | Most widely used automated DAST tool | Excellent         | Yes          | High       | Yes            | Excellent     |
+| StackHawk  | Commercial  | Developer-friendly CI integration    | Excellent         | Yes          | Very High  | Yes            | Excellent     |
+| Burp Suite | Commercial  | Advanced enterprise security testing | Good              | Yes          | High       | Yes            | Excellent     |
+| Acunetix   | Commercial  | Fast vulnerability scanning          | Good              | Yes          | Medium     | Limited        | Good          |
+| Nikto      | Open Source | Lightweight web scanner              | Moderate          | Limited      | Medium     | Yes            | Moderate      |
 
----
-
-<a id="6-comparison-of-dast-tools"></a>
-
-## 6. Comparison of DAST Tools
-
-| Feature           | OWASP ZAP | StackHawk | Burp Suite | Acunetix |
-| ----------------- | --------- | --------- | ---------- | -------- |
-| Open Source       | Yes       | No        | No         | No       |
-| React CI Friendly | Excellent | Excellent | Good       | Good     |
-| API Scanning      | Yes       | Yes       | Yes        | Yes      |
-| Automation        | High      | Very High | High       | Medium   |
-| Docker Support    | Yes       | Yes       | Yes        | Limited  |
 
 ---
 
-<a id="7-conclusion"></a>
+<a id="6-conclusion"></a>
 
-## 7. Conclusion
+## 6. Conclusion
 
 OWASP ZAP is the most suitable DAST tool for React CI because it is open source, highly automated, Docker-friendly, and integrates easily with modern CI/CD pipelines.
 
 ---
 
-<a id="8-contact-info"></a>
+<a id="7-contact-info"></a>
 
-## 8. Contact Info
+## 7. Contact Info
 
 | Name         | Email                                                                             |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -154,9 +142,9 @@ OWASP ZAP is the most suitable DAST tool for React CI because it is open source,
 
 ---
 
-<a id="9-references"></a>
+<a id="8-references"></a>
 
-## 9. References
+## 8. References
 
 | S.No | Resource                 | Link                                               |
 | ---- | ------------------------ | -------------------------------------------------- |
@@ -164,4 +152,3 @@ OWASP ZAP is the most suitable DAST tool for React CI because it is open source,
 | 2    | OWASP ZAP Documentation  | [View](https://www.zaproxy.org/docs/)              |
 | 3    | StackHawk Documentation  | [View](https://www.stackhawk.com/docs/)            |
 | 4    | Burp Suite Documentation | [View](https://portswigger.net/burp/documentation) |
-| 5    | Jenkins Documentation    | [View](https://www.jenkins.io/doc/)                |
