@@ -65,7 +65,7 @@
 
 ## 1. Introduction
 
-DAST (Dynamic Application Security Testing) helps identify runtime security vulnerabilities in running React applications. It is integrated into CI pipelines to automate security validation before deployment.
+DAST (Dynamic Application Security Testing) helps identify runtime security vulnerabilities (e.g., XSS, injection flaws) in running React applications and their backend APIs. It is integrated into CI pipelines to automate security validation against an ephemeral or staging environment, ensuring no critical flaws reach production deployment.
 
 ---
 
@@ -104,30 +104,7 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 ## 4. Flow Diagram of DAST Checks
 
-```text
-Developer Push
-       │
-       ▼
-React CI Pipeline Triggered
-       │
-       ▼
-Build React Application
-       │
-       ▼
-Deploy Temporary Test Environment
-       │
-       ▼
-Run DAST Scanner
-       │
-       ▼
-Scan APIs + Frontend Routes
-       │
-       ▼
-Generate Security Report
-       │
-       ▼
-Pass / Fail Build
-```
+><img width="1693" height="929" alt="ChatGPT Image May 12, 2026, 08_41_43 AM" src="https://github.com/user-attachments/assets/77631d81-a357-44de-b774-e6f3a9b8a3fc" />
 
 ---
 
