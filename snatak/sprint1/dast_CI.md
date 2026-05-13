@@ -43,14 +43,22 @@
 
 ## Table of Contents
 
+## Table of Contents
+
 1. [Introduction](#1-introduction)
 2. [DAST Characteristics](#2-dast-characteristics)
-3. [Why DAST is Required in React CI](#3-why-dast-is-required-in-react-ci)
-4. [Flow Diagram of DAST Checks](#4-flow-diagram-of-dast-checks)
-5. [Various DAST Tools with Comparison](#5-various-dast-tools-with-comparison)
-6. [Conclusion](#6-conclusion)
-7. [Contact Info](#7-contact-info)
-8. [References](#8-references)
+3. [Why DAST is Required](#3-why-dast-is-required)
+4. [Flow Diagram](#4-flow-diagram)
+5. [OWASP ZAP Scan Execution](#5-owasp-zap-scan-execution)
+   - [5.1 Install OWASP ZAP](#51-install-owasp-zap)
+   - [5.2 Baseline Scan](#52-baseline-scan)
+   - [5.3 Full Active Scan](#53-full-active-scan)
+   - [5.4 Generate Reports](#54-generate-reports)
+   - [5.5 Viewing Reports](#55-viewing-reports)
+6. [Various DAST Tools with Comparison](#6-various-dast-tools-with-comparison)
+7. [Conclusion](#7-conclusion)
+8. [Contact Info](#8-contact-info)
+9. [References](#9-references)
 
 ---
 
@@ -80,9 +88,9 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 | OWASP Coverage | [![OWASP Top 10](https://img.shields.io/badge/OWASP_Top_10-2025-2f2f2f)](https://owasp.org/Top10/2025/) |
 ---
 
-<a id="3-why-dast-is-required-in-react-ci"></a>
+<a id="3-why-dast-is-required"></a>
 
-## 3. Why DAST is Required in React CI
+## 3. Why DAST is Required
 
 | Requirement / Risk        | Description                                           |
 | ------------------------- | ----------------------------------------------------- |
@@ -95,37 +103,20 @@ DAST (Dynamic Application Security Testing) helps identify runtime security vuln
 
 ---
 
-<a id="4-flow-diagram-of-dast-checks"></a>
+<a id="4-flow-diagram"></a>
 
 ## 4. Flow Diagram of DAST Checks
 
-><img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/9e5fadf7-9087-46b4-9e77-7f01fbd8e485" />
+><img width="800" height="500" alt="image" src="https://github.com/user-attachments/assets/66c17702-d678-4c89-97fc-c4efd59ce3fc" />
+
 
 ---
 
-<a id="5-flow-diagram-of-dast-checks"></a>
-## 5. Frontend Verification
+<a id="5-owasp-zap-scan-execution"></a>
 
-| Validation      | Command                                                |
-| --------------- | ------------------------------------------------------ |
-| Verify Frontend | `curl http://<EC2-PUBLIC-IP>`                          |
-| Employee API    | `curl http://<EC2-PUBLIC-IP>/api/v1/employee/health`   |
-| Attendance API  | `curl http://<EC2-PUBLIC-IP>/api/v1/attendance/health` |
-| Salary API      | `curl http://<EC2-PUBLIC-IP>/actuator/health`          |
+## 5. OWASP ZAP Scan Execution
 
-Expected:
-
-```text
-HTTP 200 OK
-```
-
----
-
-<a id="6-owasp-zap-scan-execution"></a>
-
-## 6. OWASP ZAP Scan Execution
-
-### 6.1 Install OWASP ZAP
+### 5.1 Install OWASP ZAP
 
 ```bash
 sudo snap install zaproxy --classic
@@ -136,83 +127,66 @@ Verify installation:
 zaproxy --version
 ```
 
----
-
-### 6.2 Baseline Scan
+### 5.2 Baseline Scan
 
 ```bash
 zap-baseline.py -t http://<EC2-PUBLIC-IP>
 ```
----
-
-### 6.3 Full Active CLI Scan
+### 5.3 Full Active Scan
 
 ```bash
 zap-full-scan.py -t http://<EC2-PUBLIC-IP>
 ```
 
----
-
-### 6.4 Scan API Routes
-
-```bash
-zap-baseline.py -t http://<EC2-PUBLIC-IP>/api/v1/employee/health
-zap-baseline.py -t http://<EC2-PUBLIC-IP>/api/v1/attendance/health
-zap-baseline.py -t http://<EC2-PUBLIC-IP>/actuator/health
-```
-### 6.5 Generate Reports
+### 5.4 Generate Reports
 
 ```bash
 zap-baseline.py -t http://<EC2-PUBLIC-IP> -r dast-report.html
 zap-baseline.py -t http://<EC2-PUBLIC-IP> -J dast-report.json
 ```
----
-## 7. Viewing Reports
+### 5.5. Viewing Reports
 
 ```bash
 xdg-open dast-report.html
-```
-```bash
 cat dast-report.json
 ```
 
 ---
 
-<a id="8-various-dast-tools"></a>
+<a id="6-various-dast-tools"></a>
 
-## 8. Various DAST Tools with Comparison
+## 6. Various DAST Tools with Comparison
 
-| Tool       | Type        | Highlight                            | React CI Friendly | API Scanning | Automation | Docker Support | CI/CD Support |
-| ---------- | ----------- | ------------------------------------ | ----------------- | ------------ | ---------- | -------------- | ------------- |
-| OWASP ZAP  | Open Source | Most widely used automated DAST tool | Excellent         | Yes          | High       | Yes            | Excellent     |
-| StackHawk  | Commercial  | Developer-friendly CI integration    | Excellent         | Yes          | Very High  | Yes            | Excellent     |
-| Burp Suite | Commercial  | Advanced enterprise security testing | Good              | Yes          | High       | Yes            | Excellent     |
-| Acunetix   | Commercial  | Fast vulnerability scanning          | Good              | Yes          | Medium     | Limited        | Good          |
-| Nikto      | Open Source | Lightweight web scanner              | Moderate          | Limited      | Medium     | Yes            | Moderate      |
-
+| <div align="center">Tool</div> | <div align="center">Type</div> | <div align="center">Highlight</div> | <div align="center">React CI Friendly</div> | <div align="center">API Scanning</div> | <div align="center">Automation</div> | <div align="center">Docker Support</div> | <div align="center">CI/CD Support</div> |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| <div align="center"><b>OWASP ZAP</b></div> | <div align="center">Open Source</div> | <div align="center">Most widely used automated DAST tool</div> | <div align="center">Excellent</div> | <div align="center">Yes</div> | <div align="center">High</div> | <div align="center">Yes</div> | <div align="center">Excellent</div> |
+| <div align="center"><b>StackHawk</b></div> | <div align="center">Commercial</div> | <div align="center">Developer-friendly CI integration</div> | <div align="center">Excellent</div> | <div align="center">Yes</div> | <div align="center">Very High</div> | <div align="center">Yes</div> | <div align="center">Excellent</div> |
+| <div align="center"><b>Burp Suite</b></div> | <div align="center">Commercial</div> | <div align="center">Advanced enterprise security testing</div> | <div align="center">Good</div> | <div align="center">Yes</div> | <div align="center">High</div> | <div align="center">Yes</div> | <div align="center">Excellent</div> |
+| <div align="center"><b>Acunetix</b></div> | <div align="center">Commercial</div> | <div align="center">Fast vulnerability scanning</div> | <div align="center">Good</div> | <div align="center">Yes</div> | <div align="center">Medium</div> | <div align="center">Limited</div> | <div align="center">Good</div> |
+| <div align="center"><b>Nikto</b></div> | <div align="center">Open Source</div> | <div align="center">Lightweight web scanner</div> | <div align="center">Moderate</div> | <div align="center">Limited</div> | <div align="center">Medium</div> | <div align="center">Yes</div> | <div align="center">Moderate</div> |
 
 ---
 
-<a id="9-conclusion"></a>
+<a id="7-conclusion"></a>
 
-## 9. Conclusion
+## 7. Conclusion
 
 OWASP ZAP is the most suitable DAST tool for React CI because it is open source, highly automated, Docker-friendly, and integrates easily with modern CI/CD pipelines.
 
 ---
 
-<a id="10-contact-info"></a>
+<a id="8-contact-info"></a>
 
-## 10. Contact Info
+## 8. Contact Info
 
 | Name | ✉️ Contact |
 |---|---|
 | Mukesh Kharb | [mukesh.Kharb.snaatak@mygurukulam.co](mailto:mukesh.Kharb.snaatak@mygurukulam.co) |
 ---
 
-<a id="11-references"></a>
+<a id="9-references"></a>
 
-## 11. References
+## 9. References
 
 | S.No | Description | Click to view |
 |---|---|---|
