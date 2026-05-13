@@ -1,4 +1,4 @@
-<h1 align="center">Documentation - SonarQube Disaster Recovery on AWS EC2</h1>
+<h1 align="center">Documentation - SonarQube Disaster Recovery</h1>
 
 <p align="center">
   <img width="300" height="auto" alt="DV-SonarQube" src="https://github.com/user-attachments/assets/36f08d50-e4ca-4704-9020-f0c5c8cb18dc" />
@@ -45,203 +45,113 @@
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
-2. [SonarQube PostgreSQL Integration](#2-sonarqube-postgresql-integration)
-3. [Important Directories](#3-important-directories)
-4. [Backup & Recovery Flow](#4-backup--recovery-flow)
-5. [Backup Strategy](#5-backup-strategy)
-6. [Recovery Strategy](#6-recovery-strategy)
-7. [MTTR](#7-mttr)
-8. [Best Practices](#8-best-practices)
-9. [Troubleshooting](#9-troubleshooting)
-10. [Contact Information](#10-contact-information)
-11. [References](#11-references)
+2. [Disaster Recovery Strategies](#2-disaster-recovery-strategies)
+3. [Backup & Recovery Flow](#3-backup--recovery-flow)
+4. [MTTR Calculation](#4-mttr-calculation)
+5. [Best Practices](#5-best-practices)
+6. [Troubleshooting](#6-troubleshooting)
+7. [Conclusion](#7-conclusion)
+8. [Contact Information](#8-contact-information)
+9. [References](#9-references)
 
 ---
 
 ## 1. Introduction
 
-This document explains how Disaster Recovery (DR) can be implemented for SonarQube deployed on AWS EC2 servers. It covers backup, recovery, and restoration strategies using PostgreSQL backups, EC2 AMIs, and EBS snapshots to minimize downtime during failures.
+This document explains Disaster Recovery (DR) strategies for SonarQube deployed on AWS EC2 servers and identifies the most practical production-ready approach for minimizing downtime and simplifying recovery.
 
 ---
 
-## 2. SonarQube PostgreSQL Integration
+## 2. Disaster Recovery Strategies
 
-SonarQube uses PostgreSQL as the primary database for storing projects, analysis history, quality gates, users, issues, and metrics.
+|            DR Strategy            |                  Description                   |   MTTR      | Complexity | Production Suitability |
+|:---------------------------------:|:----------------------------------------------:|:-----------:|:----------:|:----------------------:|
+| PostgreSQL Backup Only | Restores database using pg_dump backup | High | Low | Low |
+| AMI Backup Only | Restores complete EC2 environment from AMI | Low | Low | Medium |
+| AMI + EBS Snapshot | Restores EC2 and storage snapshots | Very Low | Medium | High |
+| RDS Snapshot + AMI | Uses RDS automated snapshots with EC2 recovery | Very Low | Medium | Enterprise |
+| Multi-AZ / HA Setup | High availability deployment across zones | Lowest | High | Enterprise |
 
-The database connectivity is configured in:
+> [!Note]
+> SonarQube uses PostgreSQL as the primary database for storing projects, analysis history, quality gates, users, issues, and metrics.
+>
+> PostgreSQL connectivity is configured in:
+>
+> ```bash
+> /opt/sonarqube/conf/sonar.properties
+> ```
 
-```bash
-/opt/sonarqube/conf/sonar.properties
+### Recommended Strategy
+
+The most practical production-ready strategy for a single EC2 SonarQube deployment is:
+
+```text
+AMI Backup Strategy
 ```
 
-### PostgreSQL Configuration Example
-
-```properties
-sonar.jdbc.username=sonar
-sonar.jdbc.password=********
-sonar.jdbc.url=jdbc:postgresql://<db-host>:5432/sonarDB
-```
-
-### Why Configuration Backup is Required
-
-| Component            | Purpose                                    |
-| -------------------- | ------------------------------------------ |
-| PostgreSQL Database  | Stores SonarQube analysis data             |
-| sonar.properties     | Stores database connectivity configuration |
-| Extensions / Plugins | Maintains plugin compatibility             |
-| EC2 / EBS Backup     | Speeds up infrastructure recovery          |
-
-Without the `sonar.properties` backup, SonarQube cannot reconnect to PostgreSQL after recovery.
+| Advantage              | Description                                         |
+| ---------------------- | --------------------------------------------------- |
+| Low MTTR               | Faster server restoration                           |
+| Simplicity             | Single recovery artifact                            |
+| Lower Complexity       | No separate DB restore process                      |
+| Faster Recovery        | SonarQube, PostgreSQL, and configs already included |
+| Operational Simplicity | Easier automation and maintenance                   |
+| Cross Region DR        | Backup available in secondary AWS region            |
 
 ---
 
-## 3. Important Directories
+## 3. Backup & Recovery Flow
 
-| Directory / File                     | Description                          |
-| ------------------------------------ | ------------------------------------ |
-| /opt/sonarqube/conf/sonar.properties | Database and SonarQube configuration |
-| /opt/sonarqube/data                  | SonarQube application data           |
-| /opt/sonarqube/extensions            | SonarQube plugins and extensions     |
-| /opt/sonarqube/logs                  | SonarQube logs                       |
+><img width="1692" height="929" alt="image" src="https://github.com/user-attachments/assets/3e3d3f2e-7c60-41f1-a31b-ed3177ac91be" />
 
 ---
 
-## 4. Backup Flow
+## 4. MTTR Calculation
 
-><img width="1536" height="645" alt="sonar" src="https://github.com/user-attachments/assets/67f759a8-bfeb-49e0-9532-d3f5caa10be6" />
+ - MTTR   -  Mean Time To Recovery
+ - Purpose  - Measures the average recovery time after failure 
+
+### *MTTR = Total Recovery Time / Number of Incidents*
 
 
-
----
-
-## 5. Backup Strategy
-
-SonarQube stores analysis data inside PostgreSQL, while application configuration and plugins are stored separately on the server filesystem. Therefore, both database and filesystem-level backups are required for complete disaster recovery.
-
-| Component           | What It Contains                              | Backup Method        | Automation | Frequency      |
-| ------------------- | --------------------------------------------- | -------------------- | ---------- | -------------- |
-| PostgreSQL Database | Projects, issues, users, analysis history     | pg_dump              | Cron Job   | Daily          |
-| sonar.properties    | Database connectivity configuration           | tar backup + S3 sync | Cron Job   | Weekly         |
-| EC2 / EBS           | Server and application disk including plugins | AMI + Snapshot       | AWS Backup | Weekly / Daily |
-
-### PostgreSQL Backup
-
-```bash
-pg_dump -U sonar sonarDB > sonarqube_backup.sql
-aws s3 cp sonarqube_backup.sql s3://sonarqube-dr-backup/
-```
-
-### Automated PostgreSQL Backup Using Cron
-
-```bash
-0 1 * * * pg_dump -U sonar sonarDB > /backup/sonar_$(date +\%F).sql
-```
-
-The above cron job automatically takes PostgreSQL backup daily at 1 AM.
-
-### SonarQube Configuration Backup
-
-The following file is important during recovery because it stores PostgreSQL connectivity configuration:
-
-```bash
-/opt/sonarqube/conf/sonar.properties
-```
-
-```bash
-tar -czvf sonarqube-config.tar.gz \
-/opt/sonarqube/conf \
-/opt/sonarqube/extensions
-```
-
-### EC2 AMI Backup
-
-```bash
-aws ec2 create-image \
---instance-id i-xxxxxxxxxxxx \
---name "sonarqube-dr-backup"
-```
-
-### EBS Snapshot Backup
-
-EBS snapshots help recover the complete SonarQube server filesystem, including SonarQube binaries, logs, plugins, and configuration files.
-
-```bash
-aws ec2 create-snapshot \
---volume-id vol-xxxxxxxx \
---description "SonarQube EBS Backup"
-```
-
-EBS snapshots are generally automated using AWS Backup Policies or Lambda scheduled jobs.
+| Recovery Activity          | Estimated Recovery Time |
+| -------------------------- | ----------------------- |
+| Launch EC2 from AMI        | 10 mins                 |
+| Start & Validate SonarQube | 5 mins                  |
+| Total Estimated MTTR       | 15 mins                 |
 
 ---
 
-## 6. Recovery Strategy
+## 5. Best Practices
 
-### Database Recovery
-
-```bash
-systemctl stop sonarqube
-psql -U sonar sonarDB < sonarqube_backup.sql
-systemctl start sonarqube
-```
-
-### Recovery Implementation
-
-| Step                   | Production Implementation            |
-| ---------------------- | ------------------------------------ |
-| EC2 Provisioning       | Automated using AMI or Terraform     |
-| Volume Recovery        | Automated EBS snapshot restoration   |
-| Database Recovery      | Automated PostgreSQL restore scripts |
-| Configuration Recovery | Retrieved from S3 or Git repository  |
-| Validation             | Health checks and service monitoring |
+| Practice          | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| Automated Backups | Schedule AMI backups using AWS Backup policies                  |
+| Backup Monitoring | Verify backup completion                                        |
+| Recovery Testing  | Periodically validate AMI restoration                           |
+| IAM Security      | Restrict backup permissions                                     |
+| Backup Retention  | Maintain backup retention and cross-region replication policies |
 
 ---
 
-## 7. MTTR
+## 6. Troubleshooting
 
-| Term    | Description                       |
-| ------- | --------------------------------- |
-| MTTR    | Mean Time To Recovery             |
-| Purpose | Measures service restoration time |
-
-```math
-MTTR = Total Recovery Time / Number of Incidents
-```
-
-| Incident              | Recovery Time |
-| --------------------- | ------------- |
-| Database Failure      | 30 mins       |
-| EC2 Failure           | 45 mins       |
-| Configuration Failure | 15 mins       |
-
-Average MTTR = 30 mins
+| Scenario | Possible Cause | Resolution |
+|---|---|---|
+| AMI backup not getting created | AWS Backup policy or IAM role misconfiguration | Verify AWS Backup schedules, IAM permissions, and EC2 backup assignment |
+| Cross-region AMI replication failed | Missing destination region permissions or quota limits | Validate cross-region copy permissions and available snapshot quotas |
+| SonarQube service not accessible after recovery | SonarQube service not started or port blocked | Verify SonarQube service status and EC2 security group rules |
+| PostgreSQL connection failure after restore | Incorrect database configuration in sonar.properties | Validate PostgreSQL hostname, port, username, and connectivity |
+| Recovery taking longer than expected | Large EBS volume initialization delay | Enable fast snapshot restore or optimize EBS sizing |
 
 ---
+## 7. Conclusion
 
-## 8. Best Practices
-
-| Practice            | Description                       |
-| ------------------- | --------------------------------- |
-| Automated Backups   | Schedule regular backups          |
-| S3 Backup Storage   | Store backups remotely            |
-| Backup Encryption   | Secure backup files               |
-| Recovery Testing    | Test restore procedures regularly |
-| Snapshot Monitoring | Verify snapshot creation          |
-| IAM Security        | Restrict backup permissions       |
+For production environments, an AMI-based disaster recovery strategy with cross-region replication provides the best balance of low MTTR, operational simplicity, and faster infrastructure recovery.  
+Automating AMI creation using AWS Backup policies further improves reliability, scalability, and disaster preparedness for SonarQube deployments.
 
 ---
-
-## 9. Troubleshooting
-
-| Issue           | Cause               | Solution                  |
-| --------------- | ------------------- | ------------------------- |
-| Backup failed   | S3 permission issue | Check IAM role            |
-| Snapshot failed | Invalid volume ID   | Verify EBS volume         |
-| Restore failed  | Corrupted backup    | Validate backup integrity |
-
----
-
-## 10. Contact Information
+## 8. Contact Information
 
 | Name         | Email                                                                             |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -249,11 +159,13 @@ Average MTTR = 30 mins
 
 ---
 
-## 11. References
+## 9. References
 
-| S.No | Resource                       | Link                                           |
-| ---- | ------------------------------ | ---------------------------------------------- |
-| 1    | SonarQube Documentation        | [Click Here](https://docs.sonarsource.com/)    |
-| 2    | PostgreSQL Documentation       | [Click Here](https://www.postgresql.org/docs/) |
-| 3    | AWS EC2 Documentation          | [Click Here](https://docs.aws.amazon.com/ec2/) |
-| 4    | AWS EBS Snapshot Documentation | [Click Here](https://docs.aws.amazon.com/ebs/) |
+| S.No | Resource | Link |
+|---|---|---|
+| 1 | SonarQube Documentation | [Click to Open](https://docs.sonarsource.com/) |
+| 2 | AWS EC2 Documentation | [Click to Open](https://docs.aws.amazon.com/ec2/) |
+| 3 | AWS Backup Documentation | [Click to Open](https://docs.aws.amazon.com/aws-backup/) |
+| 4 | AWS AMI Documentation | [Click to Open](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) |
+| 5 | AWS Cross-Region Backup | [Click to Open](https://docs.aws.amazon.com/aws-backup/latest/devguide/cross-region-backup.html) |
+
