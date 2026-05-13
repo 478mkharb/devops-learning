@@ -1,4 +1,4 @@
-<h1 align="center">POC - React CI | DAST </h1>
+<h1 align="center"># POC - React CI | DAST using OWASP ZAP </h1>
 
 <div align="center">
 <img width="100" alt="React" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -26,10 +26,10 @@
 
   <tr>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">11/05/2026</td>
+    <td align="center">13/05/2026</td>
     <td align="center">1.0</td>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">11/05/2026</td>
+    <td align="center">13/05/2026</td>
     <td align="center">Team</td>
     <td align="center">Mohit Kumar</td>
     <td align="center">Faisal Khan</td>
@@ -49,8 +49,8 @@
 4. [Download OWASP ZAP Installer](#4-download-owasp-zap-installer)
 5. [Install OWASP ZAP (Quiet Mode)](#5-install-owasp-zap-quiet-mode)
 6. [Start ZAP in Daemon Mode](#6-start-zap-in-daemon-mode)
-7. [Verify ZAP API and Scan Execution (Spider & Active)](#7-verify-zap-api-and-scan-execution-spider--active)
-8. [Generate HTML Reports](#8-generate-html-reports)
+7. [Verify ZAP API and Scan Execution](#7-verify-zap-api-and-scan-execution)
+8. [Generate HTML Report](#8-generate-html-report)
 9. [OWASP ZAP Findings](#9-owasp-zap-findings)
 10. [Contact Information](#10-contact-information)
 11. [References](#11-references)
@@ -74,6 +74,7 @@ The scan validates:
 ## 2. Running React Frontend
 
 Clone repository:
+
 ```bash
 git clone https://github.com/OT-MICROSERVICES/frontend.git
 cd frontend
@@ -110,6 +111,7 @@ sudo apt update
 sudo apt install openjdk-17-jdk wget unzip curl -y
 java -version
 ```
+
 <details>
 <summary>📸 <strong>Click to view Screenshot - Installation of Install Required Packages</strong></summary>
 <img width="1557" height="765" alt="image" src="https://github.com/user-attachments/assets/5d411b2a-8c86-4627-8a84-8c152e3604cc" />
@@ -124,6 +126,7 @@ wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.1/ZAP_2_16_1_uni
 chmod +x ZAP_2_16_1_unix.sh
 ls -l ZAP_2_16_1_unix.sh
 ```
+
 <details>
 <summary>📸 <strong>Click to view Screenshot - OWASP ZAP Installer</strong></summary>
 <img width="1745" height="804" alt="image" src="https://github.com/user-attachments/assets/58d24372-87d4-47f6-bb6b-8c3885db3316" />
@@ -137,6 +140,7 @@ ls -l ZAP_2_16_1_unix.sh
 ./ZAP_2_16_1_unix.sh -q
 ls /opt/zaproxy
 ```
+
 <details>
 <summary>📸 <strong>Click to view Screenshot - Install ZAP</strong></summary>
 <img width="1572" height="344" alt="image" src="https://github.com/user-attachments/assets/e906baed-f3ee-4b54-9785-f6653b2d8202" />
@@ -145,7 +149,7 @@ ls /opt/zaproxy
 ---
 ## 6. Start ZAP in Daemon Mode
 
-- Open in new terminal
+- Open a new terminal
 ```bash
 nohup /opt/zaproxy/zap.sh -daemon \
 -host 127.0.0.1 \
@@ -160,26 +164,33 @@ nohup /opt/zaproxy/zap.sh -daemon \
 ps aux | grep zap
 ss -tulpn | grep 8090
 ```
+
 <details>
 <summary>📸 <strong>Click to view Screenshot - Start ZAP in daemon Mode</strong></summary>
 <img width="1549" height="422" alt="image" src="https://github.com/user-attachments/assets/551df27f-1165-437a-8843-009a01f652c3" />
 </details>
 
 ---
-## 7. Verify ZAP API and Scan Execution (Spider & Active)
-- verify ZAP API
+
+## 7. Verify ZAP API and Scan Execution
+
+- Verify ZAP API
+
 ```bash
 curl "http://localhost:8090/JSON/core/view/version/"
 ```
 - Run Spider Scan
+
 ```bash
 curl "http://localhost:8090/JSON/spider/action/scan/?url=http://localhost:3000"
 ```
 - Check Status
+
 ```bash
 curl "http://localhost:8090/JSON/spider/view/status/?scanId=0"
 ```
 - Run Active Scan
+
 ```bash
 curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://localhost:3000"
 ```
@@ -194,7 +205,7 @@ curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://localhost:3000"
 
 ---
 
-## 8. Generate HTML Reports
+## 8. Generate HTML Report
 
 ```bash
 curl "http://localhost:8090/OTHER/core/other/htmlreport/" -o dast-report.html
@@ -211,7 +222,7 @@ python3 -m http.server 9000
 http://<VM-IP>:9000/dast-report.html
 ```
 <details>
-<summary>📸 <strong>Screenshot of HTML Reports</strong></summary>
+<summary>📸 <strong>Screenshot of HTML Report</strong></summary>
 <img width="1488" height="373" alt="image" src="https://github.com/user-attachments/assets/24b4430a-2920-4652-b01b-ba43848733d4" />
 <img width="1823" height="955" alt="image" src="https://github.com/user-attachments/assets/ee3a5ecb-7432-4f3f-ba8f-f077542b7d27" />
 </details>
@@ -222,15 +233,15 @@ http://<VM-IP>:9000/dast-report.html
 
 | Finding | Risk Level | Count |
 |---|---|---|
-| CSP: Failure to Define Directive with No Fallback | Medium | 2 |
-| Content Security Policy (CSP) Header Not Set | Medium | 1 |
-| Missing Anti-clickjacking Header | Medium | 1 |
-| Private IP Disclosure | Low | 1 |
-| Server Leaks Information via `X-Powered-By` HTTP Response Header | Low | 7 |
-| X-Content-Type-Options Header Missing | Low | 4 |
-| ZAP is Out of Date | Low | 1 |
-| Information Disclosure - Suspicious Comments | Informational | 3 |
-| Modern Web Application | Informational | 1 |
+| CSP: Failure to Define Directive with No Fallback | 🟠 Medium | 2 |
+| Content Security Policy (CSP) Header Not Set | 🟠 Medium | 1 |
+| Missing Anti-clickjacking Header | 🟠 Medium | 1 |
+| Private IP Disclosure | 🟡 Low | 1 |
+| Server Leaks Information via `X-Powered-By` HTTP Response Header | 🟡 Low | 7 |
+| X-Content-Type-Options Header Missing | 🟡 Low | 4 |
+| ZAP is Out of Date | 🟡 Low | 1 |
+| Information Disclosure - Suspicious Comments | 🔵 Informational | 3 |
+| Modern Web Application | 🔵 Informational | 1 |
 
 ---
 
