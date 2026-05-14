@@ -45,10 +45,10 @@
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
-2. [Install Required Packages](#2-install-required-packages)
-3. [Install GO Language](#3-install-go-language)
-4. [Configure GO Environment](#4-configure-go-environment)
-5. [Clone Employee API Repository](#5-clone-employee-api-repository)
+2. [Pre-requisites](#2-pre-requisites)
+3. [Install Required Packages](#3-install-required-packages)
+4. [Install GO Language](#4-install-go-language)
+5. [Configure GO Environment](#5-configure-go-environment)
 6. [Configure Jenkins Pipeline](#6-configure-jenkins-pipeline)
 7. [Jenkinsfile](#7-jenkinsfile)
 8. [Pipeline Execution](#8-pipeline-execution)
@@ -73,10 +73,23 @@ The pipeline validates:
 * Build success or failure status
 
 ---
+<a id="2-pre-requisites"></a>
 
-<a id="2-install-required-packages"></a>
+## 2. Pre-Requisites
 
-## 2. Install Required Packages
+| Component | Version | Purpose |
+|---|---|---|
+| Ubuntu Server | 22.04 LTS | Jenkins CI Server |
+| GO Language | 1.22.3 | GO application compilation |
+| Jenkins | 2.555.2 | CI pipeline execution |
+| OpenJDK | 21 | Jenkins runtime dependency |
+| Git | 2.34.1 | Source code management |
+| GitHub Repository | Latest | Employee API source repository |
+
+---
+<a id="3-install-required-packages"></a>
+
+## 3. Install Required Packages
 
 ```bash
 sudo apt update &&\
@@ -87,16 +100,16 @@ sudo apt install -y curl wget git nano net-tools build-essential
 <summary>📸 <strong>Click to view Screenshot - Required Packages Installation</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-required-packages" width="700"/>
+<img src="https://github.com/user-attachments/assets/02bd2fb6-074c-4133-ae13-8a4cdac75378"width="1000" />
 </div>
 
 </details>
 
 ---
 
-<a id="3-install-go-language"></a>
+<a id="4-install-go-language"></a>
 
-## 3. Install GO Language
+## 4. Install GO Language
 
 Install and verify GO language:
 
@@ -108,25 +121,17 @@ sudo apt install -y golang-go && go version
 <summary>📸 <strong>Click to view Screenshot - GO Version Verification</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-go-version" width="700"/>
-</div>
+  <img width="1000" height="auto" alt="image" src="https://github.com/user-attachments/assets/7ddd9a92-361b-4c16-afa0-bf451633ec43" />
 
-</details>
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - GO Installation</strong></summary>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-go-installation" width="700"/>
 </div>
 
 </details>
 
 ---
 
-<a id="4-configure-go-environment"></a>
+<a id="5-configure-go-environment"></a>
 
-## 4. Configure GO Environment
+## 5. Configure GO Environment
 
 Configure GO environment variables:
 
@@ -141,55 +146,11 @@ Verify GO environment:
 ```bash
 echo $GOPATH && which go
 ```
-
----
-
-<a id="5-clone-employee-api-repository"></a>
-
-## 5. Clone Employee API Repository
-
-Clone Employee API repository:
-
-```bash
-git clone https://github.com/OT-MICROSERVICES/employee-api.git && \
-cd employee-api
-```
-
-Verify GO project files:
-
-```bash
-ls
-```
-
 <details>
-<summary>📸 <strong>Click to view Screenshot - Employee API Files</strong></summary>
+<summary>📸 <strong>Click to view Screenshot - Configure GO Environment</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-project-files" width="700"/>
-</div>
-
-</details>
-
-Install dependencies and verify GO module:
-
-```bash
-go mod tidy && cat go.mod
-```
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - GO Module Verification</strong></summary>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-go-module" width="700"/>
-</div>
-
-</details>
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - Employee API Repository</strong></summary>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-employee-api" width="700"/>
+<img width="1000" height="auto" alt="image" src="https://github.com/user-attachments/assets/3024b47e-98e6-4281-a1dd-60f32a86e02d" />
 </div>
 
 </details>
