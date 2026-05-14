@@ -40,7 +40,7 @@
 <td>10</td> <!-- Total -->
 <td>08</td> <!-- To Do -->
 <td>02</td> <!-- In Progress -->
-<td>00</td> <!-- Internal Review -->
+<td>02</td> <!-- Internal Review -->
 <td>00</td> <!-- L0 -->
 <td>00</td> <!-- L1 -->
 <td>00</td> <!-- L2 -->
