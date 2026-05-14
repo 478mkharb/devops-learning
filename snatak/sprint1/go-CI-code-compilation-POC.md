@@ -79,7 +79,7 @@ The pipeline validates:
 ## 2. Install Required Packages
 
 ```bash
-sudo apt update && sudo apt upgrade -y && \
+sudo apt update &&\
 sudo apt install -y curl wget git nano net-tools build-essential
 ```
 
