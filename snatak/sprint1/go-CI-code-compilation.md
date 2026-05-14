@@ -102,7 +102,7 @@ These validations run automatically whenever developers push code to GitHub.
 
 ## 4. Workflow Diagram
 
-><img width="1000" height="auto" alt="image" src="https://github.com/user-attachments/assets/db67074b-c9a9-4cf5-ae44-d48aa298ab66" />
+><img src="https://github.com/user-attachments/assets/3d7fe71a-e1ce-43a0-b8d6-5183eb9d0350" />
 
 ---
 
