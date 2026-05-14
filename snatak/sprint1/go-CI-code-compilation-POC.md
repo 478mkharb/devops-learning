@@ -2,8 +2,8 @@
 
 <div align="center">
 <img width="120" alt="GoLang" src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="120" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="120" alt="GitHub" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" />
+<img width="80" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="70" alt="GitHub" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" />
 </div>
 
 <br/>
@@ -51,11 +51,10 @@
 5. [Configure GO Environment](#5-configure-go-environment)
 6. [Configure Jenkins Pipeline](#6-configure-jenkins-pipeline)
 7. [Jenkinsfile](#7-jenkinsfile)
-8. [Pipeline Execution](#8-pipeline-execution)
-9. [Verify Build Status](#9-verify-build-status)
-10. [FAQs](#10-faqs)
-11. [Contact Information](#11-contact-information)
-12. [References](#12-references)
+8. [Verify Build Status](#8-verify-build-status)
+9. [FAQs](#9-faqs)
+10. [Contact Information](#10-contact-information)
+11. [References](#11-references)
 
 ---
 
@@ -81,10 +80,7 @@ The pipeline validates:
 |---|---|---|
 | Ubuntu Server | 22.04 LTS | Jenkins CI Server |
 | GO Language | 1.22.3 | GO application compilation |
-| Jenkins | 2.555.2 | CI pipeline execution |
 | OpenJDK | 21 | Jenkins runtime dependency |
-| Git | 2.34.1 | Source code management |
-| GitHub Repository | Latest | Employee API source repository |
 
 ---
 <a id="3-install-required-packages"></a>
@@ -161,25 +157,12 @@ echo $GOPATH && which go
 
 ## 6. Configure Jenkins Pipeline
 
-* Login to Jenkins Dashboard
-* Click `New Item`
-* Enter pipeline name
-* Select `Pipeline`
-* Click `OK`
-
-Under Pipeline section:
-
-* Select `Pipeline script from SCM`
-* SCM → `Git`
-* Enter Employee API repository URL
-* Select repository branch
-* Save pipeline configuration
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Jenkins Pipeline Configuration</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-jenkins-pipeline" width="700"/>
+ <img width="1000" height="auto" alt="image" src="https://github.com/user-attachments/assets/c217b9aa-98f5-4c5f-bfc7-4b4dd5ea6d68" />
+
 </div>
 
 </details>
@@ -189,8 +172,6 @@ Under Pipeline section:
 <a id="7-jenkinsfile"></a>
 
 ## 7. Jenkinsfile
-
-Create `Jenkinsfile` inside repository root:
 
 ```groovy
 pipeline {
@@ -234,59 +215,9 @@ pipeline {
 
 ---
 
-<a id="8-pipeline-execution"></a>
+<a id="8-verify-build-status"></a>
 
-## 8. Pipeline Execution
-
-Trigger Jenkins pipeline:
-
-* Open Jenkins Pipeline
-* Click `Build Now`
-* Monitor pipeline console logs
-
-Pipeline workflow:
-
-```text
-Developer Push
-       │
-       ▼
-GitHub Repository
-       │
-       ▼
-Jenkins Pipeline Triggered
-       │
-       ▼
-Checkout Source Code
-       │
-       ▼
-Install GO Dependencies
-(go mod tidy)
-       │
-       ▼
-GO Compilation Check
-(go build)
-       │
-       ▼
-Compilation Success / Failure
-       │
-       ▼
-Jenkins Build Status
-```
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - Jenkins Pipeline Execution</strong></summary>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-pipeline-execution" width="700"/>
-</div>
-
-</details>
-
----
-
-<a id="9-verify-build-status"></a>
-
-## 9. Verify Build Status
+## 8. Verify Build Status
 
 Successful build output:
 
@@ -294,42 +225,27 @@ Successful build output:
 <summary>📸 <strong>Click to view Screenshot - Successful Jenkins Build</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-success-build" width="700"/>
+  <img width="1000" height="auto" alt="Screenshot from 2026-05-15 00-32-49" src="https://github.com/user-attachments/assets/8fa4e135-99c9-456a-a211-926dff5c148a" />
+
 </div>
 
 </details>
-
-Failed build output:
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - Failed Jenkins Build</strong></summary>
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-failed-build" width="700"/>
-</div>
-
-</details>
-
-Verify generated binary:
-
-```bash
-ls -l employee-api
-```
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Build Status</strong></summary>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/sample-build-status" width="700"/>
+  <img width="1000" height="auto" alt="image" src="https://github.com/user-attachments/assets/c2b86bd4-5da1-46bc-a676-4853b07fcc9e" />
+
 </div>
 
 </details>
 
 ---
 
-<a id="10-faqs"></a>
+<a id="9-faqs"></a>
 
-## 10. FAQs
+## 9. FAQs
 
 ### Q1. Why is GO language required?
 
@@ -373,9 +289,9 @@ Jenkins marks the pipeline as FAILED and stops further execution.
 
 ---
 
-<a id="11-contact-information"></a>
+<a id="10-contact-information"></a>
 
-## 11. Contact Information
+## 10. Contact Information
 
 | Name         | ✉️ Contact                                                                        |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -383,9 +299,9 @@ Jenkins marks the pipeline as FAILED and stops further execution.
 
 ---
 
-<a id="12-references"></a>
+<a id="11-references"></a>
 
-## 12. References
+## 11. References
 
 | S.No | Description               | Click to View                                                                                                                                                                    |
 | ---- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
