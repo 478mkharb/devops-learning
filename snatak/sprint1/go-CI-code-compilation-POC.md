@@ -252,35 +252,30 @@ Successful build output:
 **Answer:**
 GO language is required because the Employee API microservice is developed using Golang.
 
----
 
 ### Q2. What does `go mod tidy` do?
 
 **Answer:**
 It downloads and validates all dependencies defined in the `go.mod` file.
 
----
 
 ### Q3. What does `go build` do?
 
 **Answer:**
 It compiles the GO source code and generates executable binary.
 
----
 
 ### Q4. Why is Jenkins used in this POC?
 
 **Answer:**
 Jenkins automates GO code compilation checks whenever developers push code to GitHub.
 
----
 
 ### Q5. How do we verify successful compilation?
 
 **Answer:**
 Successful Jenkins pipeline execution and generated binary confirm successful compilation.
 
----
 
 ### Q6. What happens if compilation fails?
 
