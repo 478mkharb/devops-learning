@@ -44,18 +44,18 @@
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
-2. [Clone Salary API Repository](#2-clone-salary-api-repository)
-3. [Install Required Packages](#3-install-required-packages)
-4. [Verify Installed JAVA and Maven](#4-verify-installed-java-and-maven)
+2. [Pre-requisites](#2-pre-requisites)
+3. [Clone Salary API Repository](#3-clone-salary-api-repository)
+4. [Install and Configure JAVA 17 and Maven](#4-install-and-configure-java-17-and-maven)
 5. [Add OWASP Dependency Check Plugin](#5-add-owasp-dependency-check-plugin)
 6. [Build Java Application](#6-build-java-application)
 7. [Run OWASP Dependency Scan](#7-run-owasp-dependency-scan)
 8. [Generate HTML Report](#8-generate-html-report)
 9. [Dependency Scan Findings](#9-dependency-scan-findings)
 10. [Conclusion](#10-conclusion)
-11. [Contact Information](#11-contact-information)
-12. [References](#12-references)
-
+11. [FAQs](#11-faqs)
+12. [Contact Information](#12-contact-information)
+13. [References](#13-references)
 ---
 
 ## 1. Introduction
@@ -73,8 +73,21 @@ The scan validates:
 The POC uses the OT-Microservices `salary-api` Spring Boot project and integrates OWASP Dependency Check through Maven.
 
 ---
+## 2. Pre-requisites
 
-## 2. Clone Salary API Repository
+Before performing Java dependency scanning using OWASP Dependency Check, ensure the following prerequisites are available:
+
+| Requirement | Version/Specification |
+|---|---|
+| Ubuntu/Linux VM | Ubuntu 22.04 LTS | 
+| JAVA | OpenJDK 17 |
+| Maven | 3.8+ |
+| RAM | Minimum 2 GB |
+| Disk Space | Minimum 5 GB Free |
+
+---
+
+## 3. Clone Salary API Repository
 
 Clone the repository:
 
@@ -82,97 +95,36 @@ Clone the repository:
 git clone https://github.com/OT-MICROSERVICES/salary-api.git
 cd salary-api
 ```
-
-Verify project structure:
-
-```bash
-tree .
-```
-
-Expected project structure:
-
-```text
-salary-api/
-├── pom.xml
-├── src/
-├── Dockerfile
-├── migration/
-├── static/
-├── mvnw
-└── README.md
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Salary API Repository</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/salary-api-repo.png" />
+<img width="1325" height="902" alt="image" src="https://github.com/user-attachments/assets/9c1595f4-7445-490e-90e8-1d3d6163edbc" />
 </details>
 
 ---
 
-## 3. Install Required Packages
+## 4. Install and Configure JAVA 17 and Maven
 
-Update package index:
-
-```bash
-sudo apt update
-```
-
-Install JAVA and Maven:
+Install JAVA 17 and Maven:
 
 ```bash
-sudo apt install -y openjdk-17-jdk maven wget curl unzip
+sudo apt update && sudo apt install -y openjdk-17-jdk maven wget curl unzip
 ```
-
-Verify installation:
+Verify installed JAVA and Maven:
 
 ```bash
 java -version
 mvn -version
 ```
-
-Expected Output:
-
-```text
-openjdk version "17"
-Apache Maven 3.x
-```
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - JAVA and Maven Installation</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/java-maven-installation.png" />
-</details>
-
----
-
-## 4. Verify Installed JAVA and Maven
-
-Check JAVA_HOME:
-
-```bash
-echo $JAVA_HOME
-```
-
-Verify Maven uses JAVA 17:
-
-```bash
-mvn -version
-```
-
-List installed JDKs:
+If another JAVA version is active, switch to JAVA 17:
 
 ```bash
 sudo update-alternatives --config java
-```
-
-Expected JAVA:
-
-```text
-/usr/lib/jvm/java-17-openjdk-amd64
+sudo update-alternatives --config javac
 ```
 
 <details>
-<summary>📸 <strong>Click to view Screenshot - JAVA Verification</strong></summary>
-<img width="1820" height="880" alt="image" src="https://github.com/user-attachments/assets/java-verification.png" />
+<summary>📸 <strong>Click to view Screenshot - JAVA 17 and Maven Configuration</strong></summary>
+<img width="1248" height="350" alt="image" src="https://github.com/user-attachments/assets/82953f54-4401-4c45-9661-2063325996b7" />
 </details>
 
 ---
@@ -219,20 +171,206 @@ Also update Lombok dependency:
 </dependency>
 ```
 
-Lombok version update is required to ensure compatibility with newer Maven compiler and JDK environments. During build execution, the older Lombok version caused `java.lang.NoSuchFieldError` compilation issues related to internal Javac APIs.
-
-Updating Lombok resolves:
-
-* JDK compatibility issues
-* Maven compiler plugin compatibility
-* Javac internal API mismatch errors
-* Build instability during dependency scanning execution
-
-Save and exit.
+> [!NOTE]
+> Lombok version update is required to ensure compatibility with newer Maven compiler and JDK environments. During build execution, the older Lombok version caused `java.lang.NoSuchFieldError` compilation issues related to internal Javac APIs.
 
 <details>
-<summary>📸 <strong>Click to view Screenshot - pom.xml Configuration</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/pom-xml-owasp.png" />
+<summary>📄 <strong>Click to view Full Corrected pom.xml</strong></summary>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.opstree.microservice</groupId>
+    <artifactId>salary</artifactId>
+    <version>0.1.0-RELEASE</version>
+
+    <name>salary</name>
+
+    <description>
+        Java microservice to handle all salary related data
+    </description>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Spring Boot Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Logstash Logging -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.6</version>
+        </dependency>
+
+        <!-- OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+
+        <!-- Spring Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Cassandra -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-cassandra</artifactId>
+        </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Prometheus Metrics -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <plugins>
+
+            <!-- Spring Boot Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Unit Testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            com/opstree/microservice/salary/controller/**
+                        </exclude>
+                        <exclude>
+                            com/opstree/microservice/salary/service/**
+                        </exclude>
+                        <exclude>
+                            com/opstree/microservice/salary/repository/**
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- JaCoCo Coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+
+                <executions>
+
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            com/opstree/microservice/salary/controller/**
+                        </exclude>
+                        <exclude>
+                            com/opstree/microservice/salary/service/**
+                        </exclude>
+                        <exclude>
+                            com/opstree/microservice/salary/repository/**
+                        </exclude>
+                    </excludes>
+                </configuration>
+
+            </plugin>
+
+            <!-- OWASP Dependency Check -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>10.0.4</version>
+
+                <configuration>
+                    <format>HTML</format>
+                    <failBuildOnCVSS>7</failBuildOnCVSS>
+                </configuration>
+
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
+```
+
 </details>
 
 ---
@@ -248,12 +386,6 @@ mvn clean install -DskipTests
 > [!NOTE]
 > Tests are skipped because the `salary-api` application requires ScyllaDB/Cassandra connectivity during Spring Boot test execution.
 
-Expected Output:
-
-```text
-BUILD SUCCESS
-```
-
 Generated artifact:
 
 ```text
@@ -262,7 +394,10 @@ target/salary-0.1.0-RELEASE.jar
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Maven Build Success</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/maven-build-success.png" />
+<img width="1485" height="903" alt="image" src="https://github.com/user-attachments/assets/9ed3a597-c170-4bc2-87f6-ad08a99c5b6d" />
+<img width="1485" height="464" alt="image" src="https://github.com/user-attachments/assets/72eab5ca-768c-457a-ac8b-943f8f5ea9b3" />
+<img width="1485" height="118" alt="image" src="https://github.com/user-attachments/assets/a9f2293f-90d5-469c-8842-5088f738426e" />
+
 </details>
 
 ---
@@ -275,38 +410,23 @@ Execute OWASP Dependency Check:
 mvn org.owasp:dependency-check-maven:check -DskipTests
 ```
 
-During first execution:
-
-```text
-Checking for updates
-Downloaded 10000/351088
-```
-
-This occurs because OWASP downloads the NVD/CVE vulnerability database.
-
-The scan validates:
-
-* Vulnerable dependencies
-* CVE mappings
-* Dependency risk scoring
-* Known Spring Boot vulnerabilities
-* Third-party library security issues
-
-Expected Output:
-
-```text
-BUILD SUCCESS
-```
-
-If high severity vulnerabilities are detected:
-
-```text
-BUILD FAILURE
-```
+> [!IMPORTANT]
+> During the first execution, OWASP Dependency Check downloads the complete NVD/CVE vulnerability database from NIST.
+>
+> ```text
+> Checking for updates
+> Downloaded 10000/351088
+> ```
+>
+> This process may take significant time depending on internet speed because vulnerability metadata and CVE feeds are downloaded and cached locally for future scans.
+>
+> Subsequent scans will be considerably faster since the database is reused from the local cache.
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - OWASP Dependency Scan</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/owasp-dependency-scan.png" />
+<img width="1502" height="907" alt="image" src="https://github.com/user-attachments/assets/3287e5d2-0731-4a40-af1c-75e48f036dc1" />
+<img width="1502" height="907" alt="image" src="https://github.com/user-attachments/assets/5d9419bc-61e8-4cb8-9830-19edb6b62e9c" />
+
 </details>
 
 ---
@@ -318,66 +438,48 @@ Verify report generation:
 ```bash
 ls target/dependency-check-report.html
 ```
-
 Open report:
 
 ```bash
-xdg-open target/dependency-check-report.html
+cd ~/salary-api/target
+python3 -m http.server 4000
 ```
-
-The report contains:
-
-* CVE IDs
-* Vulnerable packages
-* CVSS severity ratings
-* Recommended fixed versions
-* Dependency paths
-* Risk analysis summary
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Dependency Check HTML Report</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/dependency-check-report.png" />
+<img width="1497" height="279" alt="image" src="https://github.com/user-attachments/assets/ee30b35a-30e0-4a7c-9446-ac1ba6a6c40e" />
+<img width="1497" height="279" alt="image" src="https://github.com/user-attachments/assets/60f2ac69-56aa-4fec-8264-b025edc7b2b0" />
+<img width="1832" height="989" alt="Screenshot from 2026-05-15 21-32-11" src="https://github.com/user-attachments/assets/999934af-cb83-4189-b308-c54e45aee899" />
+<img width="1832" height="884" alt="Screenshot from 2026-05-15 21-32-27" src="https://github.com/user-attachments/assets/a3878c95-b70a-4d59-a646-29009f810f35" />
+
 </details>
 
 ---
 
 ## 9. Dependency Scan Findings
 
-During OWASP Dependency Check execution, the `salary-api` application dependencies were analyzed against the NVD/CVE vulnerability database.
-
 The scan successfully identified multiple vulnerable dependencies and automatically failed the build because the configured policy blocks vulnerabilities having CVSS score greater than or equal to `7.0`.
 
-<details>
-<summary>📸 <strong>Click to view Screenshot - OWASP Build Failure Output</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/owasp-build-failure.png" />
-</details>text
-BUILD FAILURE
-One or more dependencies were identified with vulnerabilities
-having a CVSS score greater than or equal to '7.0'
-```
+Vulnerable dependencies identified during the scan:
 
-Example vulnerable dependencies identified during the scan:
-
-| Dependency                       | CVE            | Severity |
-| -------------------------------- | -------------- | -------- |
-| snakeyaml-1.33.jar               | CVE-2022-1471  | Critical |
-| spring-core-6.0.10.jar           | CVE-2024-22259 | High     |
-| spring-web-6.0.10.jar            | CVE-2024-22259 | High     |
-| tomcat-embed-core-10.1.10.jar    | Multiple CVEs  | Critical |
-| netty-transport-4.1.94.Final.jar | Multiple CVEs  | High     |
-
-This demonstrates:
-
-* Automated dependency vulnerability detection
-* CVE validation against NVD database
-* Build policy enforcement using CVSS threshold
-* Supply chain security analysis
-* Early security issue identification during CI validation
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - OWASP Vulnerability Findings</strong></summary>
-<img width="1835" height="890" alt="image" src="https://github.com/user-attachments/assets/owasp-vulnerability-findings.png" />
-</details>
+| Dependency | Description | Highest Severity | CVE Count |
+|---|---|---|---|
+| commons-lang3-3.12.0.jar | Apache Commons utility library for Java | 🟡 Medium | 1 |
+| jackson-databind-2.15.2.jar | JSON serialization and deserialization library | 🟡 Medium | 1 |
+| logstash-logback-encoder-6.6.jar | Structured JSON logging encoder for Logback | 🟡 Medium | 1 |
+| spring-boot-3.1.1.jar | Core Spring Boot framework dependency | 🟡 Medium | 1 |
+| spring-boot-starter-web-3.1.1.jar | Spring Boot starter for REST web applications | 🟡 Medium | 1 |
+| log4j-api-2.20.0.jar | Logging API for Java applications | 🟠 High | 5 |
+| logback-core-1.4.8.jar | Core logging framework for Spring Boot | 🟠 High | 1 |
+| micrometer-registry-prometheus-1.11.1.jar | Prometheus metrics exporter integration | 🟠 High | 1 |
+| netty-transport-4.1.94.Final.jar | Asynchronous event-driven network framework | 🟠 High | 12 |
+| simpleclient-0.16.0.jar | Prometheus Java metrics client library | 🟠 High | 1 |
+| spring-core-6.0.10.jar | Core utilities and framework classes for Spring | 🟠 High | 3 |
+| spring-data-cassandra-4.1.1.jar | Spring Data integration for Cassandra database | 🟠 High | 6 |
+| spring-web-6.0.10.jar | Spring Web MVC and REST framework | 🟠 High | 3 |
+| snakeyaml-1.33.jar | YAML parsing library for Java applications | 🔴 Critical | 1 |
+| swagger-ui-4.17.1.jar | Interactive API documentation user interface | 🔴 Critical | 10 |
+| tomcat-embed-core-10.1.10.jar | Embedded Apache Tomcat web server | 🔴 Critical | 39 |
 
 ---
 
@@ -392,8 +494,45 @@ The scan identified multiple vulnerable dependencies including Spring Framework,
 Generated HTML reports provide detailed vulnerability analysis, CVSS severity ratings, affected packages, and remediation recommendations for secure dependency management.
 
 ---
+## 11. FAQs
 
-## 11. Contact Information
+### 1. What is OWASP Dependency Check?
+
+> OWASP Dependency Check is a Software Composition Analysis (SCA) tool used to identify vulnerable third-party dependencies in applications.
+
+---
+
+### 2. Why is dependency scanning important in CI pipelines?
+
+> Dependency scanning helps identify known vulnerabilities in external libraries before application deployment.
+
+---
+
+### 3. What does `failBuildOnCVSS=7` mean?
+
+> It automatically fails the build if any detected vulnerability has a CVSS score greater than or equal to 7.
+
+---
+
+### 4. Why was `-DskipTests` used during Maven build?
+
+> Tests were skipped because the application required ScyllaDB/Cassandra connectivity during test execution.
+
+---
+
+### 5. Why was the Lombok version updated?
+
+> The Lombok version was updated to resolve JDK and Maven compiler compatibility issues.
+
+---
+
+### 6. Why was the OWASP plugin execution block removed from `pom.xml`?
+
+> The execution block was removed to prevent OWASP scans from running automatically during every Maven build and to allow manual dependency scanning execution.
+
+---
+
+## 12. Contact Information
 
 | Name         | Contact                                                                           |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -401,7 +540,7 @@ Generated HTML reports provide detailed vulnerability analysis, CVSS severity ra
 
 ---
 
-## 12. References
+## 13. References
 
 | S.No | Description                | Click to View                                                                                                                                                                |
 | ---- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
