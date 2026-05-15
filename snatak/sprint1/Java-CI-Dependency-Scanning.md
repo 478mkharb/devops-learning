@@ -5,9 +5,8 @@
 </div>
 
 <div align="center">
-<img width="140" alt="Java" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="100" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="120" alt="OWASP" src="https://owasp.org/assets/images/logo.png" />
+<img width="100" alt="Java" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="200" alt="OWASP" src="https://owasp.org/assets/images/logo.png" />
 </div>
 
 <br/>
