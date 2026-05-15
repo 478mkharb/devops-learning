@@ -38,9 +38,9 @@
 <tr>
 <td><b>Sprint 2</b></td> <!-- Sprint Name -->
 <td>10</td> <!-- Total -->
-<td>06</td> <!-- To Do -->
+<td>04</td> <!-- To Do -->
 <td>02</td> <!-- In Progress -->
-<td>02</td> <!-- Internal Review -->
+<td>04</td> <!-- Internal Review -->
 <td>00</td> <!-- L0 -->
 <td>00</td> <!-- L1 -->
 <td>00</td> <!-- L2 -->
@@ -51,11 +51,11 @@
 
 <td><b>27</b></td> <!-- Grand Total -->
 
-<td><b>06</b></td> <!-- Total To Do -->
+<td><b>04</b></td> <!-- Total To Do -->
 
 <td><b>02</b></td> <!-- Total In Progress -->
 
-<td><b>02</b></td> <!-- Total Internal Review -->
+<td><b>04</b></td> <!-- Total Internal Review -->
 
 <td><b>00</b></td> <!-- Total L0 -->
 
