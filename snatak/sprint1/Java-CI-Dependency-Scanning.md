@@ -93,37 +93,7 @@ These checks execute automatically whenever developers push code to Git reposito
 
 ## 4. Workflow Diagram
 
-```text
-Developer Push
-       │
-       ▼
-GitHub Repository
-       │
-       ▼
-Jenkins Pipeline Trigger
-       │
-       ▼
-Dependency Resolution
-(Maven / Gradle)
-       │
-       ▼
-Dependency Scanning Tool
-       │
- ┌───────────────┐
- │ CVE Database  │
- │ NVD Database  │
- │ GH Advisories │
- └───────────────┘
-       │
-       ▼
-Vulnerability Analysis
-       │
-       ▼
-Generate Security Report
-       │
-       ▼
-Build Pass / Fail Decision
-```
+><img width="1774" height="887" alt="ChatGPT Image May 15, 2026, 12_19_33 PM" src="https://github.com/user-attachments/assets/457c04de-3dec-460c-b89a-72ae7b1654fc" />
 
 ---
 
@@ -131,13 +101,13 @@ Build Pass / Fail Decision
 
 ## 5. Various Dependency Scanning Tools with Comparison
 
-| Tool                       | Type                | JAVA Support | CI/CD Integration | Vulnerability Database | Automation | Best Use Case                |
-| -------------------------- | ------------------- | ------------ | ----------------- | ---------------------- | ---------- | ---------------------------- |
-| **OWASP Dependency-Check** | Open Source         | Excellent    | Excellent         | NVD/CVE                | High       | Jenkins CI Security          |
-| **Snyk**                   | Commercial          | Excellent    | Excellent         | Proprietary + CVE      | Very High  | Enterprise Security          |
-| **Trivy**                  | Open Source         | Good         | Excellent         | CVE/NVD                | High       | DevSecOps Pipelines          |
-| **GitHub Dependabot**      | Platform Integrated | Excellent    | GitHub Native     | GitHub Advisories      | High       | GitHub Repositories          |
-| **JFrog Xray**             | Commercial          | Excellent    | Excellent         | Proprietary + CVE      | Very High  | Enterprise Artifact Security |
+| Tool                       | Type                | JAVA Support | CI/CD Integration | Vulnerability Database | Automation |
+| -------------------------- | ------------------- | ------------ | ----------------- | ---------------------- | ---------- |
+| **OWASP Dependency-Check** | Open Source         | Excellent    | Excellent         | NVD/CVE                | High       |
+| **Snyk**                   | Commercial          | Excellent    | Excellent         | Proprietary + CVE      | Very High  |
+| **Trivy**                  | Open Source         | Good         | Excellent         | CVE/NVD                | High       |
+| **GitHub Dependabot**      | Platform Integrated | Excellent    | GitHub Native     | GitHub Advisories      | High       |
+| **JFrog Xray**             | Commercial          | Excellent    | Excellent         | Proprietary + CVE      | Very High  |
 
 ---
 
