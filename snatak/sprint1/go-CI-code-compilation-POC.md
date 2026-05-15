@@ -3,7 +3,6 @@
 <div align="center">
 <img width="120" alt="GoLang" src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img width="80" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="70" alt="GitHub" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" />
 </div>
 
 <br/>
