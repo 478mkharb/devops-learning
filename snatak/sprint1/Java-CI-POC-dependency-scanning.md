@@ -62,16 +62,6 @@
 
 This POC demonstrates Dependency Scanning for the Java-based `salary-api` application using OWASP Dependency Check.
 
-The scan validates:
-
-* Vulnerable Maven dependencies
-* Known CVEs in Spring Boot packages
-* Dependency version risks
-* Supply chain security issues
-* Vulnerable third-party libraries
-
-The POC uses the OT-Microservices `salary-api` Spring Boot project and integrates OWASP Dependency Check through Maven.
-
 ---
 ## 2. Pre-requisites
 
