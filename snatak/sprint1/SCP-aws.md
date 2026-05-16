@@ -1,7 +1,7 @@
-# <h1 align="center">POC - AWS Organizations Service Control Policies (SCPs)</h1>
+# <h1 align="center">Implementation - AWS Service Control Policies (SCPs)</h1>
 
 <div align="center">
-<img width="160" alt="AWS" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" />
+<img width="100" alt="AWS" src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" />
 </div>
 
 <br/>
@@ -40,10 +40,7 @@
 
 ---
 
-> [!IMPORTANT]
-> All implementation steps in this POC are performed using the AWS Management Console. No command-line or AWS Management Console steps are used in this implementation.
-
-# Table of Contents
+## Table of Contents
 
 1. [Introduction](#1-introduction)
 2. [AWS SCP Overview](#2-aws-scp-overview)
@@ -53,34 +50,26 @@
 6. [Create SCP Policy](#6-create-scp-policy)
 7. [Attach SCP to Organizational Unit](#7-attach-scp-to-organizational-unit)
 8. [Validate SCP Restrictions](#8-validate-scp-restrictions)
-9. [Sample SCP Policies](#9-sample-scp-policies)
-10. [Benefits of SCPs](#10-benefits-of-scps)
-11. [Best Practices](#11-best-practices)
-12. [FAQs](#12-faqs)
-13. [Conclusion](#13-conclusion)
-14. [Contact Information](#14-contact-information)
-15. [References](#15-references)
+9. [Benefits of SCPs](#9-benefits-of-scps)
+10. [Best Practices](#10-best-practices)
+11. [FAQs](#11-faqs)
+12. [Conclusion](#12-conclusion)
+13. [Contact Information](#13-contact-information)
+14. [References](#14-references)
 
 ---
 
 <a id="1-introduction"></a>
 
-# 1. Introduction
+## 1. Introduction
 
 This POC demonstrates implementation of AWS Organizations Service Control Policies (SCPs) to enforce centralized governance and security restrictions across AWS accounts. SCPs help restrict unauthorized AWS actions, control resource provisioning, and standardize security controls for cloud infrastructure.
-
-<details>
-<summary>📸 <strong>Click to view Screenshot - AWS Organizations Dashboard</strong></summary>
-
-Add AWS Organizations dashboard screenshot here.
-
-</details>
 
 ---
 
 <a id="2-aws-scp-overview"></a>
 
-# 3. AWS SCP Overview
+## 2. AWS SCP Overview
 
 | Component                | Description                                       |
 | ------------------------ | ------------------------------------------------- |
@@ -93,25 +82,24 @@ Add AWS Organizations dashboard screenshot here.
 
 ---
 
-<a id="4-prerequisites"></a>
+<a id="3-prerequisites"></a>
 
-# 4. Prerequisites
+## 3. Prerequisites
 
-| Requirement            | Version / Details             |
-| ---------------------- | ----------------------------- |
-| AWS Account            | Active AWS Management Account |
-| AWS Organizations      | Enabled                       |
-| AWS Management Console | v2                            |
-| IAM Permissions        | OrganizationsFullAccess       |
-| Region Access          | Required AWS regions enabled  |
+| Requirement               | Version / Details                                   |
+| ------------------------- | --------------------------------------------------- |
+| AWS Account               | Active AWS Account with billing enabled             |
+| AWS Organizations         | Enabled in Management Account                       |
+| IAM Permissions           | `AWSOrganizationsFullAccess` or AdministratorAccess |
+| Service Control Policies  | SCP feature enabled in AWS Organizations            |
 
 ---
 
 <a id="4-create-aws-organization"></a>
 
-# 6. Create AWS Organization
+## 4. Create AWS Organization
 
-## Steps
+### Steps
 
 | Step | Action                                      |
 | ---- | ------------------------------------------- |
@@ -123,18 +111,18 @@ Add AWS Organizations dashboard screenshot here.
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - AWS Organization Creation</strong></summary>
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/b54d3b71-1966-481a-a6cd-0a0691f20c7c" />
 
-Add AWS Organization creation screenshot here.
 
 </details>
 
 ---
 
-<a id="7-create-organizational-units"></a>
+<a id="5-create-organizational-units"></a>
 
-# 7. Create Organizational Units
+## 5. Create Organizational Units
 
-## Steps
+### Steps
 
 | Step | Action                                                 |
 | ---- | ------------------------------------------------------ |
@@ -148,17 +136,18 @@ Add AWS Organization creation screenshot here.
 <details>
 <summary>📸 <strong>Click to view Screenshot - Organizational Units</strong></summary>
 
-Add Organizational Unit screenshot here.
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/46d5bb96-9390-4242-8461-34dfbe279536" />
+
 
 </details>
 
 ---
 
-<a id="8-create-scp-policy"></a>
+<a id="6-create-scp-policy"></a>
 
-# 8. Create SCP Policy
+## 6. Create SCP Policy
 
-## Steps
+### Steps
 
 | Step | Action                            |
 | ---- | --------------------------------- |
@@ -173,17 +162,21 @@ Add Organizational Unit screenshot here.
 <details>
 <summary>📸 <strong>Click to view Screenshot - Create SCP Policy</strong></summary>
 
-Add SCP policy creation screenshot here.
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/98251877-4c27-4373-8370-c67de31a18e4" />
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/9163bab6-1a5a-4f66-801c-63a10c0c6624" />
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/f906a926-4c83-4d13-97dd-7fe705c1e5d1" />
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/a8711763-1418-4785-bd34-40a28830aef3" />
+
 
 </details>
 
 ---
 
-<a id="9-attach-scp-to-organizational-unit"></a>
+<a id="7-attach-scp-to-organizational-unit"></a>
 
-# 9. Attach SCP to Organizational Unit
+## 7. Attach SCP to Organizational Unit
 
-## Steps
+### Steps
 
 | Step | Action                                      |
 | ---- | ------------------------------------------- |
@@ -203,17 +196,19 @@ Add SCP policy creation screenshot here.
 <details>
 <summary>📸 <strong>Click to view Screenshot - Attach SCP to Organizational Unit</strong></summary>
 
-Add SCP attachment screenshot here.
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/4625f1a2-bbfb-43a3-a12d-421f0dc15f9e" />
+
+
 
 </details>
 
 ---
 
-<a id="10-validate-scp-restrictions"></a>
+<a id="8-validate-scp-restrictions"></a>
 
-# 10. Validate SCP Restrictions
+## 8. Validate SCP Restrictions
 
-## Steps
+### Steps
 
 | Validation                            | Expected Result       |
 | ------------------------------------- | --------------------- |
@@ -224,85 +219,15 @@ Add SCP attachment screenshot here.
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - SCP Restriction Validation</strong></summary>
-
-Add SCP validation screenshot here.
-
+<img width="1838" height="950" alt="image" src="https://github.com/user-attachments/assets/5b6bfedd-8293-49f5-8458-b043d2222294" />
+<img width="1691" height="930" alt="image" src="https://github.com/user-attachments/assets/0418d1e5-d28f-469b-ae30-c6a3e5d9987a" />
 </details>
 
 ---
 
-<a id="11-sample-scp-policies"></a>
+<a id="9-benefits-of-scps"></a>
 
-# 11. Sample SCP Policies
-
-## Restrict Root User Actions
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Deny",
-      "Action": "*",
-      "Resource": "*",
-      "Condition": {
-        "StringLike": {
-          "aws:PrincipalArn": "arn:aws:iam::*:root"
-        }
-      }
-    }
-  ]
-}
-```
-
-## Restrict Specific AWS Regions
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "DenyUnsupportedRegions",
-      "Effect": "Deny",
-      "NotAction": [
-        "iam:*",
-        "organizations:*",
-        "route53:*"
-      ],
-      "Resource": "*",
-      "Condition": {
-        "StringNotEquals": {
-          "aws:RequestedRegion": [
-            "ap-south-1",
-            "us-east-1"
-          ]
-        }
-      }
-    }
-  ]
-}
-```
-
-## Restrict Public S3 Buckets
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Deny",
-      "Action": "s3:PutBucketPublicAccessBlock",
-      "Resource": "*"
-    }
-  ]
-}
-```
-
----
-
-<a id="12-benefits-of-scps"></a>
-
-# 12. Benefits of SCPs
+## 9. Benefits of SCPs
 
 | Benefit                | Description                                     |
 | ---------------------- | ----------------------------------------------- |
@@ -314,9 +239,9 @@ Add SCP validation screenshot here.
 
 ---
 
-<a id="13-best-practices"></a>
+<a id="10-best-practices"></a>
 
-# 13. Best Practices
+## 10. Best Practices
 
 | Best Practice            | Description                                  |
 | ------------------------ | -------------------------------------------- |
@@ -328,9 +253,9 @@ Add SCP validation screenshot here.
 
 ---
 
-<a id="14-faqs"></a>
+<a id="11-faqs"></a>
 
-# 14. FAQs
+## 11. FAQs
 
 ### Q1. What is the primary purpose of AWS SCPs?
 
@@ -374,17 +299,17 @@ They enforce centralized governance and secure infrastructure standards across a
 
 ---
 
-<a id="15-conclusion"></a>
+<a id="12-conclusion"></a>
 
-# 15. Conclusion
+## 12. Conclusion
 
 AWS Organizations SCPs provide strong governance and centralized security control for AWS Infrastructure environments. By implementing SCP guardrails, organizations can reduce operational risk, standardize permissions, enforce compliance requirements, and improve infrastructure security across all AWS accounts.
 
 ---
 
-<a id="16-contact-information"></a>
+<a id="13-contact-information"></a>
 
-# 16. Contact Information
+## 13. Contact Information
 
 | Name         | ✉️ Contact                                                                        |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -392,9 +317,9 @@ AWS Organizations SCPs provide strong governance and centralized security contro
 
 ---
 
-<a id="17-references"></a>
+<a id="14-references"></a>
 
-# 17. References
+## 14. References
 
 | S.No | Description                          | Click to View                                                                                                                                                                                                 |
 | ---- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
