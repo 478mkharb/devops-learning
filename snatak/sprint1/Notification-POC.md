@@ -82,7 +82,7 @@ The notification worker fetches records from ElasticSearch and sends notificatio
 | Ubuntu          | 22.04                    |
 | Python          | 3.11+                    |
 | pip             | Latest                   |
-| ElasticSearch   | 7.x                      |
+| ElasticSearch   | 7.8.0                    |
 | MailHog         | v1.0.1                   |
 | Slack Workspace | Active Workspace         |
 | Slack App       | Incoming Webhook Enabled |
@@ -108,8 +108,8 @@ nohup mailhog > ~/mailhog.log 2>&1 &
 Verify MailHog:
 
 ```bash
-ss -tulpn | grep 1025
 ss -tulpn | grep 8025
+ss -tulpn | grep 1025
 ```
 
 Access MailHog UI:
@@ -120,8 +120,10 @@ http://<VM-IP>:8025
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - MailHog UI</strong></summary>
+<img width="1542" height="788" alt="image" src="https://github.com/user-attachments/assets/291218be-4ad6-4905-af7c-e635f0283415" />
 
-<!-- Add Screenshot Here -->
+<img width="1542" height="709" alt="image" src="https://github.com/user-attachments/assets/373faca6-2162-4f22-988e-41e7f1a8e599" />
+
 
 </details>
 
@@ -147,18 +149,11 @@ http://<VM-IP>:8025
 * Select Slack Channel
 * Allow Permissions
 
-Copy generated Webhook URL.
-
-Example:
-
-```text
-https://hooks.slack.com/services/XXXX/YYYY/ZZZZ
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Slack Webhook</strong></summary>
 
-<!-- Add Screenshot Here -->
+<img width="1836" height="990" alt="image" src="https://github.com/user-attachments/assets/62355585-da2b-4446-9754-eec3e2dff29e" />
+
 
 </details>
 
@@ -181,6 +176,11 @@ slack:
 > [!NOTE]
 > MailHog does not require SMTP authentication or TLS configuration.
 
+<details>
+<summary>📸 <strong>Click to view Screenshot - Update config.yaml</strong></summary>
+<img width="1439" height="567" alt="image" src="https://github.com/user-attachments/assets/3cfccf4f-6286-4489-b16b-efbecc02dd59" />
+
+</details>
 ---
 
 <a id="6-update-notificationpy"></a>
@@ -240,13 +240,13 @@ smtp={
 ## 7. Run Notification Service
 
 ```bash
-python3 notification.py
+python3 notification_api.py
 ```
 
 Run in background:
 
 ```bash
-nohup python3 notification.py > notification.log 2>&1 &
+nohup python3 notification_api.py > notification.log 2>&1 &
 ```
 
 Verify Process:
@@ -254,6 +254,248 @@ Verify Process:
 ```bash
 ps aux | grep notification
 ```
+<details>
+<summary>📸 <strong>Click to view - Updated notification_api.py</strong></summary>
+
+```python
+#!/usr/bin/python3
+# pylint: disable=invalid-name,broad-except
+
+"""
+Notification Service
+Author:- Opstree Solutions
+
+This service:
+- Fetches employee records from ElasticSearch
+- Sends Email notifications using MailHog SMTP
+- Sends Slack notifications using Incoming Webhooks
+"""
+
+import argparse
+import os
+import sys
+import logging
+import time
+import requests
+import emails
+import schedule
+import config_with_yaml as config
+
+from elasticsearch import Elasticsearch
+
+CONFIG_FILE = os.environ.get("CONFIG_FILE")
+
+FORMATTER = logging.Formatter(
+    "%(asctime)s — %(name)s — %(levelname)s — %(message)s"
+)
+
+
+def init_logger():
+    """Initialize logger"""
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(FORMATTER)
+    return console_handler
+
+
+def get_logger():
+    """Return logger instance"""
+    logger = logging.getLogger("notification-service")
+
+    if not logger.handlers:
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(init_logger())
+
+    return logger
+
+
+def read_configuration():
+    """Read configuration file"""
+    logger = get_logger()
+
+    try:
+        cfg = config.load(CONFIG_FILE)
+        return cfg
+
+    except Exception as error:
+        logger.error(
+            "Unable to parse configuration file: %s",
+            error
+        )
+        return None
+
+
+def send_slack_notification(message):
+    """Send notification to Slack channel"""
+
+    logger = get_logger()
+    config_content = read_configuration()
+
+    try:
+        webhook_url = config_content.getProperty(
+            "slack.webhook_url"
+        )
+
+        payload = {
+            "text": message
+        }
+
+        response = requests.post(
+            webhook_url,
+            json=payload,
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            logger.info(
+                "Slack notification sent successfully"
+            )
+        else:
+            logger.error(
+                "Slack notification failed: %s",
+                response.text
+            )
+
+    except Exception as error:
+        logger.error(
+            "Unable to send Slack notification: %s",
+            error
+        )
+
+
+def send_mail(email_id):
+    """Send email notification"""
+
+    logger = get_logger()
+    config_content = read_configuration()
+
+    try:
+        message = emails.html(
+            html="""
+            <strong>
+            Your salary slip has been generated successfully.
+            </strong>
+            """,
+            subject="Salary Slip Notification",
+            mail_from=config_content.getProperty(
+                "smtp.from"
+            ),
+        )
+
+        message.send(
+            to=email_id,
+            smtp={
+                "host": config_content.getProperty(
+                    "smtp.smtp_server"
+                ),
+                "port": config_content.getProperty(
+                    "smtp.smtp_port"
+                ),
+            },
+        )
+
+        logger.info(
+            "Email notification sent to %s",
+            email_id
+        )
+
+        send_slack_notification(
+            f"Salary slip notification sent to {email_id}"
+        )
+
+    except Exception as error:
+        logger.error(
+            "Unable to send email notification: %s",
+            error
+        )
+
+
+def send_mail_to_all_users():
+    """Fetch users from ElasticSearch"""
+
+    logger = get_logger()
+    config_content = read_configuration()
+
+    try:
+        es_client = Elasticsearch(
+            [config_content.getProperty(
+                "elasticsearch.host"
+            )],
+            http_auth=(
+                config_content.getProperty(
+                    "elasticsearch.username"
+                ),
+                config_content.getProperty(
+                    "elasticsearch.password"
+                ),
+            ),
+            scheme="http",
+            port=config_content.getProperty(
+                "elasticsearch.port"
+            ),
+        )
+
+        result = es_client.search(
+            index="employee-management",
+            body={
+                "query": {
+                    "match_all": {}
+                }
+            }
+        )
+
+        for data in result["hits"]["hits"]:
+            send_mail(
+                data["_source"]["email_id"]
+            )
+
+    except Exception as error:
+        logger.error(
+            "ElasticSearch query execution failed: %s",
+            error
+        )
+
+
+def schedule_operation():
+    """Run notification scheduler"""
+
+    logger = get_logger()
+
+    schedule.every().hour.do(
+        send_mail_to_all_users
+    )
+
+    while True:
+        logger.info(
+            "Waiting for scheduled notification execution"
+        )
+
+        schedule.run_pending()
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-m",
+        "--mode",
+        help="""
+        Application mode:
+        scheduled or external
+        """,
+        default="scheduled"
+    )
+
+    args = parser.parse_args()
+
+    if args.mode == "scheduled":
+        schedule_operation()
+
+    else:
+        send_mail_to_all_users()
+```
+</details> 
 
 ---
 
@@ -262,8 +504,25 @@ ps aux | grep notification
 ## 8. Verify Email Notifications
 
 * Trigger notification workflow
-* Open MailHog UI
-* Verify emails are received
+```bash
+curl -X POST "http://localhost:9200/employee-management/_doc/1" \
+-H 'Content-Type: application/json' \
+-d '
+{
+  "employee_name": "Mukesh",
+  "email_id": "mukesh@test.com"
+}'
+```
+* Verify
+```bash
+curl -X GET "http://localhost:9200/employee-management/_search?pretty"
+```
+* Run Notification worker again
+
+```bash
+export CONFIG_FILE=config.yaml
+python3 notification_api.py -m external
+```
 
 MailHog UI:
 
@@ -274,7 +533,8 @@ http://<VM-IP>:8025
 <details>
 <summary>📸 <strong>Click to view Screenshot - Email Notification</strong></summary>
 
-<!-- Add Screenshot Here -->
+<img width="1842" height="974" alt="image" src="https://github.com/user-attachments/assets/c0471fe5-8d8a-4518-9155-5257faf1852f" />
+
 
 </details>
 
@@ -284,20 +544,10 @@ http://<VM-IP>:8025
 
 ## 9. Verify Slack Notifications
 
-* Trigger notification workflow
-* Open configured Slack Channel
-* Verify alert message is delivered
-
-Expected Slack Message:
-
-```text
-Salary slip notification sent successfully
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Slack Notification</strong></summary>
 
-<!-- Add Screenshot Here -->
+<img width="1842" height="974" alt="image" src="https://github.com/user-attachments/assets/0efd8277-b453-472b-afd7-56df762b7de2" />
 
 </details>
 
