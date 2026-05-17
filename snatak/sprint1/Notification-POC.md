@@ -1,4 +1,4 @@
-# <h1 align="center">POC - Notification Integration using MailHog & Slack | OT-Microservices </h1>
+# <h1 align="center">POC - Notification CI using MailHog & Slack</h1>
 
 <div align="center">
 <img width="50" alt="Python" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" />
