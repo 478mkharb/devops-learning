@@ -74,7 +74,7 @@ Slack and Email Notifications help OT-Microservices provide centralized communic
 Slack and Email Notifications are automated communication mechanisms used to notify users about application events.
 
 ### Email and Slack Notification Flow
-<img width="900" height="350" alt="notification" src="https://github.com/user-attachments/assets/7fbefad6-2045-479a-b281-0ca80edb1649" />
+<img width="1000" height="350" alt="notification" src="https://github.com/user-attachments/assets/7fbefad6-2045-479a-b281-0ca80edb1649" />
 
 
 ### Common Notification Use Cases
