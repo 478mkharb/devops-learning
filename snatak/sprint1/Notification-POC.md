@@ -1,9 +1,9 @@
 # <h1 align="center">POC - Notification Integration using MailHog & Slack | OT-Microservices </h1>
 
 <div align="center">
-<img width="100" alt="Python" src="https://www.python.org/static/community_logos/python-logo.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="120" alt="MailHog" src="https://github.com/mailhog/MailHog/raw/master/docs/images/hog.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="100" alt="Slack" src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" />
+<img width="50" alt="Python" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" />
+<img width="50" alt="Slack" src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="80" alt="mailhog" alt="mailhog" src="https://github.com/user-attachments/assets/6bb008e3-6d52-45c9-af65-1f62cfd04bf1" />
 </div>
 
 <br/>
@@ -27,10 +27,10 @@
 
   <tr>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">16/05/2026</td>
+    <td align="center">17/05/2026</td>
     <td align="center">1.0</td>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">16/05/2026</td>
+    <td align="center">17/05/2026</td>
     <td align="center">Team</td>
     <td align="center">Mohit Kumar</td>
     <td align="center">Faisal Khan</td>
@@ -50,13 +50,12 @@
 4. [Create Slack Webhook](#4-create-slack-webhook)
 5. [Update config.yaml](#5-update-configyaml)
 6. [Update notification.py](#6-update-notificationpy)
-7. [Run Notification Service](#7-run-notification-service)
-8. [Verify Email Notifications](#8-verify-email-notifications)
-9. [Verify Slack Notifications](#9-verify-slack-notifications)
-10. [Expected Results](#10-expected-results)
-11. [FAQs](#11-faqs)
-12. [Contact Information](#12-contact-information)
-13. [References](#13-references)
+7. [Trigger and Run Notification Worker](#7-trigger-and-run-notification-worker)
+8. [Verify Email and Slack Notifications](#8-verify-email-and-slack-notifications)
+9. [Expected Results](#9-expected-results)
+10. [FAQs](#10-faqs)
+11. [Contact Information](#11-contact-information)
+12. [References](#12-references)
 
 ---
 
@@ -178,14 +177,16 @@ slack:
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Update config.yaml</strong></summary>
-<img width="1439" height="567" alt="image" src="https://github.com/user-attachments/assets/3cfccf4f-6286-4489-b16b-efbecc02dd59" />
+<img width="1519" height="555" alt="image" src="https://github.com/user-attachments/assets/035b273e-a485-450b-a538-fab0b35ae2c6" />
+
 
 </details>
+
 ---
 
 <a id="6-update-notificationpy"></a>
 
-## 6. Update notification.py
+## 6. Update notification_api.py
 
 ### Install Required Python Packages
 
@@ -231,28 +232,6 @@ smtp={
     "host": config_content.getProperty("smtp.smtp_server"),
     "port": config_content.getProperty("smtp.smtp_port")
 }
-```
-
----
-
-<a id="7-run-notification-service"></a>
-
-## 7. Run Notification Service
-
-```bash
-python3 notification_api.py
-```
-
-Run in background:
-
-```bash
-nohup python3 notification_api.py > notification.log 2>&1 &
-```
-
-Verify Process:
-
-```bash
-ps aux | grep notification
 ```
 <details>
 <summary>📸 <strong>Click to view - Updated notification_api.py</strong></summary>
@@ -499,9 +478,9 @@ if __name__ == "__main__":
 
 ---
 
-<a id="8-verify-email-notifications"></a>
+<a id="7-trigger-and-run-notification-worker"></a>
 
-## 8. Verify Email Notifications
+## 7. Trigger and Run Notification Worker
 
 * Trigger notification workflow
 ```bash
@@ -523,8 +502,21 @@ curl -X GET "http://localhost:9200/employee-management/_search?pretty"
 export CONFIG_FILE=config.yaml
 python3 notification_api.py -m external
 ```
+<details>
+<summary>📸 <strong>Click to view Screenshot - Trigger and Run Notification Worker</strong></summary>
+<img width="1500" height="244" alt="image" src="https://github.com/user-attachments/assets/8fece967-59fd-43fc-9b67-32aecc4b3182" />
+<img width="1500" height="729" alt="image" src="https://github.com/user-attachments/assets/d879c3af-ffd6-4907-acd5-84287870853d" />
+<img width="1500" height="290" alt="image" src="https://github.com/user-attachments/assets/c4026cd4-40ff-475d-828e-1fbc9da38515" />
 
-MailHog UI:
+</details>
+
+---
+
+<a id="8-verify-email-and-slack-notifications"></a>
+
+## 8. Verify Email and Slack Notifications
+
+### MailHog UI:
 
 ```text
 http://<VM-IP>:8025
@@ -535,14 +527,9 @@ http://<VM-IP>:8025
 
 <img width="1842" height="974" alt="image" src="https://github.com/user-attachments/assets/c0471fe5-8d8a-4518-9155-5257faf1852f" />
 
-
 </details>
 
----
-
-<a id="9-verify-slack-notifications"></a>
-
-## 9. Verify Slack Notifications
+### Open Slack 
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Slack Notification</strong></summary>
@@ -553,9 +540,9 @@ http://<VM-IP>:8025
 
 ---
 
-<a id="10-expected-results"></a>
+<a id="9-expected-results"></a>
 
-## 10. Expected Results
+## 9. Expected Results
 
 | Component                   | Expected Result                           |
 | --------------------------- | ----------------------------------------- |
@@ -566,9 +553,9 @@ http://<VM-IP>:8025
 
 ---
 
-<a id="11-faqs"></a>
+<a id="10-faqs"></a>
 
-## 11. FAQs
+## 10. FAQs
 
 ### Q1. Why is MailHog used in this POC?
 
@@ -602,9 +589,9 @@ ElasticSearch stores searchable records used by the notification worker.
 
 ---
 
-<a id="12-contact-information"></a>
+<a id="11-contact-information"></a>
 
-## 12. Contact Information
+## 11. Contact Information
 
 | Name         | ✉️ Contact                                                                        |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -612,9 +599,9 @@ ElasticSearch stores searchable records used by the notification worker.
 
 ---
 
-<a id="13-references"></a>
+<a id="12-references"></a>
 
-## 13. References
+## 12. References
 
 | S.No | Description                 | Click to View                                                                                                                                                                       |
 | ---- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
