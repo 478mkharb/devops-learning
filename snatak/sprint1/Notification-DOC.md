@@ -65,6 +65,7 @@ Slack and Email Notifications help OT-Microservices provide centralized communic
 > [!NOTE]
 > The implementation uses the existing `notification.py` service with minimal code changes to support both Slack and Email notification delivery.
 
+[![Click Here for POC](https://img.shields.io/badge/CLICK_HERE-FOR_POC-2F2F2F?style=flat-square&logo=github&logoColor=white)](https://github.com/Snaatak-Infra-Titans/Documentations/blob/SCRUM-141-mukesh/Application_CI_Design/Generic_CI_Operations/Notifications/POC/README.md)
 ---
 
 <a id="2-what-are-slack-and-email-notifications"></a>
