@@ -364,11 +364,11 @@ This POC successfully demonstrates automated Continuous Deployment (CD) using An
 
 ## 12. References
 
-| S.No | Description                | Link                                                                                           |
-| ---- | -------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1    | Ansible Documentation      | [https://docs.ansible.com/](https://docs.ansible.com/)                                         |
-| 2    | Ansible Galaxy             | [https://galaxy.ansible.com/](https://galaxy.ansible.com/)                                     |
-| 3    | Ansible Lint Documentation | [https://ansible.readthedocs.io/projects/lint/](https://ansible.readthedocs.io/projects/lint/) |
-| 4    | GitHub Documentation       | [https://docs.github.com/](https://docs.github.com/)                                           |
-| 5    | YAML Documentation         | [https://yaml.org/spec/](https://yaml.org/spec/)                                               |
-| 6    | OpenSSH Documentation      | [https://www.openssh.com/manual.html](https://www.openssh.com/manual.html)                     |
+| S.No | Description                | Reference Link |
+| ---- | -------------------------- | -------------- |
+| 1 | Ansible Documentation | [![Ansible Docs](https://img.shields.io/badge/ANSIBLE-DOCUMENTATION-2F2F2F?style=flat-square&logo=ansible&logoColor=white)](https://docs.ansible.com/) |
+| 2 | Ansible Galaxy | [![Ansible Galaxy](https://img.shields.io/badge/ANSIBLE-GALAXY-3A3A3A?style=flat-square&logo=ansible&logoColor=white)](https://galaxy.ansible.com/) |
+| 3 | Ansible Lint Documentation | [![Ansible Lint](https://img.shields.io/badge/ANSIBLE-LINT-404040?style=flat-square&logo=ansible&logoColor=white)](https://ansible.readthedocs.io/projects/lint/) |
+| 4 | GitHub Documentation | [![GitHub Docs](https://img.shields.io/badge/GITHUB-DOCUMENTATION-1F1F1F?style=flat-square&logo=github&logoColor=white)](https://docs.github.com/) |
+| 5 | YAML Documentation | [![YAML Docs](https://img.shields.io/badge/YAML-DOCUMENTATION-4A4A4A?style=flat-square&logo=yaml&logoColor=white)](https://yaml.org/spec/) |
+| 6 | OpenSSH Documentation | [![OpenSSH Docs](https://img.shields.io/badge/OPENSSH-DOCUMENTATION-2B2B2B?style=flat-square&logo=gnubash&logoColor=white)](https://www.openssh.com/manual.html) |
