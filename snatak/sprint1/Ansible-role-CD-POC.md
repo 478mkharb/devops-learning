@@ -1,4 +1,4 @@
-# <h1 align="center">POC - Ansible Role CD using Ansible Playbook </h1>
+# <h1 align="center">POC - Ansible Role CD using Ansible Role </h1>
 
 <div align="center">
 <img width="100" alt="Ansible" src="https://upload.wikimedia.org/wikipedia/commons/2/24/Ansible_logo.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
