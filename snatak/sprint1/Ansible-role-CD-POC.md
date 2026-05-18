@@ -30,9 +30,9 @@
     <td align="center">Mukesh Kharb</td>
     <td align="center">17/05/2026</td>
     <td align="center">Team</td>
-    <td align="center">Prince Batra</td>
-    <td align="center">Nikita Joshi</td>
-    <td align="center">Piyush Upadhyay</td>
+    <td align="center">Mohit Kumar</td>
+    <td align="center">Faisal Khan</td>
+    <td align="center">Mahesh Kumar</td>
   </tr>
 </table>
 
@@ -79,7 +79,6 @@ This approach ensures consistent and repeatable infrastructure deployments acros
 | ------------------ | -------------------- |
 | OS                 | Ubuntu 22.04         |
 | Automation Tool    | Ansible              |
-| Version Control    | GitHub               |
 | Runtime            | Python 3             |
 | Deployment Method  | SSH                  |
 | Target Environment | Ubuntu Managed Nodes |
@@ -88,41 +87,26 @@ This approach ensures consistent and repeatable infrastructure deployments acros
 
 ## 3. Install Required Packages
 
-Update system packages:
-
-```bash
-sudo apt update
-```
-
 Install required dependencies:
 
 ```bash
 sudo apt install -y python3 python3-pip git openssh-client sshpass
 ```
 
-Install Ansible:
+Install Ansible and Verify installation:
 
 ```bash
 sudo apt install -y ansible
-```
-
-Verify installation:
-
-```bash
 ansible --version
 ```
 
-Install ansible-lint:
+Install and Verify ansible-lint:
 
 ```bash
 pip3 install ansible-lint
-```
-
-Verify ansible-lint:
-
-```bash
 ansible-lint --version
 ```
+
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Installation of Required Packages</strong></summary>
@@ -158,15 +142,10 @@ roles/
     └── README.md
 ```
 
-Navigate to task directory:
+Navigate to task directory and Create main task file:
 
 ```bash
 cd roles/webserver/tasks
-```
-
-Create main task file:
-
-```bash
 nano main.yml
 ```
 
@@ -210,7 +189,7 @@ Create production inventory:
 nano inventory/prod
 ```
 
-Example inventory:
+Add Node:
 
 ```ini
 [web]
