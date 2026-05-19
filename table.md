@@ -41,8 +41,8 @@
 <td>01</td> <!-- To Do -->
 <td>01</td> <!-- In Progress -->
 <td>01</td> <!-- Internal Review -->
-<td>07</td> <!-- L0 -->
-<td>00</td> <!-- L1 -->
+<td>04</td> <!-- L0 -->
+<td>03</td> <!-- L1 -->
 <td>00</td> <!-- L2 -->
 </tr>
 
