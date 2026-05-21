@@ -47,8 +47,8 @@
 1. [Introduction](#1-introduction)
 2. [Purpose of VCS Notifications](#2-purpose-of-vcs-notifications)
 3. [Supported Notification Events](#3-supported-notification-events)
-4. [Architecture Workflow](#4-architecture-workflow)
-5. [Prerequisites](#5-prerequisites)
+4. [Prerequisites](#4-prerequisites)
+5. [Architecture Workflow](#5-architecture-workflow)
 6. [Step-by-step Setup Guide](#6-step-by-step-setup-guide)
    * [6.1 Install GitHub Slack App](#61-install-github-slack-app)
    * [6.2 Connect GitHub Account](#62-connect-github-account)
@@ -59,8 +59,9 @@
 7. [Advantages](#7-advantages)
 8. [Best Practices](#8-best-practices)
 9. [Conclusion](#9-conclusion)
-10. [Contact Information](#10-contact-information)
-11. [References](#11-references)
+10. [FAQs](#10-faqs)
+11. [Contact Information](#11-contact-information)
+12. [References](#12-references)
 
 ---
 
@@ -105,26 +106,25 @@ GitHub notifications can be integrated with Slack channels and Email alerts to i
 | Email Notification     | Email alerts for repository activities |
 
 ---
+<a id="4-prerequisites"></a>
 
-<a id="4-architecture-workflow"></a>
-
-## 4. Architecture Workflow
-
-> <img width="1000" alt="workflow" src="https://github.com/user-attachments/assets/6f8f21c7-1a84-4b54-b4b8-6f9f6bce6f90" />
-
----
-
-<a id="5-prerequisites"></a>
-
-## 5. Prerequisites
+## 4. Prerequisites
 
 | Requirement       | Description                              |
 | ----------------- | ---------------------------------------- |
 | GitHub Repository | Repository access with admin permissions |
 | Slack Workspace   | Slack channel for notifications          |
-| Internet Access   | Required for GitHub-Slack communication  |
 | GitHub Account    | Required for repository subscriptions    |
-| Email Access      | Required for GitHub email notifications  |
+
+
+---
+
+<a id="5-architecture-workflow"></a>
+
+## 5. Architecture Workflow
+
+> <img width="1500" height="800" alt="image" src="https://github.com/user-attachments/assets/6d1dc16e-518f-471f-a8ff-c8655ba17fd7" />
+
 
 ---
 
@@ -346,10 +346,24 @@ GitHub notifications integrated with Slack and Email improve collaboration, oper
 Properly configured notifications help teams respond quickly to Pull Requests, commits, branch operations, and merge activities.
 
 ---
+<a id="10-faqs"></a>
+## 10. FAQs
 
-<a id="10-contact-information"></a>
+### Q1. What is the purpose of integrating GitHub notifications with Slack?
+**Answer:** GitHub Slack integration provides real-time alerts for Pull Requests, commits, comments, and merge activities directly inside team communication channels.
 
-## 10. Contact Information
+### Q2. How are email notifications configured for repository activities?
+**Answer:** Email notifications are configured either through repository notification settings or by enabling GitHub Watch notifications individually for team members.
+
+### Q3. Why are branch create/delete notifications sometimes not received in Slack?
+**Answer:** The official GitHub Slack App has limited native support for branch create and delete event notifications.
+
+### Q4. How can notification issues be troubleshooted if Slack alerts are not received?
+**Answer:** Verify GitHub account authentication, repository subscription status, GitHub bot channel access, and Slack workspace permissions.
+
+<a id="11-contact-information"></a>
+
+## 11. Contact Information
 
 | Name         | ✉️ Contact                                                                        |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -357,9 +371,9 @@ Properly configured notifications help teams respond quickly to Pull Requests, c
 
 ---
 
-<a id="11-references"></a>
+<a id="12-references"></a>
 
-## 11. References
+## 12. References
 
 | S.No | Description                        | Click to View                                                                                                                                                                                   |
 | ---- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
