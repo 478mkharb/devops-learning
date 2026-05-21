@@ -286,6 +286,7 @@ Slack channel and configured email accounts will receive notifications.
 <img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/7ecb261b-a684-40a5-bc58-189dd3d81c66" />
 
 <img width="1693" height="952" alt="image" src="https://github.com/user-attachments/assets/6b05d406-a8c9-41b9-a92d-d79fb131891a" />
+<img width="1836" height="972" alt="image" src="https://github.com/user-attachments/assets/2280d8c4-e2c6-4183-a7b2-291a4d45e147" />
 
 ---
 
