@@ -155,7 +155,11 @@ Authorize:
 * Slack Workspace
 * GitHub Account
 
+<details>
+<summary>📸 <strong>Click to view Screenshot - Install GitHub Slack App</strong></summary>
+
 <img width="1853" height="985" alt="image" src="https://github.com/user-attachments/assets/6db6b508-8953-4dc7-bc9f-143982e216d2" />
+</details>
 
 ---
 
@@ -171,8 +175,11 @@ Authenticate GitHub account with Slack:
 
 Authorize the required GitHub account in browser.
 
-<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/a6282347-7e8f-4757-b558-27f4a3bd555e" />
+<details>
+<summary>📸 <strong>Click to view Screenshot - Connect GitHub Account</strong></summary>
 
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/a6282347-7e8f-4757-b558-27f4a3bd555e" />
+</details>
 
 ---
 
@@ -197,7 +204,11 @@ Verify:
 ```text
 @GitHub joined the channel
 ```
+<details>
+<summary>📸 <strong>Click to view Screenshot - Invite GitHub Bot to Slack Channel</strong></summary>
+  
 <img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/b7e7ac74-b8e5-48d7-bc40-462ec6575a1b" />
+</details>
 
 ---
 
@@ -216,9 +227,10 @@ Enable repository notifications:
 ```bash
 /github subscribe 478mkharb/Infra-Titans pulls commits comments branches merges
 ```
-
+<details>
+<summary>📸 <strong>Click to view Screenshot - Configure Repository Notifications</strong></summary>
 <img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/00aa1e7c-091d-4510-a6f9-5f643fe49c98" />
-
+</details>
 
 ### Recommended Branches
 
@@ -251,7 +263,10 @@ Enable:
 
 Team members can subscribe to repository activities using GitHub Watch Notifications to receive email alerts for Pull Requests, reviews, commits, and merges.
 
+<details>
+<summary>📸 <strong>Click to view Screenshot - Configure Email Notifications</strong></summary>
 <img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/9470e36c-4f41-4c28-bd6d-63ae2e768bf1" />
+</details>
 
 ---
 
@@ -281,12 +296,14 @@ git push origin feature/slack-pr-test
 
 Slack channel and configured email accounts will receive notifications.
 
+<details>
+<summary>📸 <strong>Click to view Screenshot - Configure Email Notifications</strong></summary>
+
 <img width="1451" height="938" alt="image" src="https://github.com/user-attachments/assets/d56d1886-37d4-455f-963e-7ec9b5241160" />
-
 <img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/7ecb261b-a684-40a5-bc58-189dd3d81c66" />
-
 <img width="1693" height="952" alt="image" src="https://github.com/user-attachments/assets/6b05d406-a8c9-41b9-a92d-d79fb131891a" />
 <img width="1836" height="972" alt="image" src="https://github.com/user-attachments/assets/2280d8c4-e2c6-4183-a7b2-291a4d45e147" />
+</details>
 
 ---
 
