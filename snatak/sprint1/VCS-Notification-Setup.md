@@ -1,8 +1,9 @@
-# <h1 align="center">Documentation - VCS Notifications | Code Events & Branch Merge Alerts </h1>
+# <h1 align="center">Documentation - VCS Notifications | Slack & Email Alerts </h1>
 
 <div align="center">
-<img width="100" alt="GitHub" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img width="80" alt="GitHub" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <img width="80" alt="Slack" src="https://cdn-icons-png.flaticon.com/512/2111/2111615.png" />
+<img width="80" alt="Email" src="https://cdn-icons-png.flaticon.com/512/732/732200.png" />
 </div>
 
 <br/>
@@ -26,10 +27,10 @@
 
   <tr>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">19/05/2026</td>
+    <td align="center">21/05/2026</td>
     <td align="center">1.0</td>
     <td align="center">Mukesh Kharb</td>
-    <td align="center">19/05/2026</td>
+    <td align="center">21/05/2026</td>
     <td align="center">Team</td>
     <td align="center">Mohit Kumar</td>
     <td align="center">Faisal Khan</td>
@@ -49,364 +50,288 @@
 4. [Architecture Workflow](#4-architecture-workflow)
 5. [Prerequisites](#5-prerequisites)
 6. [Step-by-step Setup Guide](#6-step-by-step-setup-guide)
-
-   * [6.1 Configure Repository Webhooks](#61-configure-repository-webhooks)
-   * [6.2 Configure Pull Request / Merge Request Notifications](#62-configure-pull-request--merge-request-notifications)
-   * [6.3 Configure Commit Push Notifications](#63-configure-commit-push-notifications)
-   * [6.4 Configure Branch Create/Delete Notifications](#64-configure-branch-createdelete-notifications)
-   * [6.5 Configure Branch Merge Notifications](#65-configure-branch-merge-notifications)
-   * [6.6 Configure Slack Channel Integration](#66-configure-slack-channel-integration)
-7. [Notification Event Examples](#7-notification-event-examples)
-8. [Advantages](#8-advantages)
-9. [Best Practices](#9-best-practices)
-10. [Conclusion](#10-conclusion)
-11. [Contact Information](#11-contact-information)
-12. [References](#12-references)
+   * [6.1 Install GitHub Slack App](#61-install-github-slack-app)
+   * [6.2 Connect GitHub Account](#62-connect-github-account)
+   * [6.3 Invite GitHub Bot to Slack Channel](#63-invite-github-bot-to-slack-channel)
+   * [6.4 Configure Repository Notifications](#64-configure-repository-notifications)
+   * [6.5 Configure Email Notifications](#65-configure-email-notifications)
+   * [6.6 Verify Notifications](#66-verify-notifications)
+7. [Advantages](#7-advantages)
+8. [Best Practices](#8-best-practices)
+9. [Conclusion](#9-conclusion)
+10. [Contact Information](#10-contact-information)
+11. [References](#11-references)
 
 ---
 
 <a id="1-introduction"></a>
 
-# 1. Introduction
+## 1. Introduction
 
-Version Control System (VCS) notifications provide real-time visibility into repository activities such as Pull Request creation, Merge Request updates, code pushes, branch operations, and branch merges.
+Version Control System (VCS) notifications provide real-time visibility into repository activities such as Pull Request creation, commits, branch operations, and merge events.
 
-These notifications help DevOps, Development, and QA teams monitor repository activities continuously and improve collaboration across CI/CD workflows.
-
-Notifications can be integrated with communication platforms such as Slack, Microsoft Teams, Email, or Discord using repository webhooks.
+GitHub notifications can be integrated with Slack channels and Email alerts to improve collaboration, CI/CD monitoring, and deployment visibility.
 
 ---
 
 <a id="2-purpose-of-vcs-notifications"></a>
 
-# 2. Purpose of VCS Notifications
+## 2. Purpose of VCS Notifications
 
-| Purpose              | Description                                   |
-| -------------------- | --------------------------------------------- |
-| Real-time Monitoring | Tracks repository activities instantly        |
-| Faster Collaboration | Helps teams review changes quickly            |
-| Deployment Awareness | Alerts teams about production merges          |
-| Audit Visibility     | Maintains visibility of branch operations     |
-| CI/CD Integration    | Enables automation based on repository events |
-| Incident Tracking    | Helps identify unauthorized changes           |
+| Purpose              | Description                              |
+| -------------------- | ---------------------------------------- |
+| Real-time Monitoring | Tracks repository activities instantly   |
+| Faster Collaboration | Helps teams review changes quickly       |
+| Deployment Awareness | Alerts teams about production merges     |
+| Audit Visibility     | Maintains repository activity visibility |
+| CI/CD Integration    | Enables automated workflow awareness     |
+| Incident Tracking    | Helps identify risky changes quickly     |
 
 ---
 
 <a id="3-supported-notification-events"></a>
 
-# 3. Supported Notification Events
+## 3. Supported Notification Events
 
-| Event Type             | Description                                                        |
-| ---------------------- | ------------------------------------------------------------------ |
-| Pull Request Created   | Trigger notification when PR is opened                             |
-| Pull Request Updated   | Trigger notification when commits are added                        |
-| Pull Request Commented | Trigger notification when review comments are added                |
-| Commit Push            | Trigger notification when commits are pushed to important branches |
-| Branch Created         | Notify when a new branch is created                                |
-| Branch Deleted         | Notify when a branch is removed                                    |
-| Branch Merge           | Notify when PR/MR is merged                                        |
-| Release Tag Push       | Notify when release tags are pushed                                |
+| Event                  | Description                            |
+| ---------------------- | -------------------------------------- |
+| Pull Request Opened    | PR creation notification               |
+| Pull Request Updated   | New commits pushed to PR               |
+| Pull Request Commented | Reviewer comments                      |
+| Pull Request Merged    | Merge completion notification          |
+| Commit Push            | Push notifications                     |
+| Branch Created         | Branch creation alerts                 |
+| Branch Deleted         | Branch deletion alerts                 |
+| Email Notification     | Email alerts for repository activities |
 
 ---
 
 <a id="4-architecture-workflow"></a>
 
-# 4. Architecture Workflow
+## 4. Architecture Workflow
 
-> <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/41158008-f3a1-487a-8ce1-f646c9cfaec9" />
-
+> <img width="1000" alt="workflow" src="https://github.com/user-attachments/assets/6f8f21c7-1a84-4b54-b4b8-6f9f6bce6f90" />
 
 ---
 
 <a id="5-prerequisites"></a>
 
-# 5. Prerequisites
+## 5. Prerequisites
 
-| Requirement                | Description                              |
-| -------------------------- | ---------------------------------------- |
-| GitHub / GitLab Repository | Repository access with admin permissions |
-| Slack Workspace            | Slack channel for notifications          |
-| Webhook URL                | Slack Incoming Webhook URL               |
+| Requirement       | Description                              |
+| ----------------- | ---------------------------------------- |
+| GitHub Repository | Repository access with admin permissions |
+| Slack Workspace   | Slack channel for notifications          |
+| Internet Access   | Required for GitHub-Slack communication  |
+| GitHub Account    | Required for repository subscriptions    |
+| Email Access      | Required for GitHub email notifications  |
 
 ---
 
 <a id="6-step-by-step-setup-guide"></a>
 
-# 6. Step-by-step Setup Guide
+## 6. Step-by-step Setup Guide
 
 ---
 
-<a id="61-configure-repository-webhooks"></a>
+<a id="61-install-github-slack-app"></a>
 
-## 6.1 Configure Repository Webhooks
+### 6.1 Install GitHub Slack App
 
-### GitHub Webhook Configuration
-
-Navigate to:
+Open:
 
 ```text
-Repository → Settings → Webhooks → Add webhook
+https://slack.github.com/
 ```
-
-Configure:
-
-| Field            | Value                      |
-| ---------------- | -------------------------- |
-| Payload URL      | Slack Incoming Webhook URL |
-| Content Type     | application/json           |
-| Secret           | Optional                   |
-| SSL Verification | Enable                     |
-| Trigger Events   | Select individual events   |
 
 Click:
 
 ```text
-Add webhook
+Add to Slack
 ```
+
+Authorize:
+
+* Slack Workspace
+* GitHub Account
+
+<img width="1853" height="985" alt="image" src="https://github.com/user-attachments/assets/6db6b508-8953-4dc7-bc9f-143982e216d2" />
 
 ---
 
-### GitLab Webhook Configuration
+<a id="62-connect-github-account"></a>
 
-Navigate to:
+### 6.2 Connect GitHub Account
 
-```text
-Project → Settings → Webhooks
+Authenticate GitHub account with Slack:
+
+```bash
+/github signin
 ```
 
-Configure:
+Authorize the required GitHub account in browser.
 
-| Field            | Value                               |
-| ---------------- | ----------------------------------- |
-| URL              | Slack Incoming Webhook URL          |
-| Trigger          | Push Events, Merge Events, Comments |
-| SSL Verification | Enable                              |
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/a6282347-7e8f-4757-b558-27f4a3bd555e" />
 
-Save webhook configuration.
 
 ---
 
-<a id="62-configure-pull-request--merge-request-notifications"></a>
+<a id="63-invite-github-bot-to-slack-channel"></a>
 
-## 6.2 Configure Pull Request / Merge Request Notifications
+### 6.3 Invite GitHub Bot to Slack Channel
 
-Enable the following webhook events:
-
-| Event                    | Description        |
-| ------------------------ | ------------------ |
-| Pull Request Opened      | New PR created     |
-| Pull Request Synchronize | New commits pushed |
-| Pull Request Review      | Reviewer activity  |
-| Issue Comment            | PR comments        |
-
-### GitHub Event Selection
+Open Slack channel:
 
 ```text
-Pull requests
-Issue comments
-Pull request reviews
+#ot-micro-infra-titans
 ```
 
-### GitLab Event Selection
+Run:
+
+```bash
+/invite @GitHub
+```
+
+Verify:
 
 ```text
-Merge request events
-Comments
+@GitHub joined the channel
 ```
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/b7e7ac74-b8e5-48d7-bc40-462ec6575a1b" />
 
 ---
 
-<a id="63-configure-commit-push-notifications"></a>
+<a id="64-configure-repository-notifications"></a>
 
-## 6.3 Configure Commit Push Notifications
+### 6.4 Configure Repository Notifications
 
-Configure push event monitoring for important branches.
+Subscribe repository:
+
+```bash
+/github subscribe 478mkharb/Infra-Titans
+```
+
+Enable repository notifications:
+
+```bash
+/github subscribe 478mkharb/Infra-Titans pulls commits comments branches merges
+```
+
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/00aa1e7c-091d-4510-a6f9-5f643fe49c98" />
+
 
 ### Recommended Branches
 
-| Branch    | Purpose                 |
-| --------- | ----------------------- |
-| main      | Production              |
-| develop   | Development integration |
-| release/* | Release pipelines       |
-| hotfix/*  | Emergency fixes         |
-
-### GitHub Push Event
-
-Enable:
-
-```text
-Pushes
-```
-
-### Example Notification Payload
-
-```json
-{
-  "branch": "main",
-  "author": "developer1",
-  "commit_message": "Fixed authentication issue"
-}
-```
+| Branch    | Purpose          |
+| --------- | ---------------- |
+| main      | Production       |
+| develop   | Development      |
+| release/* | Release branches |
+| hotfix/*  | Emergency fixes  |
 
 ---
 
-<a id="64-configure-branch-createdelete-notifications"></a>
+<a id="65-configure-email-notifications"></a>
 
-## 6.4 Configure Branch Create/Delete Notifications
-
-Enable branch activity monitoring.
-
-### GitHub Events
-
-```text
-Create
-Delete
-```
-
-### GitLab Events
-
-```text
-Push Events
-```
-
-Branch creation and deletion events help teams monitor repository hygiene and unauthorized branch activity.
-
----
-
-<a id="65-configure-branch-merge-notifications"></a>
-
-## 6.5 Configure Branch Merge Notifications
-
-Branch merge notifications are triggered whenever Pull Requests or Merge Requests are merged into important branches.
-
-### Important Merge Targets
-
-| Branch    | Description                  |
-| --------- | ---------------------------- |
-| main      | Production deployment branch |
-| develop   | Shared integration branch    |
-| release/* | Release branches             |
-
-### GitHub Merge Notification Flow
-
-```text
-Pull Request → Review Approved → Merge → Webhook Triggered → Slack Notification
-```
-
-### GitLab Merge Notification Flow
-
-```text
-Merge Request → Approval → Merge → Notification Triggered
-```
-
-### Example Merge Notification
-
-```text
-PR #142 merged successfully into main branch by Mukesh Kharb
-```
-
----
-
-<a id="66-configure-slack-channel-integration"></a>
-
-## 6.6 Configure Slack Channel Integration
-
-### Create Slack Incoming Webhook
+### 6.5 Configure Email Notifications
 
 Navigate to:
 
 ```text
-Slack API → Apps → Incoming Webhooks
+GitHub Repository → Settings → Notifications
 ```
 
 Enable:
 
-```text
-Activate Incoming Webhooks
-```
+* Pull Request notifications
+* Commit notifications
+* Review comments
+* Branch activity alerts
+* Merge notifications
 
-Create webhook for required channel.
+Team members can subscribe to repository activities using GitHub Watch Notifications to receive email alerts for Pull Requests, reviews, commits, and merges.
 
-Example:
-
-```text
-https://hooks.slack.com/services/XXXX/YYYY/ZZZZ
-```
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/9470e36c-4f41-4c28-bd6d-63ae2e768bf1" />
 
 ---
 
-### Test Notification
+<a id="66-verify-notifications"></a>
 
-Example CURL command:
+### 6.6 Verify Notifications
+
+Create test branch:
 
 ```bash
-curl -X POST -H 'Content-type: application/json' \
---data '{"text":"VCS Notification Test Successful"}' \
-https://hooks.slack.com/services/XXXX/YYYY/ZZZZ
+git checkout -b feature/slack-pr-test
 ```
 
----
+Create test file and Commit changes:
 
-<a id="7-notification-event-examples"></a>
+```bash
+touch demo.txt
+git add .
+git commit -m "Testing PR notifications"
+```
 
-# 7. Notification Event Examples
+Push branch:
 
-| Event           | Example Notification             |
-| --------------- | -------------------------------- |
-| PR Created      | PR #25 created by developer1     |
-| PR Updated      | New commits pushed to PR #25     |
-| PR Comment      | Reviewer commented on PR #25     |
-| Commit Push     | Commit pushed to develop branch  |
-| Branch Created  | feature/login-api branch created |
-| Branch Deleted  | feature/test branch deleted      |
-| Merge Completed | PR #25 merged into main          |
+```bash
+git push origin feature/slack-pr-test
+```
 
----
+Slack channel and configured email accounts will receive notifications.
 
-<a id="8-advantages"></a>
+<img width="1451" height="938" alt="image" src="https://github.com/user-attachments/assets/d56d1886-37d4-455f-963e-7ec9b5241160" />
 
-# 8. Advantages
+<img width="1837" height="985" alt="image" src="https://github.com/user-attachments/assets/7ecb261b-a684-40a5-bc58-189dd3d81c66" />
 
-| Advantage                 | Description                            |
-| ------------------------- | -------------------------------------- |
-| Faster Reviews            | Immediate visibility of PR activity    |
-| Better Collaboration      | Teams stay informed continuously       |
-| Improved Security         | Detects unauthorized branch operations |
-| CI/CD Awareness           | Provides deployment visibility         |
-| Reduced Communication Gap | Centralized repository alerts          |
-| Faster Incident Response  | Teams react quickly to risky changes   |
+<img width="1693" height="952" alt="image" src="https://github.com/user-attachments/assets/6b05d406-a8c9-41b9-a92d-d79fb131891a" />
 
 ---
 
-<a id="9-best-practices"></a>
+<a id="7-advantages"></a>
 
-# 9. Best Practices
+## 7. Advantages
 
-| Best Practice                | Description                             |
-| ---------------------------- | --------------------------------------- |
-| Monitor Critical Branches    | Focus on production-impacting branches  |
-| Use Dedicated Channels       | Separate CI/CD alerts from general chat |
-| Enable SSL Verification      | Secure webhook communication            |
-| Avoid Notification Spam      | Filter unnecessary branch events        |
-| Restrict Webhook Access      | Use repository admin permissions        |
-| Audit Webhook Configurations | Periodically validate webhook URLs      |
-
----
-
-<a id="10-conclusion"></a>
-
-# 10. Conclusion
-
-VCS notifications improve collaboration, operational visibility, and deployment awareness by providing real-time alerts for repository activities. Integrating GitHub or GitLab with Slack using webhooks enables centralized monitoring of Pull Requests, commits, branch operations, and merge activities.
-
-Properly configured notifications reduce response time, improve review efficiency, and strengthen CI/CD governance across development workflows.
+| Advantage                 | Description                              |
+| ------------------------- | ---------------------------------------- |
+| Faster Reviews            | Immediate PR visibility                  |
+| Better Collaboration      | Teams stay informed continuously         |
+| Improved Security         | Detects unauthorized repository activity |
+| CI/CD Awareness           | Provides deployment visibility           |
+| Email Backup Alerts       | Notifications remain accessible offline  |
+| Reduced Communication Gap | Centralized repository alerts            |
 
 ---
 
-<a id="11-contact-information"></a>
+<a id="8-best-practices"></a>
 
-# 11. Contact Information
+## 8. Best Practices
+
+| Best Practice               | Description                             |
+| --------------------------- | --------------------------------------- |
+| Monitor Critical Branches   | Focus on production-impacting branches  |
+| Use Dedicated Channels      | Separate CI/CD alerts from general chat |
+| Avoid Notification Spam     | Filter unnecessary branch events        |
+| Restrict Repository Access  | Use proper GitHub permissions           |
+| Audit Notification Settings | Periodically validate subscriptions     |
+| Enable Email Alerts         | Maintain offline visibility             |
+
+---
+
+<a id="9-conclusion"></a>
+
+## 9. Conclusion
+
+GitHub notifications integrated with Slack and Email improve collaboration, operational visibility, and deployment awareness. Using the GitHub Slack App simplifies repository monitoring without requiring custom webhooks or middleware.
+
+Properly configured notifications help teams respond quickly to Pull Requests, commits, branch operations, and merge activities.
+
+---
+
+<a id="10-contact-information"></a>
+
+## 10. Contact Information
 
 | Name         | ✉️ Contact                                                                        |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -414,14 +339,13 @@ Properly configured notifications reduce response time, improve review efficienc
 
 ---
 
-<a id="12-references"></a>
+<a id="11-references"></a>
 
-# 12. References
+## 11. References
 
-| S.No | Description                   | Click to View                                                                                                                                                                                             |
-| ---- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | GitHub Webhooks Documentation | [![GitHub Webhooks](https://img.shields.io/badge/GitHub-WEBHOOKS-2F2F2F?style=flat-square\&logo=github\&logoColor=white)](https://docs.github.com/en/webhooks)                                            |
-| 2    | GitLab Webhooks Documentation | [![GitLab Webhooks](https://img.shields.io/badge/GitLab-WEBHOOKS-3A3A3A?style=flat-square\&logo=gitlab\&logoColor=white)](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html)             |
-| 3    | Slack Incoming Webhooks       | [![Slack Webhooks](https://img.shields.io/badge/Slack-INCOMING_WEBHOOKS-1F1F1F?style=flat-square\&logo=slack\&logoColor=white)](https://api.slack.com/messaging/webhooks)                                 |
-| 4    | GitHub Pull Request Events    | [![GitHub PR Events](https://img.shields.io/badge/GitHub-PR_EVENTS-404040?style=flat-square\&logo=github\&logoColor=white)](https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request) |
-| 5    | GitLab Merge Request Events   | [![GitLab MR Events](https://img.shields.io/badge/GitLab-MR_EVENTS-2B2B2B?style=flat-square\&logo=gitlab\&logoColor=white)](https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html)     |
+| S.No | Description                        | Click to View                                                                                                                                                                                   |
+| ---- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | GitHub Slack Integration           | [![GitHub Slack](https://img.shields.io/badge/GitHub-Slack_Integration-2F2F2F?style=flat-square\&logo=github\&logoColor=white)](https://slack.github.com/)                                      |
+| 2    | GitHub Notifications Documentation | [![GitHub Notifications](https://img.shields.io/badge/GitHub-NOTIFICATIONS-3A3A3A?style=flat-square\&logo=github\&logoColor=white)](https://docs.github.com/en/subscriptions-and-notifications) |
+| 3    | Slack Documentation                | [![Slack Docs](https://img.shields.io/badge/Slack-DOCUMENTATION-1F1F1F?style=flat-square\&logo=slack\&logoColor=white)](https://slack.com/help)                                                 |
+| 4    | GitHub Repository Settings         | [![GitHub Settings](https://img.shields.io/badge/GitHub-REPOSITORY_SETTINGS-404040?style=flat-square\&logo=github\&logoColor=white)](https://docs.github.com/en/repositories)                   |
