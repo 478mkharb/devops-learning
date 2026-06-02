@@ -169,7 +169,6 @@ The following categories of Jenkins plugins are commonly used in enterprise CI/C
 | --------------------------- | ------------------------------ |
 | Terraform Plugin            | Execute Terraform commands     |
 | Config File Provider Plugin | Manage Terraform configuration |
-| AWS Credentials Plugin      | AWS authentication             |
 
 </td>
 </tr>
