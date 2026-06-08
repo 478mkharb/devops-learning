@@ -45,14 +45,8 @@
 2. [Purpose of Jenkins Plugins](#2-purpose-of-jenkins-plugins)
 3. [Role of Jenkins Plugins in CI/CD Workflow](#3-role-of-jenkins-plugins-in-cicd-workflow)
 4. [Different Categories of Jenkins Plugins](#4-different-categories-of-jenkins-plugins)
-   * [4.1 Core Jenkins Plugins](#41-core-jenkins-plugins)
-   * [4.2 Terraform Plugins](#42-terraform-plugins)
-   * [4.3 Ansible Plugins](#43-ansible-plugins)
-   * [4.4 SAST Plugins](#44-sast-plugins)
-   * [4.5 DAST Plugins](#45-dast-plugins)
-   * [4.6 Build Tool Plugins](#46-build-tool-plugins)
-   * [4.7 Reporting Plugins](#47-reporting-plugins)
-   * [4.8 AWS Plugins](#48-aws-plugins)
+   * [4.1 Essential Jenkins Plugins](#41-essential-jenkins-plugins)
+   * [4.2 Tools Installed Outside Jenkins](#42-tools-installed-outside-jenkins)
 5. [Access Jenkins Plugin Manager](#5-access-jenkins-plugin-manager)
 6. [Jenkins Plugin Installation Methods](#6-jenkins-plugin-installation-methods)
 7. [Plugin Verification](#7-plugin-verification)
@@ -184,14 +178,16 @@ The following tools should be installed on Jenkins agents or target servers rath
 
 </table>
 
-### Why Install These Tools Outside Jenkins?
-
-* Reduces Jenkins plugin dependencies.
-* Simplifies Jenkins upgrades.
-* Improves platform stability.
-* Reduces security risks.
-* Enables reuse across different CI/CD platforms.
-* Aligns with modern DevOps and Infrastructure-as-Code practices.
+> [!NOTE]
+> Although Jenkins plugins exist for tools such as Terraform, Ansible, SonarQube, OWASP Dependency-Check, and OWASP ZAP, it is generally recommended to install and execute these tools directly on Jenkins agents rather than relying on Jenkins-specific plugins.
+>
+> Benefits:
+> - Reduces Jenkins plugin dependencies.
+> - Simplifies Jenkins upgrades and maintenance.
+> - Improves platform stability and reliability.
+> - Minimizes security risks associated with excessive plugins.
+> - Enables reuse across multiple CI/CD platforms.
+> - Aligns with modern DevOps and Infrastructure-as-Code (IaC) practices.
   
 ---
 
@@ -353,35 +349,64 @@ Ansible can automate Jenkins installation, plugin management, configuration back
 
 ### Q1. Why are Jenkins plugins required?
 
-Jenkins plugins extend Jenkins functionality and enable integrations with Terraform, Ansible, SonarQube, OWASP ZAP, AWS, and build tools.
+Jenkins plugins extend Jenkins capabilities for source control integration, pipeline execution, credential management, report publishing, and deployment automation.
 
 ---
 
-### Q2. Which plugins are mandatory for enterprise CI/CD pipelines?
+### Q2. Which plugins are required for a modern CI/CD platform?
 
-Commonly used plugins include Git Plugin, Pipeline Plugin, Terraform Plugin, Ansible Plugin, SonarQube Scanner Plugin, and OWASP ZAP Plugin.
+Recommended plugins:
+
+* Git Plugin
+* Pipeline Plugin
+* Credentials Plugin
+* Credentials Binding Plugin
+* SSH Agent Plugin
+* AWS Credentials Plugin
+* Config File Provider Plugin
+* JUnit Plugin
+* HTML Publisher Plugin
+* Workspace Cleanup Plugin
 
 ---
 
-### Q3. Why is SonarQube Scanner Plugin required?
+### Q3. Should Terraform Plugin be installed?
 
-It enables Static Application Security Testing (SAST) and code quality analysis.
+No.
 
----
-
-### Q4. Why is OWASP ZAP Plugin required?
-
-It performs Dynamic Application Security Testing (DAST) after deployment.
+Terraform should be installed directly on Jenkins agents and executed through pipeline shell commands.
 
 ---
 
-### Q5. Can Jenkins plugins be installed without restart?
+### Q4. Should Ansible Plugin be installed?
 
-Yes. Jenkins supports:
+No.
 
-```text
-Install without restart
-```
+Ansible should be installed on Jenkins agents and executed through standard CLI commands from Jenkins pipelines.
+
+---
+
+### Q5. Should SonarQube Scanner Plugin be installed?
+
+Optional.
+
+The SonarQube Scanner CLI can be installed directly on Jenkins agents. The plugin is only required if Jenkins-to-SonarQube integration features are needed.
+
+---
+
+### Q6. Should OWASP Dependency-Check Plugin be installed?
+
+Optional.
+
+Dependency-Check CLI can be executed directly from Jenkins pipelines and reports can be published using HTML Publisher.
+
+---
+
+### Q7. Should OWASP ZAP Plugin be installed?
+
+No.
+
+OWASP ZAP should run as a standalone security testing tool and be invoked from Jenkins pipelines.
 
 ---
 
@@ -389,15 +414,35 @@ Install without restart
 
 ## 11. Summary
 
-This Jenkins plugin installation setup provides:
+This Jenkins plugin strategy focuses on keeping Jenkins lightweight and maintainable.
 
-* CI/CD automation
-* Infrastructure provisioning support
-* Deployment automation
-* SAST integration
-* DAST integration
-* Multi-language build support
-* AWS deployment integration
+### Essential Jenkins Plugins
+
+* Git Plugin
+* Pipeline Plugin
+* Credentials Plugin
+* Credentials Binding Plugin
+* SSH Agent Plugin
+* AWS Credentials Plugin
+* Config File Provider Plugin
+* JUnit Plugin
+* HTML Publisher Plugin
+* Workspace Cleanup Plugin
+
+### External Tools
+
+* Terraform
+* Ansible
+* Maven
+* Go
+* NodeJS
+* Python
+* SonarQube Scanner
+* OWASP Dependency-Check
+* OWASP ZAP
+
+This approach minimizes plugin sprawl, simplifies maintenance, improves security, and follows modern CI/CD best practices.
+
 
 ---
 
