@@ -112,9 +112,9 @@ Jenkins plugins play a major role in CI/CD pipelines by enabling:
 
 <a id="4-different-categories-of-jenkins-plugins"></a>
 
-## 4. Different Categories of Jenkins Plugins
+## 4. Jenkins Plugin Categories
 
-The following categories of Jenkins plugins are commonly used in enterprise CI/CD environments.
+For a modern CI/CD platform, Jenkins should remain an orchestration engine while build, testing, security scanning, infrastructure provisioning, and deployment tooling should be installed directly on the Jenkins agent or managed through automation tools such as Ansible.
 
 
 <table>
@@ -124,7 +124,7 @@ The following categories of Jenkins plugins are commonly used in enterprise CI/C
 
 <a id="41-core-jenkins-plugins"></a>
 
-### 4.1 Core Jenkins Plugins
+### 4.1 Essential Jenkins Plugins
 
 </td>
 </tr>
@@ -132,17 +132,19 @@ The following categories of Jenkins plugins are commonly used in enterprise CI/C
 <tr>
 <td valign="top">
 
-| Plugin                     | Purpose                    |
-| -------------------------- | -------------------------- |
-| Git Plugin                 | Git repository integration |
-| Pipeline Plugin            | Jenkins pipeline execution |
-| Pipeline Stage View        | Stage visualization        |
-| Blue Ocean                 | Modern Jenkins UI          |
-| Credentials Binding Plugin | Secure credential handling |
-| SSH Agent Plugin           | SSH authentication         |
-| Workspace Cleanup Plugin   | Cleanup workspace          |
-| Build Timeout Plugin       | Prevent hanging builds     |
-| Timestamper Plugin         | Build timestamps           |
+| Plugin                      | Purpose                                          |
+| --------------------------- | ------------------------------------------------ |
+| Git Plugin                  | Source code integration with Git repositories    |
+| Pipeline Plugin             | Jenkinsfile execution and pipeline orchestration |
+| Credentials Plugin          | Secure storage of credentials and secrets        |
+| Credentials Binding Plugin  | Inject credentials into pipeline stages          |
+| SSH Agent Plugin            | SSH-based authentication for remote deployments  |
+| AWS Credentials Plugin      | Secure access to AWS services                    |
+| Config File Provider Plugin | Manage configuration files used by pipelines     |
+| JUnit Plugin                | Publish unit test reports                        |
+| HTML Publisher Plugin       | Publish SonarQube, OWASP and custom reports      |
+| Workspace Cleanup Plugin    | Clean workspaces after pipeline execution        |
+
 
 </td>
 </tr>
@@ -157,221 +159,41 @@ The following categories of Jenkins plugins are commonly used in enterprise CI/C
 
 <a id="42-terraform-plugins"></a>
 
-### 4.2 Terraform Plugins
-
+### 4.2 Tools Installed Outside Jenkins
+The following tools should be installed on Jenkins agents or target servers rather than through Jenkins plugins.
 </td>
 </tr>
 
 <tr>
 <td valign="top">
 
-| Plugin                      | Purpose                        |
-| --------------------------- | ------------------------------ |
-| Terraform Plugin            | Execute Terraform commands     |
-| Config File Provider Plugin | Manage Terraform configuration |
+| Tool                   | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| Terraform              | Infrastructure provisioning             |
+| Ansible                | Configuration management and deployment |
+| Maven                  | Java application builds                 |
+| Go                     | Employee API compilation                |
+| NodeJS & npm           | Frontend builds                         |
+| Python & Poetry        | Attendance API builds                   |
+| SonarQube Scanner      | Static code analysis                    |
+| OWASP Dependency-Check | Dependency vulnerability scanning       |
+| OWASP ZAP              | Dynamic application security testing    |
 
 </td>
 </tr>
 
 </table>
 
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="43-ansible-plugins"></a>
-
-### 4.3 Ansible Plugins
-
-</td>
-</tr>
-
-<tr>
-<td valign="top">
-
-| Plugin           | Purpose             |
-| ---------------- | ------------------- |
-| Ansible Plugin   | Execute playbooks   |
-| SSH Agent Plugin | Connect EC2 servers |
-
-</td>
-</tr>
-
-</table>
-
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="44-sast-plugins"></a>
-
-### 4.4 SAST Plugins
-
-</td>
-</tr>
-
-<tr>
-<td valign="top">
-
-| Plugin                        | Purpose                           |
-| ----------------------------- | --------------------------------- |
-| SonarQube Scanner Plugin      | Static code analysis              |
-| OWASP Dependency-Check Plugin | Dependency vulnerability scanning |
-| Warnings NG Plugin            | Report visualization              |
-
-</td>
-</tr>
-
-</table>
-
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="45-dast-plugins"></a>
-
-### 4.5 DAST Plugins
-
-</td>
-</tr>
-
-<tr>
-<td valign="top">
-
-| Plugin                  | Purpose                  |
-| ----------------------- | ------------------------ |
-| OWASP ZAP Plugin        | Dynamic security testing |
-| HTML Publisher Plugin   | Publish reports          |
-| Publish Over SSH Plugin | Transfer reports         |
-
-</td>
-</tr>
-
-</table>
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="46-build-tool-plugins"></a>
-
-## 4.6 Build Tool Plugins
-
-</td>
-</tr>
-
-<tr>
-
-<td valign="top" width="500">
-
-### Java (Salary API)
-
-| Plugin | Purpose |
-|---|---|
-| Maven Integration Plugin | Maven builds |
-| JUnit Plugin | Test reporting |
-| JaCoCo Plugin | Code coverage |
-
-<br>
-
-### Python (Attendance API)
-
-| Plugin | Purpose |
-|---|---|
-| ShiningPanda Plugin | Python support |
-| Coverage Plugin | Coverage reports |
-| JUnit Plugin | pytest integration |
-
-</td>
-
-<td valign="top" width="500">
-
-### GO (Employee API)
-
-| Plugin | Purpose |
-|---|---|
-| Go Plugin | GO support |
-| JUnit Plugin | Test integration |
-
-<br>
-
-### React Frontend
-
-| Plugin | Purpose |
-|---|---|
-| NodeJS Plugin | Node.js management |
-| npm Integration Plugin | npm execution |
-
-</td>
-
-</tr>
-
-</table>
-
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="47-reporting-plugins"></a>
-
-### 4.7 Reporting Plugins
-
-</td>
-</tr>
-
-<tr>
-<td valign="top">
-
-| Plugin                | Purpose              |
-| --------------------- | -------------------- |
-| HTML Publisher Plugin | Publish HTML reports |
-| JUnit Plugin          | Test reporting       |
-| Dashboard View Plugin | Jenkins dashboards   |
-| Build Monitor Plugin  | Build monitoring     |
-
-</td>
-</tr>
-
-</table>
-
-<table>
-
-<tr>
-<td colspan="2" align="left">
-
-<a id="48-aws-plugins"></a>
-
-### 4.8 AWS Plugins
-
-</td>
-</tr>
-
-<tr>
-<td valign="top">
-
-| Plugin                  | Purpose                |
-| ----------------------- | ---------------------- |
-| AWS Credentials Plugin  | AWS authentication     |
-| Publish Over SSH Plugin | Artifact deployment    |
-| EC2 Plugin              | Dynamic Jenkins agents |
-
-</td>
-</tr>
-
-</table>
-
+### Why Install These Tools Outside Jenkins?
+
+* Reduces Jenkins plugin dependencies.
+* Simplifies Jenkins upgrades.
+* Improves platform stability.
+* Reduces security risks.
+* Enables reuse across different CI/CD platforms.
+* Aligns with modern DevOps and Infrastructure-as-Code practices.
+  
 ---
-
-<a id="5-access-jenkins-plugin-manager"></a>
 
 ## 5. Access Jenkins Plugin Manager
 
