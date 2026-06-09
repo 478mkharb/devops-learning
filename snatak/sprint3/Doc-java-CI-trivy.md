@@ -6,7 +6,8 @@
 
 <div align="center">
 <img width="100" alt="Java" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="200" alt="Trivy" src="https://trivy.dev/latest/assets/images/logo.png" />
+<img width="200" alt="trivy-horizontal-featured-image" src="https://github.com/user-attachments/assets/edc80314-79e8-48e5-90dc-c5594a2a2b46" />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </div>
 
 <br/>
