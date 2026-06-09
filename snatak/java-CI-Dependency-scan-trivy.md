@@ -75,26 +75,10 @@ git clone https://github.com/OT-MICROSERVICES/salary-api.git
 cd salary-api
 ```
 
-Verify repository contents:
-
-```bash
-ls
-```
-
-Expected output:
-
-```text
-Dockerfile
-migration
-pom.xml
-README.md
-src
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Salary API Repository</strong></summary>
 
-[Insert Screenshot]
+<img width="1325" height="902" alt="image" src="https://github.com/user-attachments/assets/45289164-241b-4f43-9c9c-ec7ad3b8ff23" />
 
 </details>
 
@@ -118,14 +102,6 @@ java -version
 mvn -version
 ```
 
-Expected output:
-
-```text
-openjdk version "17.x.x"
-
-Apache Maven 3.x.x
-```
-
 If another JAVA version is active:
 
 ```bash
@@ -137,7 +113,8 @@ sudo update-alternatives --config javac
 <details>
 <summary>📸 <strong>Click to view Screenshot - JAVA 17 and Maven Installation</strong></summary>
 
-[Insert Screenshot]
+<img width="1248" height="350" alt="image" src="https://github.com/user-attachments/assets/b01f9f1b-af4b-43e0-9234-d6d1b9d93ac8" />
+
 
 </details>
 
@@ -183,12 +160,6 @@ Verify installation:
 trivy --version
 ```
 
-Expected output:
-
-```text
-Version: x.x.x
-```
-
 Download vulnerability database:
 
 ```bash
@@ -201,7 +172,8 @@ trivy image --download-db-only
 <details>
 <summary>📸 <strong>Click to view Screenshot - Trivy Installation</strong></summary>
 
-[Insert Screenshot]
+<img width="1707" height="296" alt="image" src="https://github.com/user-attachments/assets/775f4c62-fc1a-4789-a0e3-d0512cbde395" />
+
 
 </details>
 
@@ -213,12 +185,6 @@ Build the application:
 
 ```bash
 mvn clean install -DskipTests
-```
-
-Generated artifact:
-
-```text
-target/salary-0.1.0-RELEASE.jar
 ```
 
 > [!NOTE]
@@ -233,7 +199,7 @@ ls target/
 <details>
 <summary>📸 <strong>Click to view Screenshot - Maven Build Success</strong></summary>
 
-[Insert Screenshot]
+<img width="1450" height="118" alt="image" src="https://github.com/user-attachments/assets/5224893b-2e9a-4c53-865b-80dfd51526b4" />
 
 </details>
 
@@ -255,21 +221,10 @@ Trivy automatically:
 * Maps dependencies against CVE databases
 * Reports detected vulnerabilities
 
-Sample command output:
-
-```text
-Total: 18
-
-CRITICAL: 2
-HIGH: 7
-MEDIUM: 6
-LOW: 3
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Trivy Dependency Scan</strong></summary>
 
-[Insert Screenshot]
+<img width="1769" height="748" alt="image" src="https://github.com/user-attachments/assets/90ed01ac-0e97-4c50-ba89-55dfa5e32acb" />
 
 </details>
 
@@ -290,12 +245,6 @@ Verify report:
 
 ```bash
 ls -lh trivy-report.json
-```
-
-Expected output:
-
-```text
--rw-r--r-- 1 user user 2.5M Jun 09 20:00 trivy-report.json
 ```
 
 ---
@@ -341,7 +290,8 @@ http://localhost:4000/trivy-report.html
 <details>
 <summary>📸 <strong>Click to view Screenshot - Trivy Reports</strong></summary>
 
-[Insert Screenshot]
+<img width="1852" height="971" alt="image" src="https://github.com/user-attachments/assets/d8caeffc-829c-4fc2-9f2a-09d84f1d31eb" />
+
 
 </details>
 
@@ -349,27 +299,29 @@ http://localhost:4000/trivy-report.html
 
 ## 9. Dependency Scan Findings
 
-The scan successfully identifies vulnerable Maven dependencies and provides detailed information including:
+The scan successfully identified multiple vulnerable dependencies and automatically failed the build because the configured policy blocks vulnerabilities having CVSS score greater than or equal to `7.0`.
 
-| Field             | Description                    |
-| ----------------- | ------------------------------ |
-| Package Name      | Vulnerable Dependency          |
-| Installed Version | Current Installed Version      |
-| Fixed Version     | Recommended Secure Version     |
-| Severity          | LOW / MEDIUM / HIGH / CRITICAL |
-| CVE ID            | Vulnerability Identifier       |
-| Description       | Vulnerability Summary          |
-| Reference         | Vendor or CVE Reference URL    |
+Vulnerable dependencies identified during the scan:
 
-Example findings:
+| Dependency | Description | Highest Severity | CVE Count |
+|---|---|---|---|
+| commons-lang3-3.12.0.jar | Apache Commons utility library for Java | 🟡 Medium | 1 |
+| jackson-databind-2.15.2.jar | JSON serialization and deserialization library | 🟡 Medium | 1 |
+| logstash-logback-encoder-6.6.jar | Structured JSON logging encoder for Logback | 🟡 Medium | 1 |
+| spring-boot-3.1.1.jar | Core Spring Boot framework dependency | 🟡 Medium | 1 |
+| spring-boot-starter-web-3.1.1.jar | Spring Boot starter for REST web applications | 🟡 Medium | 1 |
+| log4j-api-2.20.0.jar | Logging API for Java applications | 🟠 High | 5 |
+| logback-core-1.4.8.jar | Core logging framework for Spring Boot | 🟠 High | 1 |
+| micrometer-registry-prometheus-1.11.1.jar | Prometheus metrics exporter integration | 🟠 High | 1 |
+| netty-transport-4.1.94.Final.jar | Asynchronous event-driven network framework | 🟠 High | 12 |
+| simpleclient-0.16.0.jar | Prometheus Java metrics client library | 🟠 High | 1 |
+| spring-core-6.0.10.jar | Core utilities and framework classes for Spring | 🟠 High | 3 |
+| spring-data-cassandra-4.1.1.jar | Spring Data integration for Cassandra database | 🟠 High | 6 |
+| spring-web-6.0.10.jar | Spring Web MVC and REST framework | 🟠 High | 3 |
+| snakeyaml-1.33.jar | YAML parsing library for Java applications | 🔴 Critical | 1 |
+| swagger-ui-4.17.1.jar | Interactive API documentation user interface | 🔴 Critical | 10 |
+| tomcat-embed-core-10.1.10.jar | Embedded Apache Tomcat web server | 🔴 Critical | 39 |
 
-| Dependency        | Severity | CVE           |
-| ----------------- | -------- | ------------- |
-| spring-core       | HIGH     | CVE-XXXX-XXXX |
-| snakeyaml         | CRITICAL | CVE-XXXX-XXXX |
-| tomcat-embed-core | CRITICAL | CVE-XXXX-XXXX |
-| log4j-api         | HIGH     | CVE-XXXX-XXXX |
-| netty-transport   | HIGH     | CVE-XXXX-XXXX |
 
 > [!NOTE]
 > Actual findings may vary depending on dependency versions and the vulnerability database version used during scanning.
