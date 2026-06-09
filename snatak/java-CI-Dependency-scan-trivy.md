@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img width="140" alt="Java" src="https://www.vectorlogo.zone/logos/java/java-ar21.svg" />      <img width="140" alt="Trivy" src="https://trivy.dev/latest/assets/images/logo.png" />
+<img width="140" alt="Java" src="https://www.vectorlogo.zone/logos/java/java-ar21.svg" />     <img width="150" alt="trivy-horizontal-featured-image" src="https://github.com/user-attachments/assets/f7789f01-368c-443f-8f72-a942892fc1c9" />
 
 </div>
 
