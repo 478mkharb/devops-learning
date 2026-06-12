@@ -1,4 +1,4 @@
-# <h1 align="center">Jenkins Plugin Installation Guide</h1>
+# <h1 align="center">Jenkins Plugin Installation</h1>
 
 <div align="center">
 <img width="80" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.png" />
