@@ -242,6 +242,7 @@ Manage Jenkins → Plugins → Available Plugins
 ```bash
 java -jar jenkins-cli.jar -s http://<jenkins-server>:8080/ install-plugin git
 ```
+<img width="1685" height="894" alt="image" src="https://github.com/user-attachments/assets/3a5ed198-6c41-4de4-aa70-061a64c24cd4" />
 
 ---
 
