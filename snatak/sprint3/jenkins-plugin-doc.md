@@ -49,13 +49,16 @@
    * [4.2 Tools Installed Outside Jenkins](#42-tools-installed-outside-jenkins)
 5. [Access Jenkins Plugin Manager](#5-access-jenkins-plugin-manager)
 6. [Jenkins Plugin Installation Methods](#6-jenkins-plugin-installation-methods)
-7. [Plugin Verification](#7-plugin-verification)
-8. [Jenkins Configuration Management Using Ansible](#8-jenkins-configuration-management-using-ansible)
-9. [Best Practices](#9-best-practices)
-10. [Frequently Asked Questions (FAQs)](#10-frequently-asked-questions-faqs)
-11. [Summary](#11-summary)
-12. [Contact Information](#12-contact-information)
-13. [References](#13-references)
+   * [6.1 Plugin Installation via Jenkins UI](#61-plugin-installation-via-jenkins-ui)
+   * [6.2 Plugin Installation Using Direct Download](#62-plugin-installation-using-direct-download)
+   * [6.3 Plugin Installation Using Jenkins Plugin Manager Tool](#63-plugin-installation-using-jenkins-plugin-manager-tool)
+8. [Plugin Verification](#7-plugin-verification)
+9. [Jenkins Configuration Management Using Ansible](#8-jenkins-configuration-management-using-ansible)
+10. [Best Practices](#9-best-practices)
+11. [Frequently Asked Questions (FAQs)](#10-frequently-asked-questions-faqs)
+12. [Summary](#11-summary)
+13. [Contact Information](#12-contact-information)
+14. [References](#13-references)
 
 ---
 
@@ -237,51 +240,145 @@ Manage Jenkins → Plugins → Available Plugins
 
 ---
 
-### 6.2 Plugin Installation Using Jenkins CLI
+### 6.2 Plugin Installation Using Direct Download
+
+### Download AWS Credentials Plugin
 
 ```bash
-java -jar jenkins-cli.jar -s http://<jenkins-server>:8080/ install-plugin git
+cd /var/lib/jenkins/plugins
+
+sudo wget https://updates.jenkins.io/latest/aws-credentials.hpi \
+-O aws-credentials.jpi
+
+sudo chown jenkins:jenkins aws-credentials.jpi
+
+sudo systemctl restart jenkins
 ```
+
+### Verify Plugin Installation
+
+Navigate to:
+
+```text
+Manage Jenkins
+ → Plugins
+ → Installed Plugins
+```
+
+Search for:
+
+```text
+AWS Credentials Plugin
+```
+
+<details>
+<summary>📸 <strong>Click to view Screenshot</strong></summary>
+
 <img width="1685" height="894" alt="image" src="https://github.com/user-attachments/assets/3a5ed198-6c41-4de4-aa70-061a64c24cd4" />
 
+</details>
+
 ---
 
-### 6.3 Plugin Installation Using Plugin Manager Tool
+### 6.3 Plugin Installation Using Jenkins Plugin Manager Tool
+
+Create Working Directory
+```bash
+mkdir -p ~/jenkins-plugin-install
+cd ~/jenkins-plugin-install
+```
+Create plugins.txt
 
 ```bash
-java -jar jenkins-plugin-manager.jar --plugin-file plugins.txt
+cat > plugins.txt << EOF
+git
+workflow-aggregator
+credentials
+credentials-binding
+ssh-agent
+aws-credentials
+config-file-provider
+junit
+htmlpublisher
+ws-cleanup
+sonar
+pipeline-stage-view
+EOF
+```
+Verify:
+
+```bash
+cat plugins.txt
+```
+Download Jenkins Plugin Manager Tool
+
+```bash
+wget https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.13.2/jenkins-plugin-manager-2.13.2.jar \
+-O jenkins-plugin-manager.jar
 ```
 
----
+Verify:
 
-### 6.4 Plugin Installation Using Docker
+```bash
+ls -lh jenkins-plugin-manager.jar
+```
+Create a temporary directory:
 
-```dockerfile
-FROM jenkins/jenkins:lts
-RUN jenkins-plugin-cli --plugins git terraform ansible sonar zap
+```bash
+mkdir -p snaatak-P18-plugins
+```
+Display all plugin dependencies:
+
+```bash
+java -jar jenkins-plugin-manager.jar \
+  --plugin-file plugins.txt \
+  --plugin-download-directory snaatak-P18-plugins \
+  --list
+```
+Backup Existing Jenkins Plugins
+
+```bash
+sudo tar -czvf \
+/tmp/jenkins-plugins-backup-$(date +%F).tar.gz \
+/var/lib/jenkins/plugins
+```
+Stop Jenkins
+
+```bash
+sudo systemctl stop jenkins
+```
+Install Plugins
+
+```bash
+sudo java -jar jenkins-plugin-manager.jar \
+  --plugin-file plugins.txt \
+  --plugin-download-directory /var/lib/jenkins/plugins
+```
+Fix Permissions
+
+```bash
+sudo chown -R jenkins:jenkins /var/lib/jenkins/plugins
+```
+Start Jenkins
+
+```bash
+sudo systemctl start jenkins
 ```
 
----
-
-### 6.5 Plugin Installation Using JCasC
-
-```yaml
-plugins:
-  required:
-    - git
-    - terraform
-    - ansible
+Verify Installed Plugins
+```text
+Manage Jenkins
+ → Plugins
+ → Installed Plugins
 ```
+<details>
+<summary>📸 <strong>Click to view Screenshot</strong></summary>
+<img width="1446" height="317" alt="image" src="https://github.com/user-attachments/assets/6f405243-a74a-4d9f-9642-34e6e5c5667a" />
+<img width="1612" height="891" alt="image" src="https://github.com/user-attachments/assets/7e568a43-ce46-4eee-933e-2e95aedbaa31" />
+<img width="1597" height="198" alt="image" src="https://github.com/user-attachments/assets/f6efe3aa-b86d-4ce7-85b2-343842d34e6f" />
 
----
+</details>
 
-### 6.6 Plugin Installation Using Ansible
-
-```yaml
-- name: Install Jenkins Plugins
-  jenkins_plugin:
-    name: git
-```
 
 ---
 
