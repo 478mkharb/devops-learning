@@ -122,12 +122,12 @@ The Ansible Role should be capable of:
                     │  Ansible Role   │
                     └────────┬────────┘
                              │
-              ┌──────────────┼──────────────┐
-              │              │              │
-              ▼              ▼              ▼
-      Plugin Install     Ansible Vault     JCasC
-              │              │              │
-              └──────────────┼──────────────┘
+              ┌──────────────▼──────────────┐
+              │                             │
+              ▼                             ▼
+      Plugin Install                      JCasC
+              │                             │
+              └──────────────|──────────────┘
                              ▼
                  Jenkins Configuration
                              │
@@ -147,14 +147,6 @@ Create the Jenkins Role:
 ansible-galaxy init roles/jenkins
 ```
 
-Create additional directories:
-
-```bash
-mkdir -p roles/jenkins/files
-mkdir -p roles/jenkins/templates
-mkdir -p roles/jenkins/vault
-```
-
 Verify Structure:
 
 ```bash
@@ -164,7 +156,7 @@ tree roles/jenkins
 <details>
 <summary>📸 <strong>Click to view Screenshot</strong></summary>
 
-<img width="1500" height="804" alt="image" src="https://github.com/user-attachments/assets/8450f49a-c278-4a58-89a8-32c46de9a4a3" />
+<img width="1240" height="755" alt="image" src="https://github.com/user-attachments/assets/7fd727d1-e923-4fbf-b7da-f489a5acdaff" />
 
 </details>
 
@@ -177,7 +169,7 @@ tree roles/jenkins
 Create Plugin List:
 
 ```bash
-vi roles/jenkins/files/plugins.txt
+nano roles/jenkins/files/plugins.txt
 ```
 
 Add Plugins:
@@ -185,15 +177,25 @@ Add Plugins:
 ```text
 configuration-as-code
 git
-credentials
 matrix-auth
 role-strategy
+workflow-aggregator
+credentials
+credentials-binding
+ssh-agent
+aws-credentials
+config-file-provider
+junit
+htmlpublisher
+ws-cleanup
+sonar
+pipeline-stage-view
 ```
 
 Create Plugin Task:
 
 ```bash
-vi roles/jenkins/tasks/plugins.yml
+nano roles/jenkins/tasks/plugins.yml
 ```
 
 ```yaml
@@ -202,23 +204,31 @@ vi roles/jenkins/tasks/plugins.yml
     src: plugins.txt
     dest: /tmp/plugins.txt
 
-- name: Install Jenkins plugins
-  command:
-    jenkins-plugin-cli --plugin-file /tmp/plugins.txt
+- name: Create plugin manager directory
+  file:
+    path: /opt/jenkins
+    state: directory
+    mode: '0755'
+
+- name: Download Jenkins Plugin Manager Tool
+  get_url:
+    url: https://repo.jenkins-ci.org/releases/io/jenkins/plugin-management/plugin-management-cli/2.13.2/plugin-management-cli-2.13.2.jar
+    dest: /opt/jenkins/jenkins-plugin-manager.jar
+    mode: '0755'
+
+- name: Install Jenkins Plugins
+  shell: |
+    java -jar /opt/jenkins/jenkins-plugin-manager.jar \
+      --plugin-file /tmp/plugins.txt \
+      --plugin-download-directory /var/lib/jenkins/plugins
   notify:
     - Restart Jenkins
 ```
 
-Verify Plugins:
-
-```bash
-ls /var/lib/jenkins/plugins
-```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Plugin Installation</strong></summary>
+<img width="1510" height="651" alt="image" src="https://github.com/user-attachments/assets/39cb105a-4898-4841-a49c-4dd20d935a58" />
 
-Add Screenshot Here
 
 </details>
 
@@ -226,44 +236,27 @@ Add Screenshot Here
 
 <a id="7-configure-ansible-vault-for-users-and-credentials"></a>
 
-# 7. Configure Ansible Vault for Users and Credentials
+# 7. Configure Jenkins Variables
 
-Create Vault File:
+Create:
 
 ```bash
-ansible-vault create roles/jenkins/vault/secrets.yml
+roles/jenkins/vars/main.yml
 ```
 
 Add Vault Variables:
 
 ```yaml
-vault_admin_user: admin
+admin_user: Snatak
+admin_password: Snatak@123
 
-vault_admin_password: Admin@123
-
-vault_github_username: github-user
-
-vault_github_token: ghp_xxxxxxxxxxxxxx
-```
-
-Verify Encryption:
-
-```bash
-cat roles/jenkins/vault/secrets.yml
-```
-
-Expected Output:
-
-```text
-$ANSIBLE_VAULT;1.1;AES256
-6133363739376630...
+github_username: mukesh130478
+github_token: ghp_xxxxx
 ```
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Ansible Vault Configuration</strong></summary>
-
-Add Screenshot Here
-
+<img width="1345" height="315" alt="image" src="https://github.com/user-attachments/assets/dc5e908f-ffbf-471b-a365-2b5e4d5ea798" />
 </details>
 
 ---
@@ -275,7 +268,7 @@ Add Screenshot Here
 Create Template:
 
 ```bash
-vi roles/jenkins/templates/casc.yaml.j2
+nano roles/jenkins/templates/casc.yaml.j2
 ```
 
 Add Configuration:
@@ -293,8 +286,8 @@ jenkins:
     local:
       allowsSignup: false
       users:
-        - id: "{{ vault_admin_user }}"
-          password: "{{ vault_admin_password }}"
+        - id: "{{ admin_user }}"
+          password: "{{ admin_password }}"
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:
@@ -307,15 +300,14 @@ credentials:
           - usernamePassword:
               scope: GLOBAL
               id: github-creds
-              username: "{{ vault_github_username }}"
-              password: "{{ vault_github_token }}"
+              username: "{{ github_username }}"
+              password: "{{ github_token }}"
               description: GitHub Credentials
 ```
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - JCasC Template</strong></summary>
-
-Add Screenshot Here
+<img width="1497" height="775" alt="image" src="https://github.com/user-attachments/assets/6acd5b1f-31e5-444e-a566-3b6cdad4d94e" />
 
 </details>
 
@@ -328,7 +320,7 @@ Add Screenshot Here
 Create Configuration Task:
 
 ```bash
-vi roles/jenkins/tasks/casc.yml
+nano roles/jenkins/tasks/casc.yml
 ```
 
 ```yaml
@@ -353,11 +345,23 @@ vi roles/jenkins/tasks/casc.yml
   notify:
     - Restart Jenkins
 ```
+Import tasks:
 
+```bash
+nano roles/jenkins/tasks/main.yml
+```
+```bash
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/jenkins
+- import_tasks: plugins.yml
+- import_tasks: casc.yml
+
+```
 Create Handler:
 
 ```bash
-vi roles/jenkins/handlers/main.yml
+nano roles/jenkins/handlers/main.yml
 ```
 
 ```yaml
@@ -370,7 +374,8 @@ vi roles/jenkins/handlers/main.yml
 <details>
 <summary>📸 <strong>Click to view Screenshot - JCasC Deployment</strong></summary>
 
-Add Screenshot Here
+<img width="1451" height="801" alt="image" src="https://github.com/user-attachments/assets/fddfdfcf-590e-41fe-b621-ceec0a175788" />
+
 
 </details>
 
@@ -383,17 +388,13 @@ Add Screenshot Here
 Create Playbook:
 
 ```bash
-vi site.yml
+nano site.yml
 ```
 
 ```yaml
 ---
 - hosts: jenkins
-
   become: true
-
-  vars_files:
-    - roles/jenkins/vault/secrets.yml
 
   roles:
     - jenkins
@@ -407,30 +408,19 @@ vi inventory
 
 ```ini
 [jenkins]
-localhost ansible_connection=local
+jenkins-server ansible_host=192.168.8.210 ansible_user=harshwardhan ansible_python_interpreter=/usr/bin/python3
 ```
 
 Execute Playbook:
 
 ```bash
-ansible-playbook \
--i inventory \
-site.yml \
---ask-vault-pass
+ansible-playbook -i inventory site.yml
 ```
 
-Expected Output:
-
-```text
-PLAY RECAP
-localhost : ok=10 changed=5 failed=0
-```
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Playbook Execution</strong></summary>
-
-Add Screenshot Here
-
+<img width="1639" height="890" alt="image" src="https://github.com/user-attachments/assets/2e973d74-09c3-444f-9c19-a9906ab4c2fc" />
 </details>
 
 ---
@@ -451,22 +441,6 @@ Verify Plugins:
 ls /var/lib/jenkins/plugins
 ```
 
-Expected Plugins:
-
-```text
-configuration-as-code
-git
-credentials
-matrix-auth
-role-strategy
-```
-
-Verify JCasC Configuration:
-
-```bash
-curl http://localhost:8080/configuration-as-code/viewExport
-```
-
 Verify User Login:
 
 ```text
@@ -480,12 +454,6 @@ Verify Credentials:
 Manage Jenkins
  → Credentials
  → System
-```
-
-Expected Credential:
-
-```text
-github-creds
 ```
 
 <details>
@@ -505,7 +473,7 @@ Add Screenshot Here
 | ------------------------------ | ---------------------------- | ------------------------------------- |
 | Plugin installation failed     | Jenkins service unavailable  | Verify Jenkins service status         |
 | JCasC configuration not loaded | Incorrect configuration path | Verify JAVA_ARGS value                |
-| Authentication failure         | Incorrect vault values       | Validate vault secrets                |
+| Authentication failure         | Incorrect  vars/main.yml     | Validate variables                    |
 | Template rendering failure     | Missing variables            | Verify vars_files configuration       |
 | Jenkins restart failure        | Permission issue             | Run playbook with elevated privileges |
 | Credentials not visible        | Invalid JCasC syntax         | Validate YAML configuration           |
@@ -518,7 +486,7 @@ Add Screenshot Here
 
 This POC demonstrates how Jenkins configuration can be managed using Ansible Roles and Jenkins Configuration as Code (JCasC).
 
-The solution automates plugin installation, user management, credentials management, security configuration, and global Jenkins settings while securely managing secrets through Ansible Vault.
+The solution automates plugin installation, user management, credentials management, security configuration, and global Jenkins settings.
 
 This approach enables repeatable, secure, and version-controlled Jenkins administration aligned with Infrastructure as Code (IaC) best practices.
 
