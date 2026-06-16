@@ -1,7 +1,7 @@
 # <h1 align="center">POC - Jenkins Configuration Management using Ansible Role</h1>
 
 <div align="center">
-<img width="180" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" />
+<img width="120" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" />
 </div>
 
 <br/>
@@ -26,7 +26,7 @@
 4. [Solution Overview](#4-solution-overview)
 5. [Create Jenkins Ansible Role Structure](#5-create-jenkins-ansible-role-structure)
 6. [Configure Plugin Management](#6-configure-plugin-management)
-7. [Configure Ansible Vault for Users and Credentials](#7-configure-ansible-vault-for-users-and-credentials)
+7. [Configure-Jenkins-Variables](#7-configure-jenkins-variables)
 8. [Create JCasC Template](#8-create-jcasc-template)
 9. [Configure Jenkins Configuration Management](#9-configure-jenkins-configuration-management)
 10. [Execute Ansible Role](#10-execute-ansible-role)
@@ -53,7 +53,6 @@ The scope of this POC includes:
 * Jenkins Credentials Management
 * Jenkins Security Configuration
 * Jenkins Global Configuration Management
-* Secret Management using Ansible Vault
 
 Jenkins installation is assumed to be completed before executing this POC.
 
@@ -68,7 +67,7 @@ Jenkins installation is assumed to be completed before executing this POC.
 | Ubuntu Server | 22.04 LTS               |
 | Jenkins       | LTS (Already Installed) |
 | Ansible       | 2.15+                   |
-| Git           | Latest                  |
+
 
 Verify Jenkins Service:
 
@@ -109,7 +108,6 @@ The Ansible Role should be capable of:
 * Managing Jenkins credentials
 * Managing Jenkins security settings
 * Managing Jenkins global configuration
-* Securing secrets using Ansible Vault
 
 ---
 
@@ -155,9 +153,7 @@ tree roles/jenkins
 
 <details>
 <summary>📸 <strong>Click to view Screenshot</strong></summary>
-
-<img width="1240" height="755" alt="image" src="https://github.com/user-attachments/assets/7fd727d1-e923-4fbf-b7da-f489a5acdaff" />
-
+<img width="1187" height="740" alt="image" src="https://github.com/user-attachments/assets/9073986a-29ec-46a7-905b-7c36bce28a7c" />
 </details>
 
 ---
@@ -228,13 +224,11 @@ nano roles/jenkins/tasks/plugins.yml
 <details>
 <summary>📸 <strong>Click to view Screenshot - Plugin Installation</strong></summary>
 <img width="1510" height="651" alt="image" src="https://github.com/user-attachments/assets/39cb105a-4898-4841-a49c-4dd20d935a58" />
-
-
 </details>
 
 ---
 
-<a id="7-configure-ansible-vault-for-users-and-credentials"></a>
+<a id="7-configure-jenkins-variables"></a>
 
 # 7. Configure Jenkins Variables
 
@@ -308,7 +302,6 @@ credentials:
 <details>
 <summary>📸 <strong>Click to view Screenshot - JCasC Template</strong></summary>
 <img width="1497" height="775" alt="image" src="https://github.com/user-attachments/assets/6acd5b1f-31e5-444e-a566-3b6cdad4d94e" />
-
 </details>
 
 ---
@@ -373,10 +366,7 @@ nano roles/jenkins/handlers/main.yml
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - JCasC Deployment</strong></summary>
-
 <img width="1451" height="801" alt="image" src="https://github.com/user-attachments/assets/fddfdfcf-590e-41fe-b621-ceec0a175788" />
-
-
 </details>
 
 ---
@@ -395,7 +385,6 @@ nano site.yml
 ---
 - hosts: jenkins
   become: true
-
   roles:
     - jenkins
 ```
@@ -434,33 +423,15 @@ Verify Jenkins Service:
 ```bash
 systemctl status jenkins
 ```
-
-Verify Plugins:
-
-```bash
-ls /var/lib/jenkins/plugins
-```
-
-Verify User Login:
-
-```text
-Username : admin
-Password : ********
-```
-
-Verify Credentials:
+Open:
 
 ```text
 Manage Jenkins
- → Credentials
- → System
+→ Users → Snaatak → Credentials
 ```
-
 <details>
 <summary>📸 <strong>Click to view Screenshot - Validation</strong></summary>
-
-Add Screenshot Here
-
+<img width="1852" height="997" alt="image" src="https://github.com/user-attachments/assets/0f02c5c8-0224-4f16-a2a4-8a65f263cad7" />
 </details>
 
 ---
