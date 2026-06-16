@@ -1,4 +1,4 @@
-# <h1 align="center">POC - Jenkins Configuration Management using Ansible Role</h1>
+# <h1 align="center">Jenkins Configuration Management using Ansible Role</h1>
 
 <div align="center">
 <img width="120" alt="Jenkins" src="https://www.jenkins.io/images/logos/jenkins/jenkins.svg" />
@@ -18,7 +18,7 @@
 
 ---
 
-# Table of Contents
+## Table of Contents
 
 1. [Introduction](#1-introduction)
 2. [Pre-Requisites](#2-pre-requisites)
@@ -40,9 +40,9 @@
 
 <a id="1-introduction"></a>
 
-# 1. Introduction
+## 1. Introduction
 
-This Proof of Concept (POC) demonstrates how Jenkins configuration can be managed using Ansible Roles and Jenkins Configuration as Code (JCasC).
+This POC demonstrates how Jenkins configuration can be managed using Ansible Role and Jenkins Configuration as Code (JCasC).
 
 The implementation focuses on automating Jenkins administration activities through Infrastructure as Code (IaC) practices.
 
@@ -459,7 +459,7 @@ This POC demonstrates how Jenkins configuration can be managed using Ansible Rol
 
 The solution automates plugin installation, user management, credentials management, security configuration, and global Jenkins settings.
 
-This approach enables repeatable, secure, and version-controlled Jenkins administration aligned with Infrastructure as Code (IaC) best practices.
+This approach enables idempotent, secure, and version-controlled Jenkins administration aligned with Infrastructure as Code (IaC) best practices.
 
 ---
 
