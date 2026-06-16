@@ -81,11 +81,17 @@ Verify Ansible Installation:
 ```bash
 ansible --version
 ```
+<details>
+<summary>📸 <strong>Click to view Screenshot</strong></summary>
+<img width="1704" height="319" alt="image" src="https://github.com/user-attachments/assets/6b96c14b-57d7-4920-944e-a4f88b568555" />
+</details>
+
+
 
 Verify Jenkins Access:
 
 ```bash
-curl http://localhost:8080/login
+curl http://192.168.8.210:8080/login
 ```
 
 ---
@@ -155,24 +161,10 @@ Verify Structure:
 tree roles/jenkins
 ```
 
-Expected Output:
-
-```text
-roles/
-└── jenkins
-    ├── defaults
-    ├── files
-    ├── handlers
-    ├── tasks
-    ├── templates
-    ├── vars
-    └── vault
-```
-
 <details>
-<summary>📸 <strong>Click to view Screenshot - Jenkins Role Structure</strong></summary>
+<summary>📸 <strong>Click to view Screenshot</strong></summary>
 
-Add Screenshot Here
+<img width="1500" height="804" alt="image" src="https://github.com/user-attachments/assets/8450f49a-c278-4a58-89a8-32c46de9a4a3" />
 
 </details>
 
