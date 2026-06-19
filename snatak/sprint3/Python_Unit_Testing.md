@@ -44,26 +44,25 @@
 
 ---
 
-# Table of Contents
-
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
 2. [Pre-requisites](#2-pre-requisites)
 3. [Branch Creation](#3-branch-creation)
 4. [Repository Analysis](#4-repository-analysis)
-5. [Create Jenkins Pipeline](#5-create-jenkins-pipeline)
-6. [Configure Jenkins Pipeline Job](#6-configure-jenkins-pipeline-job)
-7. [Execute Pipeline](#7-execute-pipeline)
-8. [Review Test Reports](#8-review-test-reports)
+5. [Jenkins Pipeline Implementation](#5-jenkins-pipeline-implementation)
+6. [Jenkinsfile Structure](#6-jenkinsfile-structure)
+7. [Jenkins Job Configuration](#7-jenkins-job-configuration)
+8. [Pipeline Execution](#8-pipeline-execution)
 9. [Artifacts Generated](#9-artifacts-generated)
 10. [Challenges Encountered](#10-challenges-encountered)
 11. [Common Issues and Troubleshooting](#11-common-issues-and-troubleshooting)
 12. [Outcome](#12-outcome)
 13. [Contact Information](#13-contact-information)
-
+    
 ---
 
+<a id="1-introduction"></a>
 ## 1. Introduction
 
 This POC demonstrates implementation of a Jenkins Declarative Pipeline for Unit Testing of Python microservices.
@@ -88,6 +87,7 @@ The pipeline is designed to continue execution even when tests fail and generate
 
 ---
 
+<a id="2-pre-requisites"></a>
 ## 2. Pre-requisites
 
 | Component | Version |
@@ -119,6 +119,7 @@ pytest --version
 
 ---
 
+<a id="3-branch-creation"></a>
 ## 3. Branch Creation
 
 ```bash
@@ -151,6 +152,7 @@ Expected:
 
 ---
 
+<a id="4-repository-analysis"></a>
 ## 4. Repository Analysis
 
 ### Attendance_API
@@ -181,6 +183,8 @@ Pipeline handles this condition gracefully.
 
 ---
 
+<a id="5-jenkins-pipeline-implementation"></a>
+
 ## 5. Jenkins Pipeline Implementation
 
 Pipeline Location:
@@ -203,6 +207,7 @@ Implemented stages:
 
 ---
 
+<a id="6-jenkinsfile-structure"></a>
 ## 6. Jenkinsfile Structure
 
 Major Features:
@@ -280,6 +285,7 @@ notification-test-report.xml
 
 ---
 
+<a id="7-jenkins-job-configuration"></a>
 ## 7. Jenkins Job Configuration
 
 Navigate:
@@ -320,10 +326,11 @@ Declarative_Pipeline/Python/Unit_Testing
 
 <img width="1400" alt="Job Configuration" src="ADD_SCREENSHOT_HERE" />
 
-
+</details>
 
 ---
 
+<a id="8-pipeline-execution"></a>
 ## 8. Pipeline Execution
 
 Build Flow:
@@ -347,7 +354,7 @@ Expected Results:
 | Notification Tests | Success |
 | Post Actions | Success |
 
-</details>
+
 
 Save configuration.
 <details>
@@ -359,6 +366,7 @@ Save configuration.
 
 ---
 
+<a id="9-artifacts-generated"></a>
 ## 9. Artifacts Generated
 
 The following artifacts are generated and archived by Jenkins:
@@ -399,6 +407,7 @@ Build → Artifacts
 
 ---
 
+<a id="10-challenges-encountered"></a>
 ## 10. Challenges Encountered
 
 ## Poetry Installation Issues
@@ -481,6 +490,7 @@ Reports are still published.
 
 ---
 
+<a id="11-common-issues-and-troubleshooting"></a>
 ## 11. Common Issues and Troubleshooting
 
 | Issue | Cause | Resolution |
@@ -494,6 +504,7 @@ Reports are still published.
 
 ---
 
+<a id="12-outcome"></a>
 ## 12. Outcome
 
 The implementation successfully demonstrates:
@@ -519,6 +530,7 @@ This ensures test results remain visible while avoiding complete pipeline failur
 
 ---
 
+<a id="13-contact-information"></a>
 ## 13. Contact Information
 
 | Name | Contact |
