@@ -132,21 +132,11 @@ git pull origin main
 git checkout -b SCRUM-270-mukesh
 ```
 
-Verify:
 
-```bash
-git branch
-```
-
-Expected:
-
-```text
-* SCRUM-270-mukesh
-```
 <details>
 <summary>📸 <strong>Click to view Screenshot - Branch Creation</strong></summary>
 
-<img width="1400" alt="Branch Creation" src="ADD_SCREENSHOT_HERE" />
+<img width="1500" height="222" alt="image" src="https://github.com/user-attachments/assets/58057bbf-3e0f-4053-ad16-23d2f618df6a" />
 
 </details>
 
@@ -271,12 +261,6 @@ Checks whether tests exist:
 test_*.py
 *_test.py
 ```
-
-If tests are unavailable:
-
-- Generate dummy XML report
-- Continue build successfully
-
 Generated Report:
 
 ```text
@@ -324,7 +308,8 @@ Declarative_Pipeline/Python/Unit_Testing
 <details>
 <summary>📸 <strong>Click to view Screenshot - Jenkins Job Configuration</strong></summary>
 
-<img width="1400" alt="Job Configuration" src="ADD_SCREENSHOT_HERE" />
+<img width="1797" height="823" alt="image" src="https://github.com/user-attachments/assets/15cd6422-6c08-4b36-978e-b53d26ea342a" />
+
 
 </details>
 
@@ -359,8 +344,7 @@ Expected Results:
 Save configuration.
 <details>
 <summary>📸 <strong>Click to view Screenshot - Pipeline Execution</strong></summary>
-
-<img width="1400" alt="Pipeline Execution" src="ADD_SCREENSHOT_HERE" />
+<img width="1815" height="872" alt="image" src="https://github.com/user-attachments/assets/0b41348f-c38e-4e12-a71f-d598e9751277" />
 
 </details>
 
@@ -382,26 +366,24 @@ Artifacts can be accessed from:
 Build → Artifacts
 <details>
 <summary>📸 <strong>Click to view Screenshot - Commit Sign-Off Validation</strong></summary>
-
-<img width="1400" alt="Commit SignOff" src="ADD_SCREENSHOT_HERE" />
-
-</details>
-<details>
-<summary>📸 <strong>Click to view Screenshot - JUnit Test Results</strong></summary>
-
-<img width="1400" alt="JUnit Results" src="ADD_SCREENSHOT_HERE" />
+<img width="1436" height="603" alt="image" src="https://github.com/user-attachments/assets/847bcbc8-5d4e-47a4-80c6-5cf57cfa310c" />
 
 </details>
 <details>
-<summary>📸 <strong>Click to view Screenshot - Archived Artifacts</strong></summary>
+<summary>📸 <strong>Click to view Screenshot - Attendance_API Unit Test Result</strong></summary>
+<img width="1853" height="743" alt="image" src="https://github.com/user-attachments/assets/04088a97-2666-43f3-8b84-ba09bebc89f2" />
 
-<img width="1400" alt="Artifacts" src="ADD_SCREENSHOT_HERE" />
+</details>
+<details>
+<summary>📸 <strong>Click to view Screenshot - Notification Unit Test</strong></summary>
+
+<img width="1853" height="743" alt="image" src="https://github.com/user-attachments/assets/1ae846c0-c9d3-4a34-bcfd-e80beb3ae90c" />
+
 
 </details>
 <details>
 <summary>📸 <strong>Click to view Screenshot - Final Build Result</strong></summary>
-
-<img width="1400" alt="Build Result" src="ADD_SCREENSHOT_HERE" />
+<img width="1831" height="983" alt="image" src="https://github.com/user-attachments/assets/5119738e-1639-4a9d-8bc5-aaff5bfeb7a7" />
 
 </details>
 
