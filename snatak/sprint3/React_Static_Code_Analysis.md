@@ -1,7 +1,7 @@
 # <h1 align="center">React Declarative Pipeline for Static Code Analysis using SonarQube</h1>
 
 <div align="center">
-<img width="120" alt="SonarQube" src="https://www.sonarqube.org/logos/index/SonarQube.svg" />
+ <img width="200" height="auto" alt="DV-SonarQube" src="https://github.com/user-attachments/assets/36f08d50-e4ca-4704-9020-f0c5c8cb18dc" />
 </div>
 
 <br/>
