@@ -1,7 +1,7 @@
 # <h1 align="center">GoLang Shared Library for Unit Testing</h1>
 
 <div align="center">
-<img width="200" alt="GoLang" src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" />
+<img width="100" alt="GoLang" src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" />
 </div>
 
 <br/>
@@ -47,7 +47,7 @@
 2. [Pre-requisites](#2-pre-requisites)
 3. [Branch Creation](#3-branch-creation)
 4. [Create Shared Library Function](#4-create-shared-library-function)
-5. [Create Jenkins Pipeline](#5-create-jenkins-pipeline)
+5. [Create Jenkinsfile](#5-create-jenkinsfile)
 6. [Configure Jenkins Pipeline Job](#6-configure-jenkins-pipeline-job)
 7. [Execute Pipeline](#7-execute-pipeline)
 8. [Review Coverage Report](#8-review-coverage-report)
@@ -64,17 +64,6 @@
 This POC demonstrates the implementation of a Jenkins Shared Library for GoLang Unit Testing.
 
 The implementation uses a reusable Shared Library function that executes unit tests for the Employee API and generates test coverage reports.
-
-The pipeline automatically:
-
-* Checks out source code from GitHub
-* Executes GoLang unit tests
-* Generates coverage reports
-* Archives coverage artifacts
-* Sends Slack and Email notifications
-* Cleans workspace after execution
-
-This approach promotes code reusability, consistency, and centralized pipeline management.
 
 ---
 
@@ -98,8 +87,6 @@ This approach promotes code reusability, consistency, and centralized pipeline m
 
 ## 3. Branch Creation
 
-Create a feature branch using the assigned SCRUM ticket.
-
 ```bash
 cd Shared_Library
 
@@ -107,8 +94,10 @@ git checkout main
 
 git pull origin main
 
-git checkout -b SCRUM-300-mukesh
+git checkout -b SCRUM-300-mukesh origin/SCRUM-228-deepak
 ```
+The Shared Library branch for this implementation was created from the existing notification shared library branch.
+The SCRUM-228 implementation already contained the notification framework used for Slack and Email notifications.
 
 Verify current branch:
 
@@ -124,8 +113,8 @@ Expected Output:
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Branch Creation</strong></summary>
-
-ADD SCREENSHOT HERE
+<img width="1315" height="270" alt="image" src="https://github.com/user-attachments/assets/c524036a-f065-4ba8-b18d-d761b34c85f9" />
+<img width="1288" height="77" alt="image" src="https://github.com/user-attachments/assets/a5eb2e27-dfc0-4fda-a8f0-098cbc5528a5" />
 
 </details>
 
@@ -163,8 +152,7 @@ cat vars/goUnitTesting.groovy
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Shared Library Function</strong></summary>
-
-ADD SCREENSHOT HERE
+<img width="1329" height="390" alt="image" src="https://github.com/user-attachments/assets/80866832-89b2-4271-a805-75f34bbe9ae5" />
 
 </details>
 
@@ -172,7 +160,7 @@ ADD SCREENSHOT HERE
 
 <a id="5-create-jenkins-pipeline"></a>
 
-## 5. Create Jenkins Pipeline
+## 5. Create Jenkinsfile
 
 Create Pipeline Script:
 
@@ -181,15 +169,6 @@ Declarative_Pipeline/
  └── GoLang/
       └── Unit_Testing_using_Shared_Lib
 ```
-
-The pipeline performs:
-
-1. Checkout Shared Library
-2. Checkout Employee API Repository
-3. Execute Shared Library Function
-4. Publish Coverage Report
-5. Send Notifications
-6. Archive Artifacts
 
 Push Changes:
 
@@ -203,8 +182,7 @@ git push origin SCRUM-300-mukesh
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Jenkinsfile Creation</strong></summary>
-
-ADD SCREENSHOT HERE
+<img width="1386" height="722" alt="image" src="https://github.com/user-attachments/assets/98725910-8ad1-4110-bdd0-c117c20f3579" />
 
 </details>
 
@@ -259,7 +237,8 @@ Save Configuration.
 <details>
 <summary>📸 <strong>Click to view Screenshot - Jenkins Job Configuration</strong></summary>
 
-ADD SCREENSHOT HERE
+<img width="1842" height="879" alt="image" src="https://github.com/user-attachments/assets/f20c9f06-925e-4f05-a1dc-aa5db6e7b942" />
+
 
 </details>
 
@@ -294,7 +273,8 @@ SUCCESS
 <details>
 <summary>📸 <strong>Click to view Screenshot - Successful Pipeline Execution</strong></summary>
 
-ADD PIPELINE SUCCESS SCREENSHOT HERE
+<img width="1842" height="879" alt="image" src="https://github.com/user-attachments/assets/c5f0c3a2-52eb-48e1-be07-2a3c54e9860f" />
+
 
 </details>
 
@@ -328,7 +308,9 @@ Generated Reports:
 <details>
 <summary>📸 <strong>Click to view Screenshot - Coverage Report</strong></summary>
 
-ADD COVERAGE REPORT SCREENSHOT HERE
+<img width="1852" height="985" alt="image" src="https://github.com/user-attachments/assets/48b6fb85-ff9c-4b76-ac5d-2735060a4534" />
+<img width="1852" height="985" alt="image" src="https://github.com/user-attachments/assets/78e5aa74-2f22-4bab-bc7e-5efab8afc0bb" />
+
 
 </details>
 
@@ -354,8 +336,7 @@ Success Notification Includes:
 
 <details>
 <summary>📸 <strong>Click to view Screenshot - Slack Notification</strong></summary>
-
-ADD SLACK SCREENSHOT HERE
+<img width="1849" height="592" alt="image" src="https://github.com/user-attachments/assets/9b689c3b-4b1e-4695-92b7-0ed22c82f360" />
 
 </details>
 
@@ -364,7 +345,8 @@ ADD SLACK SCREENSHOT HERE
 <details>
 <summary>📸 <strong>Click to view Screenshot - Email Notification</strong></summary>
 
-ADD EMAIL SCREENSHOT HERE
+<img width="1111" height="668" alt="image" src="https://github.com/user-attachments/assets/c0dcafd9-d40f-4c9d-b14a-2a9449efc883" />
+
 
 </details>
 
