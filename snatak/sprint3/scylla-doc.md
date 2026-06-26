@@ -27,7 +27,7 @@
 5. [Role File Description](#5-role-file-description)
 6. [Advantages](#6-advantages)
 7. [Best Practices](#7-best-practices)
-8. [Recommendation / Conclusion](#8-recommendation--conclusion)
+8. [Conclusion](#8-conclusion)
 9. [FAQs](#9-faqs)
 10. [Contact Information](#10-contact-information)
 11. [References](#11-references)
@@ -190,7 +190,7 @@ The execution begins with `tasks/main.yml`, which orchestrates the role by impor
 
 <a id="8-recommendation--conclusion"></a>
 
-## 8. Recommendation / Conclusion
+## 8. Conclusion
 
 The ScyllaDB Ansible Role provides a standardized and automated approach for deploying and configuring ScyllaDB within the OT-Microservices environment. By following the Ansible role structure and modular design principles, the role simplifies deployment, improves maintainability, and ensures consistent configuration across multiple environments. Adopting this role-based automation reduces manual effort while supporting reliable and repeatable infrastructure provisioning.
 
