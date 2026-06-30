@@ -1,19 +1,19 @@
 ## 📚 What are Shared Libraries in Jenkins?
 
-## 🧠 Definition
+### 🧠 Definition
 
 **Jenkins Shared Libraries** are **reusable Groovy code modules** that allow you to **share common pipeline logic across multiple Jenkins pipelines**.
 
 👉 Instead of copying the same pipeline code into every `Jenkinsfile`, you write it **once** and reuse it everywhere.
 
 ---
-## 🎯 Objective
+### 🎯 Objective
 
 Understand how **resources, src, and vars work together** in a Jenkins Shared Library using a clean, production-style example.
 
 ---
 
-# 🏗️ 1. Project Structure
+### 🏗️ 1. Project Structure
 
 ```
 (shared-library)
@@ -30,15 +30,15 @@ Understand how **resources, src, and vars work together** in a Jenkins Shared Li
 
 ---
 
-# 📄 2. `resources/` → Configuration Layer
+### 📄 2. `resources/` → Configuration Layer
 
-## 🔹 Purpose
+#### 🔹 Purpose
 
 * Stores **static files** (YAML, JSON, templates)
 * No logic
 * Used via `libraryResource()`
 
-## ✅ Example: `resources/config/app.yaml`
+#### ✅ Example: `resources/config/app.yaml`
 
 ```yaml
 appName: my-app
@@ -47,7 +47,7 @@ dockerImage: my-app:v1
 replicas: 2
 ```
 
-## 🧠 Key Points
+#### 🧠 Key Points
 
 * Acts as **data layer**
 * Easily replaceable per environment
@@ -55,15 +55,15 @@ replicas: 2
 
 ---
 
-# 🧠 3. `src/` → Logic Layer (Core Engine)
+### 🧠 3. `src/` → Logic Layer (Core Engine)
 
-## 🔹 Purpose
+#### 🔹 Purpose
 
 * Contains **Groovy classes**
 * Implements **business logic**
 * Uses config from `resources/`
 
-## ✅ Example: `ConfigDeployer.groovy`
+#### ✅ Example: `ConfigDeployer.groovy`
 
 ```groovy
 package com.company.devops
@@ -96,29 +96,29 @@ class ConfigDeployer implements Serializable {
 }
 ```
 
-## 🧠 Key Concepts
+### 🧠 Key Concepts
 
-### ✅ Class-Based Design
+#### ✅ Class-Based Design
 
 * Structured and reusable
 
-### ✅ Uses Pipeline Context
+#### ✅ Uses Pipeline Context
 
 ```groovy
 new ConfigDeployer(this)
 ```
 
-### ✅ Serializable Required
+#### ✅ Serializable Required
 
 * Supports Jenkins pipeline pause/resume (CPS)
 
-### ❌ Cannot Use Directly
+#### ❌ Cannot Use Directly
 
 ```groovy
 sh "ls"  // ❌ Not allowed
 ```
 
-### ✅ Correct Way
+#### ✅ Correct Way
 
 ```groovy
 steps.sh "ls"
@@ -126,14 +126,14 @@ steps.sh "ls"
 
 ---
 
-# 🚀 4. `vars/` → Entry Point Layer
+### 🚀 4. `vars/` → Entry Point Layer
 
-## 🔹 Purpose
+#### 🔹 Purpose
 
 * Provides **global functions**
 * Acts as **bridge between pipeline and src/**
 
-## ✅ Example: `deployApp.groovy`
+#### ✅ Example: `deployApp.groovy`
 
 ```groovy
 def call() {
@@ -142,7 +142,7 @@ def call() {
 }
 ```
 
-## 🧠 Key Points
+#### 🧠 Key Points
 
 * Automatically available in pipeline
 * No import needed
@@ -150,7 +150,7 @@ def call() {
 
 ---
 
-# ⚙️ 5. Jenkins Pipeline Usage
+### ⚙️ 5. Jenkins Pipeline Usage
 
 ```groovy
 @Library('my-shared-lib') _
@@ -170,7 +170,7 @@ pipeline {
 
 ---
 
-# 🔄 6. End-to-End Flow
+### 🔄 6. End-to-End Flow
 
 ```
 Pipeline
@@ -184,7 +184,7 @@ resources/app.yaml      (configuration)
 
 ---
 
-# 🧠 7. Architecture Mapping
+### 🧠 7. Architecture Mapping
 
 | Layer      | Role             | Responsibility      |
 | ---------- | ---------------- | ------------------- |
@@ -194,39 +194,39 @@ resources/app.yaml      (configuration)
 
 ---
 
-# 🔥 8. Real DevOps Use Cases
+### 🔥 8. Real DevOps Use Cases
 
-## 🚀 Multi-Environment Deployment
+#### 🚀 Multi-Environment Deployment
 
 ```
 config/dev.yaml
 config/prod.yaml
 ```
 
-## ☁️ Cloud Automation
+#### ☁️ Cloud Automation
 
 * AWS / GCP logic in `src/`
 * Config-driven deployments
 
-## 🐳 Docker Pipelines
+#### 🐳 Docker Pipelines
 
 * Image name, tags from YAML
 
-## ☸️ Kubernetes Deployments
+#### ☸️ Kubernetes Deployments
 
 * Use config for replicas, namespace
 
 ---
 
-# ⚠️ 9. Common Mistakes
+### ⚠️ 9. Common Mistakes
 
-### ❌ Wrong: Reading file directly
+#### ❌ Wrong: Reading file directly
 
 ```groovy
 readFile('resources/config/app.yaml')
 ```
 
-### ✅ Correct
+#### ✅ Correct
 
 ```groovy
 libraryResource('config/app.yaml')
@@ -234,21 +234,21 @@ libraryResource('config/app.yaml')
 
 ---
 
-### ❌ Heavy logic in `vars/`
+#### ❌ Heavy logic in `vars/`
 
 * Makes pipeline messy
 
-### ✅ Keep logic in `src/`
+#### ✅ Keep logic in `src/`
 
 ---
 
-### ❌ No Serializable
+#### ❌ No Serializable
 
 * Causes runtime failure
 
 ---
 
-# 🎯 10. Key Takeaways
+### 🎯 10. Key Takeaways
 
 * `resources/` → stores configuration (YAML/JSON)
 * `src/` → contains reusable Groovy classes (logic)
@@ -256,7 +256,7 @@ libraryResource('config/app.yaml')
 
 ---
 
-# 🧠 Interview Summary
+### 🧠 Interview Summary
 
 > A Jenkins Shared Library is structured into three layers: `resources/` for configuration, `src/` for reusable logic implemented as Groovy classes, and `vars/` for exposing entry points to pipelines. The `src/` layer consumes configuration using `libraryResource` and executes pipeline steps via injected context, enabling scalable and maintainable CI/CD design.
 
@@ -269,3 +269,5 @@ resources → WHAT to do (data)
 src       → HOW to do (logic)
 vars      → WHEN to do (trigger)
 ```
+
+<img width="1055" height="1491" alt="ChatGPT Image Jun 26, 2026, 07_30_33 PM (1)" src="https://github.com/user-attachments/assets/b1e112b6-a10d-4a81-bc7b-8b49997f9906" />
