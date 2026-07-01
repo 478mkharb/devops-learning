@@ -6,7 +6,7 @@ pipeline {
     parameters {
         string(name: 'GIT_REPO',      defaultValue: 'https://github.com/OT-MICROSERVICES/frontend.git', description: 'Git Repository URL')
         string(name: 'GIT_BRANCH',    defaultValue: 'main',                                             description: 'Git Branch')
-        string(name: 'TARGET_URL',    defaultValue: ' http://13.204.84.8/',                             description: 'Target Application URL to scan')
+        string(name: 'TARGET_URL',    defaultValue: ' http://52.66.253.129',                             description: 'Target Application URL to scan')
         string(name: 'EMAIL_TO',      defaultValue: 'jenkinsotms@gmail.com',                            description: 'Email Recipient')
         string(name: 'SLACK_CHANNEL', defaultValue: '#build-status',                                    description: 'Slack Channel')
     }
