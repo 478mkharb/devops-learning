@@ -110,3 +110,165 @@ pipeline {
                 }
             }
         }
+
+def checkout(String repo, String branch) {
+    git branch: branch, url: repo
+}
+
+def install() {
+    sh 'npm install --package-lock=true'
+}
+
+def build() {
+   sh 'CI=false npm run build'
+    archiveArtifacts artifacts: 'build/**'
+}
+
+def test() {
+    sh 'npx jest --coverage --passWithNoTests'
+    archiveArtifacts artifacts: 'jest-output.txt', allowEmptyArchive: true
+}
+
+def sonar(String projectKey, String sonarServer) {
+    def scannerHome = tool 'sonar-scanner'
+    withSonarQubeEnv(sonarServer) {
+        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${projectKey} -Dsonar.sources=."
+    }
+}
+
+def qualityGate() {
+    timeout(time: 5, unit: 'MINUTES') {
+        waitForQualityGate abortPipeline: false
+    }
+}
+
+def trivy() {
+    sh '''
+        export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+        if ! command -v trivy >/dev/null 2>&1; then
+            echo "Trivy not found. Installing..."
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b "$HOME/.local/bin"
+        fi
+        
+        # Ensure package-lock.json exists for Trivy to scan
+        if [ ! -f package-lock.json ]; then
+            echo "package-lock.json not found! Generating lock file..."
+            npm install --package-lock-only 
+        fi
+        
+        echo "Downloading Trivy HTML template..."
+        wget -q https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
+        
+        echo "Running Trivy fs scan..."
+        trivy fs . --skip-dirs node_modules --severity HIGH,CRITICAL --format template --template "@html.tpl" --output trivy-report.html 
+    '''
+    archiveArtifacts artifacts: 'trivy-report.html'
+}
+
+def notifications(String status, String slackChannel = '#build-status', String emailTo = 'jenkinsotms@gmail.com') {
+    slackSend(
+        channel: slackChannel,
+        color: status == 'SUCCESS' ? 'good' : 'danger',
+        message: "*Build ${status}* | Job: ${env.JOB_NAME} | Build: #${env.BUILD_NUMBER} | ${env.BUILD_URL}"
+    )
+
+    emailext(
+        to: emailTo,
+        subject: "${status}: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
+        mimeType: 'text/html',
+        body: """
+        <h3>Build ${status}</h3>
+        <p><b>Job:</b> ${env.JOB_NAME}</p>
+        <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+        <p><b>URL:</b> <a href="${env.BUILD_URL}">Click Here</a></p>
+        """
+    )
+}
+
+def setupJava() {
+    echo "Downloading and extracting JDK 17..."
+    sh '''
+        mkdir -p java
+        cd java
+        wget -q https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12+7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
+        tar -xzf OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
+    '''
+}
+
+def downloadZAP() {
+    def ZAP_DIR = "zap"
+    echo "Downloading and extracting ZAP..."
+    sh """
+        mkdir -p ${ZAP_DIR}
+        cd ${ZAP_DIR}
+        wget -q https://github.com/zaproxy/zaproxy/releases/download/v2.17.0/ZAP_2.17.0_Linux.tar.gz
+        tar -xzf ZAP_2.17.0_Linux.tar.gz
+    """
+}
+
+def startZAP() {
+    def ZAP_API_KEY = "dastkey"
+    def ZAP_PORT = "8099"
+    def ZAP_DIR = "zap"
+    
+    sh """
+        pkill -u \$(whoami) -f -i zap 
+
+        JAVA_DIR=\$(ls -d java/jdk-17* | head -n 1)
+        export JAVA_HOME="\$PWD/\$JAVA_DIR"
+        export PATH="\$JAVA_HOME/bin:\$PATH"
+        ZAP_PATH=\$(find "${ZAP_DIR}" -name zap.sh | head -n 1)
+
+        BUILD_ID=dontKillMe nohup "\$ZAP_PATH" -daemon \
+          -host 0.0.0.0 \
+          -port ${ZAP_PORT} \
+          -config api.key=${ZAP_API_KEY} \
+          -config api.addrs.addr.name=.* \
+          -config api.addrs.addr.regex=true \
+          > zap.log 2>&1 &
+
+        # Wait for ZAP to start and listen on port ${ZAP_PORT}
+        until curl -s "http://127.0.0.1:${ZAP_PORT}" >/dev/null; do
+            sleep 2
+        done
+    """
+}
+
+def spiderScan(String targetUrl) {
+    def ZAP_API_KEY = "dastkey"
+    def ZAP_PORT = "8099"
+    def cleanUrl = targetUrl.trim()
+    
+    sh """
+        curl "http://127.0.0.1:${ZAP_PORT}/JSON/spider/action/scan/?url=${cleanUrl}&apikey=${ZAP_API_KEY}"
+        sleep 30
+    """
+}
+
+def activeScan(String targetUrl) {
+    def ZAP_API_KEY = "dastkey"
+    def ZAP_PORT = "8099"
+    def cleanUrl = targetUrl.trim()
+    
+    sh """
+        curl "http://127.0.0.1:${ZAP_PORT}/JSON/ascan/action/scan/?url=${cleanUrl}&apikey=${ZAP_API_KEY}"
+        sleep 120
+    """
+}
+
+def generateReport(String reportName = 'zap_report.html') {
+    def ZAP_API_KEY = "dastkey"
+    def ZAP_PORT = "8099"
+    
+    sh """
+        curl "http://127.0.0.1:${ZAP_PORT}/OTHER/core/other/htmlreport/?apikey=${ZAP_API_KEY}" > ${reportName}
+    """
+}
+
+def stopZAP() {
+    def ZAP_DIR = "zap"
+    sh """
+        pkill -u \$(whoami) -f -i zap || true
+        rm -rf ${ZAP_DIR} java 
+    """
+}
