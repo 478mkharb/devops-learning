@@ -1,274 +1,732 @@
 pipeline {
     agent any
 
-        parameters {
-                string(name: 'GIT_REPO',      defaultValue: 'https://github.com/OT-MICROSERVICES/frontend.git', description: 'Git Repository URL')
-                string(name: 'GIT_BRANCH',    defaultValue: 'main',                                             description: 'Git Branch')
-                string(name: 'TARGET_URL',    defaultValue: ' http://52.66.253.129',                             description: 'Target Application URL to scan')
-                string(name: 'EMAIL_TO',      defaultValue: 'jenkinsotms@gmail.com',                            description: 'Email Recipient')
-                string(name: 'SLACK_CHANNEL', defaultValue: '#build-status',                                    description: 'Slack Channel')
+    options {
+        timestamps()
+        ansiColor('xterm')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(
+            numToKeepStr: '20',
+            artifactNumToKeepStr: '20'
+        ))
+    }
+
+    parameters {
+
+        string(
+            name: 'GIT_REPO',
+            defaultValue: 'https://github.com/OT-MICROSERVICES/frontend.git',
+            description: 'Git Repository URL'
+        )
+
+        string(
+            name: 'GIT_BRANCH',
+            defaultValue: 'main',
+            description: 'Git Branch'
+        )
+
+        string(
+            name: 'TARGET_URL',
+            defaultValue: 'http://52.66.253.129',
+            description: 'Application URL for DAST Scan'
+        )
+
+        string(
+            name: 'EMAIL_TO',
+            defaultValue: 'jenkinsotms@gmail.com',
+            description: 'Notification Email'
+        )
+
+        string(
+            name: 'SLACK_CHANNEL',
+            defaultValue: '#build-status',
+            description: 'Slack Channel'
+        )
+    }
+
+    environment {
+
+        SONAR_SERVER = "SonarQube"
+        SONAR_PROJECT = "frontend-bhawna"
+
+        ZAP_PORT = "8099"
+        ZAP_API_KEY = "dastkey"
+
+        TRIVY_VERSION = "latest"
+
+        JAVA_DIR = "java"
+        ZAP_DIR = "zap"
+
+        REPORT_NAME = "zap_report.html"
+
+    }
+
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
             }
-        
-            stages {
-                stage('Clean Workspace') {
-                    steps {
-                        cleanWs()
-                    }
-                }
-        
-                stage('Checkout Repository') {
-                    steps {
-                        script {
-                            frontendCI.checkout(params.GIT_REPO, params.GIT_BRANCH)
-                        }
-                    }
-                }
-        
-                stage('Install Dependencies') {
-                    steps {
-                        script {
-                            frontendCI.install()
-                        }
-                    }
-                }
-        
-                stage('Build (Webpack)') {
-                    steps {
-                        script {
-                            frontendCI.build()
-                        }
-                    }
-                }
-        
-                stage('Unit Testing (Jest)') {
-                    steps {
-                        script {
-                            frontendCI.test()
-                        }
-                    }
-                }
-        
-                stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            frontendCI.sonar("frontend-bhawna", "SonarQube")
-                        }
-                    }
-                }
-        
-                stage('Quality Gate') {
-                    steps {
-                        script {
-                            frontendCI.qualityGate()
-                        }
-                    }
-                }
-        
-                stage('Dependency Scan (Trivy)') {
-                    steps {
-                        script {
-                            frontendCI.trivy()
-                        }
-                    }
-                }
-        
-                stage('DAST Scan') {
-                    steps {
-                        script {
-                            frontendCI.setupJava()
-                            frontendCI.downloadZAP()
-                            frontendCI.startZAP()
-                            frontendCI.spiderScan(params.TARGET_URL)
-                            frontendCI.activeScan(params.TARGET_URL)
-                            frontendCI.generateReport('zap_report.html')
-                        }
-                    }
-                }
+        }
+
+        stage('Checkout Repository') {
+
+            steps {
+
+                echo "Repository : ${params.GIT_REPO}"
+                echo "Branch     : ${params.GIT_BRANCH}"
+
+                git(
+                    url: params.GIT_REPO,
+                    branch: params.GIT_BRANCH
+                )
+
+                sh '''
+                    echo
+                    echo "========== Repository =========="
+                    pwd
+                    ls -la
+                '''
             }
-        
-            post {
-                always {
-                    script {
-                        // Shutdown ZAP daemon to release resources and cleanup
-                        frontendCI.stopZAP()
-        
-                        // Archive reports
-                        archiveArtifacts artifacts: 'zap_report.html', allowEmptyArchive: true
-                    }
-                }
-                success {
-                    script {
-                        echo "Final Build Status: SUCCESS"
-                        frontendCI.notifications('SUCCESS', params.SLACK_CHANNEL, params.EMAIL_TO)
-                    }
-                }
-                failure {
-                    script {
-                        echo "Final Build Status: FAILED"
-                        frontendCI.notifications('FAILED', params.SLACK_CHANNEL, params.EMAIL_TO)
+        }
+        stage('Install Dependencies') {
+
+            steps {
+
+                script {
+
+                    try {
+
+                        sh '''
+                            echo "======================================"
+                            echo "Installing Node.js Dependencies"
+                            echo "======================================"
+
+                            node --version
+                            npm --version
+
+                            npm install --package-lock=true
+                        '''
+
+                    } catch (Exception e) {
+
+                        error "Dependency installation failed."
+
                     }
                 }
             }
         }
 
-def checkout(String repo, String branch) {
-    git branch: branch, url: repo
-}
+        stage('Build (Webpack)') {
 
-def install() {
-    sh 'npm install --package-lock=true'
-}
+            steps {
 
-def build() {
-   sh 'CI=false npm run build'
-    archiveArtifacts artifacts: 'build/**'
-}
+                script {
 
-def test() {
-    sh 'npx jest --coverage --passWithNoTests'
-    archiveArtifacts artifacts: 'jest-output.txt', allowEmptyArchive: true
-}
+                    try {
 
-def sonar(String projectKey, String sonarServer) {
-    def scannerHome = tool 'sonar-scanner'
-    withSonarQubeEnv(sonarServer) {
-        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${projectKey} -Dsonar.sources=."
+                        sh '''
+                            echo "======================================"
+                            echo "Building React Application"
+                            echo "======================================"
+
+                            CI=false npm run build
+                        '''
+
+                    } catch (Exception e) {
+
+                        error "React build failed."
+                    }
+                }
+            }
+
+            post {
+
+                success {
+
+                    archiveArtifacts(
+                        artifacts: 'build/**',
+                        fingerprint: true
+                    )
+
+                }
+
+            }
+
+        }
+
+        stage('Unit Testing (Jest)') {
+
+            steps {
+
+                script {
+
+                    try {
+
+                        sh '''
+                            echo "======================================"
+                            echo "Running Jest Tests"
+                            echo "======================================"
+
+                            npx jest \
+                            --coverage \
+                            --passWithNoTests \
+                            | tee jest-output.txt
+                        '''
+
+                    } catch (Exception e) {
+
+                        error "Unit Testing failed."
+
+                    }
+
+                }
+
+            }
+
+            post {
+
+                always {
+
+                    archiveArtifacts(
+                        artifacts: '''
+                            jest-output.txt,
+                            coverage/**
+                        ''',
+                        allowEmptyArchive: true
+                    )
+
+                }
+
+            }
+
+        }
+        stage('SonarQube Analysis') {
+
+            steps {
+
+                script {
+
+                    try {
+
+                        def scannerHome = tool 'sonar-scanner'
+
+                        withSonarQubeEnv(env.SONAR_SERVER) {
+
+                            sh """
+                                echo "======================================"
+                                echo "Running SonarQube Analysis"
+                                echo "======================================"
+
+                                ${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=${env.SONAR_PROJECT} \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.sourceEncoding=UTF-8
+                            """
+                        }
+
+                    } catch (Exception e) {
+
+                        error "SonarQube Analysis Failed."
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        stage('Quality Gate') {
+
+            steps {
+
+                timeout(time: 5, unit: 'MINUTES') {
+
+                    script {
+
+                        def qualityGate = waitForQualityGate(
+                            abortPipeline: false
+                        )
+
+                        echo "Quality Gate Status : ${qualityGate.status}"
+
+                        if (qualityGate.status != 'OK') {
+
+                            currentBuild.result = 'UNSTABLE'
+
+                            echo "Quality Gate Failed."
+
+                        } else {
+
+                            echo "Quality Gate Passed."
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        stage('Dependency Scan (Trivy)') {
+
+            steps {
+
+                script {
+
+                    try {
+
+                        sh '''
+
+                            echo "======================================"
+                            echo "Running Trivy Scan"
+                            echo "======================================"
+
+                            export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
+
+                            if ! command -v trivy >/dev/null 2>&1
+                            then
+
+                                echo "Installing Trivy..."
+
+                                curl -sfL \
+                                https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+                                | sh -s -- -b "$HOME/.local/bin"
+
+                            fi
+
+                            if [ ! -f package-lock.json ]
+                            then
+                                npm install --package-lock-only
+                            fi
+
+                            wget -q \
+                            https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl \
+                            -O html.tpl
+
+                            trivy fs . \
+                                --skip-dirs node_modules \
+                                --severity HIGH,CRITICAL \
+                                --format template \
+                                --template "@html.tpl" \
+                                --output trivy-report.html
+
+                        '''
+
+                    } catch (Exception e) {
+
+                        error "Trivy Scan Failed."
+
+                    }
+
+                }
+
+            }
+
+            post {
+
+                always {
+
+                    archiveArtifacts(
+                        artifacts: 'trivy-report.html',
+                        allowEmptyArchive: true
+                    )
+
+                }
+
+            }
+
+        }
+        stage('DAST Scan') {
+
+            steps {
+
+                script {
+
+                    try {
+
+                        sh """
+                        set -ex
+
+                        echo "==========================================="
+                        echo "Starting OWASP ZAP DAST Scan"
+                        echo "==========================================="
+
+                        pkill -u \$(whoami) -f -i zap || true
+
+                        rm -rf java zap
+
+                        mkdir java
+                        cd java
+
+                        wget -q https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12+7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
+
+                        tar -xzf OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
+
+                        cd ..
+
+                        JAVA_HOME=\$(find java -maxdepth 1 -type d -name "jdk-17*" | head -1)
+
+                        export JAVA_HOME="\$PWD/\$JAVA_HOME"
+
+                        export PATH="\$JAVA_HOME/bin:\$PATH"
+
+                        java -version
+
+                        mkdir zap
+
+                        cd zap
+
+                        wget -q https://github.com/zaproxy/zaproxy/releases/download/v2.17.0/ZAP_2.17.0_Linux.tar.gz
+
+                        tar -xzf ZAP_2.17.0_Linux.tar.gz
+
+                        cd ..
+
+                        ZAP_PATH=\$(find zap -name zap.sh | head -1)
+
+                        chmod +x "\$ZAP_PATH"
+
+                        echo "ZAP Path : \$ZAP_PATH"
+
+                        BUILD_ID=dontKillMe nohup "\$ZAP_PATH" \
+                            -daemon \
+                            -host 0.0.0.0 \
+                            -port 8099 \
+                            -config api.key=dastkey \
+                            -config api.addrs.addr.name=.* \
+                            -config api.addrs.addr.regex=true \
+                            > zap.log 2>&1 &
+
+                        echo "Waiting for ZAP..."
+
+                        until curl -sf http://127.0.0.1:8099/JSON/core/view/version/ >/dev/null
+                        do
+                            sleep 2
+                        done
+
+                        echo "ZAP Started Successfully"
+
+                        """
+                        sh """
+
+                        echo "==========================================="
+                        echo "Spider Scan"
+                        echo "==========================================="
+
+                        SCAN_ID=\$(curl -s \
+                        "http://127.0.0.1:8099/JSON/spider/action/scan/?apikey=dastkey&url=${params.TARGET_URL}" \
+                        | jq -r '.scan')
+
+                        echo "Spider Scan ID : \$SCAN_ID"
+
+                        while true
+                        do
+
+                            STATUS=\$(curl -s \
+                            "http://127.0.0.1:8099/JSON/spider/view/status/?apikey=dastkey&scanId=\$SCAN_ID" \
+                            | jq -r '.status')
+
+                            echo "Spider Progress : \$STATUS%"
+
+                            [ "\$STATUS" = "100" ] && break
+
+                            sleep 5
+
+                        done
+
+                        """
+                        sh """
+
+                        echo "==========================================="
+                        echo "Active Scan"
+                        echo "==========================================="
+
+                        ASCAN=\$(curl -s \
+                        "http://127.0.0.1:8099/JSON/ascan/action/scan/?apikey=dastkey&url=${params.TARGET_URL}" \
+                        | jq -r '.scan')
+
+                        while true
+                        do
+
+                            STATUS=\$(curl -s \
+                            "http://127.0.0.1:8099/JSON/ascan/view/status/?apikey=dastkey&scanId=\$ASCAN" \
+                            | jq -r '.status')
+
+                            echo "Active Scan : \$STATUS%"
+
+                            [ "\$STATUS" = "100" ] && break
+
+                            sleep 10
+
+                        done
+
+                        """
+                        sh """
+
+                        echo "==========================================="
+                        echo "Generating Report"
+                        echo "==========================================="
+
+                        curl -s \
+                        "http://127.0.0.1:8099/OTHER/core/other/htmlreport/?apikey=dastkey" \
+                        > zap_report.html
+
+                        """
+
+                    }
+                    catch(Exception ex){
+
+                        error "OWASP ZAP Scan Failed."
+
+                        }
+
+                    }
+
+                }
+            }
+
+            post{
+
+                always{
+
+                    archiveArtifacts(
+                        artifacts: '''
+                            zap.log,
+                            zap_report.html
+                        ''',
+                        allowEmptyArchive: true
+                    )
+
+                }
+
+            }
+
+        }
+    post {
+
+        always {
+
+            script {
+
+                echo "======================================="
+                echo "Cleaning up ZAP and Temporary Files"
+                echo "======================================="
+
+                sh '''
+                    pkill -u $(whoami) -f -i zap || true
+
+                    rm -rf \
+                        java \
+                        zap \
+                        html.tpl
+
+                    echo "Cleanup Completed."
+                '''
+            }
+
+            archiveArtifacts(
+                artifacts: '''
+                    build/**,
+                    coverage/**,
+                    jest-output.txt,
+                    trivy-report.html,
+                    zap_report.html,
+                    zap.log
+                ''',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
+
+        }
+
+        success {
+
+            script {
+
+                echo ""
+                echo "======================================="
+                echo "PIPELINE EXECUTED SUCCESSFULLY"
+                echo "======================================="
+
+                slackSend(
+                    channel: params.SLACK_CHANNEL,
+                    color: "good",
+                    message: """
+✅ *Frontend Pipeline SUCCESS*
+
+*Job:* ${env.JOB_NAME}
+
+*Build:* #${env.BUILD_NUMBER}
+
+*Branch:* ${params.GIT_BRANCH}
+
+*URL:* ${env.BUILD_URL}
+"""
+                )
+
+                emailext(
+
+                    to: params.EMAIL_TO,
+
+                    subject: "SUCCESS : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                    mimeType: 'text/html',
+
+                    body: """
+<h2 style="color:green;">Frontend Pipeline Successful</h2>
+
+<table border="1" cellpadding="6">
+
+<tr>
+<td><b>Job</b></td>
+<td>${env.JOB_NAME}</td>
+</tr>
+
+<tr>
+<td><b>Build</b></td>
+<td>#${env.BUILD_NUMBER}</td>
+</tr>
+
+<tr>
+<td><b>Repository</b></td>
+<td>${params.GIT_REPO}</td>
+</tr>
+
+<tr>
+<td><b>Branch</b></td>
+<td>${params.GIT_BRANCH}</td>
+</tr>
+
+<tr>
+<td><b>Build URL</b></td>
+<td>
+<a href="${env.BUILD_URL}">
+${env.BUILD_URL}
+</a>
+</td>
+</tr>
+
+</table>
+
+<br>
+
+Pipeline executed successfully.
+"""
+                )
+
+            }
+
+        }
+
+        unstable {
+
+            script {
+
+                echo "Pipeline Finished as UNSTABLE"
+
+                slackSend(
+                    channel: params.SLACK_CHANNEL,
+                    color: "warning",
+                    message: """
+⚠ *Frontend Pipeline UNSTABLE*
+
+Job : ${env.JOB_NAME}
+
+Build : #${env.BUILD_NUMBER}
+
+${env.BUILD_URL}
+"""
+                )
+
+            }
+
+        }
+
+        failure {
+
+            script {
+
+                echo ""
+                echo "======================================="
+                echo "PIPELINE FAILED"
+                echo "======================================="
+
+                slackSend(
+
+                    channel: params.SLACK_CHANNEL,
+
+                    color: "danger",
+
+                    message: """
+❌ *Frontend Pipeline FAILED*
+
+Job : ${env.JOB_NAME}
+
+Build : #${env.BUILD_NUMBER}
+
+${env.BUILD_URL}
+"""
+
+                )
+
+                emailext(
+
+                    to: params.EMAIL_TO,
+
+                    subject: "FAILED : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                    mimeType: 'text/html',
+
+                    body: """
+<h2 style="color:red;">Frontend Pipeline Failed</h2>
+
+<table border="1" cellpadding="6">
+
+<tr>
+<td><b>Job</b></td>
+<td>${env.JOB_NAME}</td>
+</tr>
+
+<tr>
+<td><b>Build</b></td>
+<td>#${env.BUILD_NUMBER}</td>
+</tr>
+
+<tr>
+<td><b>Repository</b></td>
+<td>${params.GIT_REPO}</td>
+</tr>
+
+<tr>
+<td><b>Branch</b></td>
+<td>${params.GIT_BRANCH}</td>
+</tr>
+
+<tr>
+<td><b>Build URL</b></td>
+<td>
+<a href="${env.BUILD_URL}">
+${env.BUILD_URL}
+</a>
+</td>
+</tr>
+
+</table>
+
+<br>
+
+Please check the Jenkins console log.
+
+"""
+                )
+
+            }
+
+        }
+
     }
-}
 
-def qualityGate() {
-    timeout(time: 5, unit: 'MINUTES') {
-        waitForQualityGate abortPipeline: false
-    }
-}
-
-def trivy() {
-    sh '''
-        export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
-        if ! command -v trivy >/dev/null 2>&1; then
-            echo "Trivy not found. Installing..."
-            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b "$HOME/.local/bin"
-        fi
-        
-        # Ensure package-lock.json exists for Trivy to scan
-        if [ ! -f package-lock.json ]; then
-            echo "package-lock.json not found! Generating lock file..."
-            npm install --package-lock-only 
-        fi
-        
-        echo "Downloading Trivy HTML template..."
-        wget -q https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -O html.tpl
-        
-        echo "Running Trivy fs scan..."
-        trivy fs . --skip-dirs node_modules --severity HIGH,CRITICAL --format template --template "@html.tpl" --output trivy-report.html 
-    '''
-    archiveArtifacts artifacts: 'trivy-report.html'
-}
-
-def notifications(String status, String slackChannel = '#build-status', String emailTo = 'jenkinsotms@gmail.com') {
-    slackSend(
-        channel: slackChannel,
-        color: status == 'SUCCESS' ? 'good' : 'danger',
-        message: "*Build ${status}* | Job: ${env.JOB_NAME} | Build: #${env.BUILD_NUMBER} | ${env.BUILD_URL}"
-    )
-
-    emailext(
-        to: emailTo,
-        subject: "${status}: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
-        mimeType: 'text/html',
-        body: """
-        <h3>Build ${status}</h3>
-        <p><b>Job:</b> ${env.JOB_NAME}</p>
-        <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
-        <p><b>URL:</b> <a href="${env.BUILD_URL}">Click Here</a></p>
-        """
-    )
-}
-
-def setupJava() {
-    echo "Downloading and extracting JDK 17..."
-    sh '''
-        mkdir -p java
-        cd java
-        wget -q https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12+7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
-        tar -xzf OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz
-    '''
-}
-
-def downloadZAP() {
-    def ZAP_DIR = "zap"
-    echo "Downloading and extracting ZAP..."
-    sh """
-        mkdir -p ${ZAP_DIR}
-        cd ${ZAP_DIR}
-        wget -q https://github.com/zaproxy/zaproxy/releases/download/v2.17.0/ZAP_2.17.0_Linux.tar.gz
-        tar -xzf ZAP_2.17.0_Linux.tar.gz
-    """
-}
-
-def startZAP() {
-    def ZAP_API_KEY = "dastkey"
-    def ZAP_PORT = "8099"
-    def ZAP_DIR = "zap"
-    
-    sh """
-        pkill -u \$(whoami) -f -i zap 
-
-        JAVA_DIR=\$(ls -d java/jdk-17* | head -n 1)
-        export JAVA_HOME="\$PWD/\$JAVA_DIR"
-        export PATH="\$JAVA_HOME/bin:\$PATH"
-        ZAP_PATH=\$(find "${ZAP_DIR}" -name zap.sh | head -n 1)
-
-        BUILD_ID=dontKillMe nohup "\$ZAP_PATH" -daemon \
-          -host 0.0.0.0 \
-          -port ${ZAP_PORT} \
-          -config api.key=${ZAP_API_KEY} \
-          -config api.addrs.addr.name=.* \
-          -config api.addrs.addr.regex=true \
-          > zap.log 2>&1 &
-
-        # Wait for ZAP to start and listen on port ${ZAP_PORT}
-        until curl -s "http://127.0.0.1:${ZAP_PORT}" >/dev/null; do
-            sleep 2
-        done
-    """
-}
-
-def spiderScan(String targetUrl) {
-    def ZAP_API_KEY = "dastkey"
-    def ZAP_PORT = "8099"
-    def cleanUrl = targetUrl.trim()
-    
-    sh """
-        curl "http://127.0.0.1:${ZAP_PORT}/JSON/spider/action/scan/?url=${cleanUrl}&apikey=${ZAP_API_KEY}"
-        sleep 30
-    """
-}
-
-def activeScan(String targetUrl) {
-    def ZAP_API_KEY = "dastkey"
-    def ZAP_PORT = "8099"
-    def cleanUrl = targetUrl.trim()
-    
-    sh """
-        curl "http://127.0.0.1:${ZAP_PORT}/JSON/ascan/action/scan/?url=${cleanUrl}&apikey=${ZAP_API_KEY}"
-        sleep 120
-    """
-}
-
-def generateReport(String reportName = 'zap_report.html') {
-    def ZAP_API_KEY = "dastkey"
-    def ZAP_PORT = "8099"
-    
-    sh """
-        curl "http://127.0.0.1:${ZAP_PORT}/OTHER/core/other/htmlreport/?apikey=${ZAP_API_KEY}" > ${reportName}
-    """
-}
-
-def stopZAP() {
-    def ZAP_DIR = "zap"
-    sh """
-        pkill -u \$(whoami) -f -i zap || true
-        rm -rf ${ZAP_DIR} java 
-    """
 }
