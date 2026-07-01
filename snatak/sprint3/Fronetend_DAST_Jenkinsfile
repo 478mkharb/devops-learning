@@ -200,6 +200,7 @@ pipeline {
             }
 
         }
+
         stage('SonarQube Analysis') {
 
             steps {
@@ -339,6 +340,7 @@ pipeline {
             }
 
         }
+
         stage('DAST Scan') {
 
             steps {
@@ -488,9 +490,9 @@ pipeline {
                 }
             }
 
-            post{
+            post {
 
-                always{
+                always {
 
                     archiveArtifacts(
                         artifacts: '''
@@ -502,231 +504,235 @@ pipeline {
 
                 }
 
+            }   // End of DAST stage post
+
+        }       // End of DAST Scan stage
+
+    }           // End of stages
+
+    post {            
+
+    
+            always {
+    
+                script {
+    
+                    echo "======================================="
+                    echo "Cleaning up ZAP and Temporary Files"
+                    echo "======================================="
+    
+                    sh '''
+                        pkill -u $(whoami) -f -i zap || true
+    
+                        rm -rf \
+                            java \
+                            zap \
+                            html.tpl
+    
+                        echo "Cleanup Completed."
+                    '''
+                }
+
+                archiveArtifacts(
+                    artifacts: '''
+                        build/**,
+                        coverage/**,
+                        jest-output.txt,
+                        trivy-report.html,
+                        zap_report.html,
+                        zap.log
+                    ''',
+                    allowEmptyArchive: true,
+                    fingerprint: true
+                )
+    
             }
 
-        }
-    post {
-
-        always {
-
-            script {
-
-                echo "======================================="
-                echo "Cleaning up ZAP and Temporary Files"
-                echo "======================================="
-
-                sh '''
-                    pkill -u $(whoami) -f -i zap || true
-
-                    rm -rf \
-                        java \
-                        zap \
-                        html.tpl
-
-                    echo "Cleanup Completed."
-                '''
+            success {
+    
+                script {
+    
+                    echo ""
+                    echo "======================================="
+                    echo "PIPELINE EXECUTED SUCCESSFULLY"
+                    echo "======================================="
+    
+                    slackSend(
+                        channel: params.SLACK_CHANNEL,
+                        color: "good",
+                        message: """
+    ✅ *Frontend Pipeline SUCCESS*
+    
+    *Job:* ${env.JOB_NAME}
+    
+    *Build:* #${env.BUILD_NUMBER}
+    
+    *Branch:* ${params.GIT_BRANCH}
+    
+    *URL:* ${env.BUILD_URL}
+    """
+                    )
+    
+                    emailext(
+    
+                        to: params.EMAIL_TO,
+    
+                        subject: "SUCCESS : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+    
+                        mimeType: 'text/html',
+    
+                        body: """
+    <h2 style="color:green;">Frontend Pipeline Successful</h2>
+    
+    <table border="1" cellpadding="6">
+    
+    <tr>
+    <td><b>Job</b></td>
+    <td>${env.JOB_NAME}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Build</b></td>
+    <td>#${env.BUILD_NUMBER}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Repository</b></td>
+    <td>${params.GIT_REPO}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Branch</b></td>
+    <td>${params.GIT_BRANCH}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Build URL</b></td>
+    <td>
+    <a href="${env.BUILD_URL}">
+    ${env.BUILD_URL}
+    </a>
+    </td>
+    </tr>
+    
+    </table>
+    
+    <br>
+    
+    Pipeline executed successfully.
+    """
+                    )
+    
+                }
+    
             }
-
-            archiveArtifacts(
-                artifacts: '''
-                    build/**,
-                    coverage/**,
-                    jest-output.txt,
-                    trivy-report.html,
-                    zap_report.html,
-                    zap.log
-                ''',
-                allowEmptyArchive: true,
-                fingerprint: true
-            )
-
-        }
-
-        success {
-
-            script {
-
-                echo ""
-                echo "======================================="
-                echo "PIPELINE EXECUTED SUCCESSFULLY"
-                echo "======================================="
-
-                slackSend(
-                    channel: params.SLACK_CHANNEL,
-                    color: "good",
-                    message: """
-✅ *Frontend Pipeline SUCCESS*
-
-*Job:* ${env.JOB_NAME}
-
-*Build:* #${env.BUILD_NUMBER}
-
-*Branch:* ${params.GIT_BRANCH}
-
-*URL:* ${env.BUILD_URL}
-"""
-                )
-
-                emailext(
-
-                    to: params.EMAIL_TO,
-
-                    subject: "SUCCESS : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-
-                    mimeType: 'text/html',
-
-                    body: """
-<h2 style="color:green;">Frontend Pipeline Successful</h2>
-
-<table border="1" cellpadding="6">
-
-<tr>
-<td><b>Job</b></td>
-<td>${env.JOB_NAME}</td>
-</tr>
-
-<tr>
-<td><b>Build</b></td>
-<td>#${env.BUILD_NUMBER}</td>
-</tr>
-
-<tr>
-<td><b>Repository</b></td>
-<td>${params.GIT_REPO}</td>
-</tr>
-
-<tr>
-<td><b>Branch</b></td>
-<td>${params.GIT_BRANCH}</td>
-</tr>
-
-<tr>
-<td><b>Build URL</b></td>
-<td>
-<a href="${env.BUILD_URL}">
-${env.BUILD_URL}
-</a>
-</td>
-</tr>
-
-</table>
-
-<br>
-
-Pipeline executed successfully.
-"""
-                )
-
+    
+            unstable {
+    
+                script {
+    
+                    echo "Pipeline Finished as UNSTABLE"
+    
+                    slackSend(
+                        channel: params.SLACK_CHANNEL,
+                        color: "warning",
+                        message: """
+    ⚠ *Frontend Pipeline UNSTABLE*
+    
+    Job : ${env.JOB_NAME}
+    
+    Build : #${env.BUILD_NUMBER}
+    
+    ${env.BUILD_URL}
+    """
+                    )
+    
+                }
+    
             }
-
-        }
-
-        unstable {
-
-            script {
-
-                echo "Pipeline Finished as UNSTABLE"
-
-                slackSend(
-                    channel: params.SLACK_CHANNEL,
-                    color: "warning",
-                    message: """
-⚠ *Frontend Pipeline UNSTABLE*
-
-Job : ${env.JOB_NAME}
-
-Build : #${env.BUILD_NUMBER}
-
-${env.BUILD_URL}
-"""
-                )
-
+    
+            failure {
+    
+                script {
+    
+                    echo ""
+                    echo "======================================="
+                    echo "PIPELINE FAILED"
+                    echo "======================================="
+    
+                    slackSend(
+    
+                        channel: params.SLACK_CHANNEL,
+    
+                        color: "danger",
+    
+                        message: """
+    ❌ *Frontend Pipeline FAILED*
+    
+    Job : ${env.JOB_NAME}
+    
+    Build : #${env.BUILD_NUMBER}
+    
+    ${env.BUILD_URL}
+    """
+    
+                    )
+    
+                    emailext(
+    
+                        to: params.EMAIL_TO,
+    
+                        subject: "FAILED : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+    
+                        mimeType: 'text/html',
+    
+                        body: """
+    <h2 style="color:red;">Frontend Pipeline Failed</h2>
+    
+    <table border="1" cellpadding="6">
+    
+    <tr>
+    <td><b>Job</b></td>
+    <td>${env.JOB_NAME}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Build</b></td>
+    <td>#${env.BUILD_NUMBER}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Repository</b></td>
+    <td>${params.GIT_REPO}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Branch</b></td>
+    <td>${params.GIT_BRANCH}</td>
+    </tr>
+    
+    <tr>
+    <td><b>Build URL</b></td>
+    <td>
+    <a href="${env.BUILD_URL}">
+    ${env.BUILD_URL}
+    </a>
+    </td>
+    </tr>
+    
+    </table>
+    
+    <br>
+    
+    Please check the Jenkins console log.
+    
+    """
+                    )
+    
+                }
+    
             }
-
+    
         }
-
-        failure {
-
-            script {
-
-                echo ""
-                echo "======================================="
-                echo "PIPELINE FAILED"
-                echo "======================================="
-
-                slackSend(
-
-                    channel: params.SLACK_CHANNEL,
-
-                    color: "danger",
-
-                    message: """
-❌ *Frontend Pipeline FAILED*
-
-Job : ${env.JOB_NAME}
-
-Build : #${env.BUILD_NUMBER}
-
-${env.BUILD_URL}
-"""
-
-                )
-
-                emailext(
-
-                    to: params.EMAIL_TO,
-
-                    subject: "FAILED : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-
-                    mimeType: 'text/html',
-
-                    body: """
-<h2 style="color:red;">Frontend Pipeline Failed</h2>
-
-<table border="1" cellpadding="6">
-
-<tr>
-<td><b>Job</b></td>
-<td>${env.JOB_NAME}</td>
-</tr>
-
-<tr>
-<td><b>Build</b></td>
-<td>#${env.BUILD_NUMBER}</td>
-</tr>
-
-<tr>
-<td><b>Repository</b></td>
-<td>${params.GIT_REPO}</td>
-</tr>
-
-<tr>
-<td><b>Branch</b></td>
-<td>${params.GIT_BRANCH}</td>
-</tr>
-
-<tr>
-<td><b>Build URL</b></td>
-<td>
-<a href="${env.BUILD_URL}">
-${env.BUILD_URL}
-</a>
-</td>
-</tr>
-
-</table>
-
-<br>
-
-Please check the Jenkins console log.
-
-"""
-                )
-
-            }
-
-        }
-
-    }
-
+    
 }
