@@ -16,7 +16,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` | Detect vulnerable npm packages |
 | **7** | Unit Testing | `CI=true npm test -- --watchAll=false` | Execute Jest unit tests |
 | **8** | Code Coverage | `npm test -- --coverage --watchAll=false` | Generate code coverage report |
-| **9** | Build/Code Complilation | `CI=false npm run build` | Generate optimized production build |
+| **9** | Build/Code Compilation | `CI=false npm run build` | Generate optimized production build |
 | **10** | SonarQube Analysis | `sonar-scanner` | Analyze code quality and security |
 | **11** | Quality Gate | SonarQube | Validate project quality before deployment |
 | **12** | Build Artifact | `build/` | Archive production build |
