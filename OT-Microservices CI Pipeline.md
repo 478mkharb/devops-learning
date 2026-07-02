@@ -1,84 +1,132 @@
-# OT-Microservices CI Pipeline
+# CI Pipeline Stages
 
-## Table 1 – CI Pipeline Stages & Purpose
-
-| Stage | Purpose | Open Source Tools |
-|:-----:|---------|-------------------|
-| **1. Checkout** | Download source code from SCM | Git, JGit |
-| **2. Secret Scanning** | Detect hardcoded passwords, API keys and tokens | GitLeaks, TruffleHog, GitGuardian CLI |
-| **3. Code Formatting** | Ensure consistent coding style | gofmt, Black, Spotless, Prettier |
-| **4. Syntax Validation** | Validate syntax before compilation | Language Compilers / Interpreters |
-| **5. Dependency & License Scan (SCA)** | Scan dependencies, CVEs, licenses and misconfigurations | Trivy, OWASP Dependency-Check, Grype, Snyk OSS |
-| **6. Install Dependencies** | Download project dependencies | Go Modules, Poetry, Maven, npm |
-| **7. Linting** | Detect coding issues and best-practice violations | golangci-lint, Pylint, Checkstyle, ESLint |
-| **8. Build / Compile** | Generate executable or build output | Go, Maven, npm |
-| **9. Unit Testing** | Execute unit tests | Go Test, PyTest, JUnit, Jest |
-| **10. Code Coverage** | Measure unit test coverage | JaCoCo, Coverage.py, go cover, Jest Coverage |
-| **11. SonarQube Analysis** | Perform SAST, Bug Analysis, Code Smells, Duplication and Maintainability Analysis | SonarQube CE |
-| **12. Quality Gate** | Fail pipeline if quality thresholds are not met | SonarQube Quality Gate |
-| **13. Build Artifact** | Package deployable output | Binary, JAR, React Build |
-| **14. Deploy to Test** | Deploy application to Test/Staging | Systemd, Gunicorn, Spring Boot, Nginx |
-| **15. DAST** | Scan running application for runtime vulnerabilities | OWASP ZAP, Nikto, Wapiti, Arachni |
+This document describes the recommended Continuous Integration (CI) pipeline for each technology stack used in the OT-Microservices project.
 
 ---
 
-## Table 2 – Commands Used in OT-Microservices
+# 1. React (Frontend) CI Pipeline
 
-| Stage | Employee API (Go) | Attendance API (Python) | Salary API (Java) | Frontend (React) | Notification API (Python) |
-|:-----:|-------------------|--------------------------|-------------------|------------------|---------------------------|
-| **1. Checkout** | `git clone` | `git clone` | `git clone` | `git clone` | `git clone` |
-| **2. Secret Scanning** | `gitleaks detect .` | `gitleaks detect .` | `gitleaks detect .` | `gitleaks detect .` | `gitleaks detect .` |
-| **3. Code Formatting** | `gofmt -l .` | `black --check .` | `mvn spotless:check` | `prettier --check .` | `black --check .` |
-| **4. Syntax Validation** | `go vet ./...` | `python -m py_compile app.py` | `mvn validate` | `npm run build` | `python -m py_compile notification_api.py` |
-| **5. Dependency & License Scan (SCA)** | `trivy fs .` | `trivy fs .` | `trivy fs .` | `trivy fs .` | `trivy fs .` |
-| **6. Install Dependencies** | `go mod download` | `poetry install` | `mvn dependency:resolve` | `npm install` | `poetry install` |
-| **7. Linting** | `golangci-lint run` | `pylint .` | `mvn checkstyle:check` | `eslint .` | `pylint .` |
-| **8. Build / Compile** | `go build` | *No Compilation* | `mvn clean compile` | `npm run build` | *No Compilation* |
-| **9. Unit Testing** | `go test ./...` | `pytest` | `mvn test` | `npm test` | `pytest` |
-| **10. Code Coverage** | `go test -cover` | `pytest --cov` | JaCoCo | `jest --coverage` | `pytest --cov` |
-| **11. SonarQube Analysis** | `sonar-scanner` | `sonar-scanner` | `mvn sonar:sonar` | `sonar-scanner` | `sonar-scanner` |
-| **12. Quality Gate** | SonarQube | SonarQube | SonarQube | SonarQube | SonarQube |
-| **13. Build Artifact** | Binary | Python Package *(Optional)* | JAR | `build/` Folder | Python Package *(Optional)* |
-| **14. Deploy to Test** | Systemd | Gunicorn | Spring Boot | Nginx | Gunicorn |
-| **15. DAST** | OWASP ZAP | OWASP ZAP | OWASP ZAP | OWASP ZAP | OWASP ZAP |
+| Stage | CI Step | Recommended Tool / Command | Purpose |
+|:----:|--------------------------|--------------------------------------------|--------------------------------------------|
+| **1** | Checkout | `git clone` | Fetch source code from SCM |
+| **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets like API keys and passwords |
+| **3** | Install Dependencies | `npm ci` | Install dependencies from `package-lock.json` |
+| **4** | Code Formatting | `npx prettier --check .` | Validate code formatting |
+| **5** | Linting | `npm run lint` | Perform static code analysis using ESLint |
+| **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` | Detect vulnerable npm packages |
+| **7** | Unit Testing | `CI=true npm test -- --watchAll=false` | Execute Jest unit tests |
+| **8** | Code Coverage | `npm test -- --coverage --watchAll=false` | Generate code coverage report |
+| **9** | Build | `CI=false npm run build` | Generate optimized production build |
+| **10** | SonarQube Analysis | `sonar-scanner` | Analyze code quality and security |
+| **11** | Quality Gate | SonarQube | Validate project quality before deployment |
+| **12** | Build Artifact | `build/` | Archive production build |
+| **13** | Deploy | Nginx | Deploy static React application |
+| **14** | DAST | OWASP ZAP | Perform Dynamic Application Security Testing |
+
+### Notes
+
+- `npm ci` is recommended over `npm install` in CI/CD because it performs a **clean, reproducible installation** using `package-lock.json`.
+- `npm ci` removes the existing `node_modules` directory before installing dependencies.
+- `CI=true` prevents React tests from entering watch mode inside Jenkins.
+- `CI=false` avoids build failures caused by React warnings during production builds.
 
 ---
 
-# CI Pipeline Flow
+# 2. Java (Spring Boot) CI Pipeline
 
-```mermaid
-flowchart TD
+| Stage | CI Step | Recommended Tool / Command | Purpose |
+|:----:|--------------------------|--------------------------------------------|--------------------------------------------|
+| **1** | Checkout | `git clone` | Fetch source code |
+| **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets |
+| **3** | Dependency Resolution | `mvn dependency:resolve` | Download Maven dependencies |
+| **4** | Code Formatting | `mvn spotless:check` | Validate source code formatting |
+| **5** | Linting | `mvn checkstyle:check` | Verify Java coding standards |
+| **6** | Dependency Scan (SCA) | `mvn org.owasp:dependency-check:check` | Detect vulnerable dependencies |
+| **7** | Unit Testing | `mvn test` | Execute JUnit test cases |
+| **8** | Code Coverage | `mvn test jacoco:report` | Generate JaCoCo coverage report |
+| **9** | Build | `mvn clean package -DskipTests` | Create executable Spring Boot JAR |
+| **10** | SonarQube Analysis | `mvn sonar:sonar` | Analyze code quality |
+| **11** | Quality Gate | SonarQube | Validate quality gate |
+| **12** | Build Artifact | Spring Boot JAR | Archive deployable artifact |
+| **13** | Deploy | `java -jar` / Systemd | Deploy Spring Boot application |
+| **14** | DAST | OWASP ZAP | Dynamic security testing |
 
-A["Developer Push"] --> B["Checkout"]
-B --> C["Secret Scan"]
-C --> D["Formatting"]
-D --> E["Syntax Validation"]
-E --> F["SCA"]
-F --> G["Install Dependencies"]
-G --> H["Linting"]
-H --> I["Build"]
-I --> J["Unit Tests"]
-J --> K["Coverage"]
-K --> L["SonarQube"]
+### Notes
 
-L --> L1["SAST"]
-L --> L2["Bug Analysis"]
-L --> L3["Code Smells"]
-L --> L4["Duplication"]
-L --> L5["Maintainability"]
-L --> L6["Reliability"]
+- Always execute **tests before packaging** the application.
+- Running `mvn clean package` executes tests by default.
+- In CI/CD, a common approach is:
+  ```bash
+  mvn test
+  mvn clean package -DskipTests
+  ```
+  This prevents tests from running twice while ensuring they have already passed.
+- JaCoCo is the standard Java code coverage tool and integrates directly with SonarQube.
 
-L1 --> M["Quality Gate"]
-L2 --> M
-L3 --> M
-L4 --> M
-L5 --> M
-L6 --> M
+---
 
-M --> N["Artifact"]
-N --> O["Deploy"]
-O --> P["DAST"]
-```
+# 3. Python (Flask) CI Pipeline
+
+| Stage | CI Step | Recommended Tool / Command | Purpose |
+|:----:|--------------------------|--------------------------------------------|--------------------------------------------|
+| **1** | Checkout | `git clone` | Fetch source code |
+| **2** | Secret Scanning | `gitleaks detect .` | Detect secrets in repository |
+| **3** | Install Dependencies | `poetry install` | Install project dependencies |
+| **4** | Code Formatting | `black --check .` | Validate formatting |
+| **5** | Linting | `pylint .` | Static code analysis |
+| **6** | Syntax Validation | `python -m py_compile *.py` | Validate Python syntax |
+| **7** | Dependency Scan (SCA) | `pip-audit` | Detect vulnerable Python packages |
+| **8** | Unit Testing | `pytest` | Execute unit tests |
+| **9** | Code Coverage | `pytest --cov=. --cov-report=xml` | Generate coverage report |
+| **10** | SonarQube Analysis | `sonar-scanner` | Analyze code quality |
+| **11** | Quality Gate | SonarQube | Validate quality gate |
+| **12** | Build Artifact | Python Wheel *(Optional)* | Package Python application |
+| **13** | Deploy | Gunicorn + Systemd | Deploy Flask application |
+| **14** | DAST | OWASP ZAP | Dynamic security testing |
+
+### Notes
+
+- If the project uses **Poetry**, use `poetry install` for dependency management.
+- If Poetry is not used, install dependencies with:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- `black` is the standard formatter for Python projects.
+- `ruff` is a modern, high-performance linter and is becoming popular, but `pylint` remains widely accepted in enterprise projects.
+- `pytest` is the de facto standard framework for Python testing.
+
+---
+
+# 4. Go (Gin) CI Pipeline
+
+| Stage | CI Step | Recommended Tool / Command | Purpose |
+|:----:|--------------------------|--------------------------------------------|--------------------------------------------|
+| **1** | Checkout | `git clone` | Fetch source code |
+| **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets |
+| **3** | Install Dependencies | `go mod download` | Download Go modules |
+| **4** | Code Formatting | `gofmt -l .` | Validate Go code formatting |
+| **5** | Static Analysis | `go vet ./...` | Detect suspicious constructs |
+| **6** | Linting | `golangci-lint run` | Run multiple Go linters |
+| **7** | Dependency Scan (SCA) | `govulncheck ./...` | Detect known Go vulnerabilities |
+| **8** | Unit Testing | `go test ./...` | Execute Go test cases |
+| **9** | Code Coverage | `go test -coverprofile=coverage.out ./...` | Generate coverage report |
+| **10** | Build | `go build -o employee-api .` | Build Go executable |
+| **11** | SonarQube Analysis | `sonar-scanner` | Analyze code quality |
+| **12** | Quality Gate | SonarQube | Validate quality gate |
+| **13** | Build Artifact | Go Binary | Archive executable |
+| **14** | Deploy | Systemd | Deploy Go application |
+| **15** | DAST | OWASP ZAP | Dynamic security testing |
+
+### Notes
+
+- `go mod download` ensures all dependencies are downloaded before compilation.
+- `gofmt` is the official Go formatter and should always be executed before linting.
+- `go vet` identifies potential coding mistakes that the compiler may not detect.
+- `golangci-lint` combines multiple Go linters into a single command and is the industry-standard linting tool.
+- `govulncheck` is maintained by the Go team and is recommended for vulnerability scanning of Go modules.
+- Go binaries are statically compiled, making deployment simple and portable.
+---
+
 # SonarQube Analysis Breakdown
 
 ```mermaid
