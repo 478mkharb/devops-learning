@@ -16,7 +16,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` | Detect vulnerable npm packages |
 | **7** | Unit Testing | `CI=true npm test -- --watchAll=false` | Execute Jest unit tests |
 | **8** | Code Coverage | `npm test -- --coverage --watchAll=false` | Generate code coverage report |
-| **9** | Build | `CI=false npm run build` | Generate optimized production build |
+| **9** | Build/Code Complilation | `CI=false npm run build` | Generate optimized production build |
 | **10** | SonarQube Analysis | `sonar-scanner` | Analyze code quality and security |
 | **11** | Quality Gate | SonarQube | Validate project quality before deployment |
 | **12** | Build Artifact | `build/` | Archive production build |
@@ -44,12 +44,13 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **6** | Dependency Scan (SCA) | `mvn org.owasp:dependency-check:check` | Detect vulnerable dependencies |
 | **7** | Unit Testing | `mvn test` | Execute JUnit test cases |
 | **8** | Code Coverage | `mvn test jacoco:report` | Generate JaCoCo coverage report |
-| **9** | Build | `mvn clean package -DskipTests` | Create executable Spring Boot JAR |
-| **10** | SonarQube Analysis | `mvn sonar:sonar` | Analyze code quality |
-| **11** | Quality Gate | SonarQube | Validate quality gate |
-| **12** | Build Artifact | Spring Boot JAR | Archive deployable artifact |
-| **13** | Deploy | `java -jar` / Systemd | Deploy Spring Boot application |
-| **14** | DAST | OWASP ZAP | Dynamic security testing |
+| **9** | Code Complilation | `mvn clean compile` | Compilation creates `target/classes/` |
+| **10** | Build | `mvn clean package -DskipTests` | Create executable Spring Boot JAR |
+| **11** | SonarQube Analysis | `mvn sonar:sonar` | Analyze code quality |
+| **12** | Quality Gate | SonarQube | Validate quality gate |
+| **13** | Build Artifact | Spring Boot JAR | Archive deployable artifact |
+| **14** | Deploy | `java -jar` / Systemd | Deploy Spring Boot application |
+| **15** | DAST | OWASP ZAP | Dynamic security testing |
 
 ### Notes
 
@@ -74,7 +75,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **3** | Install Dependencies | `poetry install` | Install project dependencies |
 | **4** | Code Formatting | `black --check .` | Validate formatting |
 | **5** | Linting | `pylint .` | Static code analysis |
-| **6** | Syntax Validation | `python -m py_compile *.py` | Validate Python syntax |
+| **6** | Syntax Validation + Bytecode Code Compliation | `python -m py_compile *.py` | Validate Python syntax |
 | **7** | Dependency Scan (SCA) | `pip-audit` | Detect vulnerable Python packages |
 | **8** | Unit Testing | `pytest` | Execute unit tests |
 | **9** | Code Coverage | `pytest --cov=. --cov-report=xml` | Generate coverage report |
@@ -110,7 +111,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **7** | Dependency Scan (SCA) | `govulncheck ./...` | Detect known Go vulnerabilities |
 | **8** | Unit Testing | `go test ./...` | Execute Go test cases |
 | **9** | Code Coverage | `go test -coverprofile=coverage.out ./...` | Generate coverage report |
-| **10** | Build | `go build -o employee-api .` | Build Go executable |
+| **10** | Build/Code Compilation | `go build -o employee-api .` | Build Go executable |
 | **11** | SonarQube Analysis | `sonar-scanner` | Analyze code quality |
 | **12** | Quality Gate | SonarQube | Validate quality gate |
 | **13** | Build Artifact | Go Binary | Archive executable |
