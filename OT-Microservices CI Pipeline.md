@@ -32,37 +32,49 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 
 ---
 
-# 2. Java (Spring Boot) CI Pipeline
+# 2. Java CI Pipeline
 
-| Stage | CI Step | Recommended Tool / Command | Purpose |
-|:----:|--------------------------|--------------------------------------------|--------------------------------------------|
-| **1** | Checkout | `git clone` | Fetch source code |
-| **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets |
-| **3** | Dependency Resolution | `mvn dependency:resolve` | Download Maven dependencies |
-| **4** | Code Formatting | `mvn spotless:check` | Validate source code formatting |
-| **5** | Linting | `mvn checkstyle:check` | Verify Java coding standards |
-| **6** | Dependency Scan (SCA) | `mvn org.owasp:dependency-check:check` | Detect vulnerable dependencies |
-| **7** | Unit Testing | `mvn test` | Execute JUnit test cases |
-| **8** | Code Coverage | `mvn test jacoco:report` | Generate JaCoCo coverage report |
-| **9** | Code Complilation | `mvn clean compile` | Compilation creates `target/classes/` |
-| **10** | Build | `mvn clean package -DskipTests` | Create executable Spring Boot JAR |
-| **11** | SonarQube Analysis | `mvn sonar:sonar` | Analyze code quality |
-| **12** | Quality Gate | SonarQube | Validate quality gate |
-| **13** | Build Artifact | Spring Boot JAR | Archive deployable artifact |
-| **14** | Deploy | `java -jar` / Systemd | Deploy Spring Boot application |
-| **15** | DAST | OWASP ZAP | Dynamic security testing |
+| Sr. No. | Stage | Recommended Command | Purpose |
+|:------:|--------------------------|--------------------------------------------|--------------------------------------------|
+| **1** | Checkout | `git clone` | Fetch source code from the Git repository. |
+| **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets (passwords, API keys, tokens) before the build starts. |
+| **3** | Validate | `mvn validate` | Validate project structure and `pom.xml`. Ensures the project configuration is correct before compilation. |
+| **4** | Dependency Resolution | `mvn dependency:resolve` | **Maven Dependency Plugin** downloads all project dependencies into the local Maven repository (`~/.m2/repository`). |
+| **5** | Code Formatting | `mvn spotless:check` | **Spotless Maven Plugin** verifies that the source code follows the configured formatting rules. |
+| **6** | Linting | `mvn checkstyle:check` | **Maven Checkstyle Plugin** validates Java coding standards and detects style violations. |
+| **7** | Dependency Scan (SCA) | `mvn org.owasp:dependency-check:check` | **OWASP Dependency-Check Plugin** scans third-party libraries for known CVEs and vulnerable dependencies. |
+| **8** | Code & Test Compilation | `mvn compile`<br>`mvn test-compile` | **Maven Compiler Plugin** compiles application source code into `target/classes` and test source code into `target/test-classes`. |
+| **9** | Unit Testing | `mvn test` | **Maven Surefire Plugin** executes JUnit/TestNG unit tests. **JaCoCo Maven Plugin** attaches its Java Agent to record code coverage and generates `jacoco.exec`. |
+| **10** | Package | `mvn package -DskipTests` | **Maven JAR Plugin / Spring Boot Maven Plugin** packages compiled classes into an executable JAR (or WAR). |
+| **11** | Verify | `mvn verify` | **JaCoCo Maven Plugin** generates HTML/XML coverage reports from `jacoco.exec` and executes additional verification tasks configured for the project. |
+| **12** | SonarQube Analysis | `mvn sonar:sonar` | **Sonar Maven Plugin** uploads source code, test results, and JaCoCo coverage reports to SonarQube for static code analysis. |
+| **13** | Quality Gate | `waitForQualityGate()` | Jenkins waits for SonarQube to evaluate Quality Gate conditions (coverage, bugs, vulnerabilities, code smells, etc.). |
+| **14** | Install | `mvn install` | **Maven Install Plugin** installs the packaged artifact into the local Maven repository (`~/.m2/repository`) for use by other local projects. |
+| **15** | Publish Artifact | `mvn deploy` | **Maven Deploy Plugin** uploads the packaged artifact to a remote repository such as Nexus or Artifactory for sharing and deployment. |
+| **16** | Deploy Application | `java -jar app.jar` *(or Ansible/Systemd/Kubernetes)* | Deploy the application to the target environment (VM, container, or Kubernetes cluster). |
+| **17** | DAST | `zap-baseline.py -t http://<app-url>` | **OWASP ZAP** performs Dynamic Application Security Testing against the running application to detect runtime vulnerabilities. |
 
-### Notes
+## 📝 Notes
 
-- Always execute **tests before packaging** the application.
-- Running `mvn clean package` executes tests by default.
-- In CI/CD, a common approach is:
+- The CI/CD stages shown above represent a **logical enterprise pipeline**. Depending on the project and organization, some stages may be combined, skipped, or reordered.
+- **Maven lifecycle phases are cumulative.** Executing a later phase automatically runs all preceding phases.
+- **`mvn dependency:resolve`** is optional because Maven automatically downloads missing dependencies during the build. It is mainly used to fail fast if dependency resolution fails.
+- **Always execute unit tests before packaging** the application.
+- Running `mvn package` executes unit tests by default.
+- In CI/CD, a common optimization is:
+
   ```bash
   mvn test
-  mvn clean package -DskipTests
+  mvn package -DskipTests
   ```
-  This prevents tests from running twice while ensuring they have already passed.
-- JaCoCo is the standard Java code coverage tool and integrates directly with SonarQube.
+
+  This prevents unit tests from running twice while ensuring they have already passed.
+
+- **JaCoCo** is the de facto Java code coverage tool. During `mvn test`, it records execution into `jacoco.exec`; during `mvn verify`, it generates HTML/XML coverage reports, which are then consumed by SonarQube.
+- **Quality Gate** is not a Maven phase. It is a Jenkins stage that waits for SonarQube to validate quality conditions (coverage, bugs, vulnerabilities, code smells, etc.) before allowing the pipeline to continue.
+- **`mvn install`** installs the artifact into the **local Maven repository** (`~/.m2/repository`), whereas **`mvn deploy`** publishes it to a **remote artifact repository** (e.g., Nexus or Artifactory).
+- **DAST** is always performed **after deployment** because it tests the running application for runtime security vulnerabilities.
+- In production CI/CD pipelines, teams often execute **`mvn verify sonar:sonar`** instead of individual Maven phases because it automatically performs all required lifecycle phases up to `verify` before running SonarQube analysis.
 
 ---
 
