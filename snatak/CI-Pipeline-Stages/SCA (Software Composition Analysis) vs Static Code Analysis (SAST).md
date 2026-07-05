@@ -225,7 +225,90 @@ High Severity
 | Is Trivy an SCA tool? | Yes, it performs dependency scanning and can also scan container images. |
 
 ---
+# DevSecOps CI Checks Classification
 
+| Check / Activity | Category | What it Checks | Common Tools |
+|------------------|----------|----------------|--------------|
+| **Syntax Validation** | Separate Stage (Build Validation) | Programming language syntax, compilation errors | `javac`, `go build`, `python -m py_compile`, `tsc`, `gcc` |
+| **Linting** | SAST (Static Code Analysis - Code Quality) | Coding standards, formatting, best practices, style violations | ESLint, Pylint, Flake8, Checkstyle, GolangCI-Lint |
+| **Code Quality Analysis** | SAST | Code smells, duplicate code, maintainability, complexity | SonarQube, PMD, SpotBugs |
+| **Security Static Analysis** | SAST | SQL Injection, XSS, hardcoded passwords, insecure APIs, buffer overflows | SonarQube, Checkmarx, Fortify, Semgrep, Veracode |
+| **Dependency Scanning** | SCA | Vulnerable third-party libraries and dependencies (CVEs) | OWASP Dependency-Check, Snyk, Trivy, Grype |
+| **License Scanning** | SCA | Open-source license compliance (MIT, GPL, Apache, BSD, etc.) | Black Duck, Mend, FOSSA, Trivy, Snyk |
+| **SBOM Generation** | SCA | Software Bill of Materials (complete dependency inventory) | Syft, CycloneDX, SPDX |
+| **Secret/Credential Scanning** | Separate Stage | Hardcoded passwords, API keys, tokens, SSH keys, certificates | Gitleaks, TruffleHog, GitGuardian, detect-secrets |
+| **Unit Testing** | Separate Stage | Functional correctness of individual units/components | JUnit, pytest, Jest, Go Test |
+| **Code Coverage** | Separate Stage | Percentage of code covered by unit tests | JaCoCo, Cobertura, Istanbul, Coverage.py |
+| **Build/Compilation** | Separate Stage | Generates executable/binary/artifact | Maven, Gradle, Go Build, npm, Poetry |
+| **Container Image Scanning** | Separate Stage | Vulnerabilities in Docker images and OS packages | Trivy, Grype, Docker Scout, Clair |
+| **IaC Scanning** | Separate Stage | Security issues in Terraform, CloudFormation, Kubernetes YAML | Checkov, tfsec, Terrascan, KICS |
+| **DAST (Dynamic Analysis)** | Separate Stage | Runtime security testing of a running application | OWASP ZAP, Burp Suite |
+| **Performance Testing** | Separate Stage | Load, stress, and scalability testing | JMeter, Gatling, k6 |
+| **Infrastructure Compliance** | Separate Stage | Cloud security and compliance validation | AWS Config, Prowler, ScoutSuite |
+
+---
+
+# What Comes Under SAST?
+
+| Included in SAST | Purpose |
+|------------------|---------|
+| Linting | Coding standards and style |
+| Static Security Analysis | Finds vulnerabilities in source code |
+| Code Quality Analysis | Code smells, maintainability, duplication |
+| Bug Detection | Finds coding defects before execution |
+
+---
+
+# What Comes Under SCA?
+
+| Included in SCA | Purpose |
+|-----------------|---------|
+| Dependency Scanning | Finds vulnerable third-party libraries |
+| License Scanning | Identifies OSS licenses and policy violations |
+| SBOM Generation | Generates inventory of all dependencies |
+| Dependency Version Analysis | Detects outdated packages |
+
+---
+
+# What Does NOT Belong to SAST or SCA?
+
+| Separate Stage | Purpose |
+|----------------|---------|
+| Syntax Validation | Checks language syntax and compilation |
+| Secret Scanning | Finds exposed credentials and secrets |
+| Unit Testing | Verifies application functionality |
+| Code Coverage | Measures test coverage |
+| Build/Compilation | Produces executable artifacts |
+| Container Image Scanning | Scans Docker images |
+| IaC Scanning | Scans Infrastructure as Code |
+| DAST | Runtime application security testing |
+| Performance Testing | Measures performance under load |
+
+---
+
+# Easy Interview Memory Trick
+
+| Think About... | Category |
+|----------------|----------|
+| **My Source Code** | **SAST** |
+| **Third-Party Dependencies** | **SCA** |
+| **Secrets (Passwords, Tokens)** | **Secret Scanning** |
+| **Code Compiles?** | **Syntax Validation** |
+| **Application Works?** | **Unit Testing** |
+| **Docker Image Secure?** | **Container Scanning** |
+| **Terraform/Kubernetes Secure?** | **IaC Scanning** |
+| **Running Application Secure?** | **DAST** |
+
+---
+
+# One-Line Rule
+
+| Category | One-Line Definition |
+|----------|---------------------|
+| **SAST** | Scans **your own source code** for bugs, vulnerabilities, and code quality issues. |
+| **SCA** | Scans **third-party dependencies** for vulnerabilities, licenses, and outdated packages. |
+| **Secret Scanning** | Scans repositories for hardcoded credentials and sensitive information. |
+| **Syntax Validation** | Verifies that the code is syntactically correct and can compile. |
 # One-Line Interview Answer
 
 > **Software Composition Analysis (SCA) scans third-party dependencies for known vulnerabilities (CVEs) and license compliance, whereas Static Code Analysis (SAST) scans the application's own source code to detect security vulnerabilities, coding errors, bugs, and code quality issues without executing the program.**
