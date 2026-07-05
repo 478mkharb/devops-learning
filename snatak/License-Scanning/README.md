@@ -73,6 +73,13 @@ Imagine someone gives you a recipe.
 
 "Take my recipe. Modify it. Sell it if you want. But if you share or sell it, you must also share your modified recipe."
 
+## Memory Trick 
+
+| License Type | Memory Trick |
+|--------------|--------------|
+| **Permissive** | "Use my code however you want." |
+| **Weak Copyleft** | "Share only modifications to my library/files." |
+| **Strong Copyleft** | "Share your entire application if you distribute it." |
 ---
 
 # 6. Common License Examples
