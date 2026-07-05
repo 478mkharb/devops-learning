@@ -2,8 +2,6 @@
 
 ## Table of Contents
 
-## Table of Contents
-
 1. [Introduction](#1-introduction)
 2. [What is Redis?](#2-what-is-redis)
 3. [What Type of Server is Redis?](#3-what-type-of-server-is-redis)
