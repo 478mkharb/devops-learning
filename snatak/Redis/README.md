@@ -2,22 +2,24 @@
 
 ## Table of Contents
 
-1. Introduction
-2. What is Redis?
-3. What Type of Server is Redis?
-4. Is Redis SQL or NoSQL?
-5. Redis Architecture
-6. Redis as Cache
-7. How Data is Cached in Redis
-8. Cache Hit vs Cache Miss
-9. Why is Redis Fast?
-10. Is Redis Single-Threaded or Multi-Threaded?
-11. Redis Persistence
-12. What Happens if Redis Goes Down?
-13. Redis Data Structures
-14. Redis Use Cases
-15. Common Redis Commands
-16. Frequently Asked Interview Questions
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [What is Redis?](#2-what-is-redis)
+3. [What Type of Server is Redis?](#3-what-type-of-server-is-redis)
+4. [Is Redis SQL or NoSQL?](#4-is-redis-sql-or-nosql)
+5. [Redis Architecture](#5-redis-architecture)
+6. [Redis as Cache](#6-redis-as-cache)
+7. [How Data is Cached in Redis](#7-how-data-is-cached-in-redis)
+8. [Cache Hit vs Cache Miss](#8-cache-hit-vs-cache-miss)
+9. [Why is Redis Fast?](#9-why-is-redis-fast)
+10. [Is Redis Single-Threaded or Multi-Threaded?](#10-is-redis-single-threaded-or-multi-threaded)
+11. [Redis Persistence](#11-redis-persistence)
+12. [What Happens if Redis Goes Down?](#12-what-happens-if-redis-goes-down)
+13. [Redis Data Structures](#13-redis-data-structures)
+14. [Redis Use Cases](#14-redis-use-cases)
+15. [Common Redis Commands](#15-common-redis-commands)
+16. [Frequently Asked Interview Questions](#16-frequently-asked-interview-questions)
 
 ---
 
