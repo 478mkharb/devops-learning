@@ -54,6 +54,25 @@
 | Weak Copyleft | LGPL, MPL | ⚠ Depends on policy |
 | Strong Copyleft | GPLv2, GPLv3, AGPL | ❌ Usually Restricted |
 
+| License  | Full Form                         | Type            | Commercial Use | Key Rule                                                                                               | Risk Level   |
+| -------- | --------------------------------- | --------------- | -------------- | ------------------------------------------------------------------------------------------------------ | ------------ |
+| **GPL**  | GNU General Public License        | Strong Copyleft | ⚠️ Limited     | If you distribute software using GPL code, you must release your source code under GPL.                | 🔴 High      |
+| **LGPL** | GNU Lesser General Public License | Weak Copyleft   | ✅ Yes          | You can use it in proprietary software, but modifications to the LGPL library must remain open source. | 🟡 Medium    |
+| **MPL**  | Mozilla Public License            | Weak Copyleft   | ✅ Yes          | Only modified MPL files must be open source; the rest of your application can remain proprietary.      | 🟡 Medium    |
+| **AGPL** | GNU Affero General Public License | Strong Copyleft | ⚠️ Limited     | Even if software is used over a network (SaaS), the source code must be made available to users.       | 🔴 Very High |
+
+## Easy Analogy
+
+Imagine someone gives you a recipe.
+
+### Permissive License (MIT/Apache)
+
+"Take my recipe. Modify it. Sell it. You don't have to tell anyone your changes."
+
+### Copyleft License (GPL)
+
+"Take my recipe. Modify it. Sell it if you want. But if you share or sell it, you must also share your modified recipe."
+
 ---
 
 # 6. Common License Examples
