@@ -1,7 +1,5 @@
 # SCA (Software Composition Analysis) vs Static Code Analysis (SAST)
 
-> **Interview Tip:** This is one of the most common DevOps and DevSecOps interview questions. Many people confuse these two because both analyze code before deployment, but they focus on different things.
-
 | Feature | SCA (Software Composition Analysis) | Static Code Analysis (SAST) |
 |---------|--------------------------------------|-----------------------------|
 | **Definition** | Analyzes third-party/open-source dependencies used in an application. | Analyzes the application's own source code for coding errors and security vulnerabilities. |
