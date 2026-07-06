@@ -59,7 +59,38 @@ For an **Ubuntu Server**, CIS Benchmark recommends:
 > AMIs improve security by providing pre-patched, security-hardened, and standardized server images. They eliminate manual configuration, reduce configuration drift, ensure compliance, and enable rapid recovery by replacing compromised instances with trusted images.
 >
 > **CIS Benchmark is a security hardening guideline published by the Center for Internet Security (CIS). It provides best practices for securely configuring operating systems, cloud resources, and applications to reduce security risks and improve compliance.**
-> 
+>
+
+# Common Security Compliance Standards
+
+| Standard | Full Form | Purpose |
+|----------|-----------|---------|
+| **PCI DSS** | **Payment Card Industry Data Security Standard** | A security standard for organizations that store, process, or transmit credit/debit card information. |
+| **HIPAA** | **Health Insurance Portability and Accountability Act** | A U.S. law that protects the privacy and security of patients' healthcare information. |
+| **ISO 27001** | **ISO/IEC 27001 – Information Security Management System (ISMS)** | An international standard that specifies requirements for establishing, implementing, maintaining, and improving an Information Security Management System (ISMS). |
+
+---
+
+## One-Liners
+
+### PCI DSS
+> **PCI DSS (Payment Card Industry Data Security Standard)** is a security standard designed to protect cardholder data for organizations that handle payment card transactions.
+
+### HIPAA
+> **HIPAA (Health Insurance Portability and Accountability Act)** is a U.S. regulation that protects sensitive patient health information and ensures data privacy and security.
+
+### ISO 27001
+> **ISO/IEC 27001** is an international standard for establishing, implementing, maintaining, and continually improving an Information Security Management System (ISMS).
+
+---
+
+## Easy Way to Remember
+
+| Standard | Related To |
+|----------|------------|
+| **PCI DSS** | 💳 Credit/Debit Card Security |
+| **HIPAA** | 🏥 Healthcare & Patient Data |
+| **ISO 27001** | 🔒 Information Security Management |
 ---
 
 # 2. Standardization Using AMI
