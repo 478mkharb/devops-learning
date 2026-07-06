@@ -23,10 +23,43 @@ An **Amazon Machine Image (AMI)** improves security by ensuring every EC2 instan
 
 ---
 
-### Interview Answer
+# What is a CIS Benchmark?
+
+**CIS Benchmark (Center for Internet Security Benchmark)** is a set of **industry-recognized security best practices** for securely configuring operating systems, cloud services, databases, applications, and network devices.
+
+Its purpose is to **reduce security vulnerabilities and harden systems against attacks.**
+
+---
+
+## Example
+
+For an **Ubuntu Server**, CIS Benchmark recommends:
+
+- Disable root SSH login
+- Enforce strong password policies
+- Disable unused services
+- Enable firewall (UFW)
+- Configure audit logging
+- Apply least privilege permissions
+
+---
+
+## Why is it Important?
+
+- Improves system security
+- Reduces attack surface
+- Helps meet compliance requirements
+- Standardizes security configurations
+- Commonly used while creating **Golden AMIs**
+
+---
+
+## DevOps Interview Answer
 
 > AMIs improve security by providing pre-patched, security-hardened, and standardized server images. They eliminate manual configuration, reduce configuration drift, ensure compliance, and enable rapid recovery by replacing compromised instances with trusted images.
-
+>
+> **CIS Benchmark is a security hardening guideline published by the Center for Internet Security (CIS). It provides best practices for securely configuring operating systems, cloud resources, and applications to reduce security risks and improve compliance.**
+> 
 ---
 
 # 2. Standardization Using AMI
