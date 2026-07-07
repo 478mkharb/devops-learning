@@ -10,7 +10,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 |:----:|--------------------------|--------------------------------------------|--------------------------------------------|
 | **1** | Checkout | `git clone` | Fetch source code from SCM |
 | **2** | Secret Scanning | `gitleaks detect .` | Detect hardcoded secrets like API keys and passwords |
-| **3** | Install Dependencies | `npm ci` | Install dependencies from `package-lock.json` |
+| **3** | Install Dependencies | `npm install` `npm ci` | Install dependencies from `package-lock.json` |
 | **4** | Code Formatting | `npx prettier --check .` | Validate code formatting |
 | **5** | Linting | `npm run lint` | Perform static code analysis using ESLint |
 | **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` | Detect vulnerable npm packages |
