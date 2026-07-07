@@ -203,3 +203,108 @@ Bought:
 ## npm ci
 
 > "Throw away the old packages and install exactly what is written in the shopping bill."
+
+---
+
+# How `package.json` and `package-lock.json` are Created
+
+## Step 1: Create a Node.js project
+
+Run:
+
+```bash
+npm init
+```
+
+or
+
+```bash
+npm init -y
+```
+
+This creates:
+
+```
+package.json
+```
+
+---
+
+## Step 2: Install dependencies
+
+Run:
+
+```bash
+npm install express
+```
+
+or
+
+```bash
+npm install
+```
+
+If `package-lock.json` does not exist, **`npm install` automatically creates it** along with the `node_modules` directory.
+
+Files created:
+
+```
+package-lock.json
+node_modules/
+```
+
+---
+
+## What about `npm ci`?
+
+- **`npm ci` does NOT create `package-lock.json`.**
+- It **requires** an existing `package-lock.json`.
+- If the lock file is missing, `npm ci` fails with an error.
+
+Example:
+
+```bash
+npm ci
+```
+
+Output:
+
+```text
+npm ERR! The npm ci command can only install with an existing package-lock.json
+```
+
+---
+
+## Summary
+
+| Command | Result |
+|----------|--------|
+| `npm init` | Creates `package.json` |
+| First `npm install` | Creates `package-lock.json` and `node_modules` |
+| `npm ci` | Uses existing `package-lock.json` (does **not** create or update it) |
+
+### Simple Flow
+
+```text
+npm init
+    │
+    ▼
+package.json
+    │
+npm install
+    │
+    ▼
+package-lock.json
+node_modules/
+    │
+Commit both files to Git
+    │
+    ▼
+CI/CD (Jenkins)
+    │
+npm ci
+    │
+    ▼
+Installs exact dependencies
+(No new package-lock.json is created)
+```
