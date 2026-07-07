@@ -13,7 +13,7 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 | **3** | Install Dependencies | `npm install` `npm ci` | Install dependencies from `package-lock.json` |
 | **4** | Code Formatting | `npx prettier --check .` | Validate code formatting |
 | **5** | Linting | `npm run lint` | Perform static code analysis using ESLint |
-| **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` `trivy fs .` | Detect vulnerable npm packages |
+| **6** | Dependency Scan (SCA) | `npm audit --audit-level=high` / `trivy fs .` | Detect vulnerable npm packages |
 | **7** | Unit Testing | `CI=true npm test -- --watchAll=false` | Execute Jest unit tests |
 | **8** | Code Coverage | `npm test -- --coverage --watchAll=false` | Generate code coverage report |
 | **9** | Build/Code Compilation | `CI=false npm run build` | Generate optimized production build |
