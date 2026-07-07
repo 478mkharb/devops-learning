@@ -27,8 +27,30 @@ This document describes the recommended Continuous Integration (CI) pipeline for
 
 - `npm ci` is recommended over `npm install` in CI/CD because it performs a **clean, reproducible installation** using `package-lock.json`.
 - `npm ci` removes the existing `node_modules` directory before installing dependencies.
-- `CI=true` prevents React tests from entering watch mode inside Jenkins.
-- `CI=false` avoids build failures caused by React warnings during production builds.
+- Why use `CI=true` with `--watchAll=false`?
+  - These two options are related but serve different purposes.
+  - `--watchAll=false`
+    - Tells Jest to **run the tests once and exit**.
+    - Prevents Jest from entering **watch mode**.
+  - `CI=true` tells React Scripts and Jest that they are running in a **Continuous Integration (CI)** environment.
+    It:
+    - Disables interactive watch mode.
+    - Disables prompts and interactive features.
+    - Produces CI-friendly output.
+    - Applies CI-specific behavior (e.g., stricter handling of warnings during builds).
+
+- Why use both?
+  - `CI=true npm test -- --watchAll=false`  
+    - `CI=true` → Runs Jest in **CI mode**.
+    - `--watchAll=false` → Explicitly tells Jest to **run tests once and exit**.
+  
+  Although `CI=true` usually disables watch mode automatically, many CI pipelines include both commands for **clarity, compatibility, and reliability** across different environments and Jest versions.
+
+- When `CI=false`
+  - `CI=false npm run build` React ignores warnings as build blockers.
+      - ✅ Build succeeds if there are only warnings.
+      - ❌ Build fails only if there are actual compilation errors.
+  Warnings are still displayed, but they do not stop the build.
 
 ---
 
