@@ -231,19 +231,24 @@ Terraform
    +-- Security Groups
 ```
 
-### Suggested Terraform Structure
+### Terraform Structure
 
 ```text
-terraform/
-├── provider.tf
-├── variables.tf
-├── terraform.tfvars
-├── alb.tf
-├── target-groups.tf
-├── launch-template.tf
-├── asg.tf
-├── listener.tf
-└── outputs.tf
+version-rollout/
+│
+├── modules/
+│   └── version-rollout/
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       └── versions.tf
+│
+└── wrapper/
+    └── dev/
+        ├── main.tf
+        ├── variables.tf
+        ├── terraform.tfvars
+        └── backend.tf
 ```
 
 ### Weighted Forwarding
@@ -430,24 +435,6 @@ The ASG itself is not the main cost driver; the compute resources running inside
 | Unexpected traffic distribution | Incorrect target group weights | Verify weighted forwarding |
 | Rollback does not work | Incorrect listener configuration | Set v1 to 100% and v2 to 0% |
 | v2 instances are unavailable | ASG or Launch Template issue | Check ASG activity and EC2 health |
-
-### Useful Terraform Commands
-
-```bash
-terraform fmt
-```
-
-```bash
-terraform validate
-```
-
-```bash
-terraform plan
-```
-
-```bash
-terraform apply
-```
 
 ---
 
