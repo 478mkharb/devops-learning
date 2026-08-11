@@ -70,7 +70,6 @@ The infrastructure is managed using **Terraform** and follows the **Immutable In
 | Auto Scaling | v1 and v2 Auto Scaling Groups |
 | EC2 | Application instances |
 | IAM | Required AWS permissions |
-| Monitoring | CloudWatch or existing monitoring solution |
 
 ### Verify Terraform Installation
 
