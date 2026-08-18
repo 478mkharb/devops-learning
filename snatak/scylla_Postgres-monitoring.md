@@ -65,7 +65,7 @@ Only PostgreSQL and ScyllaDB are in scope. Other application services and Redis 
 
 ## 2. Architecture
 
-PostgreSQL and ScyllaDB run as independent database services on separate servers. The complete observability stack runs as containers on a **dedicated observability server**.
+PostgreSQL and ScyllaDB run as independent database services on separate servers; they are not containerized in this POC. The complete observability stack runs as containers on a **dedicated observability server**.
 
 | Service | Private DNS | Database Port | Metrics |
 |---|---|---:|---:|
@@ -235,13 +235,13 @@ curl -s 'http://localhost:9090/api/v1/query?query=scylla_reactor_utilization' | 
 ### 6.1 PostgreSQL Logs
 
 ```logql
-{container="postgres"}
+{service_name="postgres"}
 ```
 
 Validation:
 
 ```bash
-curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bcontainer%3D%22postgres%22%7D&limit=10'
+curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bservice_name%3D%22postgres%22%7D&limit=10'
 ```
 
 <details>
@@ -254,13 +254,13 @@ curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bcontainer%3D%22p
 ### 6.2 ScyllaDB Logs
 
 ```logql
-{container="scylladb"}
+{service_name="scylladb"}
 ```
 
 Validation:
 
 ```bash
-curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bcontainer%3D%22scylladb%22%7D&limit=10'
+curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bservice_name%3D%22scylladb%22%7D&limit=10'
 ```
 
 <details>
@@ -390,8 +390,8 @@ Two separate dashboards should be maintained.
 |---|---|
 | PostgreSQL target DOWN | Check PostgreSQL Exporter and port `9187` |
 | ScyllaDB target DOWN | Check ScyllaDB metrics endpoint and Prometheus target |
-| PostgreSQL logs blank | Use `{container="postgres"}` |
-| ScyllaDB logs blank | Use `{container="scylladb"}` |
+| PostgreSQL logs blank | Use `{service_name="postgres"}` |
+| ScyllaDB logs blank | Use `{service_name="scylladb"}` |
 | PostgreSQL DB span missing | Verify OpenTelemetry PostgreSQL instrumentation |
 | ScyllaDB DB operation missing | Verify Salary API OpenTelemetry instrumentation |
 | Grafana panel blank | Validate PromQL/LogQL/TraceQL directly |
