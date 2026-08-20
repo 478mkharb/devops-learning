@@ -72,34 +72,9 @@ PostgreSQL and ScyllaDB run as independent database services on separate servers
 | PostgreSQL | `otms.postgres.internal` | `5432` | `9187` via PostgreSQL Exporter |
 | ScyllaDB | `otms.scylladb.internal` | `9042` | `9180` |
 
-```text
-PostgreSQL Server                         ScyllaDB Server
-otms.postgres.internal                    otms.scylladb.internal
-        |                                         |
-        | :5432                                   | :9042
-        |                                         |
-        └── PostgreSQL Exporter :9187             └── :9180 /metrics
-                         \                         /
-                          \                       /
-                           v                     v
-                         Observability Server
-                    ┌───────────────────────────┐
-                    │ Prometheus                │
-                    │ Grafana                   │
-                    │ Loki + Promtail           │
-                    │ OTel Collector + Tempo    │
-                    └───────────────────────────┘
-                              |
-                              v
-                           Grafana
-```
 
-<details>
-<summary>📸 <strong>Screenshot - Monitoring Architecture</strong></summary>
+<img width="1536" height="1024" alt="ChatGPT Image Aug 21, 2026, 12_11_48 AM" src="https://github.com/user-attachments/assets/8986ea5a-a7b7-4ca3-a486-0bcea3bcf223" />
 
-<!-- SCREENSHOT PLACEHOLDER: Paste architecture screenshot here. -->
-
-</details>
 
 ---
 
@@ -120,21 +95,13 @@ Prometheus targets:
 - job_name: "postgres-exporter"
   static_configs:
     - targets:
-        - postgres-exporter:9187
+        - otms.postgresql.internal:9187
 
 - job_name: "scylladb"
   static_configs:
     - targets:
-        - scylladb:9180
+        - otms.scylladb.internal:9180
 ```
-
-<details>
-<summary>📸 <strong>Screenshot - Prometheus Targets</strong></summary>
-
-<!-- SCREENSHOT PLACEHOLDER: Show postgres-exporter and scylladb targets as UP. -->
-
-</details>
-
 ---
 
 ## 4. PostgreSQL Monitoring
@@ -157,13 +124,13 @@ These metrics are based on the PostgreSQL exporter metrics verified during the P
 ### 4.2 Validate PostgreSQL Metrics
 
 ```bash
-curl -s http://localhost:9187/metrics | grep '^pg_' | head -100
+curl -s http://otms.postgresql.internal:9187/metrics | grep '^pg_' | head -100
 ```
 
 <details>
 <summary>📸 <strong>Screenshot - PostgreSQL Metrics</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Show PostgreSQL metrics in Prometheus/Grafana. -->
+<img width="1833" height="987" alt="image" src="https://github.com/user-attachments/assets/2a84c6b7-c141-4a19-853f-c00470d7729c" />
 
 </details>
 
@@ -206,15 +173,6 @@ curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | selec
 }'
 ```
 
-Expected:
-
-```text
-job:       scylladb
-instance:  scylladb:9180
-health:    up
-lastError: ""
-```
-
 Validate a ScyllaDB metric:
 
 ```bash
@@ -224,7 +182,9 @@ curl -s 'http://localhost:9090/api/v1/query?query=scylla_reactor_utilization' | 
 <details>
 <summary>📸 <strong>Screenshot - ScyllaDB Metrics</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Show scylladb target UP and reactor utilization query. -->
+<img width="1852" height="548" alt="image" src="https://github.com/user-attachments/assets/e2bf2d36-ec0d-428f-b599-e2acaa4f562e" />
+
+<img width="1852" height="933" alt="image" src="https://github.com/user-attachments/assets/7a4eabae-0884-45a4-972c-98b70bad10f2" />
 
 </details>
 
@@ -241,13 +201,16 @@ curl -s 'http://localhost:9090/api/v1/query?query=scylla_reactor_utilization' | 
 Validation:
 
 ```bash
-curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bservice_name%3D%22postgres%22%7D&limit=10'
+curl -sG 'http://localhost:3100/loki/api/v1/query_range' \
+  --data-urlencode 'query={service_name="postgres"}' \
+  --data-urlencode 'limit=10' | jq
 ```
+> [!NOTE]
+> `-sG` = silent GET request, while `--data-urlencode` safely encodes Loki/LogQL query parameters.
 
 <details>
 <summary>📸 <strong>Screenshot - PostgreSQL Logs</strong></summary>
-
-<!-- SCREENSHOT PLACEHOLDER: Show PostgreSQL logs in Grafana/Loki. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/c75e1cb4-a1d5-4472-942b-39db06312ddc" />
 
 </details>
 
@@ -260,13 +223,16 @@ curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bservice_name%3D%
 Validation:
 
 ```bash
-curl -s 'http://localhost:3100/loki/api/v1/query_range?query=%7Bservice_name%3D%22scylladb%22%7D&limit=10'
+curl -sG 'http://localhost:3100/loki/api/v1/query_range' \
+  --data-urlencode 'query={service_name="scylladb"}' \
+  --data-urlencode 'limit=10' \
+| jq -r '.data.result[]?.values[]? | .[1]'
 ```
 
 <details>
 <summary>📸 <strong>Screenshot - ScyllaDB Logs</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Show ScyllaDB logs in Grafana/Loki. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/b7085b41-9c4e-4f45-bfb3-97d25ba5010c" />
 
 </details>
 
@@ -293,7 +259,8 @@ POST /api/v1/attendance/create
 <details>
 <summary>📸 <strong>Screenshot - PostgreSQL Database Trace</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Show Attendance API → INSERT database span in Tempo. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/6cb8c72a-4a89-4a53-9756-5f1d5bfa064c" />
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/957acfab-63fb-4003-85d1-62e0d4b28961" />
 
 </details>
 
@@ -307,8 +274,8 @@ ScyllaDB database operations appear under the **Salary API trace**. Do not searc
 
 <details>
 <summary>📸 <strong>Screenshot - ScyllaDB Database Trace</strong></summary>
-
-<!-- SCREENSHOT PLACEHOLDER: Show Salary API → database operation/INSERT span in Tempo. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/adbe3978-4a17-4a8a-9bad-fc69404a9030" />
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/72c8f204-50de-4e42-99af-c8d8340644fd" />
 
 </details>
 
@@ -333,7 +300,7 @@ Two separate dashboards should be maintained.
 <details>
 <summary>📸 <strong>Screenshot - PostgreSQL Grafana Dashboard</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Paste completed PostgreSQL dashboard screenshot. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/7fec674c-dc4a-424e-a963-372071053f9c" />
 
 </details>
 
@@ -354,7 +321,8 @@ Two separate dashboards should be maintained.
 <details>
 <summary>📸 <strong>Screenshot - ScyllaDB Grafana Dashboard</strong></summary>
 
-<!-- SCREENSHOT PLACEHOLDER: Paste completed ScyllaDB dashboard screenshot. -->
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/ad352054-701d-4ef6-b743-81156c9be438" />
+<img width="1840" height="882" alt="image" src="https://github.com/user-attachments/assets/10ee70a8-6f28-45ad-ab2f-5f1ef15afa65" />
 
 </details>
 
@@ -375,12 +343,6 @@ Two separate dashboards should be maintained.
 | PostgreSQL dashboard | Loads successfully |
 | ScyllaDB dashboard | Loads successfully |
 
-<details>
-<summary>📸 <strong>Screenshot - Final POC Validation</strong></summary>
-
-<!-- SCREENSHOT PLACEHOLDER: Paste final validation screenshot here. -->
-
-</details>
 
 ---
 
