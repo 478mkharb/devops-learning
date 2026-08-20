@@ -38,15 +38,16 @@
 1. [Introduction](#1-introduction)
 2. [Architecture](#2-architecture)
 3. [Environment and Components](#3-environment-and-components)
-4. [PostgreSQL Monitoring](#4-postgresql-monitoring)
-5. [ScyllaDB Monitoring](#5-scylladb-monitoring)
-6. [Logs and Traces](#6-logs-and-traces)
-7. [Grafana Dashboards](#7-grafana-dashboards)
-8. [POC Validation](#8-poc-validation)
-9. [Troubleshooting](#9-troubleshooting)
-10. [Conclusion](#10-conclusion)
-11. [Contact Information](#11-contact-information)
-12. [References](#12-references)
+4. [Grafana Alloy](#4-grafana-alloy)
+5. [PostgreSQL Monitoring](#5-postgresql-monitoring)
+6. [ScyllaDB Monitoring](#6-scylladb-monitoring)
+7. [Logs and Traces](#7-logs-and-traces)
+8. [Grafana Dashboards](#8-grafana-dashboards)
+9. [POC Validation](#9-poc-validation)
+10. [Troubleshooting](#10-troubleshooting)
+11. [Conclusion](#11-conclusion)
+12. [Contact Information](#12-contact-information)
+13. [References](#13-references)
 
 ---
 
@@ -55,7 +56,7 @@
 This POC demonstrates observability for **PostgreSQL and ScyllaDB** using:
 
 - **Prometheus** for metrics
-- **Loki + Promtail** for logs
+- **Grafana Alloy + Loki** for logs
 - **OpenTelemetry Collector + Tempo** for traces
 - **Grafana** for visualization
 
@@ -104,9 +105,104 @@ Prometheus targets:
 ```
 ---
 
-## 4. PostgreSQL Monitoring
+## 4. Grafana Alloy
 
-### 4.1 Relevant PostgreSQL Metrics
+**Grafana Alloy** is the telemetry collector used in this POC for database log collection. Alloy is installed directly on the **PostgreSQL server** and **ScyllaDB server** and forwards their logs to the centralized Loki instance on the observability server.
+
+### 4.1 Why Grafana Alloy
+
+Alloy is Grafana Labs' unified telemetry collector and is designed to consolidate telemetry collection into a single agent. It supports logs, metrics, traces, and profiles, with native OpenTelemetry/OTLP support and Prometheus-compatible pipelines.
+
+For this POC, Alloy is used specifically as the **log collection agent**:
+
+```text
+PostgreSQL Server
+    PostgreSQL logs
+          │
+          ▼
+        Alloy
+          │
+          ▼
+        Loki
+          │
+          ▼
+       Grafana
+
+
+ScyllaDB Server
+    systemd / journald logs
+          │
+          ▼
+        Alloy
+          │
+          ▼
+        Loki
+          │
+          ▼
+       Grafana
+```
+
+### 4.2 Alloy Features Used in This POC
+
+| Feature | Purpose |
+|---|---|
+| `loki.source.file` | Reads PostgreSQL log files |
+| `loki.source.journal` | Reads ScyllaDB systemd/journald logs |
+| `loki.write` | Sends collected logs to Loki |
+| Component-based pipelines | Separates discovery, processing, and delivery |
+| Labeling | Adds consistent labels such as `service_name` |
+| OpenTelemetry support | Provides a path for unified telemetry collection |
+| Built-in observability | Alloy exposes its own operational status and debugging information |
+
+### 4.3 Why Promtail Is Disregarded
+
+Promtail is **not used in this POC** because Grafana Labs has deprecated it and it reached **End-of-Life (EOL) on March 2, 2026**. Grafana states that no future support or updates are provided for Promtail and that future feature development is in Grafana Alloy.
+
+Alloy is preferred because:
+
+- **Promtail is EOL** and is no longer a supported choice for a new implementation.
+- Alloy includes Promtail's log-collection capabilities while providing a broader telemetry pipeline.
+- Alloy supports **logs, metrics, traces, and profiles** in one collector, reducing the need to operate separate agents.
+- Alloy has native **OTLP/OpenTelemetry** support and Prometheus-compatible collection pipelines.
+- Grafana provides an official migration path and a converter for moving Promtail configurations to Alloy.
+- Using Alloy keeps this POC aligned with the current Grafana observability direction and avoids introducing an EOL component.
+
+> **Decision:** Promtail is intentionally excluded. **Grafana Alloy is the standard log collector for PostgreSQL and ScyllaDB in this POC.**
+
+### 4.4 Log Collection Flow
+
+```text
+PostgreSQL
+    │
+    │ PostgreSQL log file
+    ▼
+Alloy
+    │
+    │ Push logs
+    ▼
+Loki :3100
+    │
+    ▼
+Grafana
+
+
+ScyllaDB
+    │
+    │ systemd / journald
+    ▼
+Alloy
+    │
+    │ Push logs
+    ▼
+Loki :3100
+    │
+    ▼
+Grafana
+```
+
+## 5. PostgreSQL Monitoring
+
+### 5.1 Relevant PostgreSQL Metrics
 
 | Metric | Description | Monitoring |
 |---|---|---|
@@ -121,7 +217,7 @@ Prometheus targets:
 
 These metrics are based on the PostgreSQL exporter metrics verified during the POC.
 
-### 4.2 Validate PostgreSQL Metrics
+### 5.2 Validate PostgreSQL Metrics
 
 ```bash
 curl -s http://otms.postgresql.internal:9187/metrics | grep '^pg_' | head -100
@@ -136,9 +232,9 @@ curl -s http://otms.postgresql.internal:9187/metrics | grep '^pg_' | head -100
 
 ---
 
-## 5. ScyllaDB Monitoring
+## 6. ScyllaDB Monitoring
 
-### 5.1 Relevant ScyllaDB Metrics
+### 6.1 Relevant ScyllaDB Metrics
 
 The following are selected from the actual `scylla_*` metrics available in Prometheus during the POC. fileciteturn8file0
 
@@ -159,7 +255,7 @@ The following are selected from the actual `scylla_*` metrics available in Prome
 | `scylla_storage_proxy_coordinator_read_latency_bucket` | Read latency histogram | Calculate P95/P99 |
 | `scylla_storage_proxy_coordinator_write_latency_bucket` | Write latency histogram | Calculate P95/P99 |
 
-### 5.2 Validate ScyllaDB Metrics
+### 6.2 Validate ScyllaDB Metrics
 
 Verify the Prometheus target:
 
@@ -190,9 +286,9 @@ curl -s 'http://localhost:9090/api/v1/query?query=scylla_reactor_utilization' | 
 
 ---
 
-## 6. Logs and Traces
+## 7. Logs and Traces
 
-### 6.1 PostgreSQL Logs
+### 7.1 PostgreSQL Logs
 
 ```logql
 {service_name="postgres"}
@@ -214,7 +310,7 @@ curl -sG 'http://localhost:3100/loki/api/v1/query_range' \
 
 </details>
 
-### 6.2 ScyllaDB Logs
+### 7.2 ScyllaDB Logs
 
 ```logql
 {service_name="scylladb"}
@@ -236,7 +332,7 @@ curl -sG 'http://localhost:3100/loki/api/v1/query_range' \
 
 </details>
 
-### 6.3 PostgreSQL Database Trace
+### 7.3 PostgreSQL Database Trace
 
 Database spans appear under the **Attendance API trace**, not as a separate PostgreSQL trace service.
 
@@ -264,7 +360,7 @@ POST /api/v1/attendance/create
 
 </details>
 
-### 6.4 ScyllaDB Database Trace
+### 7.4 ScyllaDB Database Trace
 
 ScyllaDB database operations appear under the **Salary API trace**. Do not search for `service.name=scylladb`.
 
@@ -281,7 +377,7 @@ ScyllaDB database operations appear under the **Salary API trace**. Do not searc
 
 ---
 
-## 7. Grafana Dashboards
+## 8. Grafana Dashboards
 
 Two separate dashboards should be maintained.
 
@@ -328,7 +424,7 @@ Two separate dashboards should be maintained.
 
 ---
 
-## 8. POC Validation
+## 9. POC Validation
 
 | Validation | Expected Result |
 |---|---|
@@ -346,7 +442,7 @@ Two separate dashboards should be maintained.
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Issue | Solution |
 |---|---|
@@ -361,7 +457,7 @@ Two separate dashboards should be maintained.
 
 ---
 
-## 10. Conclusion
+## 11. Conclusion
 
 This POC demonstrates database observability for PostgreSQL and ScyllaDB using:
 
@@ -373,7 +469,7 @@ It provides database availability, workload and performance monitoring, operatio
 
 ---
 
-## 11. Contact Information
+## 12. Contact Information
 
 | Name | Contact |
 |---|---|
@@ -381,7 +477,7 @@ It provides database availability, workload and performance monitoring, operatio
 
 ---
 
-## 12. References
+## 13. References
 
 | S.No | Description | Reference |
 |---:|---|---|
@@ -390,5 +486,9 @@ It provides database availability, workload and performance monitoring, operatio
 | 3 | Loki Documentation | [Loki](https://grafana.com/docs/loki/latest/) |
 | 4 | Tempo Documentation | [Tempo](https://grafana.com/docs/tempo/latest/) |
 | 5 | OpenTelemetry Documentation | [OpenTelemetry](https://opentelemetry.io/docs/) |
-| 6 | PostgreSQL Documentation | [PostgreSQL](https://www.postgresql.org/docs/) |
-| 7 | ScyllaDB Documentation | [ScyllaDB](https://docs.scylladb.com/) |
+| 6 | Grafana Alloy Documentation | [Grafana Alloy](https://grafana.com/docs/alloy/latest/) |
+| 7 | Grafana Alloy - Why Alloy | [Why Alloy](https://grafana.com/docs/alloy/latest/introduction/why-alloy/) |
+| 8 | Migrate from Promtail to Grafana Alloy | [Alloy Migration Guide](https://grafana.com/docs/alloy/latest/set-up/migrate/from-promtail/) |
+| 9 | Promtail Lifecycle / EOL | [Promtail Documentation](https://grafana.com/docs/loki/latest/send-data/promtail/) |
+| 10 | PostgreSQL Documentation | [PostgreSQL](https://www.postgresql.org/docs/) |
+| 11 | ScyllaDB Documentation | [ScyllaDB](https://docs.scylladb.com/) |
