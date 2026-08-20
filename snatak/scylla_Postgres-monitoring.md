@@ -107,11 +107,11 @@ Prometheus targets:
 
 ## 4. Grafana Alloy
 
-**Grafana Alloy** is the telemetry collector used in this POC for database log collection. Alloy is installed directly on the **PostgreSQL server** and **ScyllaDB server** and forwards their logs to the centralized Loki instance on the observability server.
+**Grafana Alloy** is used as the **log collection agent** in this POC. Alloy is installed directly on the **PostgreSQL server** and **ScyllaDB server**, where it reads the local database logs and pushes them to the centralized Loki instance on the observability server.
 
 ### 4.1 Why Grafana Alloy
 
-Alloy is Grafana Labs' unified telemetry collector and is designed to consolidate telemetry collection into a single agent. It supports logs, metrics, traces, and profiles, with native OpenTelemetry/OTLP support and Prometheus-compatible pipelines.
+In this POC, Alloy is deployed as a lightweight **agent on each database server**. Its responsibility is to collect local logs, apply the required labels/pipeline processing, and push those logs to the centralized Loki server. Alloy is also a broader telemetry collection platform, but this implementation uses it specifically in its agent role for log forwarding.
 
 For this POC, Alloy is used specifically as the **log collection agent**:
 
@@ -142,7 +142,7 @@ ScyllaDB Server
        Grafana
 ```
 
-### 4.2 Alloy Features Used in This POC
+### 4.2 Alloy Agent Features Used in This POC
 
 | Feature | Purpose |
 |---|---|
@@ -151,32 +151,32 @@ ScyllaDB Server
 | `loki.write` | Sends collected logs to Loki |
 | Component-based pipelines | Separates discovery, processing, and delivery |
 | Labeling | Adds consistent labels such as `service_name` |
-| OpenTelemetry support | Provides a path for unified telemetry collection |
+| OpenTelemetry support | Supports broader telemetry pipelines when required |
 | Built-in observability | Alloy exposes its own operational status and debugging information |
 
 ### 4.3 Why Promtail Is Disregarded
 
 Promtail is **not used in this POC** because Grafana Labs has deprecated it and it reached **End-of-Life (EOL) on March 2, 2026**. Grafana states that no future support or updates are provided for Promtail and that future feature development is in Grafana Alloy.
 
-Alloy is preferred because:
+Alloy is preferred as the **agent** in this POC because:
 
 - **Promtail is EOL** and is no longer a supported choice for a new implementation.
-- Alloy includes Promtail's log-collection capabilities while providing a broader telemetry pipeline.
-- Alloy supports **logs, metrics, traces, and profiles** in one collector, reducing the need to operate separate agents.
+- Alloy provides the log collection and forwarding capabilities required here while also supporting broader telemetry pipelines when needed.
+- Alloy can handle **logs, metrics, traces, and profiles** through one agent/collector technology, reducing the need to introduce separate telemetry agents.
 - Alloy has native **OTLP/OpenTelemetry** support and Prometheus-compatible collection pipelines.
 - Grafana provides an official migration path and a converter for moving Promtail configurations to Alloy.
 - Using Alloy keeps this POC aligned with the current Grafana observability direction and avoids introducing an EOL component.
 
-> **Decision:** Promtail is intentionally excluded. **Grafana Alloy is the standard log collector for PostgreSQL and ScyllaDB in this POC.**
+> **Decision:** Promtail is intentionally excluded. **Grafana Alloy is deployed as the log collection agent on the PostgreSQL and ScyllaDB servers, pushing logs to the centralized Loki server.**
 
-### 4.4 Log Collection Flow
+### 4.4 Log Agent Flow
 
 ```text
 PostgreSQL
     │
     │ PostgreSQL log file
     ▼
-Alloy
+Alloy Agent
     │
     │ Push logs
     ▼
@@ -190,7 +190,7 @@ ScyllaDB
     │
     │ systemd / journald
     ▼
-Alloy
+Alloy Agent
     │
     │ Push logs
     ▼
