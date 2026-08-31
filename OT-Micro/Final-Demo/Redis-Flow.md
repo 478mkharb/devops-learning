@@ -17,14 +17,14 @@ Your three APIs use Redis differently:
                             │
              ┌──────────────┼──────────────────┐
              │              │                  │
-                      ▼                       ▼                              ▼
-       Employee API   Attendance API       Salary API
+             ▼              ▼                  ▼
+       Employee API   Attendance API        Salary API
              │              │                  │
-        ┌────┴────┐    ┌────┴────┐        ┌────┴──────┐
-        │         │    │         │        │           │
-              ▼              ▼      ▼               ▼             ▼                  ▼
-      Redis    Scylla Redis   PostgreSQL Redis     Scylla
-      CACHE    SOURCE CACHE   SOURCE     CACHE     SOURCE
+        ┌────┴────┐    ┌────┴────┐        ┌────┴────┐
+        │         │    │         │        │         │
+        ▼         ▼    ▼         ▼        ▼         ▼
+      Redis    Scylla Redis   PostgreSQL Redis   Scylla
+      CACHE    SOURCE CACHE   SOURCE    CACHE   SOURCE
 ```
 
 ### Source of Truth
@@ -54,15 +54,15 @@ Redis
    │
    └── MISS
         │
-             ▼
+        ▼
      Database
         │
-             ▼
+        ▼
       API
         │
         ├──────────────→ Frontend
         │
-             ▼
+        ▼
       Redis
      store data
 ```
@@ -125,15 +125,15 @@ Flow:
 ```text
 GET /employee/search?id=EMP001
               │
-                        ▼
+              ▼
         Employee API
               │
-                        ▼
+              ▼
       Redis HGET employee EMP001
               │
             HIT
               │
-                        ▼
+              ▼
         Return JSON
 ```
 
@@ -148,25 +148,25 @@ If Redis does not contain the employee:
 ```text
 GET /employee/search?id=EMP001
               │
-                        ▼
+              ▼
         Employee API
               │
-                        ▼
-          Redis HGET
+              ▼
+      Redis HGET
               │
              MISS
               │
-                        ▼
+              ▼
           ScyllaDB
               │
-                        ▼
+              ▼
        employee_info
               │
-                        ▼
+              ▼
         Employee API
-          │       │                
-                ▼            ▼
-    Frontend     Redis
+         │        │
+         ▼        ▼
+   Frontend       Redis
                   HSET
 ```
 
@@ -208,7 +208,7 @@ Redis
   │
   └── employee → all_data
                  │
-                             ▼
+                 ▼
               Return
 ```
 
@@ -217,13 +217,13 @@ If it does not:
 ```text
 Redis MISS
     │
-       ▼
+    ▼
 ScyllaDB
     │
-       ▼
+    ▼
 Read all employees
     │
-      ▼
+    ▼
 Employee API
     │
     ├──→ Frontend
@@ -281,16 +281,16 @@ When a new employee is created:
 ```text
 POST /employee/create
        │
-            ▼
+       ▼
 Employee API
        │
-            ▼
+       ▼
 INSERT into ScyllaDB
        │
-            ▼
+       ▼
      SUCCESS
        │
-            ▼
+       ▼
 Redis DEL "employee"
 ```
 
@@ -321,13 +321,13 @@ Next READ:
 ```text
 Redis MISS
      │
-        ▼
+     ▼
 ScyllaDB
      │
-        ▼
+     ▼
 Fresh data
      │
-        ▼
+     ▼
 Redis repopulated
 ```
 
@@ -413,21 +413,20 @@ Flow:
 ```text
 GET /attendance/search
           │
-                 ▼
+          ▼
      Redis Cache
+       /          HIT     MISS
       │        │
-     HIT     MISS
-      │        │
-          ▼             ▼
+      ▼        ▼
   Response  PostgreSQL
               │
-                        ▼
+              ▼
            records
               │
-                        ▼
+              ▼
           Response
               │
-                        ▼
+              ▼
             Redis
 ```
 
@@ -464,21 +463,20 @@ Flow:
 ```text
 GET /attendance/search/all
           │
-                ▼
+          ▼
         Redis
-      │        │          
-     HIT     MISS
+       /          HIT     MISS
       │        │
-          ▼             ▼
+      ▼        ▼
   Response  PostgreSQL
               │
-                        ▼
+              ▼
        SELECT all records
               │
-                        ▼
+              ▼
             Redis
               │
-                        ▼
+              ▼
           Frontend
 ```
 
@@ -507,16 +505,16 @@ After expiry:
 ```text
 Next GET
    │
-     ▼
+   ▼
 Redis MISS
    │
-     ▼
+   ▼
 PostgreSQL
    │
-     ▼
+   ▼
 Fresh response
    │
-     ▼
+   ▼
 Redis
 ```
 
@@ -531,13 +529,13 @@ For an attendance create/update request:
 ```text
 POST /attendance/create
         │
-             ▼
+        ▼
  Attendance API
         │
-             ▼
+        ▼
  PostgreSQL
         │
-             ▼
+        ▼
  records table
 ```
 
@@ -627,26 +625,26 @@ First request:
 ```text
 GET /salary/search?id=EMP001
               │
-                        ▼
+              ▼
           Salary API
               │
-                        ▼
+              ▼
         Redis Cache
               │
              MISS
               │
-                        ▼
+              ▼
            ScyllaDB
               │
-                        ▼
+              ▼
         employee_salary
               │
-                        ▼
+              ▼
          Salary API
               │
               ├──────────→ Frontend
               │
-                        ▼
+              ▼
             Redis
 ```
 
@@ -659,15 +657,15 @@ If the same request arrives within the 1-second TTL:
 ```text
 GET /salary/search?id=EMP001
               │
-                        ▼
+              ▼
           Salary API
               │
-                        ▼
+              ▼
             Redis
               │
              HIT
               │
-                        ▼
+              ▼
         Return salary
 ```
 
@@ -678,7 +676,7 @@ After 1 second:
 ```text
 Redis entry expires
         │
-             ▼
+        ▼
 Next request → ScyllaDB
 ```
 
@@ -700,13 +698,13 @@ The repository writes to ScyllaDB.
 ```text
 Frontend
    │
-     ▼
+   ▼
 Salary API
    │
-     ▼
+   ▼
 ScyllaDB
    │
-     ▼
+   ▼
 employee_salary
 ```
 
@@ -855,16 +853,16 @@ The key architectural principle is:
                             │
             ┌───────────────┼───────────────┐
             │               │               │
-                    ▼                         ▼                         ▼
+            ▼               ▼               ▼
        EMPLOYEE         ATTENDANCE        SALARY
           API              API              API
             │               │               │
-                    ▼                         ▼                         ▼
+            ▼               ▼               ▼
           REDIS            REDIS           REDIS
        HGet/HSet/Del    Flask-Caching   Spring Cache
             │               │               │
             │ MISS          │ MISS          │ MISS
-                    ▼                         ▼                         ▼
+            ▼               ▼               ▼
          SCYLLA          POSTGRESQL       SCYLLA
             │               │               │
             │               │               │
