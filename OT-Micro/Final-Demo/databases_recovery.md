@@ -880,3 +880,323 @@ The standby already contains the data, so failover does not require waiting for 
 ## 22. Final Interview Statement
 
 > **"My backup strategy has two layers. First, database-native backups such as PostgreSQL pg_dump and ScyllaDB-supported backups are stored in S3 for database-level recovery. Second, EBS snapshots provide infrastructure-level volume recovery and can be automated using AWS Data Lifecycle Manager. In DEV, cron is acceptable for scheduling database-native backup scripts. I don't consider snapshots a replacement for database backups, and neither provides HA by itself. For production, I would add database replication and automated failover to meet the required RPO and RTO."**
+
+
+---
+
+## 23. Redis AOF Backup to S3
+
+### What is AOF?
+
+**AOF (Append Only File)** is a Redis persistence mechanism.
+
+Redis records write operations in the AOF so that the dataset can be reconstructed after a Redis restart.
+
+Example:
+
+```text
+SET employee:101 "Mukesh"
+SET employee:102 "Rahul"
+DEL employee:102
+```
+
+AOF records the write operations so Redis can replay them during recovery.
+
+### Important: Redis does not write AOF directly to S3
+
+The normal architecture is:
+
+```text
+Redis EC2
+    |
+    v
+Redis AOF
+    |
+    | periodic backup/upload
+    v
+S3 Bucket
+```
+
+The AOF remains on the Redis EC2 host. A backup process periodically copies the persisted data to S3.
+
+---
+
+## 24. Check Redis AOF Configuration
+
+On the Redis EC2 instance:
+
+```bash
+redis-cli CONFIG GET dir
+redis-cli CONFIG GET appendonly
+redis-cli CONFIG GET appenddirname
+```
+
+Example:
+
+```text
+dir = /var/lib/redis
+appendonly = yes
+appenddirname = appendonlydir
+```
+
+Enable AOF if required:
+
+```bash
+redis-cli CONFIG SET appendonly yes
+```
+
+For a persistent configuration, make sure the Redis configuration file also contains:
+
+```conf
+appendonly yes
+```
+
+A commonly used durability setting is:
+
+```conf
+appendfsync everysec
+```
+
+This means Redis attempts to flush AOF data to disk approximately every second.
+
+---
+
+## 25. Backing Up Redis AOF to S3
+
+A simple conceptual flow is:
+
+```text
+                Redis EC2
+                    |
+                    v
+                  AOF
+                    |
+                    v
+            Backup Script
+                    |
+                    v
+              AWS CLI / S3
+                    |
+                    v
+       s3://otms-database-backups/
+                    |
+                    v
+             External backup
+```
+
+For example:
+
+```bash
+aws s3 cp /path/to/aof/file \
+  s3://otms-database-backups/redis/
+```
+
+### Important consistency consideration
+
+Do **not** assume that continuously copying an actively changing AOF file with a simple `cp` command automatically produces a consistent backup.
+
+For production, use a Redis-supported backup/persistence workflow and verify the resulting backup before relying on it for disaster recovery.
+
+---
+
+## 26. Automating Redis AOF Backup
+
+For a DEV environment, a scheduled backup script can be used.
+
+Example:
+
+```bash
+sudo vi /usr/local/bin/redis-backup.sh
+```
+
+Conceptually, the script should:
+
+```text
+1. Identify the Redis persistence files
+2. Create a safe backup copy
+3. Compress the backup if appropriate
+4. Upload it to S3
+5. Verify the upload
+6. Log success/failure
+7. Remove old local temporary files
+```
+
+Make it executable:
+
+```bash
+sudo chmod +x /usr/local/bin/redis-backup.sh
+```
+
+A cron entry could run it hourly:
+
+```cron
+0 * * * * /usr/local/bin/redis-backup.sh
+```
+
+This gives:
+
+```text
+01:00  -> Redis backup -> S3
+02:00  -> Redis backup -> S3
+03:00  -> Redis backup -> S3
+...
+```
+
+For AWS-native EBS snapshot scheduling, prefer **AWS Data Lifecycle Manager (DLM)** instead of creating a custom cron job solely for EBS snapshots.
+
+---
+
+## 27. AOF vs RDB for Redis
+
+| | RDB | AOF |
+|---|---|---|
+| Persistence type | Point-in-time snapshot | Append-only write log |
+| Records | Dataset snapshot | Write operations |
+| Typical durability | Lower | Higher |
+| Recovery | Generally faster | Can take longer |
+| File size | Generally smaller | Generally larger |
+| Main use | Snapshots/backups | More durable persistence |
+
+A Redis deployment can use RDB, AOF, or both depending on the required durability and recovery strategy.
+
+---
+
+## 28. Redis in the OTMS Architecture
+
+In OTMS, Redis is used as a **cache**, while the persistent databases remain the source of truth.
+
+```text
+                  OTMS APIs
+                     |
+              +------+------+
+              |             |
+              v             v
+        PostgreSQL       ScyllaDB
+        SOURCE OF       SOURCE OF
+          TRUTH            TRUTH
+              \             /
+               \           /
+                v         v
+                   Redis
+                   CACHE
+                     |
+                     v
+                    AOF
+                     |
+                     v
+                     S3
+```
+
+If Redis is lost:
+
+```text
+Redis EC2 fails
+      |
+      v
+Redis restored
+      |
+      v
+Application reads source databases
+      |
+      v
+Cache is repopulated
+```
+
+Therefore, Redis AOF backup is useful for recovering cached state, but **the critical database backups remain PostgreSQL and ScyllaDB backups**.
+
+---
+
+## 29. Should Redis AOF to S3 Be the Primary DR Strategy?
+
+For the OTMS DEV environment:
+
+**No.**
+
+The priority should be:
+
+```text
+Priority 1
+PostgreSQL backup
+        +
+ScyllaDB backup
+        |
+        v
+       S3
+
+Priority 2
+Redis persistence / backup
+        |
+        v
+       S3
+
+Additional infrastructure protection
+        |
+        v
+EBS snapshots
+```
+
+Redis can be rebuilt from PostgreSQL/ScyllaDB if it is functioning only as a cache.
+
+---
+
+## 30. Reviewer Answer — Redis AOF and S3
+
+### Q: "Can Redis AOF be stored in S3?"
+
+> "Redis does not continuously write its AOF directly to S3. AOF is maintained on the Redis host. I can periodically back up the persisted AOF data to S3 using a backup process. For our DEV environment, this can be scheduled with cron."
+
+### Q: "Why are you backing up Redis if it is a cache?"
+
+> "Redis is a cache in our architecture, so it is not the source of truth. PostgreSQL and ScyllaDB contain the persistent data. Redis persistence provides faster recovery of cached state, but if Redis is completely lost, the cache can be rebuilt from the source databases."
+
+### Q: "Does AOF provide high availability?"
+
+> "No. AOF is a persistence mechanism. It helps recover Redis data after a restart or failure, but it does not provide automatic failover. High availability would require replication and an appropriate failover mechanism."
+
+### Q: "Why not use only EBS snapshots for Redis?"
+
+> "EBS snapshots provide volume-level recovery, while Redis persistence provides application-level recovery. I can use both, but they solve different problems. For disaster recovery, the backup strategy should not depend only on a single EC2 volume."
+
+---
+
+## 31. Recommended OTMS Backup Model
+
+The complete model is:
+
+```text
+                    OTMS
+                     |
+       +-------------+-------------+
+       |             |             |
+       v             v             v
+ PostgreSQL       ScyllaDB       Redis
+       |             |             |
+       v             v             v
+ pg_dump /        ScyllaDB       AOF/RDB
+ native backup    backup
+       |             |             |
+       +-------------+-------------+
+                     |
+                     v
+                    S3
+                     |
+              External Backup
+                     |
+              +------+------+
+              |             |
+              v             v
+        DB-level recovery  DR backup
+
+Additional layer:
+EC2 EBS Volumes
+        |
+        v
+   EBS Snapshots
+        |
+        v
+       DLM
+```
+
+**Key principle:**
+
+> **Database-native backups provide database-level recovery, S3 provides independent external storage, EBS snapshots provide infrastructure-level recovery, and replication/failover provides high availability.**
