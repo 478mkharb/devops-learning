@@ -1,341 +1,189 @@
 # Route 53
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is Route 53?
 
-🌍 DNS | A | AAAA | CNAME | Alias | TTL | Health Check | Weighted | Latency | Failover | Geo
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Routing policy = which answer**, **TTL = how long resolver caches it**, **Health Check = whether endpoint is healthy**.
+**Answer:** Amazon Route 53 is AWS's managed DNS service. It provides authoritative DNS hosting, domain registration, health checks, and routing policies.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is a hosted zone?
 
-### 📌 DNS
-
-#### Q1. What is Route 53?
-
-**💡 Answer:** Amazon Route 53 is AWS's managed DNS service. It provides authoritative DNS hosting, domain registration, health checks, and routing policies.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
 ---
 
-#### Q2. What is a hosted zone?
+### Q3. What is a public hosted zone?
 
-**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
 ---
 
-#### Q3. What is a public hosted zone?
+### Q4. What is a private hosted zone?
 
-**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
 ---
 
-#### Q4. What is a private hosted zone?
+### Q5. What is an authoritative DNS server?
 
-**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
 
 ---
 
-#### Q5. What is an authoritative DNS server?
+### Q6. What is TTL?
 
-**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
 
 ---
 
-#### Q6. What is TTL?
+### Q7. What is an A record?
 
-**💡 Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An A record maps a DNS name to an IPv4 address.
 
 ---
 
-### 📌 Record Types
+### Q8. What is an AAAA record?
 
-#### Q7. What is an A record?
-
-**💡 Answer:** An A record maps a DNS name to an IPv4 address.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An A record maps a DNS name to an IPv4 address.
 
 ---
 
-#### Q8. What is an AAAA record?
+### Q9. What is a CNAME record?
 
-**💡 Answer:** An A record maps a DNS name to an IPv4 address.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
 
 ---
 
-#### Q9. What is a CNAME record?
+### Q10. What is an Alias record?
 
-**💡 Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Route 53 Alias record maps a name to supported AWS resources or another supported Route 53 target without requiring a CNAME at the zone apex. It is AWS-specific and does not incur a Route 53 query charge for alias queries to AWS resources.
 
 ---
 
-#### Q10. What is an Alias record?
+### Q11. What is an MX record?
 
-**💡 Answer:** A Route 53 Alias record maps a name to supported AWS resources or another supported Route 53 target without requiring a CNAME at the zone apex. It is AWS-specific and does not incur a Route 53 query charge for alias queries to AWS resources.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An MX record identifies mail servers responsible for receiving email for a domain.
 
 ---
 
-#### Q11. What is an MX record?
+### Q12. What is a TXT record?
 
-**💡 Answer:** An MX record identifies mail servers responsible for receiving email for a domain.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A TXT record stores text associated with a DNS name. It is commonly used for domain verification and email-security mechanisms such as SPF-related records and DKIM data.
 
 ---
 
-#### Q12. What is a TXT record?
+### Q13. What is an NS record?
 
-**💡 Answer:** A TXT record stores text associated with a DNS name. It is commonly used for domain verification and email-security mechanisms such as SPF-related records and DKIM data.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An NS record identifies the authoritative name servers for a DNS zone.
 
 ---
 
-#### Q13. What is an NS record?
+### Q14. What is an SOA record?
 
-**💡 Answer:** An NS record identifies the authoritative name servers for a DNS zone.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An A record maps a DNS name to an IPv4 address.
 
 ---
 
-#### Q14. What is an SOA record?
+### Q15. What is an SRV record?
 
-**💡 Answer:** An A record maps a DNS name to an IPv4 address.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An SRV record specifies the location of a service using a priority, weight, port, and target hostname.
 
 ---
 
-#### Q15. What is an SRV record?
+### Q16. Can a CNAME be used at the zone apex?
 
-**💡 Answer:** An SRV record specifies the location of a service using a priority, weight, port, and target hostname.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
 
 ---
 
-#### Q16. Can a CNAME be used at the zone apex?
+### Q17. What is simple routing?
 
-**💡 Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Simple routing returns a single resource or set of values without weighting or latency-based selection. It is suitable when straightforward DNS resolution is sufficient.
 
 ---
 
-### 📌 Routing Policies
+### Q18. What is weighted routing?
 
-#### Q17. What is simple routing?
-
-**💡 Answer:** Simple routing returns a single resource or set of values without weighting or latency-based selection. It is suitable when straightforward DNS resolution is sufficient.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Weighted routing assigns relative weights to records and distributes DNS responses according to those weights. It is useful for traffic splitting, testing, and gradual migrations.
 
 ---
 
-#### Q18. What is weighted routing?
+### Q19. What is latency-based routing?
 
-**💡 Answer:** Weighted routing assigns relative weights to records and distributes DNS responses according to those weights. It is useful for traffic splitting, testing, and gradual migrations.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Latency-based routing sends users to the AWS Region that Route 53 determines provides the lowest latency among configured records.
 
 ---
 
-#### Q19. What is latency-based routing?
+### Q20. What is failover routing?
 
-**💡 Answer:** Latency-based routing sends users to the AWS Region that Route 53 determines provides the lowest latency among configured records.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Failover routing uses primary and secondary records and health checks to return the healthy endpoint. It is commonly used for active-passive disaster recovery.
 
 ---
 
-#### Q20. What is failover routing?
+### Q21. What is geolocation routing?
 
-**💡 Answer:** Failover routing uses primary and secondary records and health checks to return the healthy endpoint. It is commonly used for active-passive disaster recovery.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Geolocation routing selects a record based on the geographic location from which the DNS query originates, such as country or continent.
 
 ---
 
-#### Q21. What is geolocation routing?
+### Q22. What is geoproximity routing?
 
-**💡 Answer:** Geolocation routing selects a record based on the geographic location from which the DNS query originates, such as country or continent.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Geoproximity routing routes based on the geographic location of resources and users and can use bias to expand or shrink the geographic area served by a resource.
 
 ---
 
-#### Q22. What is geoproximity routing?
+### Q23. What is IP-based routing?
 
-**💡 Answer:** Geoproximity routing routes based on the geographic location of resources and users and can use bias to expand or shrink the geographic area served by a resource.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** IP-based routing selects a Route 53 record based on the source IP address and configured CIDR mappings.
 
 ---
 
-#### Q23. What is IP-based routing?
+### Q24. What is multivalue answer routing?
 
-**💡 Answer:** IP-based routing selects a Route 53 record based on the source IP address and configured CIDR mappings.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Multivalue answer routing returns multiple healthy values and can be used to improve availability when clients can select among returned endpoints. It is not a replacement for a load balancer.
 
 ---
 
-#### Q24. What is multivalue answer routing?
+### Q25. How do weighted and latency routing differ?
 
-**💡 Answer:** Multivalue answer routing returns multiple healthy values and can be used to improve availability when clients can select among returned endpoints. It is not a replacement for a load balancer.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
 
 ---
 
-#### Q25. How do weighted and latency routing differ?
+### Q26. How does failover routing use health checks?
 
-**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
 
 ---
 
-#### Q26. How does failover routing use health checks?
+### Q27. What is a Route 53 health check?
 
-**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
 
 ---
 
-### 📌 Health & Operations
+### Q28. Can health checks monitor endpoints?
 
-#### Q27. What is a Route 53 health check?
-
-**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
 
 ---
 
-#### Q28. Can health checks monitor endpoints?
+### Q29. Can one health check monitor other health checks?
 
-**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
 
 ---
 
-#### Q29. Can one health check monitor other health checks?
+### Q30. How does DNS caching affect a record change?
 
-**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An A record maps a DNS name to an IPv4 address.
 
 ---
 
-#### Q30. How does DNS caching affect a record change?
+### Q31. Why might users temporarily resolve an old endpoint after a DNS update?
 
-**💡 Answer:** An A record maps a DNS name to an IPv4 address.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
 
 ---
-
-#### Q31. Why might users temporarily resolve an old endpoint after a DNS update?
-
-**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
-
-**🔑 Keywords:** `Route` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Routing policy = which answer**, **TTL = how long resolver caches it**, **Health Check = whether endpoint is healthy**.
-
-[⬆️ Back to top](#route-53)
-
-[⬅️ Back to AWS Topics](../README.md)

@@ -1,179 +1,93 @@
 # AWS Migration
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is AWS Application Migration Service?
 
-🚚 MGN | DMS | Migration Hub | DataSync | Snowball | Rehost | Replatform | Refactor | Retire
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Rehost = move**, **Replatform = small changes**, **Refactor = redesign**.
+**Answer:** AWS Application Migration Service (MGN) automates lift-and-shift migration of servers into AWS by replicating source servers and launching them as AWS instances.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is Database Migration Service?
 
-### 📌 Services
-
-#### Q1. What is AWS Application Migration Service?
-
-**💡 Answer:** AWS Application Migration Service (MGN) automates lift-and-shift migration of servers into AWS by replicating source servers and launching them as AWS instances.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Database Migration Service (DMS) migrates and replicates databases. It supports homogeneous and heterogeneous migrations and can use ongoing replication to reduce downtime.
 
 ---
 
-#### Q2. What is Database Migration Service?
+### Q3. What is Migration Hub?
 
-**💡 Answer:** AWS Database Migration Service (DMS) migrates and replicates databases. It supports homogeneous and heterogeneous migrations and can use ongoing replication to reduce downtime.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Migration Hub provides a central place to track migration progress across supported migration tools and workloads.
 
 ---
 
-#### Q3. What is Migration Hub?
+### Q4. What is DataSync?
 
-**💡 Answer:** AWS Migration Hub provides a central place to track migration progress across supported migration tools and workloads.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS DataSync transfers data between on-premises storage and AWS storage services or between supported AWS storage locations. It is optimized for high-speed managed data transfer.
 
 ---
 
-#### Q4. What is DataSync?
+### Q5. What is Snowball?
 
-**💡 Answer:** AWS DataSync transfers data between on-premises storage and AWS storage services or between supported AWS storage locations. It is optimized for high-speed managed data transfer.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Snowball is a physical data-transfer device/service used to move large datasets to or from AWS when network transfer is impractical or too slow.
 
 ---
 
-#### Q5. What is Snowball?
+### Q6. What is rehost?
 
-**💡 Answer:** AWS Snowball is a physical data-transfer device/service used to move large datasets to or from AWS when network transfer is impractical or too slow.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Rehost, or lift-and-shift, moves workloads to AWS with minimal application changes. It is usually fast and low-risk but may not fully exploit cloud-native capabilities.
 
 ---
 
-### 📌 Patterns
+### Q7. What is replatform?
 
-#### Q6. What is rehost?
-
-**💡 Answer:** Rehost, or lift-and-shift, moves workloads to AWS with minimal application changes. It is usually fast and low-risk but may not fully exploit cloud-native capabilities.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Replatform moves a workload to AWS with limited modifications that provide operational or cost benefits without a full redesign.
 
 ---
 
-#### Q7. What is replatform?
+### Q8. What is refactor?
 
-**💡 Answer:** Replatform moves a workload to AWS with limited modifications that provide operational or cost benefits without a full redesign.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Refactor, or re-architect, substantially changes the application to use cloud-native architecture. It can deliver larger long-term benefits but requires more engineering effort.
 
 ---
 
-#### Q8. What is refactor?
+### Q9. What is repurchase?
 
-**💡 Answer:** Refactor, or re-architect, substantially changes the application to use cloud-native architecture. It can deliver larger long-term benefits but requires more engineering effort.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Repurchase replaces an existing solution with a different product or service, often moving to a cloud-based licensing or SaaS model.
 
 ---
 
-#### Q9. What is repurchase?
+### Q10. What is retain?
 
-**💡 Answer:** Repurchase replaces an existing solution with a different product or service, often moving to a cloud-based licensing or SaaS model.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Retain means keeping a workload in its current environment for now because migration is not currently justified or feasible.
 
 ---
 
-#### Q10. What is retain?
+### Q11. What is retire?
 
-**💡 Answer:** Retain means keeping a workload in its current environment for now because migration is not currently justified or feasible.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Retire means decommissioning a workload that is no longer needed instead of migrating it.
 
 ---
 
-#### Q11. What is retire?
+### Q12. When is Snowball preferable to network transfer?
 
-**💡 Answer:** Retire means decommissioning a workload that is no longer needed instead of migrating it.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Snowball is a physical data-transfer device/service used to move large datasets to or from AWS when network transfer is impractical or too slow.
 
 ---
 
-### 📌 Selection
+### Q13. When should DMS be used?
 
-#### Q12. When is Snowball preferable to network transfer?
-
-**💡 Answer:** AWS Snowball is a physical data-transfer device/service used to move large datasets to or from AWS when network transfer is impractical or too slow.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Use AWS Database Migration Service when migrating or continuously replicating supported databases. DMS can perform an initial load and ongoing change data capture, which helps reduce application downtime during migration.
 
 ---
 
-#### Q13. When should DMS be used?
+### Q14. How can migration minimize downtime?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Use replication-based migration where possible, perform testing before cutover, keep the source available during synchronization, complete a final change-data synchronization, and switch application traffic only after the target is validated. DNS TTL reduction can also help for DNS-based cutovers.
 
 ---
 
-#### Q14. How can migration minimize downtime?
+### Q15. What is a cutover?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Cutover is the controlled point at which production traffic or users are switched from the old environment to the migrated AWS environment after validation and final synchronization.
 
 ---
-
-#### Q15. What is a cutover?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Rehost = move**, **Replatform = small changes**, **Refactor = redesign**.
-
-[⬆️ Back to top](#aws-migration)
-
-[⬅️ Back to AWS Topics](../README.md)

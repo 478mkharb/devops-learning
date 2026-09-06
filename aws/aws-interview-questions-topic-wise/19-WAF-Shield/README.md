@@ -1,179 +1,93 @@
 # WAF & Shield
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is AWS WAF?
 
-🛡️ WAF | Web ACL | Rule | Managed Rule | SQLi | XSS | Rate Limit | Shield | DDoS
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **WAF = web-request filtering**, **Shield = DDoS protection**.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-## ❓ Interview Questions
+### Q2. Where can WAF be associated?
 
-### 📌 WAF
-
-#### Q1. What is AWS WAF?
-
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-#### Q2. Where can WAF be associated?
+### Q3. What is a web ACL?
 
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A WAF web ACL is a collection of rules and rule groups evaluated against web requests. It is associated with supported AWS resources such as CloudFront distributions and regional application endpoints.
 
 ---
 
-#### Q3. What is a web ACL?
+### Q4. What is a rule?
 
-**💡 Answer:** A WAF web ACL is a collection of rules and rule groups evaluated against web requests. It is associated with supported AWS resources such as CloudFront distributions and regional application endpoints.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A WAF rule defines a statement that matches web requests and an action to take when the statement matches. Actions can include Allow, Block, Count, CAPTCHA, Challenge, or rate-based mitigation depending on the rule.
 
 ---
 
-#### Q4. What is a rule?
+### Q5. What is a rule group?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A WAF rule group is a reusable collection of WAF rules. Custom rule groups can be shared across web ACL designs, while managed rule groups provide prebuilt protections maintained by AWS or an AWS Marketplace provider.
 
 ---
 
-#### Q5. What is a rule group?
+### Q6. What is a managed rule group?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A managed rule group is a prebuilt set of WAF rules maintained by AWS or an AWS Marketplace security provider. It can provide protection against common web exploits without requiring every detection rule to be written manually.
 
 ---
 
-#### Q6. What is a managed rule group?
+### Q7. How does WAF protect against SQL injection?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-### 📌 Protection
+### Q8. How does WAF protect against XSS?
 
-#### Q7. How does WAF protect against SQL injection?
-
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-#### Q8. How does WAF protect against XSS?
+### Q9. What is rate-based protection?
 
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A WAF rate-based rule tracks request rates from clients and can automatically mitigate sources that exceed a configured threshold. It is useful for reducing abusive request floods.
 
 ---
 
-#### Q9. What is rate-based protection?
+### Q10. What is CAPTCHA/challenge?
 
-**💡 Answer:** A WAF rate-based rule tracks request rates from clients and can automatically mitigate sources that exceed a configured threshold. It is useful for reducing abusive request floods.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** CAPTCHA and Challenge are WAF actions that require the client to demonstrate that it is likely a legitimate browser/user before the request is allowed to continue. They are useful for mitigating automated bots and abusive traffic.
 
 ---
 
-#### Q10. What is CAPTCHA/challenge?
+### Q11. What is IP set matching?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A WAF IP set is a reusable collection of IP addresses or CIDR ranges that rules can match. It can be used for allowlists, blocklists, or trusted-source controls.
 
 ---
 
-#### Q11. What is IP set matching?
+### Q12. What is AWS Shield Standard?
 
-**💡 Answer:** A WAF IP set is a reusable collection of IP addresses or CIDR ranges that rules can match. It can be used for allowlists, blocklists, or trusted-source controls.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Shield Standard provides automatic DDoS protection for common network and transport-layer attacks against AWS services at no additional charge.
 
 ---
 
-### 📌 Shield
+### Q13. What is AWS Shield Advanced?
 
-#### Q12. What is AWS Shield Standard?
-
-**💡 Answer:** AWS Shield Standard provides automatic DDoS protection for common network and transport-layer attacks against AWS services at no additional charge.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Shield Advanced provides enhanced DDoS protection, additional visibility and response capabilities, and access to DDoS cost-protection and specialist support features for eligible resources.
 
 ---
 
-#### Q13. What is AWS Shield Advanced?
+### Q14. How does Shield differ from WAF?
 
-**💡 Answer:** AWS Shield Advanced provides enhanced DDoS protection, additional visibility and response capabilities, and access to DDoS cost-protection and specialist support features for eligible resources.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-#### Q14. How does Shield differ from WAF?
+### Q15. When is Shield Advanced appropriate?
 
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Shield Advanced provides enhanced DDoS protection, additional visibility and response capabilities, and access to DDoS cost-protection and specialist support features for eligible resources.
 
 ---
-
-#### Q15. When is Shield Advanced appropriate?
-
-**💡 Answer:** AWS Shield Advanced provides enhanced DDoS protection, additional visibility and response capabilities, and access to DDoS cost-protection and specialist support features for eligible resources.
-
-**🔑 Keywords:** `WAF` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **WAF = web-request filtering**, **Shield = DDoS protection**.
-
-[⬆️ Back to top](#waf-shield)
-
-[⬅️ Back to AWS Topics](../README.md)

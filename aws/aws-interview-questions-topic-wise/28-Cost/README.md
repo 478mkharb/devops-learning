@@ -1,169 +1,87 @@
 # AWS Cost Management
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is AWS Cost Explorer?
 
-💰 Cost Explorer | Budgets | Pricing Calculator | CUR | Tags | Rightsizing | Savings Plans | Trusted Advisor
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Measure → Budget → Optimize → Govern**.
+**Answer:** AWS Cost Explorer provides interactive analysis of AWS costs and usage over time. It helps identify cost drivers, trends, and service-level spend.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is AWS Budgets?
 
-### 📌 Core
-
-#### Q1. What is AWS Cost Explorer?
-
-**💡 Answer:** AWS Cost Explorer provides interactive analysis of AWS costs and usage over time. It helps identify cost drivers, trends, and service-level spend.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Budgets lets you define cost, usage, or reservation/savings-related thresholds and receive alerts when actual or forecasted values exceed configured limits.
 
 ---
 
-#### Q2. What is AWS Budgets?
+### Q3. What is the AWS Pricing Calculator?
 
-**💡 Answer:** AWS Budgets lets you define cost, usage, or reservation/savings-related thresholds and receive alerts when actual or forecasted values exceed configured limits.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Pricing Calculator estimates AWS costs before deployment by modeling expected services, usage, and configurations.
 
 ---
 
-#### Q3. What is the AWS Pricing Calculator?
+### Q4. What is Cost and Usage Report?
 
-**💡 Answer:** AWS Pricing Calculator estimates AWS costs before deployment by modeling expected services, usage, and configurations.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** The AWS Cost and Usage Report provides detailed billing and usage data that can be delivered to S3 for analysis and reporting.
 
 ---
 
-#### Q4. What is Cost and Usage Report?
+### Q5. What is consolidated billing?
 
-**💡 Answer:** The AWS Cost and Usage Report provides detailed billing and usage data that can be delivered to S3 for analysis and reporting.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Consolidated billing combines usage and billing for accounts in an AWS Organization and can provide centralized cost visibility and applicable volume benefits.
 
 ---
 
-#### Q5. What is consolidated billing?
+### Q6. How can EC2 costs be reduced?
 
-**💡 Answer:** Consolidated billing combines usage and billing for accounts in an AWS Organization and can provide centralized cost visibility and applicable volume benefits.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
 
 ---
 
-### 📌 Optimization
+### Q7. When should Spot be considered?
 
-#### Q6. How can EC2 costs be reduced?
-
-**💡 Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Consider Spot when the workload can tolerate interruption and restart, such as batch processing, CI workers, distributed processing, rendering, or stateless services. Avoid relying on Spot as the only capacity for critical stateful workloads.
 
 ---
 
-#### Q7. When should Spot be considered?
+### Q8. How do rightsizing recommendations help?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Rightsizing recommendations identify resources whose provisioned capacity is larger than their observed workload needs. Moving to an appropriate instance size or type can reduce cost while maintaining required performance.
 
 ---
 
-#### Q8. How do rightsizing recommendations help?
+### Q9. How can S3 lifecycle policies reduce cost?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An S3 Lifecycle configuration defines automated transitions and expirations for objects. Rules can target prefixes, object tags, or object-size conditions and can move data to lower-cost storage classes or delete it when no longer needed.
 
 ---
 
-#### Q9. How can S3 lifecycle policies reduce cost?
+### Q10. How can Savings Plans reduce compute cost?
 
-**💡 Answer:** An S3 Lifecycle configuration defines automated transitions and expirations for objects. Rules can target prefixes, object tags, or object-size conditions and can move data to lower-cost storage classes or delete it when no longer needed.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Savings Plans provide discounted compute usage in exchange for a committed hourly spend. They generally provide more flexibility than configuration-specific Reserved Instances, depending on the plan type.
 
 ---
 
-#### Q10. How can Savings Plans reduce compute cost?
+### Q11. What are cost allocation tags?
 
-**💡 Answer:** Savings Plans provide discounted compute usage in exchange for a committed hourly spend. They generally provide more flexibility than configuration-specific Reserved Instances, depending on the plan type.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Cost allocation tags help categorize AWS costs so teams can analyze spend by application, environment, owner, or other business dimensions.
 
 ---
 
-### 📌 Governance
+### Q12. What is a budget alert?
 
-#### Q11. What are cost allocation tags?
-
-**💡 Answer:** Cost allocation tags help categorize AWS costs so teams can analyze spend by application, environment, owner, or other business dimensions.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A budget alert notifies configured recipients or actions when actual or forecasted cost, usage, or commitment metrics cross a defined threshold. It is a governance control, not a hard spending limit by itself.
 
 ---
 
-#### Q12. What is a budget alert?
+### Q13. How can Organizations help control spend?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Organizations centrally manages multiple AWS accounts. It provides account grouping, consolidated billing, governance controls, and organization-wide policy mechanisms.
 
 ---
 
-#### Q13. How can Organizations help control spend?
+### Q14. What is AWS Trusted Advisor cost optimization?
 
-**💡 Answer:** AWS Organizations centrally manages multiple AWS accounts. It provides account grouping, consolidated billing, governance controls, and organization-wide policy mechanisms.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Trusted Advisor provides recommendations across areas such as cost optimization, performance, security, fault tolerance, and service limits, depending on account support/plan capabilities.
 
 ---
-
-#### Q14. What is AWS Trusted Advisor cost optimization?
-
-**💡 Answer:** AWS Trusted Advisor provides recommendations across areas such as cost optimization, performance, security, fault tolerance, and service limits, depending on account support/plan capabilities.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Measure → Budget → Optimize → Govern**.
-
-[⬆️ Back to top](#aws-cost-management)
-
-[⬅️ Back to AWS Topics](../README.md)

@@ -1,161 +1,81 @@
 # AWS Storage Services
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is EBS?
 
-📦 EBS | EFS | FSx | S3 | Storage Gateway | File Gateway | Volume Gateway | Tape Gateway | DataSync
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **EBS = block**, **EFS/FSx = file**, **S3 = object**.
+**Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
 ---
 
-## ❓ Interview Questions
+### Q2. When is block storage appropriate?
 
-### 📌 Block
-
-#### Q1. What is EBS?
-
-**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Block storage is appropriate when an operating system or application needs a block device, filesystem, or database volume with low-latency random I/O. Amazon EBS is the common persistent block-storage choice for EC2.
 
 ---
 
-#### Q2. When is block storage appropriate?
+### Q3. What is instance store?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Instance store is local ephemeral storage physically attached to the host. It can provide very high I/O performance, but data is not durable like EBS and can be lost when the instance or underlying host is stopped or terminated.
 
 ---
 
-#### Q3. What is instance store?
+### Q4. What is EFS?
 
-**💡 Answer:** Instance store is local ephemeral storage physically attached to the host. It can provide very high I/O performance, but data is not durable like EBS and can be lost when the instance or underlying host is stopped or terminated.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon EFS is managed elastic file storage that can be mounted by multiple compute resources and is designed for shared file-system access.
 
 ---
 
-### 📌 File
+### Q5. What is FSx?
 
-#### Q4. What is EFS?
-
-**💡 Answer:** Amazon EFS is managed elastic file storage that can be mounted by multiple compute resources and is designed for shared file-system access.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon FSx provides managed file systems for specific workload requirements, including Windows File Server and high-performance file-system options.
 
 ---
 
-#### Q5. What is FSx?
+### Q6. How does EFS differ from EBS?
 
-**💡 Answer:** Amazon FSx provides managed file systems for specific workload requirements, including Windows File Server and high-performance file-system options.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
 ---
 
-#### Q6. How does EFS differ from EBS?
+### Q7. When is shared file storage required?
 
-**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Shared file storage is required when multiple compute resources need concurrent access to the same filesystem and files. Amazon EFS is a common choice for shared Linux file storage; FSx provides specialized managed file systems.
 
 ---
 
-#### Q7. When is shared file storage required?
+### Q8. What is S3?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon S3 is object storage. Applications store objects in buckets and access them through S3 APIs. It is designed for scalable, highly durable storage rather than presenting a block device to an operating system.
 
 ---
 
-### 📌 Object
+### Q9. Why is S3 object storage rather than block storage?
 
-#### Q8. What is S3?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** S3 stores complete objects addressed by bucket and key and exposes them through APIs. It does not provide a traditional block device, so an operating system cannot mount an S3 bucket as a normal block disk without an additional filesystem/gateway layer.
 
 ---
 
-#### Q9. Why is S3 object storage rather than block storage?
+### Q10. What is S3 Glacier?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** S3 Glacier is a family of S3 archival storage classes for infrequently accessed data. Glacier Instant Retrieval provides rapid access, Glacier Flexible Retrieval supports retrieval from minutes to hours, and Glacier Deep Archive targets very long-term, rarely accessed data.
 
 ---
 
-#### Q10. What is S3 Glacier?
+### Q11. What is Storage Gateway?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Storage Gateway provides hybrid storage integration between on-premises environments and AWS. It offers file, volume, and tape gateway modes so existing applications can use familiar storage interfaces while data is backed by AWS services.
 
 ---
 
-### 📌 Hybrid
+### Q12. What are File Gateway, Volume Gateway, and Tape Gateway?
 
-#### Q11. What is Storage Gateway?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Storage Gateway File Gateway presents file shares to on-premises applications while storing files as objects in Amazon S3.
 
 ---
 
-#### Q12. What are File Gateway, Volume Gateway, and Tape Gateway?
+### Q13. When would you use DataSync?
 
-**💡 Answer:** Storage Gateway File Gateway presents file shares to on-premises applications while storing files as objects in Amazon S3.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS DataSync transfers data between on-premises storage and AWS storage services or between supported AWS storage locations. It is optimized for high-speed managed data transfer.
 
 ---
-
-#### Q13. When would you use DataSync?
-
-**💡 Answer:** AWS DataSync transfers data between on-premises storage and AWS storage services or between supported AWS storage locations. It is optimized for high-speed managed data transfer.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **EBS = block**, **EFS/FSx = file**, **S3 = object**.
-
-[⬆️ Back to top](#aws-storage-services)
-
-[⬅️ Back to AWS Topics](../README.md)

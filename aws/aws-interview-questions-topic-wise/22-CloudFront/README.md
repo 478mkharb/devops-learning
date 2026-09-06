@@ -1,179 +1,93 @@
 # CloudFront
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is Amazon CloudFront?
 
-🚀 CDN | Edge | Distribution | Origin | Cache | TTL | Invalidation | OAC | Signed URL
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Viewer → Edge → Cache → Origin**. Cache hit avoids origin request.
+**Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is an edge location?
 
-### 📌 Core
-
-#### Q1. What is Amazon CloudFront?
-
-**💡 Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront edge location is an AWS point of presence where content can be cached or requests can be handled closer to viewers.
 
 ---
 
-#### Q2. What is an edge location?
+### Q3. What is a distribution?
 
-**💡 Answer:** A CloudFront edge location is an AWS point of presence where content can be cached or requests can be handled closer to viewers.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront distribution defines how CloudFront serves content, including origins, cache behaviors, certificates, security settings, and viewer protocol policies.
 
 ---
 
-#### Q3. What is a distribution?
+### Q4. What is an origin?
 
-**💡 Answer:** A CloudFront distribution defines how CloudFront serves content, including origins, cache behaviors, certificates, security settings, and viewer protocol policies.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
 
 ---
 
-#### Q4. What is an origin?
+### Q5. What is a cache behavior?
 
-**💡 Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront cache behavior defines how requests matching a path pattern are handled, including origin selection, allowed methods, caching policies, and viewer protocol behavior.
 
 ---
 
-#### Q5. What is a cache behavior?
+### Q6. What is TTL in CloudFront?
 
-**💡 Answer:** A CloudFront cache behavior defines how requests matching a path pattern are handled, including origin selection, allowed methods, caching policies, and viewer protocol behavior.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
 
 ---
 
-### 📌 Caching
+### Q7. What causes a cache miss?
 
-#### Q6. What is TTL in CloudFront?
-
-**💡 Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A cache miss occurs when the requested object is not present as a valid cached object at the selected CloudFront edge location. CloudFront retrieves the object from the configured origin and can cache it according to the cache policy and TTL.
 
 ---
 
-#### Q7. What causes a cache miss?
+### Q8. What is invalidation?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront invalidation explicitly removes selected objects from CloudFront caches so subsequent requests retrieve the current version from the origin. It is useful after content changes when versioned object names are not being used.
 
 ---
 
-#### Q8. What is invalidation?
+### Q9. How do cache policies work?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront cache policy controls the cache key and TTL behavior. It determines which request values, such as query strings, headers, and cookies, are included when CloudFront decides whether two requests can use the same cached object.
 
 ---
 
-#### Q9. How do cache policies work?
+### Q10. How can query strings affect caching?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** If query strings are included in the cache key, different query-string values can create separate cached objects. If they are excluded, requests with different query strings can share the same cached response, which is safe only when the origin response does not depend on those values.
 
 ---
 
-#### Q10. How can query strings affect caching?
+### Q11. How can CloudFront use HTTPS?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
 
 ---
 
-### 📌 Security
+### Q12. What is Origin Access Control for S3?
 
-#### Q11. How can CloudFront use HTTPS?
-
-**💡 Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
 
 ---
 
-#### Q12. What is Origin Access Control for S3?
+### Q13. How can WAF integrate with CloudFront?
 
-**💡 Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
 
 ---
 
-#### Q13. How can WAF integrate with CloudFront?
+### Q14. What is signed URL?
 
-**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront signed URL grants time-limited access to a specific resource for users who are authorized to receive it.
 
 ---
 
-#### Q14. What is signed URL?
+### Q15. What is signed cookie?
 
-**💡 Answer:** A CloudFront signed URL grants time-limited access to a specific resource for users who are authorized to receive it.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFront signed cookie grants access to multiple restricted objects without requiring a separate signed URL for each object.
 
 ---
-
-#### Q15. What is signed cookie?
-
-**💡 Answer:** A CloudFront signed cookie grants access to multiple restricted objects without requiring a separate signed URL for each object.
-
-**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Viewer → Edge → Cache → Origin**. Cache hit avoids origin request.
-
-[⬆️ Back to top](#cloudfront)
-
-[⬅️ Back to AWS Topics](../README.md)

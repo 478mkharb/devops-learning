@@ -1,199 +1,105 @@
 # Infrastructure as Code
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is AWS CloudFormation?
 
-🏗️ CloudFormation | Terraform | Resource | Data Source | State | Backend | Plan | Apply | Drift
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Code → Plan → Apply → State**.
+**Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is a stack?
 
-### 📌 CloudFormation
-
-#### Q1. What is AWS CloudFormation?
-
-**💡 Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFormation stack is a deployed collection of AWS resources managed together from a CloudFormation template. Stack updates and deletion are performed as coordinated infrastructure operations.
 
 ---
 
-#### Q2. What is a stack?
+### Q3. What is a template?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A CloudFormation template is a YAML or JSON document that declaratively describes AWS resources and their configuration. It can include parameters, mappings, conditions, resources, and outputs.
 
 ---
 
-#### Q3. What is a template?
+### Q4. What are parameters?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** CloudFormation parameters are input values supplied when a stack is created or updated. They allow the same template to be reused across environments without hardcoding environment-specific values.
 
 ---
 
-#### Q4. What are parameters?
+### Q5. What are outputs?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** CloudFormation outputs expose useful values from a stack, such as resource IDs or endpoints. Outputs can be viewed after deployment and, where supported, exported for use by other stacks.
 
 ---
 
-#### Q5. What are outputs?
+### Q6. What is drift detection?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Infrastructure drift occurs when real infrastructure differs from the declared configuration. CloudFormation provides drift detection, while Terraform can detect differences during refresh/plan operations.
 
 ---
 
-#### Q6. What is drift detection?
+### Q7. What is Terraform?
 
-**💡 Answer:** Infrastructure drift occurs when real infrastructure differs from the declared configuration. CloudFormation provides drift detection, while Terraform can detect differences during refresh/plan operations.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Terraform is an infrastructure-as-code tool that uses configuration files to describe desired infrastructure. It maintains state to map configuration to real resources and creates an execution plan before changes.
 
 ---
 
-### 📌 Terraform
+### Q8. What is a provider?
 
-#### Q7. What is Terraform?
-
-**💡 Answer:** Terraform is an infrastructure-as-code tool that uses configuration files to describe desired infrastructure. It maintains state to map configuration to real resources and creates an execution plan before changes.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Terraform provider is a plugin that implements resources and data sources for a platform or API. The AWS provider translates Terraform configuration into AWS API operations.
 
 ---
 
-#### Q8. What is a provider?
+### Q9. What is state?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Terraform state records the relationship between Terraform configuration and real infrastructure and stores attributes needed to calculate future changes. It is a critical part of Terraform's operation and must be protected.
 
 ---
 
-#### Q9. What is state?
+### Q10. What is a remote backend?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Terraform remote backend stores state outside the local workstation, improving collaboration, durability, and locking support where the selected backend provides it.
 
 ---
 
-#### Q10. What is a remote backend?
+### Q11. What is a data source?
 
-**💡 Answer:** A Terraform remote backend stores state outside the local workstation, improving collaboration, durability, and locking support where the selected backend provides it.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Terraform data source reads information about existing infrastructure or external data without creating the referenced resource. It is useful for discovering VPCs, AMIs, subnets, and other existing objects.
 
 ---
 
-#### Q11. What is a data source?
+### Q12. What is a resource?
 
-**💡 Answer:** A Terraform data source reads information about existing infrastructure or external data without creating the referenced resource. It is useful for discovering VPCs, AMIs, subnets, and other existing objects.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Terraform resource represents infrastructure that Terraform manages, such as an EC2 instance, security group, S3 bucket, or load balancer.
 
 ---
 
-#### Q12. What is a resource?
+### Q13. What is plan vs apply?
 
-**💡 Answer:** A Terraform resource represents infrastructure that Terraform manages, such as an EC2 instance, security group, S3 bucket, or load balancer.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** terraform plan calculates and displays the proposed infrastructure changes without applying them. terraform apply executes the approved changes against the provider.
 
 ---
 
-#### Q13. What is plan vs apply?
+### Q14. Why should state be protected?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Terraform state can contain resource identifiers, configuration details, and sometimes sensitive values. Store it in a secured remote backend where possible, enable encryption and access control, and use locking/coordination features supported by the backend.
 
 ---
 
-#### Q14. Why should state be protected?
+### Q15. Terraform vs CloudFormation: when would you choose each?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
 
 ---
 
-### 📌 Comparison
+### Q16. What is immutable infrastructure?
 
-#### Q15. Terraform vs CloudFormation: when would you choose each?
-
-**💡 Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Immutable infrastructure means replacing infrastructure with a new version rather than modifying running instances in place. AMIs, Launch Templates, ASGs, and blue/green deployment patterns are common AWS implementations.
 
 ---
 
-#### Q16. What is immutable infrastructure?
+### Q17. Why is IaC useful for repeatability and auditability?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Infrastructure as code stores infrastructure definitions in version-controlled files. Changes can be reviewed, reproduced across environments, automated in pipelines, and traced through commits and plans, reducing manual configuration drift.
 
 ---
-
-#### Q17. Why is IaC useful for repeatability and auditability?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `Infrastructure` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Code → Plan → Apply → State**.
-
-[⬆️ Back to top](#infrastructure-as-code)
-
-[⬅️ Back to AWS Topics](../README.md)

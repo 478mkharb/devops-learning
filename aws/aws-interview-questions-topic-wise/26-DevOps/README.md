@@ -1,169 +1,87 @@
 # AWS DevOps Services
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is CodeCommit?
 
-🔧 CodeBuild | CodeDeploy | CodePipeline | CodeArtifact | CI/CD | Blue/Green | In-place | Session Manager
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Build → Test → Deploy → Release**. CodeBuild builds; CodeDeploy deploys; CodePipeline orchestrates.
+**Answer:** AWS CodeCommit is a managed Git-based source-control service for private repositories. It provides repository hosting and integrates with AWS development and CI/CD services, although teams may also use external Git providers.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is CodeBuild?
 
-### 📌 CI/CD
-
-#### Q1. What is CodeCommit?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CodeBuild is a managed build service that compiles source code, runs tests, and produces deployable artifacts without requiring you to manage build servers.
 
 ---
 
-#### Q2. What is CodeBuild?
+### Q3. What is CodeDeploy?
 
-**💡 Answer:** AWS CodeBuild is a managed build service that compiles source code, runs tests, and produces deployable artifacts without requiring you to manage build servers.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
 
 ---
 
-#### Q3. What is CodeDeploy?
+### Q4. What is CodePipeline?
 
-**💡 Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CodePipeline automates CI/CD workflows by orchestrating source, build, test, approval, and deployment stages.
 
 ---
 
-#### Q4. What is CodePipeline?
+### Q5. What is CodeArtifact?
 
-**💡 Answer:** AWS CodePipeline automates CI/CD workflows by orchestrating source, build, test, approval, and deployment stages.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CodeArtifact is a managed artifact repository for package dependencies and software components used by build systems.
 
 ---
 
-#### Q5. What is CodeArtifact?
+### Q6. What is in-place deployment?
 
-**💡 Answer:** AWS CodeArtifact is a managed artifact repository for package dependencies and software components used by build systems.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An in-place deployment updates the existing compute instances with the new application version. It is simple and cost-effective but can temporarily reduce capacity and has more rollback risk than maintaining a separate environment.
 
 ---
 
-### 📌 Deployment
+### Q7. What is blue/green deployment?
 
-#### Q6. What is in-place deployment?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Blue/green deployment maintains the current blue environment and a separate green environment containing the new version. After validation, traffic is shifted to green; rollback can be performed by shifting traffic back to blue.
 
 ---
 
-#### Q7. What is blue/green deployment?
+### Q8. What is canary deployment?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Canary deployment sends a small percentage of traffic to the new version first. The new version is monitored before increasing traffic, reducing blast radius if the release has a defect.
 
 ---
 
-#### Q8. What is canary deployment?
+### Q9. How can CodeDeploy deploy to EC2?
 
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
 
 ---
 
-#### Q9. How can CodeDeploy deploy to EC2?
+### Q10. How can pipelines integrate with CloudFormation or Terraform?
 
-**💡 Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
 
 ---
 
-#### Q10. How can pipelines integrate with CloudFormation or Terraform?
+### Q11. What is Systems Manager?
 
-**💡 Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS Systems Manager is a suite of operational capabilities for managing AWS and hybrid resources. It includes features such as Session Manager, Parameter Store, Patch Manager, Automation, and inventory capabilities.
 
 ---
 
-### 📌 Operations
+### Q12. What is Session Manager?
 
-#### Q11. What is Systems Manager?
-
-**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Systems Manager Session Manager provides secure shell-like access to managed EC2 instances without requiring inbound SSH ports or bastion hosts. Access is controlled through IAM and Systems Manager prerequisites.
 
 ---
 
-#### Q12. What is Session Manager?
+### Q13. What is Parameter Store?
 
-**💡 Answer:** Systems Manager Session Manager provides secure shell-like access to managed EC2 instances without requiring inbound SSH ports or bastion hosts. Access is controlled through IAM and Systems Manager prerequisites.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Systems Manager Parameter Store provides hierarchical configuration and parameter storage. SecureString parameters can be encrypted with KMS. It is useful for application configuration and simpler secret/configuration use cases.
 
 ---
 
-#### Q13. What is Parameter Store?
+### Q14. How can AWS DevOps services integrate with CloudWatch?
 
-**💡 Answer:** Systems Manager Parameter Store provides hierarchical configuration and parameter storage. SecureString parameters can be encrypted with KMS. It is useful for application configuration and simpler secret/configuration use cases.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon CloudWatch provides metrics, logs, alarms, dashboards, and observability features for AWS resources and applications.
 
 ---
-
-#### Q14. How can AWS DevOps services integrate with CloudWatch?
-
-**💡 Answer:** Amazon CloudWatch provides metrics, logs, alarms, dashboards, and observability features for AWS resources and applications.
-
-**🔑 Keywords:** `AWS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Build → Test → Deploy → Release**. CodeBuild builds; CodeDeploy deploys; CodePipeline orchestrates.
-
-[⬆️ Back to top](#aws-devops-services)
-
-[⬅️ Back to AWS Topics](../README.md)

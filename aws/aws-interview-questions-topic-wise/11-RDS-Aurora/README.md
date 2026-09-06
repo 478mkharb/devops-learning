@@ -1,241 +1,129 @@
 # RDS & Aurora
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is Amazon RDS?
 
-🗄️ RDS | Multi-AZ | Read Replica | Backup | PITR | Aurora | Replica | Global Database
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Multi-AZ = HA/failover**, **Read Replica = read scaling**.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-## ❓ Interview Questions
+### Q2. Which responsibilities remain with AWS in RDS?
 
-### 📌 RDS
-
-#### Q1. What is Amazon RDS?
-
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-#### Q2. Which responsibilities remain with AWS in RDS?
+### Q3. Which responsibilities remain with the customer?
 
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
 
 ---
 
-#### Q3. Which responsibilities remain with the customer?
+### Q4. What engines does RDS support?
 
-**💡 Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-#### Q4. What engines does RDS support?
+### Q5. What is a DB subnet group?
 
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
 
 ---
 
-#### Q5. What is a DB subnet group?
+### Q6. What is RDS Multi-AZ?
 
-**💡 Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-### 📌 High Availability
+### Q7. What is a standby instance?
 
-#### Q6. What is RDS Multi-AZ?
-
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
 
 ---
 
-#### Q7. What is a standby instance?
+### Q8. Does Multi-AZ primarily provide read scaling?
 
-**💡 Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** RDS Multi-AZ is primarily a high-availability and failover capability. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not the normal read-scaling mechanism.
 
 ---
 
-#### Q8. Does Multi-AZ primarily provide read scaling?
+### Q9. What is an RDS read replica?
 
-**💡 Answer:** RDS Multi-AZ is primarily a high-availability and failover capability. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not the normal read-scaling mechanism.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-#### Q9. What is an RDS read replica?
+### Q10. How does a read replica differ from Multi-AZ?
 
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** RDS Multi-AZ is primarily a high-availability and failover capability. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not the normal read-scaling mechanism.
 
 ---
 
-#### Q10. How does a read replica differ from Multi-AZ?
+### Q11. What is Amazon Aurora?
 
-**💡 Answer:** RDS Multi-AZ is primarily a high-availability and failover capability. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not the normal read-scaling mechanism.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
 
 ---
 
-### 📌 Aurora
+### Q12. How does Aurora storage differ from standard RDS storage?
 
-#### Q11. What is Amazon Aurora?
-
-**💡 Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-#### Q12. How does Aurora storage differ from standard RDS storage?
+### Q13. What are Aurora Replicas?
 
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
 
 ---
 
-#### Q13. What are Aurora Replicas?
+### Q14. What is Aurora Serverless?
 
-**💡 Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
 
 ---
 
-#### Q14. What is Aurora Serverless?
+### Q15. What is Aurora Global Database?
 
-**💡 Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
 
 ---
 
-#### Q15. What is Aurora Global Database?
+### Q16. What is automated backup?
 
-**💡 Answer:** Amazon Aurora is a MySQL- and PostgreSQL-compatible relational database engine designed for AWS. It separates compute from a distributed storage layer and supports replicas and managed high availability.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** RDS automated backups provide point-in-time recovery within the configured retention period. AWS creates and manages the underlying backup data.
 
 ---
 
-### 📌 Operations
+### Q17. What is a DB snapshot?
 
-#### Q16. What is automated backup?
-
-**💡 Answer:** RDS automated backups provide point-in-time recovery within the configured retention period. AWS creates and manages the underlying backup data.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
 
 ---
 
-#### Q17. What is a DB snapshot?
+### Q18. What is point-in-time recovery?
 
-**💡 Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Point-in-time recovery restores an RDS database to a selected time within the available automated-backup retention window.
 
 ---
 
-#### Q18. What is point-in-time recovery?
+### Q19. What is a maintenance window?
 
-**💡 Answer:** Point-in-time recovery restores an RDS database to a selected time within the available automated-backup retention window.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
 
 ---
 
-#### Q19. What is a maintenance window?
+### Q20. What is RDS encryption?
 
-**💡 Answer:** Explain the managed relational-database behavior, then distinguish availability, read scaling, backup/recovery, and operational responsibilities.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
 
 ---
 
-#### Q20. What is RDS encryption?
+### Q21. How do parameter groups and option groups differ?
 
-**💡 Answer:** Amazon RDS is a managed relational database service. AWS handles much of the underlying infrastructure, backups, patching, and high-availability plumbing while you manage database data, schema, and configuration.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A DB parameter group controls database engine configuration parameters. An option group is used by supported RDS engines to enable engine-specific options and features.
 
 ---
-
-#### Q21. How do parameter groups and option groups differ?
-
-**💡 Answer:** A DB parameter group controls database engine configuration parameters. An option group is used by supported RDS engines to enable engine-specific options and features.
-
-**🔑 Keywords:** `RDS` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Multi-AZ = HA/failover**, **Read Replica = read scaling**.
-
-[⬆️ Back to top](#rds-aurora)
-
-[⬅️ Back to AWS Topics](../README.md)

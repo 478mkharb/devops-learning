@@ -1,321 +1,177 @@
 # IAM
 
-[⬅️ Back to AWS Topics](../README.md)
+## Interview Questions & Answers
 
-## 🔑 Keywords
+### Q1. What is IAM?
 
-🔐 User | Group | Role | Policy | Allow | Explicit Deny | Boundary | SCP | Trust Policy | STS | Least Privilege
-
-## 🧠 Core Memory
-
-🧠 **Remember:** **Authentication = Who are you? Authorization = What can you do? Explicit Deny always wins.**
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-## ❓ Interview Questions
+### Q2. What is an IAM user?
 
-### 📌 Identities
-
-#### Q1. What is IAM?
-
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q2. What is an IAM user?
+### Q3. What is an IAM group?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q3. What is an IAM group?
+### Q4. What is an IAM role?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q4. What is an IAM role?
+### Q5. When should an application use an IAM role instead of access keys?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q5. When should an application use an IAM role instead of access keys?
+### Q6. What is the difference between authentication and authorization?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
 
 ---
 
-#### Q6. What is the difference between authentication and authorization?
+### Q7. What is an IAM policy?
 
-**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-### 📌 Policies
+### Q8. What is an identity-based policy?
 
-#### Q7. What is an IAM policy?
-
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An identity-based policy is attached to an IAM identity such as a user, group, or role and defines what actions that identity may perform on specified resources.
 
 ---
 
-#### Q8. What is an identity-based policy?
+### Q9. What is a resource-based policy?
 
-**💡 Answer:** An identity-based policy is attached to an IAM identity such as a user, group, or role and defines what actions that identity may perform on specified resources.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A resource-based policy is attached to a supported resource and specifies which principals can access the resource and under what conditions. S3 bucket policies and KMS key policies are common examples.
 
 ---
 
-#### Q9. What is a resource-based policy?
+### Q10. What is a permissions boundary?
 
-**💡 Answer:** A resource-based policy is attached to a supported resource and specifies which principals can access the resource and under what conditions. S3 bucket policies and KMS key policies are common examples.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
 
 ---
 
-#### Q10. What is a permissions boundary?
+### Q11. What is a Service Control Policy?
 
-**💡 Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An SCP in AWS Organizations defines the maximum available permissions for principals in member accounts. It does not grant permissions; an IAM policy must still allow the requested action.
 
 ---
 
-#### Q11. What is a Service Control Policy?
+### Q12. What is a Resource Control Policy?
 
-**💡 Answer:** An SCP in AWS Organizations defines the maximum available permissions for principals in member accounts. It does not grant permissions; an IAM policy must still allow the requested action.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An RCP is an AWS Organizations policy that can place organization-level restrictions on access to supported resources. It acts as a guardrail rather than a grant of permissions.
 
 ---
 
-#### Q12. What is a Resource Control Policy?
+### Q13. What is a session policy?
 
-**💡 Answer:** An RCP is an AWS Organizations policy that can place organization-level restrictions on access to supported resources. It acts as a guardrail rather than a grant of permissions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A session policy can further restrict permissions for a role session or federated session. It cannot grant permissions beyond what the underlying identity and other policy controls allow.
 
 ---
 
-#### Q13. What is a session policy?
+### Q14. What is a VPC endpoint policy?
 
-**💡 Answer:** A session policy can further restrict permissions for a role session or federated session. It cannot grant permissions beyond what the underlying identity and other policy controls allow.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
 ---
 
-#### Q14. What is a VPC endpoint policy?
+### Q15. What are ACLs in the IAM policy evaluation context?
 
-**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q15. What are ACLs in the IAM policy evaluation context?
+### Q16. Does a permissions boundary grant permissions?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
 
 ---
 
-#### Q16. Does a permissions boundary grant permissions?
+### Q17. What is explicit deny?
 
-**💡 Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
 
 ---
 
-### 📌 Evaluation
+### Q18. What is the effect of an explicit Deny?
 
-#### Q17. What is explicit deny?
-
-**💡 Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
 
 ---
 
-#### Q18. What is the effect of an explicit Deny?
+### Q19. How are identity and resource policies evaluated?
 
-**💡 Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Terraform resource represents infrastructure that Terraform manages, such as an EC2 instance, security group, S3 bucket, or load balancer.
 
 ---
 
-#### Q19. How are identity and resource policies evaluated?
+### Q20. How do SCPs constrain permissions?
 
-**💡 Answer:** A Terraform resource represents infrastructure that Terraform manages, such as an EC2 instance, security group, S3 bucket, or load balancer.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A Service Control Policy is an AWS Organizations guardrail that limits the maximum permissions available in member accounts. It does not grant permissions by itself.
 
 ---
 
-#### Q20. How do SCPs constrain permissions?
+### Q21. What is least privilege?
 
-**💡 Answer:** A Service Control Policy is an AWS Organizations guardrail that limits the maximum permissions available in member accounts. It does not grant permissions by itself.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Least privilege means granting only the permissions required to perform a task. In AWS this includes restricting actions, resources, conditions, principals, and credential lifetime where practical.
 
 ---
 
-#### Q21. What is least privilege?
+### Q22. What is policy inheritance?
 
-**💡 Answer:** Least privilege means granting only the permissions required to perform a task. In AWS this includes restricting actions, resources, conditions, principals, and credential lifetime where practical.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
 
 ---
 
-#### Q22. What is policy inheritance?
+### Q23. What is MFA?
 
-**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and account-root protection.
 
 ---
 
-### 📌 Security
+### Q24. What is an IAM access key?
 
-#### Q23. What is MFA?
-
-**💡 Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and account-root protection.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q24. What is an IAM access key?
+### Q25. What is IAM Access Analyzer?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
 ---
 
-#### Q25. What is IAM Access Analyzer?
+### Q26. What is STS?
 
-**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
 
 ---
 
-#### Q26. What is STS?
+### Q27. What is AssumeRole?
 
-**💡 Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
 
 ---
 
-#### Q27. What is AssumeRole?
+### Q28. What is a trust policy?
 
-**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
 
 ---
 
-#### Q28. What is a trust policy?
+### Q29. What is the difference between a trust policy and a permissions policy?
 
-**💡 Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+**Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
 
 ---
-
-#### Q29. What is the difference between a trust policy and a permissions policy?
-
-**💡 Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
-
-**🔑 Keywords:** `IAM` · `AWS` · `Interview`
-
-**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
-
----
-
-## 🚀 Last-Minute Revision
-
-> 🧠 **Remember:** **Authentication = Who are you? Authorization = What can you do? Explicit Deny always wins.**
-
-[⬆️ Back to top](#iam)
-
-[⬅️ Back to AWS Topics](../README.md)
