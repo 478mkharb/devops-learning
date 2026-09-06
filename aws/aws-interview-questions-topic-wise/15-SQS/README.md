@@ -1,174 +1,231 @@
-# SQS — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is Amazon SQS?</strong></summary>
+# SQS
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a queue?</strong></summary>
+📬 SQS | Queue | Producer | Consumer | Visibility Timeout | DLQ | Long Polling | FIFO | Deduplication
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **SQS = queue / decouple**. Producer sends → Consumer receives → Consumer deletes.
 
-</details>
-<details>
-<summary><strong>Q3. What is a producer?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is a consumer?</strong></summary>
+#### Q1. What is Amazon SQS?
 
-**Answer:**
+**💡 Answer:** Amazon SQS is a managed message queue used to decouple producers and consumers. It absorbs traffic spikes and lets consumers process work independently of producers.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is visibility timeout?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a queue?
 
-</details>
-## Queue Types
-<details>
-<summary><strong>Q6. What is a Standard queue?</strong></summary>
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-**Answer:**
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is a FIFO queue?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is a producer?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-</details>
-<details>
-<summary><strong>Q8. How do Standard and FIFO queues differ?</strong></summary>
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What is message deduplication?</strong></summary>
+#### Q4. What is a consumer?
 
-**Answer:**
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is message group ID?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is visibility timeout?
 
-</details>
-## Reliability
-<details>
-<summary><strong>Q11. What is a dead-letter queue?</strong></summary>
+**💡 Answer:** Lambda timeout is the maximum execution duration for a single invocation. If the function exceeds it, Lambda terminates the invocation.
 
-**Answer:**
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is a redrive policy?</strong></summary>
+---
 
-**Answer:**
+### 📌 Queue Types
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. What is a Standard queue?
 
-</details>
-<details>
-<summary><strong>Q13. What is long polling?</strong></summary>
+**💡 Answer:** An SQS Standard queue provides very high scalability and at-least-once delivery. Messages can occasionally be delivered more than once and ordering is not guaranteed.
 
-**Answer:**
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What is short polling?</strong></summary>
+---
 
-**Answer:**
+#### Q7. What is a FIFO queue?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An SQS FIFO queue is designed for ordered processing and deduplication. Ordering is maintained within each message group and duplicate processing can be reduced through deduplication.
 
-</details>
-<details>
-<summary><strong>Q15. What is retention period?</strong></summary>
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q16. What is maximum message size?</strong></summary>
+#### Q8. How do Standard and FIFO queues differ?
 
-**Answer:**
+**💡 Answer:** An SQS FIFO queue is designed for ordered processing and deduplication. Ordering is maintained within each message group and duplicate processing can be reduced through deduplication.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-</details>
-## Scaling
-<details>
-<summary><strong>Q17. How can SQS decouple microservices?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What is message deduplication?
 
-</details>
-<details>
-<summary><strong>Q18. How can ASG scale based on SQS queue depth?</strong></summary>
+**💡 Answer:** FIFO SQS deduplication prevents a message with the same deduplication identity from being accepted as a new message during the deduplication interval.
 
-**Answer:**
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. How does Lambda consume SQS?</strong></summary>
+---
 
-**Answer:**
+#### Q10. What is message group ID?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Message Group ID in an SQS FIFO queue defines an ordered stream. Messages within the same group are processed in order while different groups can be processed concurrently.
 
-</details>
-<details>
-<summary><strong>Q20. Why should consumers be idempotent?</strong></summary>
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Quick Revision
+### 📌 Reliability
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+#### Q11. What is a dead-letter queue?
+
+**💡 Answer:** A Lambda dead-letter destination or asynchronous failure destination can capture events that could not be processed successfully, depending on the invocation model.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is a redrive policy?
+
+**💡 Answer:** An SQS redrive policy defines when messages are moved to a dead-letter queue after repeated receive attempts. A redrive allow policy can control which source queues may use a DLQ.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. What is long polling?
+
+**💡 Answer:** SQS long polling waits for messages to become available before returning, reducing empty responses and unnecessary API calls. It is generally preferred for consumers.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is short polling?
+
+**💡 Answer:** SQS short polling returns immediately based on the polling behavior, which can result in empty responses even when messages are available elsewhere. It can generate more API calls.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. What is retention period?
+
+**💡 Answer:** SQS retains messages for a configurable period before deleting them automatically if they have not been successfully removed.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q16. What is maximum message size?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Scaling
+
+#### Q17. How can SQS decouple microservices?
+
+**💡 Answer:** Amazon SQS is a managed message queue used to decouple producers and consumers. It absorbs traffic spikes and lets consumers process work independently of producers.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. How can ASG scale based on SQS queue depth?
+
+**💡 Answer:** Amazon SQS is a managed message queue used to decouple producers and consumers. It absorbs traffic spikes and lets consumers process work independently of producers.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. How does Lambda consume SQS?
+
+**💡 Answer:** AWS Lambda runs code without requiring you to provision or manage servers. AWS handles the underlying compute infrastructure and scales execution according to incoming requests/events.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. Why should consumers be idempotent?
+
+**💡 Answer:** An idempotent consumer produces the same intended result even if the same message is processed more than once. This is important because Standard SQS provides at-least-once delivery.
+
+**🔑 Keywords:** `SQS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **SQS = queue / decouple**. Producer sends → Consumer receives → Consumer deletes.
+
+[⬆️ Back to top](#sqs)
+
+[⬅️ Back to AWS Topics](../README.md)

@@ -1,125 +1,169 @@
-# AWS Cost Management — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is AWS Cost Explorer?</strong></summary>
+# AWS Cost Management
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is AWS Budgets?</strong></summary>
+💰 Cost Explorer | Budgets | Pricing Calculator | CUR | Tags | Rightsizing | Savings Plans | Trusted Advisor
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Measure → Budget → Optimize → Govern**.
 
-</details>
-<details>
-<summary><strong>Q3. What is the AWS Pricing Calculator?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is Cost and Usage Report?</strong></summary>
+#### Q1. What is AWS Cost Explorer?
 
-**Answer:**
+**💡 Answer:** AWS Cost Explorer provides interactive analysis of AWS costs and usage over time. It helps identify cost drivers, trends, and service-level spend.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is consolidated billing?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is AWS Budgets?
 
-</details>
-## Optimization
-<details>
-<summary><strong>Q6. How can EC2 costs be reduced?</strong></summary>
+**💡 Answer:** AWS Budgets lets you define cost, usage, or reservation/savings-related thresholds and receive alerts when actual or forecasted values exceed configured limits.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. When should Spot be considered?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is the AWS Pricing Calculator?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS Pricing Calculator estimates AWS costs before deployment by modeling expected services, usage, and configurations.
 
-</details>
-<details>
-<summary><strong>Q8. How do rightsizing recommendations help?</strong></summary>
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. How can S3 lifecycle policies reduce cost?</strong></summary>
+#### Q4. What is Cost and Usage Report?
 
-**Answer:**
+**💡 Answer:** The AWS Cost and Usage Report provides detailed billing and usage data that can be delivered to S3 for analysis and reporting.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. How can Savings Plans reduce compute cost?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is consolidated billing?
 
-</details>
-## Governance
-<details>
-<summary><strong>Q11. What are cost allocation tags?</strong></summary>
+**💡 Answer:** Consolidated billing combines usage and billing for accounts in an AWS Organization and can provide centralized cost visibility and applicable volume benefits.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is a budget alert?</strong></summary>
+---
 
-**Answer:**
+### 📌 Optimization
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. How can EC2 costs be reduced?
 
-</details>
-<details>
-<summary><strong>Q13. How can Organizations help control spend?</strong></summary>
+**💡 Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What is AWS Trusted Advisor cost optimization?</strong></summary>
+---
 
-**Answer:**
+#### Q7. When should Spot be considered?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-</details>
-## Quick Revision
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q8. How do rightsizing recommendations help?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q9. How can S3 lifecycle policies reduce cost?
+
+**💡 Answer:** An S3 Lifecycle configuration defines automated transitions and expirations for objects. Rules can target prefixes, object tags, or object-size conditions and can move data to lower-cost storage classes or delete it when no longer needed.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. How can Savings Plans reduce compute cost?
+
+**💡 Answer:** Savings Plans provide discounted compute usage in exchange for a committed hourly spend. They generally provide more flexibility than configuration-specific Reserved Instances, depending on the plan type.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Governance
+
+#### Q11. What are cost allocation tags?
+
+**💡 Answer:** Cost allocation tags help categorize AWS costs so teams can analyze spend by application, environment, owner, or other business dimensions.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is a budget alert?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. How can Organizations help control spend?
+
+**💡 Answer:** AWS Organizations centrally manages multiple AWS accounts. It provides account grouping, consolidated billing, governance controls, and organization-wide policy mechanisms.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is AWS Trusted Advisor cost optimization?
+
+**💡 Answer:** AWS Trusted Advisor provides recommendations across areas such as cost optimization, performance, security, fault tolerance, and service limits, depending on account support/plan capabilities.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Measure → Budget → Optimize → Govern**.
+
+[⬆️ Back to top](#aws-cost-management)
+
+[⬅️ Back to AWS Topics](../README.md)

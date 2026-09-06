@@ -1,246 +1,321 @@
-# IAM — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Identities
-<details>
-<summary><strong>Q1. What is IAM?</strong></summary>
+# IAM
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is an IAM user?</strong></summary>
+🔐 User | Group | Role | Policy | Allow | Explicit Deny | Boundary | SCP | Trust Policy | STS | Least Privilege
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Authentication = Who are you? Authorization = What can you do? Explicit Deny always wins.**
 
-</details>
-<details>
-<summary><strong>Q3. What is an IAM group?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Identities
 
-</details>
-<details>
-<summary><strong>Q4. What is an IAM role?</strong></summary>
+#### Q1. What is IAM?
 
-**Answer:**
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. When should an application use an IAM role instead of access keys?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is an IAM user?
 
-</details>
-<details>
-<summary><strong>Q6. What is the difference between authentication and authorization?</strong></summary>
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-**Answer:**
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-## Policies
-<details>
-<summary><strong>Q7. What is an IAM policy?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is an IAM group?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-</details>
-<details>
-<summary><strong>Q8. What is an identity-based policy?</strong></summary>
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What is a resource-based policy?</strong></summary>
+#### Q4. What is an IAM role?
 
-**Answer:**
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is a permissions boundary?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. When should an application use an IAM role instead of access keys?
 
-</details>
-<details>
-<summary><strong>Q11. What is a Service Control Policy?</strong></summary>
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-**Answer:**
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is a Resource Control Policy?</strong></summary>
+---
 
-**Answer:**
+#### Q6. What is the difference between authentication and authorization?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
 
-</details>
-<details>
-<summary><strong>Q13. What is a session policy?</strong></summary>
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q14. What is a VPC endpoint policy?</strong></summary>
+### 📌 Policies
 
-**Answer:**
+#### Q7. What is an IAM policy?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-</details>
-<details>
-<summary><strong>Q15. What are ACLs in the IAM policy evaluation context?</strong></summary>
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q16. Does a permissions boundary grant permissions?</strong></summary>
+#### Q8. What is an identity-based policy?
 
-**Answer:**
+**💡 Answer:** An identity-based policy is attached to an IAM identity such as a user, group, or role and defines what actions that identity may perform on specified resources.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-</details>
-## Evaluation
-<details>
-<summary><strong>Q17. What is explicit deny?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What is a resource-based policy?
 
-</details>
-<details>
-<summary><strong>Q18. What is the effect of an explicit Deny?</strong></summary>
+**💡 Answer:** A resource-based policy is attached to a supported resource and specifies which principals can access the resource and under what conditions. S3 bucket policies and KMS key policies are common examples.
 
-**Answer:**
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. How are identity and resource policies evaluated?</strong></summary>
+---
 
-**Answer:**
+#### Q10. What is a permissions boundary?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
 
-</details>
-<details>
-<summary><strong>Q20. How do SCPs constrain permissions?</strong></summary>
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q21. What is least privilege?</strong></summary>
+#### Q11. What is a Service Control Policy?
 
-**Answer:**
+**💡 Answer:** An SCP in AWS Organizations defines the maximum available permissions for principals in member accounts. It does not grant permissions; an IAM policy must still allow the requested action.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. What is policy inheritance?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. What is a Resource Control Policy?
 
-</details>
-## Security
-<details>
-<summary><strong>Q23. What is MFA?</strong></summary>
+**💡 Answer:** An RCP is an AWS Organizations policy that can place organization-level restrictions on access to supported resources. It acts as a guardrail rather than a grant of permissions.
 
-**Answer:**
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q24. What is an IAM access key?</strong></summary>
+---
 
-**Answer:**
+#### Q13. What is a session policy?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A session policy can further restrict permissions for a role session or federated session. It cannot grant permissions beyond what the underlying identity and other policy controls allow.
 
-</details>
-<details>
-<summary><strong>Q25. What is IAM Access Analyzer?</strong></summary>
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q26. What is STS?</strong></summary>
+#### Q14. What is a VPC endpoint policy?
 
-**Answer:**
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q27. What is AssumeRole?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q15. What are ACLs in the IAM policy evaluation context?
 
-</details>
-<details>
-<summary><strong>Q28. What is a trust policy?</strong></summary>
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-**Answer:**
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q29. What is the difference between a trust policy and a permissions policy?</strong></summary>
+---
 
-**Answer:**
+#### Q16. Does a permissions boundary grant permissions?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A permissions boundary sets the maximum permissions an IAM user or role can receive from identity-based policies. A boundary does not itself grant permissions.
 
-</details>
-## Quick Revision
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Evaluation
+
+#### Q17. What is explicit deny?
+
+**💡 Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. What is the effect of an explicit Deny?
+
+**💡 Answer:** An explicit Deny overrides an Allow during AWS policy evaluation. This is a fundamental IAM rule and is why organization guardrails and deny policies can prevent otherwise allowed actions.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. How are identity and resource policies evaluated?
+
+**💡 Answer:** A Terraform resource represents infrastructure that Terraform manages, such as an EC2 instance, security group, S3 bucket, or load balancer.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. How do SCPs constrain permissions?
+
+**💡 Answer:** A Service Control Policy is an AWS Organizations guardrail that limits the maximum permissions available in member accounts. It does not grant permissions by itself.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q21. What is least privilege?
+
+**💡 Answer:** Least privilege means granting only the permissions required to perform a task. In AWS this includes restricting actions, resources, conditions, principals, and credential lifetime where practical.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. What is policy inheritance?
+
+**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Security
+
+#### Q23. What is MFA?
+
+**💡 Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and account-root protection.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q24. What is an IAM access key?
+
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q25. What is IAM Access Analyzer?
+
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q26. What is STS?
+
+**💡 Answer:** AWS STS issues temporary security credentials for sessions and role assumption. Temporary credentials are time-limited and reduce the risks associated with long-lived keys.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q27. What is AssumeRole?
+
+**💡 Answer:** Explain the identity/policy object, where it is attached, how AWS evaluates it, and the least-privilege/security implication. Remember that an explicit Deny overrides an Allow.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q28. What is a trust policy?
+
+**💡 Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q29. What is the difference between a trust policy and a permissions policy?
+
+**💡 Answer:** A role trust policy is a resource-based policy that defines which principals are allowed to assume the role. It is different from the role's permissions policy, which defines allowed AWS actions after assumption.
+
+**🔑 Keywords:** `IAM` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Authentication = Who are you? Authorization = What can you do? Explicit Deny always wins.**
+
+[⬆️ Back to top](#iam)
+
+[⬅️ Back to AWS Topics](../README.md)

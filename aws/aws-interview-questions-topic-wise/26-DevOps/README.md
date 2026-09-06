@@ -1,125 +1,169 @@
-# AWS DevOps Services — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## CI/CD
-<details>
-<summary><strong>Q1. What is CodeCommit?</strong></summary>
+# AWS DevOps Services
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is CodeBuild?</strong></summary>
+🔧 CodeBuild | CodeDeploy | CodePipeline | CodeArtifact | CI/CD | Blue/Green | In-place | Session Manager
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Build → Test → Deploy → Release**. CodeBuild builds; CodeDeploy deploys; CodePipeline orchestrates.
 
-</details>
-<details>
-<summary><strong>Q3. What is CodeDeploy?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 CI/CD
 
-</details>
-<details>
-<summary><strong>Q4. What is CodePipeline?</strong></summary>
+#### Q1. What is CodeCommit?
 
-**Answer:**
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is CodeArtifact?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is CodeBuild?
 
-</details>
-## Deployment
-<details>
-<summary><strong>Q6. What is in-place deployment?</strong></summary>
+**💡 Answer:** AWS CodeBuild is a managed build service that compiles source code, runs tests, and produces deployable artifacts without requiring you to manage build servers.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is blue/green deployment?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is CodeDeploy?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
 
-</details>
-<details>
-<summary><strong>Q8. What is canary deployment?</strong></summary>
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. How can CodeDeploy deploy to EC2?</strong></summary>
+#### Q4. What is CodePipeline?
 
-**Answer:**
+**💡 Answer:** AWS CodePipeline automates CI/CD workflows by orchestrating source, build, test, approval, and deployment stages.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. How can pipelines integrate with CloudFormation or Terraform?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is CodeArtifact?
 
-</details>
-## Operations
-<details>
-<summary><strong>Q11. What is Systems Manager?</strong></summary>
+**💡 Answer:** AWS CodeArtifact is a managed artifact repository for package dependencies and software components used by build systems.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is Session Manager?</strong></summary>
+---
 
-**Answer:**
+### 📌 Deployment
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. What is in-place deployment?
 
-</details>
-<details>
-<summary><strong>Q13. What is Parameter Store?</strong></summary>
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. How can AWS DevOps services integrate with CloudWatch?</strong></summary>
+---
 
-**Answer:**
+#### Q7. What is blue/green deployment?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-</details>
-## Quick Revision
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q8. What is canary deployment?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q9. How can CodeDeploy deploy to EC2?
+
+**💡 Answer:** AWS CodeDeploy automates application deployments to supported compute targets such as EC2, Lambda, and ECS, with deployment strategies such as in-place and blue/green.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. How can pipelines integrate with CloudFormation or Terraform?
+
+**💡 Answer:** AWS CloudFormation is an infrastructure-as-code service that provisions AWS resources from declarative templates. A stack represents a deployed collection of resources managed together.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Operations
+
+#### Q11. What is Systems Manager?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is Session Manager?
+
+**💡 Answer:** Systems Manager Session Manager provides secure shell-like access to managed EC2 instances without requiring inbound SSH ports or bastion hosts. Access is controlled through IAM and Systems Manager prerequisites.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. What is Parameter Store?
+
+**💡 Answer:** Systems Manager Parameter Store provides hierarchical configuration and parameter storage. SecureString parameters can be encrypted with KMS. It is useful for application configuration and simpler secret/configuration use cases.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. How can AWS DevOps services integrate with CloudWatch?
+
+**💡 Answer:** Amazon CloudWatch provides metrics, logs, alarms, dashboards, and observability features for AWS resources and applications.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Build → Test → Deploy → Release**. CodeBuild builds; CodeDeploy deploys; CodePipeline orchestrates.
+
+[⬆️ Back to top](#aws-devops-services)
+
+[⬅️ Back to AWS Topics](../README.md)

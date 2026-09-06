@@ -1,295 +1,383 @@
-# S3 — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is Amazon S3?</strong></summary>
+# S3
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a bucket?</strong></summary>
+🪣 Bucket | Object | Key | Storage Class | Versioning | Lifecycle | Replication | Encryption | Object Lock | Presigned URL
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **S3 = objects in buckets**. Lifecycle = automatic movement/deletion; Versioning = recovery from overwrite/delete.
 
-</details>
-<details>
-<summary><strong>Q3. What is an object?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is an object key?</strong></summary>
+#### Q1. What is Amazon S3?
 
-**Answer:**
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is S3 storage class?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a bucket?
 
-</details>
-<details>
-<summary><strong>Q6. Is S3 regional or global?</strong></summary>
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-## Storage Classes
-<details>
-<summary><strong>Q7. Explain S3 Standard.</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is an object?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-</details>
-<details>
-<summary><strong>Q8. Explain S3 Intelligent-Tiering.</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. Explain S3 Standard-IA.</strong></summary>
+#### Q4. What is an object key?
 
-**Answer:**
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. Explain S3 One Zone-IA.</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is S3 storage class?
 
-</details>
-<details>
-<summary><strong>Q11. Explain S3 Glacier Instant Retrieval.</strong></summary>
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. Explain S3 Glacier Flexible Retrieval.</strong></summary>
+---
 
-**Answer:**
+#### Q6. Is S3 regional or global?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-</details>
-<details>
-<summary><strong>Q13. Explain S3 Glacier Deep Archive.</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Lifecycle
-<details>
-<summary><strong>Q14. What is an S3 Lifecycle configuration?</strong></summary>
+### 📌 Storage Classes
 
-**Answer:**
+#### Q7. Explain S3 Standard.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-</details>
-<details>
-<summary><strong>Q15. What is a transition rule?</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q16. What is an expiration rule?</strong></summary>
+#### Q8. Explain S3 Intelligent-Tiering.
 
-**Answer:**
+**💡 Answer:** S3 Intelligent-Tiering automatically moves objects among access tiers based on access patterns, helping optimize storage cost without requiring you to predict when objects will become infrequently accessed.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q17. How can lifecycle rules reduce storage cost?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. Explain S3 Standard-IA.
 
-</details>
-<details>
-<summary><strong>Q18. Can lifecycle rules target object prefixes?</strong></summary>
+**💡 Answer:** S3 Standard-Infrequent Access is designed for data accessed less frequently but requiring millisecond access when requested. It has lower storage cost than Standard and higher access charges.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. Can lifecycle rules use object tags?</strong></summary>
+---
 
-**Answer:**
+#### Q10. Explain S3 One Zone-IA.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** S3 One Zone-Infrequent Access stores data in a single Availability Zone and costs less than multi-AZ storage classes. It is suitable for re-creatable or secondary data where AZ-level resilience is acceptable.
 
-</details>
-<details>
-<summary><strong>Q20. How would you move old objects to Glacier classes automatically?</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Security
-<details>
-<summary><strong>Q21. What is an S3 bucket policy?</strong></summary>
+#### Q11. Explain S3 Glacier Instant Retrieval.
 
-**Answer:**
+**💡 Answer:** S3 Glacier Instant Retrieval is designed for archive data that is rarely accessed but must be retrieved with millisecond access when needed.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. What is Block Public Access?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. Explain S3 Glacier Flexible Retrieval.
 
-</details>
-<details>
-<summary><strong>Q23. What is S3 Object Ownership?</strong></summary>
+**💡 Answer:** S3 Glacier Flexible Retrieval is for archival data that can tolerate retrieval times from minutes to hours, with lower storage cost than frequently accessed classes.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q24. What is SSE-S3?</strong></summary>
+---
 
-**Answer:**
+#### Q13. Explain S3 Glacier Deep Archive.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** S3 Glacier Deep Archive is intended for very long-lived data that is rarely accessed and can tolerate long retrieval times. It is optimized for the lowest-cost long-term S3 archival storage.
 
-</details>
-<details>
-<summary><strong>Q25. What is SSE-KMS?</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q26. What is client-side encryption?</strong></summary>
+### 📌 Lifecycle
 
-**Answer:**
+#### Q14. What is an S3 Lifecycle configuration?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An S3 Lifecycle configuration defines automated transitions and expirations for objects. Rules can target prefixes, object tags, or object-size conditions and can move data to lower-cost storage classes or delete it when no longer needed.
 
-</details>
-## Features
-<details>
-<summary><strong>Q27. What is S3 Versioning?</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q28. What is S3 Object Lock?</strong></summary>
+#### Q15. What is a transition rule?
 
-**Answer:**
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q29. What is S3 replication?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q16. What is an expiration rule?
 
-</details>
-<details>
-<summary><strong>Q30. What is Cross-Region Replication?</strong></summary>
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q31. What is Same-Region Replication?</strong></summary>
+---
 
-**Answer:**
+#### Q17. How can lifecycle rules reduce storage cost?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** S3 Lifecycle rules automate object transitions between storage classes and object expiration. They are a key cost-optimization mechanism for data with changing access patterns.
 
-</details>
-<details>
-<summary><strong>Q32. What is S3 Transfer Acceleration?</strong></summary>
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q33. What are S3 presigned URLs?</strong></summary>
+#### Q18. Can lifecycle rules target object prefixes?
 
-**Answer:**
+**💡 Answer:** S3 Lifecycle rules automate object transitions between storage classes and object expiration. They are a key cost-optimization mechanism for data with changing access patterns.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q34. What are S3 event notifications?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q19. Can lifecycle rules use object tags?
 
-</details>
-<details>
-<summary><strong>Q35. How can S3 integrate with EventBridge, SQS, SNS, and Lambda?</strong></summary>
+**💡 Answer:** S3 Lifecycle rules automate object transitions between storage classes and object expiration. They are a key cost-optimization mechanism for data with changing access patterns.
 
-**Answer:**
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-## Quick Revision
+---
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+#### Q20. How would you move old objects to Glacier classes automatically?
+
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Security
+
+#### Q21. What is an S3 bucket policy?
+
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. What is Block Public Access?
+
+**💡 Answer:** S3 Block Public Access provides account- and bucket-level controls that prevent common configurations from making S3 data publicly accessible. It is a defense-in-depth control, not a replacement for correct bucket policies.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q23. What is S3 Object Ownership?
+
+**💡 Answer:** S3 Object Ownership controls ownership of objects written to a bucket. Bucket owner enforced disables ACLs for the bucket and makes the bucket owner the owner of objects, simplifying access control.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q24. What is SSE-S3?
+
+**💡 Answer:** SSE-S3 provides server-side encryption using S3-managed encryption keys. S3 performs the encryption and key management for the customer.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q25. What is SSE-KMS?
+
+**💡 Answer:** SSE-KMS encrypts S3 objects using AWS KMS keys. It provides additional key-control, audit, and authorization capabilities compared with SSE-S3.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q26. What is client-side encryption?
+
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Features
+
+#### Q27. What is S3 Versioning?
+
+**💡 Answer:** S3 Versioning keeps multiple versions of an object under the same key. It helps recover from accidental deletion or overwrite and is commonly combined with lifecycle rules to manage noncurrent versions.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q28. What is S3 Object Lock?
+
+**💡 Answer:** S3 Object Lock provides WORM-style retention controls to help prevent objects from being deleted or overwritten for a defined retention period or legal hold.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q29. What is S3 replication?
+
+**💡 Answer:** S3 replication automatically copies eligible objects between buckets. Cross-Region Replication is commonly used for disaster recovery or geographic distribution; Same-Region Replication is useful for compliance or separation requirements.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q30. What is Cross-Region Replication?
+
+**💡 Answer:** S3 replication automatically copies eligible objects between buckets. Cross-Region Replication is commonly used for disaster recovery or geographic distribution; Same-Region Replication is useful for compliance or separation requirements.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q31. What is Same-Region Replication?
+
+**💡 Answer:** S3 replication automatically copies eligible objects between buckets. Cross-Region Replication is commonly used for disaster recovery or geographic distribution; Same-Region Replication is useful for compliance or separation requirements.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q32. What is S3 Transfer Acceleration?
+
+**💡 Answer:** S3 Transfer Acceleration uses AWS edge locations to accelerate uploads to S3 over long-distance networks.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q33. What are S3 presigned URLs?
+
+**💡 Answer:** An S3 presigned URL grants time-limited access to a specific object or operation without requiring the recipient to have AWS credentials. The permissions are derived from the signing principal.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q34. What are S3 event notifications?
+
+**💡 Answer:** Explain the S3 bucket/object model, the feature's effect on storage, access, durability, lifecycle, or security, and the workload for which it is appropriate.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q35. How can S3 integrate with EventBridge, SQS, SNS, and Lambda?
+
+**💡 Answer:** AWS Lambda runs code without requiring you to provision or manage servers. AWS handles the underlying compute infrastructure and scales execution according to incoming requests/events.
+
+**🔑 Keywords:** `S3` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **S3 = objects in buckets**. Lifecycle = automatic movement/deletion; Versioning = recovery from overwrite/delete.
+
+[⬆️ Back to top](#s3)
+
+[⬅️ Back to AWS Topics](../README.md)

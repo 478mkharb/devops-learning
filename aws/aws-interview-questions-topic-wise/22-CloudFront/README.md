@@ -1,133 +1,179 @@
-# CloudFront — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is Amazon CloudFront?</strong></summary>
+# CloudFront
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is an edge location?</strong></summary>
+🚀 CDN | Edge | Distribution | Origin | Cache | TTL | Invalidation | OAC | Signed URL
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Viewer → Edge → Cache → Origin**. Cache hit avoids origin request.
 
-</details>
-<details>
-<summary><strong>Q3. What is a distribution?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is an origin?</strong></summary>
+#### Q1. What is Amazon CloudFront?
 
-**Answer:**
+**💡 Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is a cache behavior?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is an edge location?
 
-</details>
-## Caching
-<details>
-<summary><strong>Q6. What is TTL in CloudFront?</strong></summary>
+**💡 Answer:** A CloudFront edge location is an AWS point of presence where content can be cached or requests can be handled closer to viewers.
 
-**Answer:**
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What causes a cache miss?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is a distribution?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A CloudFront distribution defines how CloudFront serves content, including origins, cache behaviors, certificates, security settings, and viewer protocol policies.
 
-</details>
-<details>
-<summary><strong>Q8. What is invalidation?</strong></summary>
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. How do cache policies work?</strong></summary>
+#### Q4. What is an origin?
 
-**Answer:**
+**💡 Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. How can query strings affect caching?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is a cache behavior?
 
-</details>
-## Security
-<details>
-<summary><strong>Q11. How can CloudFront use HTTPS?</strong></summary>
+**💡 Answer:** A CloudFront cache behavior defines how requests matching a path pattern are handled, including origin selection, allowed methods, caching policies, and viewer protocol behavior.
 
-**Answer:**
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is Origin Access Control for S3?</strong></summary>
+---
 
-**Answer:**
+### 📌 Caching
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. What is TTL in CloudFront?
 
-</details>
-<details>
-<summary><strong>Q13. How can WAF integrate with CloudFront?</strong></summary>
+**💡 Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
 
-**Answer:**
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What is signed URL?</strong></summary>
+---
 
-**Answer:**
+#### Q7. What causes a cache miss?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-</details>
-<details>
-<summary><strong>Q15. What is signed cookie?</strong></summary>
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Quick Revision
+#### Q8. What is invalidation?
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q9. How do cache policies work?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. How can query strings affect caching?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Security
+
+#### Q11. How can CloudFront use HTTPS?
+
+**💡 Answer:** Amazon CloudFront is AWS's content delivery network. It caches content at edge locations and can accelerate dynamic and static applications close to users.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is Origin Access Control for S3?
+
+**💡 Answer:** A CloudFront origin is the backend from which CloudFront retrieves content, such as S3, an ALB, API Gateway, or a custom HTTP server.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. How can WAF integrate with CloudFront?
+
+**💡 Answer:** AWS WAF is a web application firewall for inspecting HTTP(S) requests. Web ACLs contain rules that can allow, block, count, challenge, or rate-limit requests based on request characteristics.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is signed URL?
+
+**💡 Answer:** A CloudFront signed URL grants time-limited access to a specific resource for users who are authorized to receive it.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. What is signed cookie?
+
+**💡 Answer:** A CloudFront signed cookie grants access to multiple restricted objects without requiring a separate signed URL for each object.
+
+**🔑 Keywords:** `CloudFront` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Viewer → Edge → Cache → Origin**. Cache hit avoids origin request.
+
+[⬆️ Back to top](#cloudfront)
+
+[⬅️ Back to AWS Topics](../README.md)

@@ -1,133 +1,179 @@
-# AMI — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Basics
-<details>
-<summary><strong>Q1. What is an AMI?</strong></summary>
+# AMI
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What does an AMI contain?</strong></summary>
+💿 AMI | Image | Snapshot | Golden AMI | Copy | Share | Launch
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **AMI = blueprint**, **Instance = running copy**, **Snapshot = disk backup**.
 
-</details>
-<details>
-<summary><strong>Q3. What is the difference between an AMI and an EC2 instance?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Basics
 
-</details>
-<details>
-<summary><strong>Q4. What is an EBS-backed AMI?</strong></summary>
+#### Q1. What is an AMI?
 
-**Answer:**
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is an instance-store-backed AMI?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What does an AMI contain?
 
-</details>
-## Creation & Sharing
-<details>
-<summary><strong>Q6. How do you create an AMI from an EC2 instance?</strong></summary>
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
 
-**Answer:**
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What happens to EBS snapshots when an AMI is created?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is the difference between an AMI and an EC2 instance?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
 
-</details>
-<details>
-<summary><strong>Q8. Can AMIs be copied across Regions?</strong></summary>
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. Can AMIs be shared with another AWS account?</strong></summary>
+#### Q4. What is an EBS-backed AMI?
 
-**Answer:**
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is an AMI launch permission?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is an instance-store-backed AMI?
 
-</details>
-## Operations
-<details>
-<summary><strong>Q11. Why use a golden AMI?</strong></summary>
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
 
-**Answer:**
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. How does AMI versioning help deployments?</strong></summary>
+---
 
-**Answer:**
+### 📌 Creation & Sharing
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. How do you create an AMI from an EC2 instance?
 
-</details>
-<details>
-<summary><strong>Q13. What is the relationship between AMI, snapshot, and EBS volume?</strong></summary>
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
 
-**Answer:**
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What should be removed or generalized before creating a reusable image?</strong></summary>
+---
 
-**Answer:**
+#### Q7. What happens to EBS snapshots when an AMI is created?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-</details>
-<details>
-<summary><strong>Q15. How can EC2 Image Builder automate image creation?</strong></summary>
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Quick Revision
+#### Q8. Can AMIs be copied across Regions?
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q9. Can AMIs be shared with another AWS account?
+
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. What is an AMI launch permission?
+
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Operations
+
+#### Q11. Why use a golden AMI?
+
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. How does AMI versioning help deployments?
+
+**💡 Answer:** An AMI is a reusable template used to launch EC2 instances. It defines the operating-system image and block-device mappings and can be copied or shared according to AWS rules.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. What is the relationship between AMI, snapshot, and EBS volume?
+
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What should be removed or generalized before creating a reusable image?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. How can EC2 Image Builder automate image creation?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `AMI` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **AMI = blueprint**, **Instance = running copy**, **Snapshot = disk backup**.
+
+[⬆️ Back to top](#ami)
+
+[⬅️ Back to AWS Topics](../README.md)

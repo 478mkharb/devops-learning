@@ -1,150 +1,201 @@
-# AWS Security Architecture — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Identity
-<details>
-<summary><strong>Q1. What is least privilege?</strong></summary>
+# AWS Security Architecture
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is defense in depth?</strong></summary>
+🔐 Least Privilege | Defense in Depth | IAM | VPC | Encryption | GuardDuty | Inspector | Security Hub | CloudTrail
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Identity + Network + Data + Detection = defense in depth**.
 
-</details>
-<details>
-<summary><strong>Q3. Why use IAM roles instead of long-lived access keys?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Identity
 
-</details>
-<details>
-<summary><strong>Q4. What is MFA?</strong></summary>
+#### Q1. What is least privilege?
 
-**Answer:**
+**💡 Answer:** Least privilege means granting only the permissions required to perform a task. In AWS this includes restricting actions, resources, conditions, principals, and credential lifetime where practical.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is federation?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is defense in depth?
 
-</details>
-## Network
-<details>
-<summary><strong>Q6. How do private subnets improve isolation?</strong></summary>
+**💡 Answer:** Defense in depth uses multiple independent security controls so that failure of one control does not expose the entire system. AWS examples include IAM, network segmentation, WAF, encryption, logging, and threat detection.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is a bastion host?</strong></summary>
+---
 
-**Answer:**
+#### Q3. Why use IAM roles instead of long-lived access keys?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
 
-</details>
-<details>
-<summary><strong>Q8. What is Systems Manager Session Manager?</strong></summary>
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. How do SGs and NACLs differ?</strong></summary>
+#### Q4. What is MFA?
 
-**Answer:**
+**💡 Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and account-root protection.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is VPC endpoint isolation?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is federation?
 
-</details>
-## Data
-<details>
-<summary><strong>Q11. What is encryption at rest?</strong></summary>
+**💡 Answer:** Identity federation lets users authenticate through an external identity provider and obtain temporary AWS credentials or console access through AWS IAM Identity Center or supported federation mechanisms.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is encryption in transit?</strong></summary>
+---
 
-**Answer:**
+### 📌 Network
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. How do private subnets improve isolation?
 
-</details>
-<details>
-<summary><strong>Q13. How does KMS support encryption?</strong></summary>
+**💡 Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
 
-**Answer:**
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. Why should secrets be stored in managed secret stores?</strong></summary>
+---
 
-**Answer:**
+#### Q7. What is a bastion host?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A bastion host is a hardened intermediary used to administer private resources. Modern AWS designs often prefer Systems Manager Session Manager to avoid exposing SSH to the network.
 
-</details>
-## Detection
-<details>
-<summary><strong>Q15. What are CloudTrail, Config, GuardDuty, Inspector, and Security Hub used for?</strong></summary>
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q16. How does centralized logging improve security?</strong></summary>
+#### Q8. What is Systems Manager Session Manager?
 
-**Answer:**
+**💡 Answer:** Systems Manager Session Manager provides secure shell-like access to managed EC2 instances without requiring inbound SSH ports or bastion hosts. Access is controlled through IAM and Systems Manager prerequisites.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q17. What is AWS Organizations security governance?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. How do SGs and NACLs differ?
 
-</details>
-## Quick Revision
+**💡 Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. What is VPC endpoint isolation?
+
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Data
+
+#### Q11. What is encryption at rest?
+
+**💡 Answer:** Encryption at rest protects stored data on services such as EBS, S3, RDS, and databases. AWS-managed encryption services such as KMS commonly provide key control.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is encryption in transit?
+
+**💡 Answer:** Encryption in transit protects data while it moves between clients, services, or networks, typically using TLS or other encrypted protocols.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. How does KMS support encryption?
+
+**💡 Answer:** AWS KMS is a managed key service used to create and control cryptographic keys for encrypting data and protecting other secrets. It integrates with many AWS services.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. Why should secrets be stored in managed secret stores?
+
+**💡 Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Detection
+
+#### Q15. What are CloudTrail, Config, GuardDuty, Inspector, and Security Hub used for?
+
+**💡 Answer:** AWS CloudTrail records AWS API activity and related events for governance, audit, and security investigation. It can deliver events to destinations such as S3 and CloudWatch Logs.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q16. How does centralized logging improve security?
+
+**💡 Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q17. What is AWS Organizations security governance?
+
+**💡 Answer:** AWS Organizations centrally manages multiple AWS accounts. It provides account grouping, consolidated billing, governance controls, and organization-wide policy mechanisms.
+
+**🔑 Keywords:** `AWS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Identity + Network + Data + Detection = defense in depth**.
+
+[⬆️ Back to top](#aws-security-architecture)
+
+[⬅️ Back to AWS Topics](../README.md)

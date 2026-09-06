@@ -1,198 +1,261 @@
-# DynamoDB — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is DynamoDB?</strong></summary>
+# DynamoDB
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a table?</strong></summary>
+⚡ Table | Item | Partition Key | Sort Key | GSI | LSI | RCU | WCU | Streams | TTL | Global Tables
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Partition Key decides where data lives; Sort Key organizes items within the same partition key.**
 
-</details>
-<details>
-<summary><strong>Q3. What is an item?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is an attribute?</strong></summary>
+#### Q1. What is DynamoDB?
 
-**Answer:**
+**💡 Answer:** Amazon DynamoDB is a fully managed NoSQL key-value and document database designed for low-latency performance at scale. Data modeling centers on partition keys and optional sort keys.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is a partition key?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a table?
 
-</details>
-<details>
-<summary><strong>Q6. What is a sort key?</strong></summary>
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
 
-**Answer:**
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is a composite primary key?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is an item?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
 
-</details>
-## Capacity
-<details>
-<summary><strong>Q8. What is provisioned capacity?</strong></summary>
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What is on-demand capacity?</strong></summary>
+#### Q4. What is an attribute?
 
-**Answer:**
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is DynamoDB auto scaling?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is a partition key?
 
-</details>
-<details>
-<summary><strong>Q11. What is read capacity unit?</strong></summary>
+**💡 Answer:** A DynamoDB partition key determines the partitioning of items across the table's underlying storage. A well-distributed key is important for avoiding hot partitions.
 
-**Answer:**
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is write capacity unit?</strong></summary>
+---
 
-**Answer:**
+#### Q6. What is a sort key?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A DynamoDB sort key is the second component of a composite primary key. Items with the same partition key are ordered by sort key, enabling efficient range and ordered queries.
 
-</details>
-## Indexes
-<details>
-<summary><strong>Q13. What is a GSI?</strong></summary>
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q14. What is an LSI?</strong></summary>
+#### Q7. What is a composite primary key?
 
-**Answer:**
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q15. How do GSI and LSI differ?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Capacity
 
-</details>
-<details>
-<summary><strong>Q16. When should you use a secondary index?</strong></summary>
+#### Q8. What is provisioned capacity?
 
-**Answer:**
+**💡 Answer:** Provisioned capacity specifies the read and write capacity units you expect a DynamoDB table or index to need. Auto Scaling can adjust provisioned capacity based on utilization.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-</details>
-## Features
-<details>
-<summary><strong>Q17. What is DynamoDB Streams?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What is on-demand capacity?
 
-</details>
-<details>
-<summary><strong>Q18. What is TTL?</strong></summary>
+**💡 Answer:** On-Demand pricing provides flexible pay-as-you-go capacity without a long-term commitment. It is useful for unpredictable workloads, short-lived environments, and workloads where flexibility is more important than the lowest unit cost.
 
-**Answer:**
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. What is point-in-time recovery?</strong></summary>
+---
 
-**Answer:**
+#### Q10. What is DynamoDB auto scaling?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Amazon DynamoDB is a fully managed NoSQL key-value and document database designed for low-latency performance at scale. Data modeling centers on partition keys and optional sort keys.
 
-</details>
-<details>
-<summary><strong>Q20. What is Global Tables?</strong></summary>
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q21. What is DAX?</strong></summary>
+#### Q11. What is read capacity unit?
 
-**Answer:**
+**💡 Answer:** One read capacity unit represents one strongly consistent read per second for an item up to 4 KB, or two eventually consistent reads per second for an item up to 4 KB.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. What is conditional write?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. What is write capacity unit?
 
-</details>
-<details>
-<summary><strong>Q23. What is optimistic concurrency in DynamoDB?</strong></summary>
+**💡 Answer:** One write capacity unit represents one write per second for an item up to 1 KB.
 
-**Answer:**
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-## Quick Revision
+---
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+### 📌 Indexes
+
+#### Q13. What is a GSI?
+
+**💡 Answer:** A Global Secondary Index can use a different partition key and optional sort key from the base table. It can be created and managed separately and can span the full table.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is an LSI?
+
+**💡 Answer:** A Local Secondary Index uses the same partition key as the base table but a different sort key. It must be defined when the table is created and is limited to the base table's partition-key scope.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. How do GSI and LSI differ?
+
+**💡 Answer:** A Global Secondary Index can use a different partition key and optional sort key from the base table. It can be created and managed separately and can span the full table.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q16. When should you use a secondary index?
+
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Features
+
+#### Q17. What is DynamoDB Streams?
+
+**💡 Answer:** Amazon DynamoDB is a fully managed NoSQL key-value and document database designed for low-latency performance at scale. Data modeling centers on partition keys and optional sort keys.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. What is TTL?
+
+**💡 Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. What is point-in-time recovery?
+
+**💡 Answer:** Point-in-time recovery restores an RDS database to a selected time within the available automated-backup retention window.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. What is Global Tables?
+
+**💡 Answer:** DynamoDB Global Tables provide multi-Region, multi-active replication so applications can read and write in multiple Regions while DynamoDB manages cross-Region replication.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q21. What is DAX?
+
+**💡 Answer:** DynamoDB Accelerator (DAX) is an in-memory cache designed for DynamoDB workloads. It can reduce read latency for applications that can use the DAX API-compatible interface.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. What is conditional write?
+
+**💡 Answer:** Explain the DynamoDB data model and access pattern involved, then discuss partitioning, consistency, capacity, scaling, and the main trade-off.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q23. What is optimistic concurrency in DynamoDB?
+
+**💡 Answer:** Amazon DynamoDB is a fully managed NoSQL key-value and document database designed for low-latency performance at scale. Data modeling centers on partition keys and optional sort keys.
+
+**🔑 Keywords:** `DynamoDB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Partition Key decides where data lives; Sort Key organizes items within the same partition key.**
+
+[⬆️ Back to top](#dynamodb)
+
+[⬅️ Back to AWS Topics](../README.md)

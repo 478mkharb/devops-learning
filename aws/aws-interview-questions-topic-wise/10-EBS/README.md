@@ -1,174 +1,231 @@
-# EBS — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Basics
-<details>
-<summary><strong>Q1. What is Amazon EBS?</strong></summary>
+# EBS
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is an EBS volume?</strong></summary>
+💾 Volume | Snapshot | gp3 | io2 | IOPS | Throughput | Encryption | FSR | Elastic Volumes | Multi-Attach
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **EBS = persistent block storage**, **Instance Store = local ephemeral storage**.
 
-</details>
-<details>
-<summary><strong>Q3. What is an EBS snapshot?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Basics
 
-</details>
-<details>
-<summary><strong>Q4. What is the difference between EBS and instance store?</strong></summary>
+#### Q1. What is Amazon EBS?
 
-**Answer:**
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. Can EBS volumes persist after an EC2 stop?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is an EBS volume?
 
-</details>
-## Volume Types
-<details>
-<summary><strong>Q6. Compare gp3 and gp2.</strong></summary>
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-**Answer:**
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. When should you use io2?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is an EBS snapshot?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-</details>
-<details>
-<summary><strong>Q8. What are st1 and sc1 designed for?</strong></summary>
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What is provisioned IOPS?</strong></summary>
+#### Q4. What is the difference between EBS and instance store?
 
-**Answer:**
+**💡 Answer:** Instance store is local ephemeral storage physically attached to the host. It can provide very high I/O performance, but data is not durable like EBS and can be lost when the instance or underlying host is stopped or terminated.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. How do throughput and IOPS differ?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. Can EBS volumes persist after an EC2 stop?
 
-</details>
-## Snapshots
-<details>
-<summary><strong>Q11. How do EBS snapshots work?</strong></summary>
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
 
-**Answer:**
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. Are EBS snapshots incremental?</strong></summary>
+---
 
-**Answer:**
+### 📌 Volume Types
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. Compare gp3 and gp2.
 
-</details>
-<details>
-<summary><strong>Q13. Can snapshots be copied across Regions?</strong></summary>
+**💡 Answer:** gp3 is a general-purpose SSD EBS volume type that lets you provision IOPS and throughput independently from storage capacity within supported limits. It is often a cost-effective default for general workloads.
 
-**Answer:**
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What is Fast Snapshot Restore?</strong></summary>
+---
 
-**Answer:**
+#### Q7. When should you use io2?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** io2 is a high-performance SSD EBS volume type designed for workloads requiring high IOPS, low latency, and strong durability, such as demanding databases.
 
-</details>
-<details>
-<summary><strong>Q15. How can snapshots support backup and disaster recovery?</strong></summary>
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Operations
-<details>
-<summary><strong>Q16. What is EBS encryption?</strong></summary>
+#### Q8. What are st1 and sc1 designed for?
 
-**Answer:**
+**💡 Answer:** st1 is a throughput-optimized HDD volume type intended for large sequential workloads such as big-data processing and log processing.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q17. Can encrypted snapshots be copied?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What is provisioned IOPS?
 
-</details>
-<details>
-<summary><strong>Q18. Can you resize an EBS volume?</strong></summary>
+**💡 Answer:** Provisioned IOPS means you explicitly provision a target I/O rate for supported EBS volume types. It is useful for latency-sensitive databases and other workloads with predictable I/O requirements.
 
-**Answer:**
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. What is Elastic Volumes?</strong></summary>
+---
 
-**Answer:**
+#### Q10. How do throughput and IOPS differ?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Throughput measures the amount of data transferred per unit time, typically MB/s. IOPS measures the number of I/O operations per second. A workload can be throughput-heavy or IOPS-heavy depending on its I/O pattern.
 
-</details>
-<details>
-<summary><strong>Q20. What is Multi-Attach and when is it supported?</strong></summary>
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Quick Revision
+### 📌 Snapshots
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+#### Q11. How do EBS snapshots work?
+
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. Are EBS snapshots incremental?
+
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. Can snapshots be copied across Regions?
+
+**💡 Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is Fast Snapshot Restore?
+
+**💡 Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. How can snapshots support backup and disaster recovery?
+
+**💡 Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Operations
+
+#### Q16. What is EBS encryption?
+
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q17. Can encrypted snapshots be copied?
+
+**💡 Answer:** An EBS snapshot is a point-in-time backup of an EBS volume. Snapshots are incremental after the first snapshot and can be copied across Regions for disaster-recovery designs.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. Can you resize an EBS volume?
+
+**💡 Answer:** Amazon EBS provides persistent block storage for EC2. EBS volumes can be used for boot disks, filesystems, and databases, and snapshots can provide backup and recovery.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. What is Elastic Volumes?
+
+**💡 Answer:** EBS Elastic Volumes lets you modify supported volume properties such as size, type, and performance without detaching the volume in many cases.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. What is Multi-Attach and when is it supported?
+
+**💡 Answer:** EBS Multi-Attach allows a supported io2 volume to be attached to multiple Nitro-based EC2 instances in the same Availability Zone. Applications must coordinate concurrent writes correctly.
+
+**🔑 Keywords:** `EBS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **EBS = persistent block storage**, **Instance Store = local ephemeral storage**.
+
+[⬆️ Back to top](#ebs)
+
+[⬅️ Back to AWS Topics](../README.md)

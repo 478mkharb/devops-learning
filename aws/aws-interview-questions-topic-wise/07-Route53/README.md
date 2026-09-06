@@ -1,262 +1,341 @@
-# Route 53 — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## DNS
-<details>
-<summary><strong>Q1. What is Route 53?</strong></summary>
+# Route 53
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a hosted zone?</strong></summary>
+🌍 DNS | A | AAAA | CNAME | Alias | TTL | Health Check | Weighted | Latency | Failover | Geo
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Routing policy = which answer**, **TTL = how long resolver caches it**, **Health Check = whether endpoint is healthy**.
 
-</details>
-<details>
-<summary><strong>Q3. What is a public hosted zone?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 DNS
 
-</details>
-<details>
-<summary><strong>Q4. What is a private hosted zone?</strong></summary>
+#### Q1. What is Route 53?
 
-**Answer:**
+**💡 Answer:** Amazon Route 53 is AWS's managed DNS service. It provides authoritative DNS hosting, domain registration, health checks, and routing policies.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is an authoritative DNS server?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a hosted zone?
 
-</details>
-<details>
-<summary><strong>Q6. What is TTL?</strong></summary>
+**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
-**Answer:**
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-## Record Types
-<details>
-<summary><strong>Q7. What is an A record?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is a public hosted zone?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
-</details>
-<details>
-<summary><strong>Q8. What is an AAAA record?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What is a CNAME record?</strong></summary>
+#### Q4. What is a private hosted zone?
 
-**Answer:**
+**💡 Answer:** A hosted zone is a container for DNS records for a domain. A public hosted zone serves Internet DNS queries; a private hosted zone serves DNS resolution inside associated VPCs.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is an Alias record?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is an authoritative DNS server?
 
-</details>
-<details>
-<summary><strong>Q11. What is an MX record?</strong></summary>
+**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
 
-**Answer:**
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is a TXT record?</strong></summary>
+---
 
-**Answer:**
+#### Q6. What is TTL?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** DNS TTL specifies how long a resolver may cache a DNS answer before querying again. A lower TTL can make changes visible sooner but increases DNS query traffic.
 
-</details>
-<details>
-<summary><strong>Q13. What is an NS record?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q14. What is an SOA record?</strong></summary>
+### 📌 Record Types
 
-**Answer:**
+#### Q7. What is an A record?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An A record maps a DNS name to an IPv4 address.
 
-</details>
-<details>
-<summary><strong>Q15. What is an SRV record?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q16. Can a CNAME be used at the zone apex?</strong></summary>
+#### Q8. What is an AAAA record?
 
-**Answer:**
+**💡 Answer:** An A record maps a DNS name to an IPv4 address.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-</details>
-## Routing Policies
-<details>
-<summary><strong>Q17. What is simple routing?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What is a CNAME record?
 
-</details>
-<details>
-<summary><strong>Q18. What is weighted routing?</strong></summary>
+**💡 Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
 
-**Answer:**
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. What is latency-based routing?</strong></summary>
+---
 
-**Answer:**
+#### Q10. What is an Alias record?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A Route 53 Alias record maps a name to supported AWS resources or another supported Route 53 target without requiring a CNAME at the zone apex. It is AWS-specific and does not incur a Route 53 query charge for alias queries to AWS resources.
 
-</details>
-<details>
-<summary><strong>Q20. What is failover routing?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q21. What is geolocation routing?</strong></summary>
+#### Q11. What is an MX record?
 
-**Answer:**
+**💡 Answer:** An MX record identifies mail servers responsible for receiving email for a domain.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. What is geoproximity routing?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. What is a TXT record?
 
-</details>
-<details>
-<summary><strong>Q23. What is IP-based routing?</strong></summary>
+**💡 Answer:** A TXT record stores text associated with a DNS name. It is commonly used for domain verification and email-security mechanisms such as SPF-related records and DKIM data.
 
-**Answer:**
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q24. What is multivalue answer routing?</strong></summary>
+---
 
-**Answer:**
+#### Q13. What is an NS record?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An NS record identifies the authoritative name servers for a DNS zone.
 
-</details>
-<details>
-<summary><strong>Q25. How do weighted and latency routing differ?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q26. How does failover routing use health checks?</strong></summary>
+#### Q14. What is an SOA record?
 
-**Answer:**
+**💡 Answer:** An A record maps a DNS name to an IPv4 address.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-</details>
-## Health & Operations
-<details>
-<summary><strong>Q27. What is a Route 53 health check?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q15. What is an SRV record?
 
-</details>
-<details>
-<summary><strong>Q28. Can health checks monitor endpoints?</strong></summary>
+**💡 Answer:** An SRV record specifies the location of a service using a priority, weight, port, and target hostname.
 
-**Answer:**
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q29. Can one health check monitor other health checks?</strong></summary>
+---
 
-**Answer:**
+#### Q16. Can a CNAME be used at the zone apex?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A CNAME record maps a DNS name to another DNS name. It cannot generally be used at the zone apex; Route 53 Alias records are used for supported AWS targets and apex records.
 
-</details>
-<details>
-<summary><strong>Q30. How does DNS caching affect a record change?</strong></summary>
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q31. Why might users temporarily resolve an old endpoint after a DNS update?</strong></summary>
+### 📌 Routing Policies
 
-**Answer:**
+#### Q17. What is simple routing?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Simple routing returns a single resource or set of values without weighting or latency-based selection. It is suitable when straightforward DNS resolution is sufficient.
 
-</details>
-## Quick Revision
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. What is weighted routing?
+
+**💡 Answer:** Weighted routing assigns relative weights to records and distributes DNS responses according to those weights. It is useful for traffic splitting, testing, and gradual migrations.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. What is latency-based routing?
+
+**💡 Answer:** Latency-based routing sends users to the AWS Region that Route 53 determines provides the lowest latency among configured records.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. What is failover routing?
+
+**💡 Answer:** Failover routing uses primary and secondary records and health checks to return the healthy endpoint. It is commonly used for active-passive disaster recovery.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q21. What is geolocation routing?
+
+**💡 Answer:** Geolocation routing selects a record based on the geographic location from which the DNS query originates, such as country or continent.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. What is geoproximity routing?
+
+**💡 Answer:** Geoproximity routing routes based on the geographic location of resources and users and can use bias to expand or shrink the geographic area served by a resource.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q23. What is IP-based routing?
+
+**💡 Answer:** IP-based routing selects a Route 53 record based on the source IP address and configured CIDR mappings.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q24. What is multivalue answer routing?
+
+**💡 Answer:** Multivalue answer routing returns multiple healthy values and can be used to improve availability when clients can select among returned endpoints. It is not a replacement for a load balancer.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q25. How do weighted and latency routing differ?
+
+**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q26. How does failover routing use health checks?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Health & Operations
+
+#### Q27. What is a Route 53 health check?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q28. Can health checks monitor endpoints?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q29. Can one health check monitor other health checks?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q30. How does DNS caching affect a record change?
+
+**💡 Answer:** An A record maps a DNS name to an IPv4 address.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q31. Why might users temporarily resolve an old endpoint after a DNS update?
+
+**💡 Answer:** Explain the DNS record or routing policy, how Route 53 selects the answer, and how TTL/health checks affect client behavior.
+
+**🔑 Keywords:** `Route` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Routing policy = which answer**, **TTL = how long resolver caches it**, **Health Check = whether endpoint is healthy**.
+
+[⬆️ Back to top](#route-53)
+
+[⬅️ Back to AWS Topics](../README.md)

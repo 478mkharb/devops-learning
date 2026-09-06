@@ -1,133 +1,179 @@
-# SNS — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## Core
-<details>
-<summary><strong>Q1. What is Amazon SNS?</strong></summary>
+# SNS
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a topic?</strong></summary>
+📣 SNS | Topic | Publisher | Subscriber | Subscription | Fan-out | Filter | FIFO
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **SNS = fan-out / pub-sub**.
 
-</details>
-<details>
-<summary><strong>Q3. What is a subscription?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 Core
 
-</details>
-<details>
-<summary><strong>Q4. What is a publisher?</strong></summary>
+#### Q1. What is Amazon SNS?
 
-**Answer:**
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is a subscriber?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a topic?
 
-</details>
-## Patterns
-<details>
-<summary><strong>Q6. What is pub/sub?</strong></summary>
+**💡 Answer:** An SNS topic is a logical communication channel to which publishers send messages and subscribers attach endpoints.
 
-**Answer:**
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. How does SNS fan out to SQS?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is a subscription?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** An SNS subscription connects a subscriber endpoint to a topic and can optionally use filtering rules to receive only matching messages.
 
-</details>
-<details>
-<summary><strong>Q8. How can SNS invoke Lambda?</strong></summary>
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. How can SNS send notifications to HTTP endpoints?</strong></summary>
+#### Q4. What is a publisher?
 
-**Answer:**
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. When should SNS be used instead of SQS?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is a subscriber?
 
-</details>
-## Features
-<details>
-<summary><strong>Q11. What is message filtering?</strong></summary>
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
 
-**Answer:**
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is a FIFO SNS topic?</strong></summary>
+---
 
-**Answer:**
+### 📌 Patterns
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q6. What is pub/sub?
 
-</details>
-<details>
-<summary><strong>Q13. What is message ordering?</strong></summary>
+**💡 Answer:** Publish/subscribe separates publishers from subscribers. Publishers send messages to a topic, and the messaging service distributes them to subscribed consumers without the publisher needing to know each consumer.
 
-**Answer:**
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q14. What is SNS encryption?</strong></summary>
+---
 
-**Answer:**
+#### Q7. How does SNS fan out to SQS?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
 
-</details>
-<details>
-<summary><strong>Q15. What is SNS delivery retry behavior?</strong></summary>
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Quick Revision
+#### Q8. How can SNS invoke Lambda?
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**💡 Answer:** AWS Lambda runs code without requiring you to provision or manage servers. AWS handles the underlying compute infrastructure and scales execution according to incoming requests/events.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q9. How can SNS send notifications to HTTP endpoints?
+
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q10. When should SNS be used instead of SQS?
+
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Features
+
+#### Q11. What is message filtering?
+
+**💡 Answer:** SNS subscription filtering lets subscribers receive only messages whose attributes or payload values match configured filter policies. It reduces unnecessary downstream processing.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q12. What is a FIFO SNS topic?
+
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q13. What is message ordering?
+
+**💡 Answer:** Define the AWS service or component, explain its key behavior and internal relationship with adjacent services, then state the practical use case and the main trade-off an interviewer should know.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is SNS encryption?
+
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. What is SNS delivery retry behavior?
+
+**💡 Answer:** Amazon SNS is a managed publish/subscribe messaging service. Publishers send messages to topics, which fan them out to subscribers such as SQS queues, Lambda functions, HTTP endpoints, and notification destinations.
+
+**🔑 Keywords:** `SNS` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **SNS = fan-out / pub-sub**.
+
+[⬆️ Back to top](#sns)
+
+[⬅️ Back to AWS Topics](../README.md)

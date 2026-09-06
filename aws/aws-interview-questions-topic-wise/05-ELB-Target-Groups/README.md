@@ -1,206 +1,271 @@
-# ELB & Target Groups — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## ELB Types
-<details>
-<summary><strong>Q1. What is Elastic Load Balancing?</strong></summary>
+# ELB & Target Groups
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. Explain Application Load Balancer.</strong></summary>
+⚖️ ALB | NLB | GWLB | Target Group | Health Check | Deregistration | Layer 7 | Layer 4
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **ALB = Layer 7**, **NLB = Layer 4**, **GWLB = network appliances**.
 
-</details>
-<details>
-<summary><strong>Q3. Explain Network Load Balancer.</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 ELB Types
 
-</details>
-<details>
-<summary><strong>Q4. Explain Gateway Load Balancer.</strong></summary>
+#### Q1. What is Elastic Load Balancing?
 
-**Answer:**
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. When would you choose ALB over NLB?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. Explain Application Load Balancer.
 
-</details>
-<details>
-<summary><strong>Q6. When would you choose NLB over ALB?</strong></summary>
+**💡 Answer:** An Application Load Balancer operates at the application layer and supports HTTP/HTTPS-aware routing such as host and path routing. It is a strong choice for web applications and microservices.
 
-**Answer:**
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is a Classic Load Balancer and why is it generally legacy?</strong></summary>
+---
 
-**Answer:**
+#### Q3. Explain Network Load Balancer.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A Network Load Balancer operates at the transport layer and is designed for very high-performance TCP/UDP/TLS traffic. It provides low latency and supports static IP addresses and source-IP preservation scenarios.
 
-</details>
-## ALB
-<details>
-<summary><strong>Q8. Which OSI layer does ALB primarily operate at?</strong></summary>
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. What are ALB target types?</strong></summary>
+#### Q4. Explain Gateway Load Balancer.
 
-**Answer:**
+**💡 Answer:** A Gateway Load Balancer is designed to deploy and scale virtual network appliances such as firewalls and intrusion-prevention systems. It uses GENEVE encapsulation and works with a Gateway Load Balancer endpoint.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. What is ALB cross-zone load balancing?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. When would you choose ALB over NLB?
 
-</details>
-<details>
-<summary><strong>Q11. What is connection draining/ deregistration delay?</strong></summary>
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-**Answer:**
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is ALB access logging?</strong></summary>
+---
 
-**Answer:**
+#### Q6. When would you choose NLB over ALB?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-</details>
-## NLB
-<details>
-<summary><strong>Q13. Which OSI layer does NLB primarily operate at?</strong></summary>
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q14. What is a static IP capability of NLB?</strong></summary>
+#### Q7. What is a Classic Load Balancer and why is it generally legacy?
 
-**Answer:**
+**💡 Answer:** Classic Load Balancer is the older Elastic Load Balancing generation. ALB and NLB provide newer capabilities and are normally selected for new architectures.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q15. What is TLS termination on NLB?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 ALB
 
-</details>
-<details>
-<summary><strong>Q16. What is source IP preservation?</strong></summary>
+#### Q8. Which OSI layer does ALB primarily operate at?
 
-**Answer:**
+**💡 Answer:** A Lambda layer packages reusable libraries or other dependencies separately from function code. Multiple functions can share the same layer.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q17. When is NLB useful for very high-performance TCP/UDP workloads?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. What are ALB target types?
 
-</details>
-## Target Groups
-<details>
-<summary><strong>Q18. What is a target group?</strong></summary>
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-**Answer:**
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. What target types can target groups support?</strong></summary>
+---
 
-**Answer:**
+#### Q10. What is ALB cross-zone load balancing?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-</details>
-<details>
-<summary><strong>Q20. What is a health check?</strong></summary>
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q21. Which health-check settings can be configured?</strong></summary>
+#### Q11. What is connection draining/ deregistration delay?
 
-**Answer:**
+**💡 Answer:** Deregistration delay allows existing connections to finish before a target is fully removed from service. It helps deployments and scale-in operations avoid abruptly dropping in-flight requests.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. What happens when a target fails health checks?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. What is ALB access logging?
 
-</details>
-<details>
-<summary><strong>Q23. Can one target belong to multiple target groups?</strong></summary>
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
 
-**Answer:**
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q24. How does deregistration delay work?</strong></summary>
+---
 
-**Answer:**
+### 📌 NLB
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q13. Which OSI layer does NLB primarily operate at?
 
-</details>
-## Quick Revision
+**💡 Answer:** A Lambda layer packages reusable libraries or other dependencies separately from function code. Multiple functions can share the same layer.
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q14. What is a static IP capability of NLB?
+
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q15. What is TLS termination on NLB?
+
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q16. What is source IP preservation?
+
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q17. When is NLB useful for very high-performance TCP/UDP workloads?
+
+**💡 Answer:** Explain the traffic path from client to load balancer listener, listener rule, target group, and healthy target. Include the protocol/layer involved and the key configuration that controls the behavior.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Target Groups
+
+#### Q18. What is a target group?
+
+**💡 Answer:** A target group is a logical set of backend targets used by a load balancer. It defines target type, protocol/port, and health-check settings. A load balancer forwards traffic to healthy registered targets.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. What target types can target groups support?
+
+**💡 Answer:** A target group is a logical set of backend targets used by a load balancer. It defines target type, protocol/port, and health-check settings. A load balancer forwards traffic to healthy registered targets.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q20. What is a health check?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q21. Which health-check settings can be configured?
+
+**💡 Answer:** An ASG can use EC2 health checks and, when configured, ELB health checks. When an instance is considered unhealthy, the ASG terminates it and launches a replacement to restore desired capacity.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. What happens when a target fails health checks?
+
+**💡 Answer:** A load-balancer target health check periodically tests a configured protocol, port, and path or connection behavior. Only healthy targets receive traffic.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q23. Can one target belong to multiple target groups?
+
+**💡 Answer:** A target group is a logical set of backend targets used by a load balancer. It defines target type, protocol/port, and health-check settings. A load balancer forwards traffic to healthy registered targets.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q24. How does deregistration delay work?
+
+**💡 Answer:** Deregistration delay allows existing connections to finish before a target is fully removed from service. It helps deployments and scale-in operations avoid abruptly dropping in-flight requests.
+
+**🔑 Keywords:** `ELB` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **ALB = Layer 7**, **NLB = Layer 4**, **GWLB = network appliances**.
+
+[⬆️ Back to top](#elb-target-groups)
+
+[⬅️ Back to AWS Topics](../README.md)

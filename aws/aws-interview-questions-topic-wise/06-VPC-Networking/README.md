@@ -1,263 +1,343 @@
-# VPC & AWS Networking — Interview Questions & Answers
-> **Interview focus:** concepts, service selection, internal components, comparisons, and common AWS design decisions.
-## VPC Core
-<details>
-<summary><strong>Q1. What is a VPC?</strong></summary>
+# VPC & AWS Networking
 
-**Answer:**
+[⬅️ Back to AWS Topics](../README.md)
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+## 🔑 Keywords
 
-</details>
-<details>
-<summary><strong>Q2. What is a CIDR block?</strong></summary>
+🌐 VPC | CIDR | Subnet | Route Table | IGW | NAT | Peering | TGW | Endpoint | SG | NACL
 
-**Answer:**
+## 🧠 Core Memory
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+🧠 **Remember:** **Route Table decides path**, **SG protects ENI**, **NACL protects subnet**, **NAT gives private subnet outbound Internet**.
 
-</details>
-<details>
-<summary><strong>Q3. What is a subnet?</strong></summary>
+---
 
-**Answer:**
+## ❓ Interview Questions
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 VPC Core
 
-</details>
-<details>
-<summary><strong>Q4. What is the difference between public and private subnets?</strong></summary>
+#### Q1. What is a VPC?
 
-**Answer:**
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q5. What is a route table?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q2. What is a CIDR block?
 
-</details>
-<details>
-<summary><strong>Q6. What is a route?</strong></summary>
+**💡 Answer:** CIDR notation defines an IP address range, such as 10.0.0.0/16. A larger prefix length represents a smaller address range.
 
-**Answer:**
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q7. What is an Internet Gateway?</strong></summary>
+---
 
-**Answer:**
+#### Q3. What is a subnet?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
 
-</details>
-## NAT & Connectivity
-<details>
-<summary><strong>Q8. What is a NAT Gateway?</strong></summary>
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q9. Why does a private subnet need a NAT Gateway for outbound Internet access?</strong></summary>
+#### Q4. What is the difference between public and private subnets?
 
-**Answer:**
+**💡 Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q10. Can a NAT Gateway accept unsolicited inbound Internet traffic?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q5. What is a route table?
 
-</details>
-<details>
-<summary><strong>Q11. What is VPC peering?</strong></summary>
+**💡 Answer:** A route table contains destination-to-target rules that determine where VPC traffic is sent. Subnets are associated with route tables, and the most specific matching route is selected.
 
-**Answer:**
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q12. What is Transit Gateway?</strong></summary>
+---
 
-**Answer:**
+#### Q6. What is a route?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** Explain the component in the VPC traffic path, including subnet placement, route-table behavior, and relevant security controls. State whether the connectivity is Internet, private AWS, VPC-to-VPC, or hybrid.
 
-</details>
-<details>
-<summary><strong>Q13. When is Transit Gateway preferable to many VPC peerings?</strong></summary>
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Endpoints
-<details>
-<summary><strong>Q14. What is a VPC endpoint?</strong></summary>
+#### Q7. What is an Internet Gateway?
 
-**Answer:**
+**💡 Answer:** An Internet Gateway is a horizontally scaled VPC component that enables Internet connectivity for resources with appropriate public addressing and routes. It is attached to the VPC.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q15. What is a gateway endpoint?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+### 📌 NAT & Connectivity
 
-</details>
-<details>
-<summary><strong>Q16. What is an interface endpoint?</strong></summary>
+#### Q8. What is a NAT Gateway?
 
-**Answer:**
+**💡 Answer:** A NAT Gateway allows resources in private subnets to initiate outbound connections to the Internet without accepting unsolicited inbound Internet connections. It is normally placed in a public subnet and requires a route to an Internet Gateway.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q17. What is AWS PrivateLink?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q9. Why does a private subnet need a NAT Gateway for outbound Internet access?
 
-</details>
-<details>
-<summary><strong>Q18. When should you use an S3/DynamoDB gateway endpoint?</strong></summary>
+**💡 Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
 
-**Answer:**
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q19. What role does Private DNS play with interface endpoints?</strong></summary>
+---
 
-**Answer:**
+#### Q10. Can a NAT Gateway accept unsolicited inbound Internet traffic?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A NAT Gateway allows resources in private subnets to initiate outbound connections to the Internet without accepting unsolicited inbound Internet connections. It is normally placed in a public subnet and requires a route to an Internet Gateway.
 
-</details>
-## Security
-<details>
-<summary><strong>Q20. What is a security group?</strong></summary>
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q21. What is a network ACL?</strong></summary>
+#### Q11. What is VPC peering?
 
-**Answer:**
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q22. Compare security groups and NACLs.</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q12. What is Transit Gateway?
 
-</details>
-<details>
-<summary><strong>Q23. Why are security groups stateful?</strong></summary>
+**💡 Answer:** AWS Transit Gateway acts as a central network hub for connecting multiple VPCs and on-premises networks. It reduces the mesh of individual connections and supports centralized routing.
 
-**Answer:**
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q24. Why are NACLs stateless?</strong></summary>
+---
 
-**Answer:**
+#### Q13. When is Transit Gateway preferable to many VPC peerings?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
-</details>
-<details>
-<summary><strong>Q25. What is VPC Flow Logs?</strong></summary>
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-## Advanced
-<details>
-<summary><strong>Q26. What is a VPN connection?</strong></summary>
+### 📌 Endpoints
 
-**Answer:**
+#### Q14. What is a VPC endpoint?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
 
-</details>
-<details>
-<summary><strong>Q27. What is Direct Connect?</strong></summary>
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-**Answer:**
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+---
 
-</details>
-<details>
-<summary><strong>Q28. What is a route propagation?</strong></summary>
+#### Q15. What is a gateway endpoint?
 
-**Answer:**
+**💡 Answer:** A gateway VPC endpoint provides private connectivity from a VPC to supported AWS services such as S3 and DynamoDB through route-table entries. It does not use an ENI in the subnet.
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-</details>
-<details>
-<summary><strong>Q29. What is a route table association?</strong></summary>
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-**Answer:**
+---
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+#### Q16. What is an interface endpoint?
 
-</details>
-<details>
-<summary><strong>Q30. What is a VPC DHCP option set?</strong></summary>
+**💡 Answer:** An interface VPC endpoint creates elastic network interfaces in subnets and privately connects to supported AWS services through AWS PrivateLink. Security groups control traffic to the endpoint ENIs.
 
-**Answer:**
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
 
-</details>
-<details>
-<summary><strong>Q31. What is a Network Firewall?</strong></summary>
+---
 
-**Answer:**
+#### Q17. What is AWS PrivateLink?
 
-This is an interview checkpoint. The expected answer should define the AWS concept, explain its purpose, identify its key components or behavior, and state when it is appropriate. For scenario questions, explicitly justify the service choice and mention important trade-offs.
+**💡 Answer:** AWS PrivateLink provides private connectivity to supported AWS services, endpoint services, and SaaS applications without requiring Internet Gateway, NAT Gateway, or public IP connectivity for the service path.
 
-</details>
-## Quick Revision
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
 
-| Area | What to remember |
-|---|---|
-| Definition | Know what the service/component is and what problem it solves. |
-| Comparison | Know the key distinction, limitations, and selection criteria. |
-| Architecture | Know how the component interacts with adjacent AWS services. |
-| Security | Know IAM, encryption, network controls, and least-privilege implications. |
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q18. When should you use an S3/DynamoDB gateway endpoint?
+
+**💡 Answer:** A gateway VPC endpoint provides private connectivity from a VPC to supported AWS services such as S3 and DynamoDB through route-table entries. It does not use an ENI in the subnet.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q19. What role does Private DNS play with interface endpoints?
+
+**💡 Answer:** An interface VPC endpoint creates elastic network interfaces in subnets and privately connects to supported AWS services through AWS PrivateLink. Security groups control traffic to the endpoint ENIs.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Security
+
+#### Q20. What is a security group?
+
+**💡 Answer:** A security group is a stateful virtual firewall attached to an ENI. It defines allowed inbound and outbound traffic. Return traffic for an allowed connection is automatically permitted.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q21. What is a network ACL?
+
+**💡 Answer:** A network ACL is a stateless subnet-level traffic filter. It evaluates numbered inbound and outbound rules, and return traffic must be explicitly allowed in the opposite direction.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q22. Compare security groups and NACLs.
+
+**💡 Answer:** A security group is a stateful virtual firewall attached to an ENI. It defines allowed inbound and outbound traffic. Return traffic for an allowed connection is automatically permitted.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q23. Why are security groups stateful?
+
+**💡 Answer:** A security group is a stateful virtual firewall attached to an ENI. It defines allowed inbound and outbound traffic. Return traffic for an allowed connection is automatically permitted.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q24. Why are NACLs stateless?
+
+**💡 Answer:** Explain the component in the VPC traffic path, including subnet placement, route-table behavior, and relevant security controls. State whether the connectivity is Internet, private AWS, VPC-to-VPC, or hybrid.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q25. What is VPC Flow Logs?
+
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+### 📌 Advanced
+
+#### Q26. What is a VPN connection?
+
+**💡 Answer:** AWS Site-to-Site VPN creates encrypted IPsec connectivity between a VPC and an on-premises network or compatible remote network. It is commonly used for hybrid connectivity.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q27. What is Direct Connect?
+
+**💡 Answer:** AWS Direct Connect provides a dedicated network connection from a customer network to AWS. It can provide more predictable network performance than Internet-based connectivity.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q28. What is a route propagation?
+
+**💡 Answer:** Route propagation allows routes learned from a VPN or virtual private gateway to be automatically added to a route table when enabled.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q29. What is a route table association?
+
+**💡 Answer:** A route table contains destination-to-target rules that determine where VPC traffic is sent. Subnets are associated with route tables, and the most specific matching route is selected.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q30. What is a VPC DHCP option set?
+
+**💡 Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+#### Q31. What is a Network Firewall?
+
+**💡 Answer:** AWS Network Firewall is a managed, stateful network firewall for VPC traffic. It supports traffic inspection and filtering at the network layer and can be integrated into centralized inspection architectures.
+
+**🔑 Keywords:** `VPC` · `AWS` · `Interview`
+
+**⚡ Interview Tip:** Start with the definition, explain the behavior, then give the AWS use case or comparison. For scenario questions, state why this option is preferable and mention the key trade-off.
+
+---
+
+## 🚀 Last-Minute Revision
+
+> 🧠 **Remember:** **Route Table decides path**, **SG protects ENI**, **NACL protects subnet**, **NAT gives private subnet outbound Internet**.
+
+[⬆️ Back to top](#vpc-aws-networking)
+
+[⬅️ Back to AWS Topics](../README.md)
