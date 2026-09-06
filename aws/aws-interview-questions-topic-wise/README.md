@@ -1,8 +1,6 @@
 # AWS Interview Questions & Answers
 
-Topic-wise AWS interview questions with direct, interview-ready answers.
-
-## Topics
+Topic-wise AWS interview preparation repository.
 
 1. [EC2](./01-EC2/README.md)
 2. [Auto Scaling Group & Launch Template](./02-ASG-Launch-Template/README.md)

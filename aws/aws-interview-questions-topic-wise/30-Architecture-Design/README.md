@@ -1,70 +1,68 @@
 # AWS Architecture & Design
 
-## Interview Questions & Answers
-
 ### Q1. What are the AWS Well-Architected Framework pillars?
 
-**Answer:** The AWS Well-Architected Framework organizes architectural guidance around operational excellence, security, reliability, performance efficiency, cost optimization, and sustainability.
+**Answer:** The AWS Well-Architected Framework provides architectural guidance around six pillars: operational excellence, security, reliability, performance efficiency, cost optimization, and sustainability.
 
 ---
 
 ### Q2. What is reliability?
 
-**Answer:** Reliability focuses on a workload's ability to recover from failures, meet demand, and operate correctly through resilient architecture, monitoring, recovery, and change management.
+**Answer:** Reliability focuses on a workload's ability to recover from failures, meet demand, and operate correctly through resilient architecture, monitoring, recovery, and controlled change.
 
 ---
 
 ### Q3. What is operational excellence?
 
-**Answer:** Operational excellence focuses on running and monitoring systems effectively, automating operations, learning from events, and continually improving processes.
+**Answer:** Operational excellence focuses on running and monitoring workloads effectively, automating operations, learning from events, and continually improving processes.
 
 ---
 
 ### Q4. What is security?
 
-**Answer:** Security in the AWS Well-Architected Framework focuses on protecting information and systems through strong identity and access control, detection, infrastructure protection, data protection, and incident response.
+**Answer:** The security pillar focuses on protecting information and systems through strong identity controls, detection, infrastructure protection, data protection, and incident response.
 
 ---
 
 ### Q5. What is performance efficiency?
 
-**Answer:** Performance efficiency focuses on using computing resources efficiently and selecting appropriate architectures, technologies, and scaling strategies as requirements change.
+**Answer:** Performance efficiency focuses on using computing resources efficiently and selecting appropriate technologies and architectures as requirements change.
 
 ---
 
 ### Q6. What is cost optimization?
 
-**Answer:** Cost Optimization focuses on delivering business value at the lowest appropriate cost. Practices include cost visibility, rightsizing, appropriate purchasing models, lifecycle policies, eliminating idle resources, and choosing efficient architectures.
+**Answer:** Cost optimization focuses on delivering business value at the lowest appropriate cost through rightsizing, elasticity, pricing models, storage optimization, and ongoing cost visibility.
 
 ---
 
 ### Q7. What is sustainability?
 
-**Answer:** Sustainability focuses on reducing the environmental impact of workloads by improving resource utilization, selecting efficient architectures, and minimizing unnecessary resource consumption.
+**Answer:** Sustainability focuses on reducing the environmental impact of workloads through efficient resource use, appropriate architectures, and minimizing unnecessary consumption.
 
 ---
 
 ### Q8. How do Multi-AZ architectures improve availability?
 
-**Answer:** RDS Multi-AZ is primarily a high-availability and failover capability. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not the normal read-scaling mechanism.
+**Answer:** RDS Multi-AZ is primarily a high-availability and failover feature. RDS maintains a standby in another Availability Zone and can fail over when the primary becomes unavailable; the standby is not normally used for read scaling.
 
 ---
 
 ### Q9. Why distribute workloads across AZs?
 
-**Answer:** Availability Zones are separate failure domains within a Region. Distributing application capacity across multiple AZs reduces the chance that a single AZ failure removes all capacity and supports highly available designs.
+**Answer:** Distributing workloads across Availability Zones reduces dependence on a single failure domain. If one AZ experiences an infrastructure or power/network failure, resources in other AZs can continue serving traffic, improving availability and resilience.
 
 ---
 
 ### Q10. How does an ALB improve application availability?
 
-**Answer:** An ALB distributes requests across healthy targets in multiple Availability Zones and stops routing to unhealthy targets. Combined with an ASG, it supports automatic replacement and horizontal scaling of application instances.
+**Answer:** An ALB distributes requests across healthy targets and can span multiple Availability Zones. It continuously performs target health checks and stops routing to unhealthy targets, allowing healthy instances to continue serving traffic when individual instances fail.
 
 ---
 
 ### Q11. How does ASG improve resilience?
 
-**Answer:** An ASG maintains desired capacity, replaces unhealthy instances, and scales capacity according to demand. When instances are distributed across Availability Zones, the ASG can maintain service capacity during individual instance or AZ failures.
+**Answer:** An ASG improves resilience by maintaining desired capacity, replacing unhealthy instances, and scaling the fleet when demand changes. Deploying the ASG across multiple Availability Zones prevents a single instance or AZ failure from removing the entire application capacity.
 
 ---
 
@@ -76,84 +74,84 @@
 
 ### Q13. What is vertical scaling?
 
-**Answer:** Vertical scaling increases or decreases the size of an individual resource, such as moving to a larger EC2 instance. It is simple but has limits and may require downtime depending on the resource.
+**Answer:** Vertical scaling changes the size of an individual resource, such as moving to a larger EC2 instance. It is simple but constrained by instance limits and can require downtime depending on the resource.
 
 ---
 
 ### Q14. How do queues decouple workloads?
 
-**Answer:** A queue separates producers from consumers and buffers work. Producers can continue during temporary consumer slowdowns, while consumers process messages asynchronously at their own rate. SQS is the common AWS implementation.
+**Answer:** Queues decouple workloads by allowing producers to submit work without waiting for consumers to process it. Consumers can scale independently, traffic spikes can be absorbed by the queue, and temporary consumer failures do not necessarily stop producers.
 
 ---
 
 ### Q15. How can caching reduce database load?
 
-**Answer:** A cache stores frequently requested data closer to the application. Cache hits avoid repeated database reads, reducing database CPU/I/O and improving response latency. The application must define appropriate expiration and invalidation behavior.
+**Answer:** Caching reduces database load by serving frequently requested data from a faster cache instead of querying the database for every request. This reduces database CPU, connections, and I/O while improving response latency.
 
 ---
 
 ### Q16. How do read replicas support read scaling?
 
-**Answer:** An RDS read replica is a separate database instance that receives replicated changes from a source database and can serve read traffic. It is primarily used for read scaling and some migration/DR patterns, not the same purpose as a Multi-AZ standby.
+**Answer:** Read replicas support read scaling by maintaining additional readable copies of a database. Applications can route eligible read traffic to replicas, reducing read load on the primary database. Replication lag must be considered where strong read-after-write consistency is required.
 
 ---
 
 ### Q17. What is backup and restore?
 
-**Answer:** Backup and restore periodically copies data and recreates infrastructure or restores data after a disaster. It is usually the simplest DR strategy but can have the highest recovery time.
+**Answer:** Backup and restore periodically copies data and recreates or restores the workload after a failure. It is usually the simplest DR strategy but often has the longest recovery time.
 
 ---
 
 ### Q18. What is pilot light?
 
-**Answer:** Pilot light keeps only the core components required to recreate the workload running, with other capacity started during recovery. It reduces cost compared with warm standby but increases recovery work.
+**Answer:** A pilot-light DR strategy keeps only the core components required to recreate the workload continuously available. During recovery, additional infrastructure is started and configured.
 
 ---
 
 ### Q19. What is warm standby?
 
-**Answer:** Warm standby maintains a scaled-down but functional copy of the workload in the recovery environment. It can recover faster than backup-and-restore while costing more.
+**Answer:** Warm standby maintains a scaled-down but functional copy of the workload in the recovery environment. It can recover faster than backup-and-restore but costs more.
 
 ---
 
 ### Q20. What is active-active?
 
-**Answer:** Active-active runs production workloads in multiple environments or Regions simultaneously. It can provide very low recovery time but is more complex to operate and synchronize.
+**Answer:** An active-active architecture runs production capacity in multiple environments or Regions simultaneously. It can provide very low recovery time but requires more complex data synchronization and operations.
 
 ---
 
 ### Q21. How do RTO and RPO influence architecture?
 
-**Answer:** RTO (Recovery Time Objective) is the maximum acceptable time to restore service after a disruption.
+**Answer:** RTO (Recovery Time Objective) is the maximum acceptable time to restore a workload after a disruption.
 
 ---
 
 ### Q22. How would you design a highly available 3-tier application?
 
-**Answer:** Use Route 53 for DNS, an internet-facing ALB across multiple Availability Zones, stateless application servers in private subnets managed by an ASG, and a Multi-AZ database in private subnets. Use NAT Gateways or VPC endpoints for required outbound/service access and CloudWatch for monitoring.
+**Answer:** For a highly available 3-tier application, place an internet-facing ALB across multiple Availability Zones, application servers in private subnets across those AZs using an ASG, and a Multi-AZ relational database in private database subnets. Use security groups between tiers, NAT Gateways or VPC endpoints for required outbound/service access, IAM roles for workloads, backups, monitoring, and health checks.
 
 ---
 
 ### Q23. How would you design a private application with outbound Internet access?
 
-**Answer:** Place application instances in private subnets with no direct route to an Internet Gateway. Route Internet-bound traffic to a NAT Gateway in a public subnet. Use VPC endpoints for supported AWS services when private service access is preferable.
+**Answer:** Place the application in private subnets with no direct route to an Internet Gateway. Put a NAT Gateway in a public subnet and route the private subnet's Internet-bound traffic to it. The public subnet routes to the Internet Gateway. Use security groups, NACLs as required, and VPC endpoints for supported AWS services when private access is preferable.
 
 ---
 
 ### Q24. How would you design a decoupled order-processing system?
 
-**Answer:** Expose an API through API Gateway or an ALB, persist the order, publish asynchronous work to SQS, and process it with Lambda or EC2 workers. Use a DLQ for repeated failures, idempotent consumers, and CloudWatch monitoring.
+**Answer:** Use an API or application tier to validate the order and publish an order message to SQS. Worker instances or Lambda consume the queue asynchronously and update the database or downstream services. Add a DLQ, idempotent processing, monitoring, and scaling based on queue depth so temporary downstream problems do not block order submission.
 
 ---
 
 ### Q25. How would you design a multi-Region application?
 
-**Answer:** Deploy application capacity in multiple Regions, replicate data with a service-appropriate mechanism, and use Route 53 or another global routing mechanism for traffic management. Define consistency, failover, RTO, and RPO requirements before choosing active-passive or active-active architecture.
+**Answer:** A multi-Region application deploys application capacity in multiple AWS Regions and uses an appropriate global routing mechanism such as Route 53 to direct users. Data must be replicated using a service and consistency model appropriate to the workload. The design must define RTO, RPO, failover, DNS TTL, deployment, and rollback procedures.
 
 ---
 
 ### Q26. How do you choose between managed services and self-managed infrastructure?
 
-**Answer:** Prefer managed services when they meet requirements because they reduce operational work for patching, scaling, backups, and availability. Choose self-managed infrastructure when a required feature, compatibility constraint, performance requirement, or control requirement justifies the additional operational burden.
+**Answer:** Prefer managed services when they satisfy the requirement because AWS handles more infrastructure operations such as patching, scaling, backups, and availability. Choose self-managed infrastructure when the workload requires capabilities or control that the managed service cannot provide, while accepting the additional operational responsibility.
 
 ---

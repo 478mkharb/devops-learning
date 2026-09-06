@@ -1,105 +1,103 @@
 # AWS Security Architecture
 
-## Interview Questions & Answers
-
 ### Q1. What is least privilege?
 
-**Answer:** Least privilege means granting only the permissions required to perform a task. In AWS this includes restricting actions, resources, conditions, principals, and credential lifetime where practical.
+**Answer:** Least privilege means granting only the permissions required for a task. In AWS this means restricting actions, resources, conditions, principals, and credential lifetime as appropriate.
 
 ---
 
 ### Q2. What is defense in depth?
 
-**Answer:** Defense in depth uses multiple independent security controls so that failure of one control does not expose the entire system. AWS examples include IAM, network segmentation, WAF, encryption, logging, and threat detection.
+**Answer:** Defense in depth uses multiple independent security controls so that failure of one control does not expose the entire workload. Examples include IAM, network segmentation, encryption, WAF, logging, and threat detection.
 
 ---
 
 ### Q3. Why use IAM roles instead of long-lived access keys?
 
-**Answer:** AWS IAM controls authentication and authorization to AWS resources. It includes identities such as users, groups, and roles and policies that determine allowed actions.
+**Answer:** AWS Identity and Access Management (IAM) controls authentication and authorization for AWS resources. It includes identities such as users, groups, and roles and policies that determine what actions are allowed or denied.
 
 ---
 
 ### Q4. What is MFA?
 
-**Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and account-root protection.
+**Answer:** Multi-factor authentication requires an additional authentication factor beyond a password. It is especially important for privileged identities and protecting the AWS account root user.
 
 ---
 
 ### Q5. What is federation?
 
-**Answer:** Identity federation lets users authenticate through an external identity provider and obtain temporary AWS credentials or console access through AWS IAM Identity Center or supported federation mechanisms.
+**Answer:** Identity federation allows users to authenticate through an external identity provider and obtain temporary AWS access instead of maintaining separate long-lived IAM user credentials.
 
 ---
 
 ### Q6. How do private subnets improve isolation?
 
-**Answer:** A subnet is an IP address range inside a VPC and is associated with one Availability Zone. A subnet is considered public when its route table provides a path to an Internet Gateway; otherwise it is commonly private.
+**Answer:** Private subnets do not provide a direct route to an Internet Gateway, so resources placed there cannot receive unsolicited Internet traffic through a normal public route. Required outbound access can be provided through controlled paths such as NAT Gateways, while VPC endpoints can provide private access to supported AWS services.
 
 ---
 
 ### Q7. What is a bastion host?
 
-**Answer:** A bastion host is a hardened intermediary used to administer private resources. Modern AWS designs often prefer Systems Manager Session Manager to avoid exposing SSH to the network.
+**Answer:** A bastion host is a hardened intermediary used to administer private resources. Modern AWS architectures often prefer Systems Manager Session Manager because it avoids exposing inbound SSH to private servers.
 
 ---
 
 ### Q8. What is Systems Manager Session Manager?
 
-**Answer:** Systems Manager Session Manager provides secure shell-like access to managed EC2 instances without requiring inbound SSH ports or bastion hosts. Access is controlled through IAM and Systems Manager prerequisites.
+**Answer:** Systems Manager Session Manager provides secure interactive access to managed instances without requiring inbound SSH or RDP ports. Access is controlled through IAM and Systems Manager prerequisites.
 
 ---
 
 ### Q9. How do SGs and NACLs differ?
 
-**Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
+**Answer:** Security groups are stateful firewalls attached to ENIs and support allow rules. NACLs are stateless filters applied at the subnet boundary and support ordered allow and deny rules. Security groups automatically allow response traffic for permitted connections; NACLs require both directions to be allowed explicitly.
 
 ---
 
 ### Q10. What is VPC endpoint isolation?
 
-**Answer:** A VPC is a logically isolated virtual network in AWS. It contains subnets, route tables, network interfaces, and security controls and can connect to the Internet, other VPCs, on-premises networks, or AWS services.
+**Answer:** A VPC endpoint provides private connectivity from a VPC to supported AWS services or endpoint services without requiring the service path to traverse the public Internet.
 
 ---
 
 ### Q11. What is encryption at rest?
 
-**Answer:** Encryption at rest protects stored data on services such as EBS, S3, RDS, and databases. AWS-managed encryption services such as KMS commonly provide key control.
+**Answer:** Encryption at rest protects stored data using encryption mechanisms provided by the storage or database service. AWS KMS commonly provides customer-controlled key management for supported services.
 
 ---
 
 ### Q12. What is encryption in transit?
 
-**Answer:** Encryption in transit protects data while it moves between clients, services, or networks, typically using TLS or other encrypted protocols.
+**Answer:** Encryption in transit protects data while it moves between clients, services, or networks, typically using TLS or another encrypted protocol.
 
 ---
 
 ### Q13. How does KMS support encryption?
 
-**Answer:** AWS KMS is a managed key service used to create and control cryptographic keys for encrypting data and protecting other secrets. It integrates with many AWS services.
+**Answer:** AWS KMS is a managed service for creating and controlling cryptographic keys used to protect data. It integrates with many AWS services and provides authorization and audit controls.
 
 ---
 
 ### Q14. Why should secrets be stored in managed secret stores?
 
-**Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
+**Answer:** Managed secret stores such as AWS Secrets Manager and Systems Manager Parameter Store reduce the need to place credentials in source code or configuration files. They provide centralized access control, encryption, auditing, and, for Secrets Manager, automated rotation for supported secrets.
 
 ---
 
 ### Q15. What are CloudTrail, Config, GuardDuty, Inspector, and Security Hub used for?
 
-**Answer:** AWS CloudTrail records AWS API activity and related events for governance, audit, and security investigation. It can deliver events to destinations such as S3 and CloudWatch Logs.
+**Answer:** AWS Security Hub centralizes security findings from AWS services and supported third-party products and provides security posture and compliance-oriented views.
 
 ---
 
 ### Q16. How does centralized logging improve security?
 
-**Answer:** Explain the security control, its threat model, where it is enforced, and how it fits into least privilege, defense in depth, encryption, logging, or network isolation.
+**Answer:** The security pillar focuses on protecting information and systems through strong identity controls, detection, infrastructure protection, data protection, and incident response.
 
 ---
 
 ### Q17. What is AWS Organizations security governance?
 
-**Answer:** AWS Organizations centrally manages multiple AWS accounts. It provides account grouping, consolidated billing, governance controls, and organization-wide policy mechanisms.
+**Answer:** AWS Organizations centrally manages multiple AWS accounts. It supports account grouping, consolidated billing, governance policies, and centralized security controls.
 
 ---
