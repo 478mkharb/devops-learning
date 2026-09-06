@@ -397,3 +397,151 @@ For example, an application server might allow inbound TCP `443` from an ALB sec
 Security groups therefore provide **network-level access control**, while IAM controls AWS API permissions.
 
 ---
+
+---
+
+### Q29. What is the normal Spot Instance interruption notice period?
+
+**Answer:** When Amazon EC2 interrupts a Spot Instance because it needs to reclaim the capacity, the normal interruption notice is **two minutes**.
+
+This gives the application a short window to:
+- Stop accepting new work
+- Save or checkpoint state
+- Drain work where possible
+- Start replacement capacity
+
+The two-minute warning does **not** apply in the same way to hibernation because the hibernation process begins immediately. AWS also provides a **rebalance recommendation** that can arrive before the interruption notice when a Spot Instance is at elevated risk.
+
+---
+
+### Q30. Does a Spot Instance have a fixed lifetime, such as 1 hour or 24 hours?
+
+**Answer:** No. A Spot Instance does **not** have a fixed lifetime.
+
+It can continue running while capacity is available and until one of these occurs:
+- You stop or terminate it
+- Amazon EC2 interrupts it because AWS needs the capacity back
+- Another configured lifecycle condition causes it to stop or terminate
+
+Therefore, Spot should be treated as **interruptible capacity**, not capacity with a guaranteed runtime.
+
+---
+
+### Q31. How many private IPv4 addresses can be assigned to an EC2 instance?
+
+**Answer:** There is **no single maximum number that applies to every EC2 instance**.
+
+The limit depends on the **instance type**, specifically:
+- Maximum number of network interfaces (ENIs)
+- Maximum number of private IPv4 addresses supported per ENI
+
+Therefore, when an interviewer asks for the maximum number of private IPs, the correct answer is: **it is instance-type dependent**.
+
+For example, the total possible private IPv4 addresses are constrained by the instance's ENI and per-ENI limits rather than by one universal EC2-wide number.
+
+---
+
+### Q32. Does a private IPv4 address change when an EC2 instance is stopped and started?
+
+**Answer:** No. A private IPv4 address remains associated with the network interface when an EC2 instance is stopped and started.
+
+| Event | Private IPv4 address |
+|---|---|
+| Stop | Retained |
+| Start | Retained |
+| Hibernate | Retained |
+| Terminate | Released |
+
+The automatically assigned public IPv4 address behaves differently: it is normally released when the instance is stopped and a new public IPv4 address can be assigned when the instance starts again. Use an Elastic IP when a persistent public IPv4 address is required.
+
+---
+
+### Q33. What is the maximum size of an Amazon EBS volume?
+
+**Answer:** The maximum supported size of an Amazon EBS volume is **64 TiB**.
+
+The actual usable capacity can also depend on the operating system and partitioning scheme.
+
+For boot volumes:
+- **MBR** limits the boot volume to **2 TiB**.
+- **GPT** can support boot volumes up to **64 TiB** when the operating system and boot mode support it.
+
+---
+
+### Q34. What is the size range and baseline performance of a gp3 EBS volume?
+
+**Answer:** A gp3 volume supports **1 GiB to 64 TiB** of storage.
+
+Its baseline performance includes:
+- **3,000 IOPS**
+- **125 MiB/s throughput**
+
+These are independent of volume size within the supported configuration. Additional performance can be provisioned up to:
+- **80,000 IOPS**
+- **2,000 MiB/s throughput**
+
+The actual maximum performance also depends on the attached EC2 instance's EBS bandwidth capabilities.
+
+---
+
+### Q35. What happens to Instance Store data when an EC2 instance is stopped or terminated?
+
+**Answer:** Instance Store is **ephemeral** storage. Data stored on Instance Store volumes is lost when the instance is stopped or terminated.
+
+It should therefore be used only for data that can be recreated, such as:
+- Caches
+- Temporary files
+- Scratch space
+- Intermediate processing data
+
+Persistent data should be stored on services such as EBS, S3, or an appropriate database.
+
+---
+
+### Q36. Can every EC2 instance be stopped and started?
+
+**Answer:** No. The normal stop/start operation applies to instances with an **Amazon EBS volume as the root volume**.
+
+An instance-store-root instance cannot be stopped and started in the same way because its root storage is ephemeral.
+
+For EBS-backed instances, stopping preserves the attached EBS volumes while the instance is stopped, although Instance Store data and the automatically assigned public IPv4 address are lost.
+
+---
+
+### Q37. What happens to an EC2 instance's EBS volumes when the instance is terminated?
+
+**Answer:** The result depends on the volume's **DeleteOnTermination** attribute.
+
+| DeleteOnTermination | Result after termination |
+|---|---|
+| `true` | EBS volume is deleted |
+| `false` | EBS volume is preserved |
+
+The setting should always be checked before terminating an instance that contains important data.
+
+---
+
+### Q38. What happens to an EC2 instance's public and private IP addresses during stop/start?
+
+**Answer:** They behave differently.
+
+| Address | Stop | Start | Terminate |
+|---|---|---|---|
+| Private IPv4 | Retained | Same private IPv4 | Released |
+| Automatically assigned public IPv4 | Released | Normally a new public IPv4 is assigned | Released |
+| Elastic IP | Remains associated | Remains associated | Depends on resource association/release |
+
+This is why applications that require a stable public IPv4 address should use an **Elastic IP**, although DNS names are generally preferable for application endpoints.
+
+---
+
+### Q39. What is the difference between the two-minute Spot interruption notice and a Spot rebalance recommendation?
+
+**Answer:** They are different signals with different purposes.
+
+| Signal | Meaning | Purpose |
+|---|---|---|
+| Rebalance recommendation | Instance is at elevated risk of interruption | Gives an opportunity to proactively replace or drain the instance |
+| Spot interruption notice | AWS has scheduled an interruption | Normally provides two minutes to react |
+
+A rebalance recommendation can arrive before the two-minute interruption notice, but AWS does not guarantee that it will always arrive earlier.
