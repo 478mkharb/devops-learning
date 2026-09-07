@@ -37,6 +37,17 @@ Here, `logs/2026/application.log` is the object key, and `logs/2026/` is the pre
 
 **Answer:** An S3 storage class determines how objects are stored and priced based on factors such as access frequency, availability requirements, retrieval requirements, and storage cost.
 
+| Storage class | Typical use | Access pattern | Key characteristic |
+|---|---|---|---|
+| **S3 Standard** | Frequently accessed data | Frequent | General-purpose, low-latency access |
+| **S3 Intelligent-Tiering** | Unknown or changing access patterns | Variable | Automatically moves objects between access tiers |
+| **S3 Standard-IA** | Infrequently accessed data | Infrequent | Lower storage cost with retrieval charges |
+| **S3 One Zone-IA** | Re-creatable infrequent data | Infrequent | Stored in a single Availability Zone |
+| **S3 Glacier Instant Retrieval** | Rarely accessed archive data | Rare | Millisecond retrieval |
+| **S3 Glacier Flexible Retrieval** | Archive data | Rare | Retrieval typically takes minutes to hours |
+| **S3 Glacier Deep Archive** | Long-term archival | Very rare | Very low storage cost for long-term archive use |
+
+
 ---
 
 ### Q6. Is S3 regional or global?
@@ -91,7 +102,13 @@ Replication can be configured to copy objects to another Region.
 
 ### Q14. What is an S3 Lifecycle configuration?
 
-**Answer:** An S3 Lifecycle configuration consists of rules that automatically manage objects throughout their lifecycle. Rules can transition objects to different storage classes or expire objects and versions when specified conditions are met.
+**Answer:** An S3 Lifecycle configuration consists of rules that automatically manage objects throughout their lifecycle. The two primary lifecycle actions are **transition** and **expiration**.
+
+| Action | Purpose | Example |
+|---|---|---|
+| **Transition** | Move objects to another storage class | Standard → Glacier Flexible Retrieval |
+| **Expiration** | Remove objects or versions after retention conditions are met | Delete objects after 365 days |
+
 
 ---
 
@@ -195,18 +212,6 @@ The actual transition periods should be selected according to the workload's acc
 
 **Answer:** SSE-S3 is server-side encryption where Amazon S3 manages the encryption keys and performs encryption of objects at rest.
 
-```text
-Client
-  |
-  | Plaintext over HTTPS
-  ↓
- S3
-  |
-  | Encrypt
-  ↓
-Encrypted object
-```
-
 ---
 
 ### Q25. What is SSE-KMS?
@@ -219,16 +224,18 @@ Encrypted object
 
 **Answer:** Client-side encryption encrypts data before it is uploaded to S3. The client or application performs the encryption, and S3 stores the resulting ciphertext.
 
-```text
-Application
-    |
-    | Encrypt
-    ↓
-Ciphertext
-    |
-    ↓
-   S3
-```
+### SSE-S3 vs SSE-KMS vs Client-Side Encryption
+
+| Feature | SSE-S3 | SSE-KMS | Client-side encryption |
+|---|---|---|---|
+| Encryption location | S3 | S3 | Client/application |
+| Data sent to S3 as plaintext | Yes, assuming HTTPS is used for transit | Yes, assuming HTTPS is used for transit | No |
+| Key management | S3 | AWS KMS | Customer/application |
+| Key-level access control | Managed by S3 | KMS IAM/key-policy controls | Customer-controlled |
+| Audit/key-usage controls | Basic S3 controls | KMS provides key-usage auditing | Depends on implementation |
+| Application complexity | Low | Low to moderate | Higher |
+| Typical use | General encryption at rest | Additional key control and auditing | When plaintext must not be uploaded to S3 |
+
 
 ---
 
@@ -242,11 +249,22 @@ Ciphertext
 
 **Answer:** S3 Object Lock provides WORM-style (Write Once, Read Many) protection. It can prevent objects from being deleted or overwritten during a configured retention period or while a legal hold is active.
 
-S3 Object Lock supports:
+| Control | Behavior |
+|---|---|
+| **Governance mode** | Retention can potentially be bypassed by users with the required special permissions |
+| **Compliance mode** | Protected objects cannot be deleted or overwritten until the retention period expires |
+| **Legal Hold** | Prevents deletion independently of a configured retention period |
 
-- **Governance mode** — authorized users with the required permissions may be able to bypass retention.
-- **Compliance mode** — protected objects cannot be deleted or overwritten until the retention period expires.
-- **Legal Hold** — prevents deletion independently of a configured retention period.
+### Versioning vs Object Lock
+
+| Feature | Versioning | Object Lock |
+|---|---|---|
+| Main purpose | Preserve multiple object versions | Prevent deletion/overwrite during protection |
+| Helps recover accidental overwrite | Yes | Not its primary purpose |
+| WORM protection | No | Yes |
+| Legal hold | No | Yes |
+| Works with versions | Provides the versions | Retention can protect object versions |
+
 
 ---
 
@@ -254,13 +272,13 @@ S3 Object Lock supports:
 
 **Answer:** S3 Replication automatically copies eligible objects from a source bucket to one or more destination buckets. Replication can occur across AWS Regions or within the same Region.
 
-It can be used for:
+| Replication type | Source | Destination | Typical use |
+|---|---|---|---|
+| **CRR** | One Region | Different Region | Disaster recovery, geographic distribution, compliance |
+| **SRR** | One Region | Same Region | Compliance, data separation, replication workflows |
 
-- Disaster recovery
-- Compliance
-- Data distribution
-- Data separation
-- Geographic requirements
+It can also be used for other data-distribution and operational requirements.
+
 
 ---
 
@@ -308,14 +326,8 @@ A common use case is allowing a user to download a private file temporarily.
 
 ### Q34. What are S3 event notifications?
 
-**Answer:** S3 event notifications allow S3 to generate events when supported bucket or object events occur, such as object creation or deletion.
+**Answer:** S3 event notifications allow S3 to generate events when supported bucket or object events occur, such as object creation or deletion. These events can be delivered to supported AWS destinations.
 
-These events can be delivered to services such as:
-
-- Amazon SQS
-- Amazon SNS
-- AWS Lambda
-- Amazon EventBridge
 
 ---
 
