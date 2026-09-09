@@ -1,19 +1,4 @@
-# Kubernetes Interview Questions & Answers — 100 Real-World Questions
-
-This README is designed for DevOps / Kubernetes L2 interview preparation.
-
-The questions focus on the style commonly used in technical interviews:
-- Differences between Kubernetes concepts
-- Internal working and request flow
-- Scheduling and placement
-- Workloads and controllers
-- Networking and Services
-- Storage
-- Probes and resources
-- RBAC and security
-- Troubleshooting and scenario-based questions
-
-The answers are intentionally written in an **interview-ready speaking style** rather than as textbook definitions.
+# Kubernetes
 
 ---
 
