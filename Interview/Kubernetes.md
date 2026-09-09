@@ -1,2033 +1,1250 @@
-# Kubernetes Senior L2 Interview Preparation
+# Kubernetes Interview Questions & Answers — 100 Real-World Questions
 
-## How to Use This Guide
+This README is designed for DevOps / Kubernetes L2 interview preparation.
 
-This README is designed for **Senior L2 Kubernetes / DevOps
-interviews**.
+The questions focus on the style commonly used in technical interviews:
+- Differences between Kubernetes concepts
+- Internal working and request flow
+- Scheduling and placement
+- Workloads and controllers
+- Networking and Services
+- Storage
+- Probes and resources
+- RBAC and security
+- Troubleshooting and scenario-based questions
 
-Focus on: - Troubleshooting methodology - Kubernetes networking -
-Scheduling - Storage - Deployments and rollouts - Probes and application
-failures - Security and RBAC - Production debugging - Cluster
-components - Practical `kubectl` commands
+The answers are intentionally written in an **interview-ready speaking style** rather than as textbook definitions.
 
-A strong interview answer should normally follow:
+---
 
-**Symptom → Commands → Evidence → Root Cause → Fix → Prevention**
+## 1. Scheduling, Nodes, Affinity & Taints
 
-------------------------------------------------------------------------
+### 1. What is the difference between `nodeSelector` and `nodeAffinity`?
 
-# 1. Kubernetes Architecture
+`nodeSelector` is the simpler mechanism for selecting nodes using exact label matches. `nodeAffinity` is more flexible because it supports operators such as `In`, `NotIn`, `Exists`, and can define both hard and soft requirements.
 
-## Q1. Explain the Kubernetes architecture.
+I would use `nodeSelector` for simple placement rules and `nodeAffinity` when I need more complex scheduling logic.
 
-### Answer
+---
 
-A Kubernetes cluster has two major parts:
+### 2. What is the difference between `nodeAffinity` and `podAffinity`?
 
-**Control Plane** - kube-apiserver - etcd - kube-scheduler -
-kube-controller-manager - cloud-controller-manager, when applicable
+`nodeAffinity` matches a Pod against **node labels**, so it controls which nodes a Pod can or should run on.
 
-**Worker Nodes** - kubelet - kube-proxy - container runtime such as
-containerd - Pods
+`podAffinity` matches a Pod against **other Pods**, usually using Pod labels and topology rules.
 
-Typical flow:
+For example, node affinity can place an application on SSD nodes, while Pod affinity can place an application close to another workload.
 
-``` text
-kubectl
-   |
-   v
-kube-apiserver
-   |
-   +----> etcd
-   |
-   +----> scheduler
-   |
-   +----> controller-manager
-   |
-   v
-kubelet on worker
-   |
-   v
-container runtime
-   |
-   v
-Pod
-```
+---
 
-The **API server is the central entry point** for Kubernetes API
-operations.
+### 3. What is the difference between `podAffinity` and `podAntiAffinity`?
 
-`etcd` stores Kubernetes cluster state.
+Pod affinity tries to place Pods together according to matching labels and topology rules.
 
-The scheduler decides which node should run a newly created Pod.
+Pod anti-affinity tries to keep matching Pods apart.
 
-Controllers continuously compare the desired state with the actual state
-and take corrective action.
+Anti-affinity is commonly used for high availability, for example to prevent multiple replicas of the same application from being scheduled onto the same node.
 
-------------------------------------------------------------------------
+---
 
-## Q2. What happens internally when you run `kubectl apply -f deployment.yaml`?
+### 4. What is the difference between taints/tolerations and node affinity?
 
-### Answer
+A taint is applied to a node and says that Pods should not be scheduled there unless they tolerate the taint.
 
-1.  `kubectl` authenticates with the kube-apiserver.
-2.  The API server authenticates and authorizes the request.
-3.  Admission controls may validate or mutate the object.
-4.  The Deployment object is persisted in etcd.
-5.  The Deployment controller detects the desired Deployment.
-6.  It creates/updates a ReplicaSet.
-7.  The ReplicaSet controller creates Pods.
-8.  The scheduler watches for unscheduled Pods.
-9.  The scheduler selects a suitable node.
-10. The kubelet on that node sees the assigned Pod.
-11. kubelet asks the container runtime to create the containers.
-12. CNI configures Pod networking.
-13. The containers start.
-14. kubelet continuously reports Pod/node status to the API server.
+A toleration is applied to a Pod and allows it to be considered for a tainted node.
 
-------------------------------------------------------------------------
+Node affinity is different: it is a Pod-side rule that expresses which nodes the Pod wants or requires.
 
-# 2. Pod Troubleshooting
+An important interview point is that a toleration does **not** force a Pod onto a node. It only allows the Pod to tolerate the taint.
 
-## Q3. A Pod is stuck in `Pending`. How do you troubleshoot it?
+---
 
-### Answer
+### 5. What is the difference between `NoSchedule`, `PreferNoSchedule`, and `NoExecute`?
 
-Start with:
+`NoSchedule` prevents new Pods from being scheduled unless they tolerate the taint.
 
-``` bash
-kubectl get pods -n <namespace>
-kubectl describe pod <pod-name> -n <namespace>
-```
+`PreferNoSchedule` is a soft preference to avoid scheduling there.
 
-The most important place is:
+`NoExecute` prevents new scheduling and can also evict existing Pods that do not have the required toleration.
 
-``` text
-Events:
-```
+---
 
-Then check:
+### 6. Does a toleration force a Pod to run on a particular node?
 
-``` bash
-kubectl get nodes
-kubectl describe nodes
-```
+No.
 
-Possible causes:
+A toleration only makes a Pod eligible to run on a tainted node. It does not select that node.
 
--   Insufficient CPU
--   Insufficient memory
--   Node has a taint
--   Pod has no matching toleration
--   NodeSelector mismatch
--   Node affinity mismatch
--   Pod anti-affinity constraints
--   ResourceQuota
--   LimitRange
--   PVC not bound
--   Unschedulable nodes
+If I need to target a particular class of nodes, I would combine tolerations with node labels and node affinity or nodeSelector.
 
-Check resources:
+---
 
-``` bash
-kubectl describe node <node-name>
-kubectl top nodes
-kubectl top pods -A
-```
+### 7. What is the difference between `requiredDuringSchedulingIgnoredDuringExecution` and `preferredDuringSchedulingIgnoredDuringExecution`?
 
-For PVC:
+`requiredDuringSchedulingIgnoredDuringExecution` is a hard requirement. If no node satisfies it, the Pod cannot be scheduled.
 
-``` bash
-kubectl get pvc -A
-kubectl describe pvc <pvc-name>
-```
+`preferredDuringSchedulingIgnoredDuringExecution` is a soft preference. The scheduler tries to satisfy it but can choose another node if necessary.
 
-The **Pod events and scheduler messages** normally reveal why the Pod
-cannot be scheduled.
+---
 
-------------------------------------------------------------------------
+### 8. What does `IgnoredDuringExecution` mean in node affinity?
 
-## Q4. A Pod is in `CrashLoopBackOff`. What do you check?
+It means the rule is considered during scheduling, but if node labels later change and the Pod no longer matches the rule, Kubernetes does not automatically evict that running Pod because of the affinity rule.
 
-### Answer
+---
 
-First:
+### 9. Why would a Pod remain in `Pending` because of scheduling?
 
-``` bash
-kubectl get pod <pod-name>
-kubectl describe pod <pod-name>
-kubectl logs <pod-name>
-```
-
-If the container restarts quickly:
-
-``` bash
-kubectl logs <pod-name> --previous
-```
-
-Check:
-
-``` bash
-kubectl get pod <pod-name> -o wide
-kubectl describe pod <pod-name>
-```
-
-I would investigate:
-
--   Application crash
--   Incorrect environment variables
--   Missing ConfigMap/Secret
--   Wrong command/entrypoint
--   Dependency unavailable
--   Database connection failure
--   Failed liveness probe
--   OOMKilled
--   Permission problems
--   Configuration errors
-
-For OOM:
-
-``` bash
-kubectl describe pod <pod-name>
-```
-
-Look for:
-
-``` text
-Reason: OOMKilled
-Exit Code: 137
-```
-
-`--previous` is particularly useful because the current container may
-already have restarted.
-
-------------------------------------------------------------------------
-
-## Q5. A Pod is `Running`, but the application is not accessible. What do you check?
-
-### Answer
-
-`Running` only means the containers are running. It does not guarantee
-that the application is healthy or reachable.
-
-I would check:
-
-``` bash
-kubectl get pod <pod-name> -o wide
-kubectl describe pod <pod-name>
-kubectl logs <pod-name>
-```
-
-Then verify the application from inside the Pod:
-
-``` bash
-kubectl exec -it <pod-name> -- curl localhost:<port>
-```
-
-Check the Service:
-
-``` bash
-kubectl get svc
-kubectl describe svc <service-name>
-```
-
-Check endpoints:
-
-``` bash
-kubectl get endpoints <service-name>
-kubectl get endpointslices
-```
-
-If there are no endpoints, I check whether the Service selector matches
-Pod labels.
-
-Then check:
-
-``` bash
-kubectl get pods --show-labels
-kubectl get svc <service-name> -o yaml
-```
-
-For external access, investigate:
-
-``` text
-Ingress
-    |
-Service
-    |
-Endpoints
-    |
-Pods
-```
-
-------------------------------------------------------------------------
-
-# 3. Kubernetes Services and Networking
-
-## Q6. What are the main Kubernetes Service types?
-
-### Answer
-
-The common Service types are:
-
-1.  `ClusterIP`
-2.  `NodePort`
-3.  `LoadBalancer`
-4.  `ExternalName`
-
-### ClusterIP
-
-Default Service type.
-
-Used for internal communication inside the cluster.
-
-``` text
-Pod A ---> ClusterIP Service ---> Pod B
-```
-
-### NodePort
-
-Exposes a Service through a port on every node.
-
-``` text
-Client
-  |
-NodeIP:NodePort
-  |
-Service
-  |
-Pod
-```
-
-### LoadBalancer
-
-Usually provisions or integrates with an external cloud load balancer.
-
-``` text
-Internet
-   |
-Cloud Load Balancer
-   |
-Service
-   |
-Pods
-```
-
-### ExternalName
-
-Maps a Service name to an external DNS name using a CNAME.
-
-------------------------------------------------------------------------
-
-## Q7. Explain the traffic flow from a user to a Kubernetes application.
-
-### Answer
-
-A common cloud architecture is:
-
-``` text
-User
- |
-DNS
- |
-Load Balancer
- |
-Ingress Controller
- |
-Ingress
- |
-Service
- |
-Endpoints / EndpointSlices
- |
-Pod
- |
-Container
-```
-
-For a `LoadBalancer` Service, the exact implementation depends on the
-cloud provider and networking implementation.
-
-The Service selects Pods using labels.
-
-For example:
-
-``` yaml
-selector:
-  app: frontend
-```
-
-The selected Pods become Service endpoints.
-
-------------------------------------------------------------------------
-
-## Q8. A Service exists, but `kubectl get endpoints <service>` shows `<none>`. What is the problem?
-
-### Answer
-
-Most commonly, the Service selector does not match any Pod labels.
-
-I would compare:
-
-``` bash
-kubectl get svc <service-name> -o yaml
-kubectl get pods --show-labels
-```
-
-For example:
-
-Service:
-
-``` yaml
-selector:
-  app: frontend
-```
-
-Pod:
-
-``` yaml
-labels:
-  app: backend
-```
-
-There is no match, so the Service has no endpoints.
-
-I would also check:
-
-``` bash
-kubectl get endpointslices
-```
-
-And verify that the selected Pods are Ready.
-
-------------------------------------------------------------------------
-
-## Q9. What is the difference between Endpoints and EndpointSlices?
-
-### Answer
-
-`Endpoints` is the older API representation.
-
-`EndpointSlice` is the newer and more scalable mechanism for
-representing Service endpoints.
-
-EndpointSlices divide endpoints into smaller objects instead of putting
-all endpoints into one large object.
-
-Useful commands:
-
-``` bash
-kubectl get endpoints <service>
-kubectl get endpointslices
-kubectl describe endpointslice <name>
-```
-
-------------------------------------------------------------------------
-
-# 4. DNS
-
-## Q10. How does DNS work inside Kubernetes?
-
-### Answer
-
-Kubernetes normally uses CoreDNS for cluster DNS.
-
-A Pod can access a Service using:
-
-``` text
-<service-name>
-```
-
-within the same namespace.
-
-For another namespace:
-
-``` text
-<service-name>.<namespace>
-```
-
-The fully qualified form is approximately:
-
-``` text
-<service-name>.<namespace>.svc.cluster.local
-```
-
-Example:
-
-``` bash
-curl http://employee-api.otms.svc.cluster.local:8080
-```
-
-Troubleshooting:
-
-``` bash
-kubectl get pods -n kube-system
-kubectl get svc -n kube-system
-kubectl logs -n kube-system -l k8s-app=kube-dns
-```
-
-From a Pod:
-
-``` bash
-kubectl exec -it <pod> -- nslookup employee-api
-```
-
-------------------------------------------------------------------------
-
-# 5. ConfigMaps and Secrets
-
-## Q11. What is the difference between ConfigMap and Secret?
-
-### Answer
-
-`ConfigMap` stores non-sensitive configuration.
-
-Examples:
-
--   Application configuration
--   URLs
--   Feature flags
--   Environment settings
-
-`Secret` is intended for sensitive data such as:
-
--   Passwords
--   Tokens
--   API keys
--   Certificates
-
-Example:
-
-``` yaml
-envFrom:
-  - configMapRef:
-      name: app-config
-```
-
-Secret:
-
-``` yaml
-envFrom:
-  - secretRef:
-      name: app-secret
-```
-
-Important interview point:
-
-**Kubernetes Secret data is base64 encoded by default, not automatically
-encrypted simply because it is a Secret.**
-
-Encryption at rest can be configured for etcd.
-
-------------------------------------------------------------------------
-
-# 6. Deployment and ReplicaSet
-
-## Q12. What is the difference between Deployment and ReplicaSet?
-
-### Answer
-
-A ReplicaSet ensures that the desired number of Pods are running.
-
-A Deployment manages ReplicaSets and provides higher-level application
-rollout functionality.
-
-Deployment capabilities include:
-
--   Rolling updates
--   Rollbacks
--   ReplicaSet management
--   Revision history
--   Scaling
-
-Example:
-
-``` bash
-kubectl rollout status deployment/<name>
-kubectl rollout history deployment/<name>
-kubectl rollout undo deployment/<name>
-```
-
-------------------------------------------------------------------------
-
-## Q13. How does a Deployment perform a rolling update?
-
-### Answer
-
-When the Pod template changes, the Deployment creates a new ReplicaSet.
-
-The Deployment gradually:
-
--   Scales up the new ReplicaSet
--   Scales down the old ReplicaSet
-
-The behavior is controlled by:
-
-``` yaml
-strategy:
-  type: RollingUpdate
-  rollingUpdate:
-    maxSurge: 25%
-    maxUnavailable: 25%
-```
-
-This allows controlled replacement of old Pods.
-
-------------------------------------------------------------------------
-
-## Q14. A new deployment version is broken. How do you rollback?
-
-### Answer
-
-Check rollout history:
-
-``` bash
-kubectl rollout history deployment/<deployment>
-```
-
-Rollback:
-
-``` bash
-kubectl rollout undo deployment/<deployment>
-```
-
-Then verify:
-
-``` bash
-kubectl rollout status deployment/<deployment>
-kubectl get pods
-```
-
-For a specific revision:
-
-``` bash
-kubectl rollout undo deployment/<deployment> --to-revision=<revision>
-```
-
-------------------------------------------------------------------------
-
-# 7. Readiness, Liveness and Startup Probes
-
-## Q15. Explain readiness, liveness and startup probes.
-
-### Answer
-
-### Readiness Probe
-
-Answers:
-
-> Can this Pod receive traffic?
-
-If readiness fails, the Pod is removed from Service endpoints.
-
-### Liveness Probe
-
-Answers:
-
-> Is the application still alive?
-
-If liveness repeatedly fails, kubelet restarts the container.
-
-### Startup Probe
-
-Used for slow-starting applications.
-
-While startup probe is running, Kubernetes does not run
-liveness/readiness probes in the normal way.
-
-Example:
-
-``` yaml
-startupProbe:
-  httpGet:
-    path: /health
-    port: 8080
-```
-
-------------------------------------------------------------------------
-
-## Q16. What happens if the readiness probe fails?
-
-### Answer
-
-The container normally continues running.
-
-But the Pod becomes **NotReady**, and it is removed from the endpoints
-used by the Service.
-
-Therefore:
-
-``` text
-Pod Running
-      |
-Readiness fails
-      |
-Pod NotReady
-      |
-Removed from Service endpoints
-```
-
-This is different from a liveness failure, which can cause the container
-to restart.
-
-------------------------------------------------------------------------
-
-# 8. Scheduling
-
-## Q17. What factors does the scheduler consider when scheduling a Pod?
-
-### Answer
-
-The scheduler considers constraints and available resources such as:
-
--   CPU
--   Memory
--   Taints/tolerations
--   NodeSelector
--   Node affinity
--   Pod affinity
--   Pod anti-affinity
--   Topology constraints
--   Resource requests
--   Node conditions
--   Scheduling policies/plugins
-
-The scheduler first filters unsuitable nodes and then scores feasible
-nodes.
-
-------------------------------------------------------------------------
-
-## Q18. Explain taints and tolerations.
-
-### Answer
-
-A **taint is applied to a node**.
-
-A **toleration is applied to a Pod**.
-
-Example:
-
-``` bash
-kubectl taint nodes node1 dedicated=database:NoSchedule
-```
-
-Only Pods with a matching toleration can normally be scheduled there.
-
-Example:
-
-``` yaml
-tolerations:
-  - key: dedicated
-    operator: Equal
-    value: database
-    effect: NoSchedule
-```
-
-Important:
-
-**A toleration allows a Pod to tolerate a taint; it does not by itself
-force the Pod onto that node.**
-
-------------------------------------------------------------------------
-
-## Q19. What is the difference between nodeSelector and nodeAffinity?
-
-### Answer
-
-`nodeSelector` provides simple label-based node selection.
-
-Example:
-
-``` yaml
-nodeSelector:
-  disktype: ssd
-```
-
-Node affinity provides more expressive rules.
-
-Example:
-
-``` yaml
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: disktype
-              operator: In
-              values:
-                - ssd
-```
-
-------------------------------------------------------------------------
-
-# 9. Resource Management
-
-## Q20. What is the difference between requests and limits?
-
-### Answer
-
-**Request** is the amount of resource Kubernetes uses for scheduling
-decisions.
-
-**Limit** is the maximum resource the container is allowed to consume
-for that resource.
-
-Example:
-
-``` yaml
-resources:
-  requests:
-    cpu: "500m"
-    memory: "256Mi"
-  limits:
-    cpu: "1"
-    memory: "512Mi"
-```
-
-For memory, exceeding the limit can result in an OOM kill.
-
-------------------------------------------------------------------------
-
-## Q21. A Pod is repeatedly getting `OOMKilled`. How do you troubleshoot?
-
-### Answer
-
-Run:
-
-``` bash
-kubectl describe pod <pod-name>
-```
-
-Look for:
-
-``` text
-Reason: OOMKilled
-Exit Code: 137
-```
-
-Then check:
-
-``` bash
-kubectl top pod <pod-name>
-kubectl top nodes
-```
-
-I would compare actual memory usage against the container memory limit.
-
-Then investigate:
-
--   Memory leak
--   Incorrect application behavior
--   Too-low memory limit
--   Sudden workload increase
--   JVM/Python/Go runtime memory behavior
-
-The correct fix may be increasing the limit, tuning the application, or
-fixing a memory leak. Simply increasing the limit is not always the
-correct solution.
-
-------------------------------------------------------------------------
-
-# 10. Storage
-
-## Q22. Explain PV, PVC and StorageClass.
-
-### Answer
-
-**PV --- PersistentVolume**
-
-Represents storage available to the cluster.
-
-**PVC --- PersistentVolumeClaim**
-
-A request for storage by a workload.
-
-**StorageClass**
-
-Defines how storage can be dynamically provisioned.
-
-Typical flow:
-
-``` text
-Pod
- |
-PVC
- |
-StorageClass
- |
-CSI Driver
- |
-Cloud Disk / Storage
- |
-PV
-```
-
-------------------------------------------------------------------------
-
-## Q23. A Pod is stuck in `Pending` because its PVC is not bound. How do you troubleshoot?
-
-### Answer
-
-Check:
-
-``` bash
-kubectl get pvc
-kubectl describe pvc <pvc-name>
-kubectl get pv
-kubectl get storageclass
-```
-
-Possible causes:
-
--   No suitable PV
--   StorageClass missing
--   Incorrect StorageClass
--   CSI driver problem
--   Access mode mismatch
--   Insufficient capacity
--   Provisioner failure
-
-Also check CSI components:
-
-``` bash
-kubectl get pods -A | grep -i csi
-```
-
-------------------------------------------------------------------------
-
-# 11. RBAC and Security
-
-## Q24. Explain Kubernetes RBAC.
-
-### Answer
-
-RBAC controls **who can perform which actions on which Kubernetes
-resources**.
-
-Main objects:
-
--   Role
--   ClusterRole
--   RoleBinding
--   ClusterRoleBinding
-
-Example:
-
-``` text
-User
- |
-RoleBinding
- |
-Role
- |
-Resources + Verbs
-```
-
-Typical verbs:
-
-``` text
-get
-list
-watch
-create
-update
-patch
-delete
-```
-
-A Role is namespace-scoped.
-
-A ClusterRole can provide cluster-wide permissions or reusable
-permissions.
-
-------------------------------------------------------------------------
-
-## Q25. A developer says they cannot delete Pods. How do you troubleshoot?
-
-### Answer
-
-First identify the user's identity:
-
-``` bash
-kubectl auth whoami
-```
-
-Then test authorization:
-
-``` bash
-kubectl auth can-i delete pods -n <namespace>
-```
-
-If required:
-
-``` bash
-kubectl auth can-i delete pods \
-  --as=<user> \
-  -n <namespace>
-```
-
-Then inspect:
-
-``` bash
-kubectl get role -n <namespace>
-kubectl get rolebinding -n <namespace>
-kubectl describe rolebinding <name> -n <namespace>
-```
-
-For cluster-wide access:
-
-``` bash
-kubectl get clusterrole
-kubectl get clusterrolebinding
-```
-
-------------------------------------------------------------------------
-
-# 12. NetworkPolicy
-
-## Q26. What is a NetworkPolicy?
-
-### Answer
-
-NetworkPolicy controls network traffic to/from Pods when the cluster's
-network plugin supports NetworkPolicy enforcement.
-
-It can restrict:
-
--   Ingress
--   Egress
-
-Example concept:
-
-``` text
-Frontend Pod
-     |
-     | allowed
-     v
-Backend Pod
-
-Other Pod
-     |
-     X denied
-     v
-Backend Pod
-```
-
-A key interview point:
-
-**Creating a NetworkPolicy does not automatically mean every network
-plugin will enforce it. The CNI must support NetworkPolicy.**
-
-------------------------------------------------------------------------
-
-# 13. Node Troubleshooting
-
-## Q27. A Kubernetes node becomes `NotReady`. How do you troubleshoot it?
-
-### Answer
-
-Start with:
-
-``` bash
-kubectl get nodes
-kubectl describe node <node-name>
-```
-
-Check conditions:
-
-``` text
-Ready
-MemoryPressure
-DiskPressure
-PIDPressure
-NetworkUnavailable
-```
-
-Then investigate the node.
-
-On the node:
-
-``` bash
-systemctl status kubelet
-journalctl -u kubelet
-```
-
-Check container runtime:
-
-``` bash
-systemctl status containerd
-journalctl -u containerd
-```
-
-Also check:
-
-``` bash
-df -h
-free -m
-uptime
-```
-
-Possible causes:
-
--   kubelet failure
--   Container runtime failure
--   Disk full
--   Memory pressure
--   Network problems
--   CNI failure
--   Certificate issues
--   Node resource exhaustion
-
-------------------------------------------------------------------------
-
-# 14. Kubelet
-
-## Q28. What happens if kubelet stops running?
-
-### Answer
-
-The kubelet is responsible for managing Pods on its node and reporting
-node status to the API server.
-
-If kubelet stops:
-
--   Existing containers may continue running temporarily because the
-    runtime manages them.
--   Kubernetes loses normal kubelet health/status reporting.
--   The node eventually becomes `NotReady`.
--   Kubernetes may eventually evict workloads depending on node failure
-    behavior and configured tolerations/timeouts.
-
-Troubleshooting:
-
-``` bash
-systemctl status kubelet
-journalctl -u kubelet
-```
-
-------------------------------------------------------------------------
-
-# 15. Control Plane Troubleshooting
-
-## Q29. kube-apiserver is unavailable. What is the impact?
-
-### Answer
-
-The API server is the central API endpoint.
-
-If it is unavailable:
-
--   `kubectl` commands generally fail.
--   Controllers cannot normally communicate with the API server.
--   Scheduler cannot obtain normal API state.
--   New scheduling and control operations are affected.
-
-Existing containers may continue running because the container runtime
-and kubelet operate locally, but cluster control functionality is
-impaired.
-
-For a highly available cluster, multiple control-plane/API server
-instances reduce the impact of a single failure.
-
-------------------------------------------------------------------------
-
-## Q30. What happens if etcd goes down?
-
-### Answer
-
-`etcd` stores Kubernetes control-plane state.
-
-If etcd becomes unavailable:
-
--   API server cannot reliably read/write cluster state.
--   New changes cannot be persisted.
--   Controllers and scheduler cannot operate normally.
--   Existing workloads may continue running on nodes for some time.
-
-In production, etcd requires:
-
--   High availability
--   Regular backups
--   Monitoring
--   Careful disaster recovery procedures
-
-------------------------------------------------------------------------
-
-# 16. Logs and Events
-
-## Q31. How do you investigate a failing application Pod?
-
-### Answer
-
-I normally follow this order:
-
-``` bash
-kubectl get pod <pod>
-kubectl describe pod <pod>
-kubectl logs <pod>
-kubectl logs <pod> --previous
-kubectl get events --sort-by=.lastTimestamp
-```
-
-Then:
-
-``` bash
-kubectl exec -it <pod> -- sh
-```
-
-if the container is available.
-
-I check:
-
-1.  Pod status
-2.  Events
-3.  Container state
-4.  Exit code
-5.  Application logs
-6.  Previous container logs
-7.  Probes
-8.  Resource usage
-9.  ConfigMap/Secret
-10. Network/dependencies
-
-------------------------------------------------------------------------
-
-# 17. Init Containers
-
-## Q32. What is an init container?
-
-### Answer
-
-An init container runs before the main application containers.
-
-It is useful for initialization tasks such as:
-
--   Waiting for dependencies
--   Preparing files
--   Database initialization
--   Configuration generation
--   Permission setup
-
-Example:
-
-``` text
-Pod
- |
- +-- Init Container
- |
- +-- Main Container
-```
-
-All init containers must complete successfully before the application
-containers start.
-
-------------------------------------------------------------------------
-
-# 18. Sidecar Containers
-
-## Q33. What is a sidecar container?
-
-### Answer
-
-A sidecar is an additional container running in the same Pod as the main
-application.
-
-Containers in the same Pod share:
-
--   Network namespace
--   Pod IP
--   Volumes mounted into the Pod
-
-Common uses:
-
--   Log shipping
--   Proxy
--   Service mesh
--   Configuration synchronization
--   Metrics/helper processes
-
-------------------------------------------------------------------------
-
-# 19. StatefulSet vs Deployment
-
-## Q34. When would you use StatefulSet instead of Deployment?
-
-### Answer
-
-Deployment is generally used for stateless applications.
-
-StatefulSet is designed for workloads that need stable identity or
-persistent storage characteristics.
-
-StatefulSet provides:
-
--   Stable Pod names
--   Stable network identity
--   Ordered deployment/scaling behavior
--   Persistent volume association
-
-Examples:
-
--   Databases
--   Kafka
--   ZooKeeper-like systems
--   Stateful distributed applications
-
-Example Pod names:
-
-``` text
-db-0
-db-1
-db-2
-```
-
-------------------------------------------------------------------------
-
-# 20. DaemonSet
-
-## Q35. What is a DaemonSet?
-
-### Answer
-
-A DaemonSet ensures that a Pod runs on eligible nodes.
-
-Common uses:
-
--   Node monitoring agents
--   Log collectors
--   Security agents
--   CNI components
-
-Example:
-
-``` text
-Node 1 -> agent
-Node 2 -> agent
-Node 3 -> agent
-Node 4 -> agent
-```
-
-When a new eligible node joins, the DaemonSet controller schedules the
-Pod there.
-
-------------------------------------------------------------------------
-
-# 21. Job and CronJob
-
-## Q36. What is the difference between Job and CronJob?
-
-### Answer
-
-A **Job** runs a task until successful completion.
-
-A **CronJob** creates Jobs according to a schedule.
-
-Example:
-
-``` text
-CronJob
-   |
-   +-- Job
-        |
-        +-- Pod
-```
-
-Useful for:
-
--   Database backups
--   Batch processing
--   Cleanup jobs
--   Scheduled reports
-
-------------------------------------------------------------------------
-
-# 22. HPA
-
-## Q37. Explain Kubernetes Horizontal Pod Autoscaler.
-
-### Answer
-
-HPA automatically changes the number of Pod replicas based on metrics.
-
-For example:
-
-``` text
-CPU increases
-     |
-     v
-HPA
-     |
-     v
-Replicas increase
-```
-
-Check:
-
-``` bash
-kubectl get hpa
-kubectl describe hpa <name>
-```
-
-HPA commonly uses CPU/memory metrics and can also use custom/external
-metrics depending on the metrics stack.
-
-------------------------------------------------------------------------
-
-# 23. HPA vs Cluster Autoscaler
-
-## Q38. What is the difference between HPA and Cluster Autoscaler?
-
-### Answer
-
-**HPA scales Pods.**
-
-``` text
-Pod replicas:
-3 -> 6
-```
-
-**Cluster Autoscaler scales nodes.**
-
-``` text
-Worker nodes:
-5 -> 7
-```
-
-Typical relationship:
-
-``` text
-Traffic increases
-      |
-      v
-HPA increases Pods
-      |
-      v
-No available node capacity
-      |
-      v
-Cluster Autoscaler adds nodes
-      |
-      v
-Pending Pods get scheduled
-```
-
-------------------------------------------------------------------------
-
-# 24. Production Scenario
-
-## Q39. Application latency suddenly increases in production. How do you troubleshoot?
-
-### Answer
-
-I would not immediately restart Pods.
-
-First establish whether the problem is:
-
--   Application
--   Pod
--   Node
--   Service
--   Network
--   Database
--   External dependency
--   Infrastructure capacity
-
-Start:
-
-``` bash
-kubectl get pods -o wide
-kubectl top pods
-kubectl top nodes
-kubectl get events --sort-by=.lastTimestamp
-```
-
-Check application logs:
-
-``` bash
-kubectl logs <pod>
-```
-
-Check:
-
-``` bash
-kubectl describe pod <pod>
-kubectl describe svc <service>
-kubectl get endpointslices
-```
-
-Then correlate with monitoring:
-
--   CPU
--   Memory
--   Request rate
--   Error rate
--   Latency
--   Database latency
--   Network errors
-
-A senior engineer should identify the bottleneck before applying a
-remediation.
-
-------------------------------------------------------------------------
-
-# 25. Deployment Has Zero Available Pods
-
-## Q40. Deployment shows desired replicas but available replicas are zero. What do you check?
-
-### Answer
-
-Start:
-
-``` bash
-kubectl get deployment
-kubectl describe deployment <name>
-kubectl get replicasets
-kubectl get pods
-```
-
-Then:
-
-``` bash
-kubectl describe pod <pod>
-kubectl logs <pod>
-kubectl get events --sort-by=.lastTimestamp
-```
-
-Possible causes:
-
--   ImagePullBackOff
--   CrashLoopBackOff
--   Failed readiness probe
--   Insufficient resources
--   Scheduling failure
--   Configuration error
--   Secret/ConfigMap missing
--   Application startup failure
-
-------------------------------------------------------------------------
-
-# 26. ImagePullBackOff
-
-## Q41. A Pod is in `ImagePullBackOff`. How do you troubleshoot?
-
-### Answer
-
-Run:
-
-``` bash
-kubectl describe pod <pod-name>
-```
-
-Look at Events.
-
-Common causes:
-
--   Incorrect image name
--   Incorrect tag
--   Image does not exist
--   Registry unavailable
--   Private registry authentication failure
--   ImagePullSecret missing
--   Network/DNS problem
-
-Check:
-
-``` bash
-kubectl get pod <pod> -o yaml
-kubectl get secrets
-```
-
-For private registries, verify the Pod's `imagePullSecrets`.
-
-------------------------------------------------------------------------
-
-# 27. Service Types Interview Scenario
-
-## Q42. Explain the difference between ClusterIP, NodePort and LoadBalancer with traffic flow.
-
-### Answer
-
-### ClusterIP
-
-``` text
-Pod A
- |
-ClusterIP
- |
-Pod B
-```
-
-Internal cluster access.
-
-### NodePort
-
-``` text
-External Client
- |
-NodeIP:NodePort
- |
-Service
- |
-Pod
-```
-
-### LoadBalancer
-
-``` text
-Internet
- |
-Cloud Load Balancer
- |
-Service
- |
-Pod
-```
-
-ClusterIP is normally the internal base abstraction. NodePort and
-LoadBalancer provide external exposure mechanisms.
-
-------------------------------------------------------------------------
-
-# 28. kubectl Commands You Should Know
-
-## Q43. Give important Kubernetes troubleshooting commands.
-
-### Answer
-
-### Pods
-
-``` bash
-kubectl get pods -A
-kubectl get pods -o wide
-kubectl describe pod <pod>
-kubectl logs <pod>
-kubectl logs <pod> --previous
-kubectl exec -it <pod> -- sh
-```
-
-### Nodes
-
-``` bash
-kubectl get nodes
-kubectl describe node <node>
-kubectl top nodes
-```
-
-### Services
-
-``` bash
-kubectl get svc
-kubectl describe svc <service>
-kubectl get endpoints <service>
-kubectl get endpointslices
-```
-
-### Deployments
-
-``` bash
-kubectl get deployment
-kubectl describe deployment <deployment>
-kubectl rollout status deployment/<deployment>
-kubectl rollout history deployment/<deployment>
-kubectl rollout undo deployment/<deployment>
-```
-
-### Events
-
-``` bash
-kubectl get events --sort-by=.lastTimestamp
-```
-
-### Configuration
-
-``` bash
-kubectl get configmap
-kubectl get secret
-```
-
-### RBAC
-
-``` bash
-kubectl auth can-i get pods
-kubectl auth can-i delete pods -n <namespace>
-kubectl auth whoami
-```
-
-------------------------------------------------------------------------
-
-# 29. Senior L2 Scenario Questions
-
-These are particularly important for an interview.
-
-## Q44. Pods are running, Service exists, but users get connection timeout. What complete flow do you inspect?
-
-### Answer
-
-I trace the traffic hop by hop:
-
-``` text
-Client
- |
-DNS
- |
-Load Balancer
- |
-Ingress
- |
-Service
- |
-EndpointSlice
- |
-Pod IP
- |
-Container Port
- |
-Application
-```
-
-At each layer I verify:
-
-``` bash
-kubectl get ingress
-kubectl describe ingress <name>
-
-kubectl get svc
-kubectl describe svc <name>
-
-kubectl get endpoints <service>
-kubectl get endpointslices
-
-kubectl get pods -o wide
-kubectl describe pod <pod>
-kubectl logs <pod>
-```
-
-I also verify:
-
--   Security groups/firewalls where applicable
--   NetworkPolicy
--   CNI health
--   DNS
--   Service `port` vs `targetPort`
--   Application listening address
--   Application listening port
-
-------------------------------------------------------------------------
-
-## Q45. A Pod is healthy but traffic is not reaching it. What could be wrong?
-
-### Answer
-
-Possible causes include:
-
--   Service selector mismatch
--   Pod not Ready
--   Incorrect Service `targetPort`
--   Incorrect Service port
--   EndpointSlice missing the Pod
--   NetworkPolicy blocking traffic
--   Ingress configuration issue
--   Load balancer configuration
--   Application listening on the wrong interface/port
--   DNS issue
+Typical reasons include insufficient CPU or memory, node affinity rules that match no nodes, taints without matching tolerations, node selectors that match no nodes, resource constraints, or scheduling constraints such as volume topology.
 
 I would start with:
 
-``` bash
-kubectl get svc
-kubectl describe svc <service>
-kubectl get endpoints <service>
-kubectl get endpointslices
-kubectl get pods --show-labels
+```bash
+kubectl describe pod <pod>
+kubectl get nodes --show-labels
+kubectl describe nodes
 ```
 
-------------------------------------------------------------------------
+Then I would inspect the scheduler events for the actual reason.
 
-# 30. Advanced Troubleshooting Scenario
+---
 
-## Q46. A Pod works when accessed directly but fails through the Service. What would you investigate?
+### 10. What is the difference between a node label and a node taint?
 
-### Answer
+A label is metadata used for selection and grouping.
 
-I would compare:
+A taint is a scheduling restriction applied to a node.
 
-``` text
-Pod IP:Port
+Labels answer: **which Pods should prefer or require this node?**
+
+Taints answer: **which Pods are allowed to use this node?**
+
+---
+
+### 11. How would you dedicate nodes to a particular workload?
+
+I would normally use a combination of node labels, taints/tolerations, and node affinity.
+
+For example, I could label nodes as:
+
+```bash
+kubectl label node node1 workload=database
 ```
 
-against:
+Then taint them so general workloads stay away, give database Pods the corresponding toleration, and use node affinity to ensure the database Pods actually select those nodes.
 
-``` text
-Service IP:Port
+---
+
+### 12. What is the role of the Kubernetes scheduler?
+
+The scheduler watches for newly created Pods that do not yet have a node assignment.
+
+It evaluates available nodes against scheduling constraints such as resource requests, affinity, taints, topology and other policies, then selects an appropriate node and binds the Pod to it.
+
+---
+
+### 13. Does the scheduler start containers?
+
+No.
+
+The scheduler is responsible for selecting a node and assigning the Pod to it.
+
+After that, the kubelet on the selected node is responsible for making sure the Pod's containers are created and running.
+
+---
+
+### 14. What is the difference between scheduling and kubelet responsibility?
+
+The scheduler decides **where** the Pod should run.
+
+The kubelet on that node is responsible for ensuring the Pod actually runs there, including interacting with the container runtime and reporting Pod status back to the control plane.
+
+---
+
+### 15. How can you prevent two replicas from running on the same node?
+
+I can use Pod anti-affinity or topology spread constraints.
+
+For example, Pod anti-affinity can require replicas with the same application label to be placed on different nodes.
+
+---
+
+## 2. Pods and Workloads
+
+### 16. Why does Kubernetes use Pods instead of scheduling containers directly?
+
+The Pod is Kubernetes' smallest deployable unit.
+
+It provides a shared execution context for one or more containers, including networking and potentially shared storage.
+
+This allows tightly coupled containers such as an application container and a sidecar to share the same network namespace and lifecycle boundary.
+
+---
+
+### 17. Why is one container per Pod common if Pods can contain multiple containers?
+
+A Pod can contain multiple containers, but containers should normally be placed together only when they need to share lifecycle, networking, or storage.
+
+For independent application components, separate Pods are usually better because they can scale and restart independently.
+
+So one-container Pods are common, but Kubernetes does not require it.
+
+---
+
+### 18. What is the difference between a Pod and a container?
+
+A container is the process/application runtime unit created by the container runtime.
+
+A Pod is the Kubernetes scheduling and deployment unit that can contain one or more containers.
+
+Kubernetes schedules the Pod, not an individual container.
+
+---
+
+### 19. What is the difference between a Pod and a Node?
+
+A Node is a worker machine, physical or virtual, that provides CPU, memory, networking and storage.
+
+A Pod is a workload unit scheduled onto a Node.
+
+A Node can run multiple Pods, depending on its resources and scheduling constraints.
+
+---
+
+### 20. What happens when a Pod is deleted?
+
+If it is managed by a controller such as a Deployment or ReplicaSet, the controller detects that the desired replica count is no longer satisfied and creates a replacement Pod.
+
+If the Pod was standalone, Kubernetes does not automatically recreate it.
+
+---
+
+### 21. Why are Pod IPs considered ephemeral?
+
+Pods are replaceable workload instances.
+
+When a Pod is recreated, the new Pod can receive a different IP address. Therefore applications should not normally depend on a Pod IP directly.
+
+Services provide stable discovery for workloads.
+
+---
+
+### 22. What is the difference between a Deployment and a ReplicaSet?
+
+A ReplicaSet maintains the desired number of matching Pods.
+
+A Deployment manages ReplicaSets and adds higher-level capabilities such as rolling updates, rollbacks and revision history.
+
+In normal application deployments, I create a Deployment rather than managing ReplicaSets directly.
+
+---
+
+### 23. What happens when you update the image of a Deployment?
+
+Changing the Pod template creates a new ReplicaSet.
+
+The Deployment then performs a rolling update by gradually increasing the new ReplicaSet and reducing the old ReplicaSet according to its update strategy.
+
+---
+
+### 24. What is the difference between Deployment and StatefulSet?
+
+Deployment is normally used for stateless applications where replicas are interchangeable.
+
+StatefulSet is intended for workloads that need stable Pod identity, stable network identity, or persistent storage association.
+
+Examples include databases and clustered systems that require predictable identities.
+
+---
+
+### 25. Why does a StatefulSet give Pods stable identities?
+
+StatefulSet Pods have predictable ordinal identities such as:
+
+```text
+database-0
+database-1
+database-2
 ```
 
-Check:
+Those identities remain associated with the corresponding Pod ordinal across normal Pod recreation.
 
-``` bash
-kubectl describe svc <service>
-kubectl get endpoints <service>
-kubectl get endpointslices
+This is useful for distributed systems that need stable member identities.
+
+---
+
+### 26. What is the difference between StatefulSet and DaemonSet?
+
+StatefulSet manages an ordered or identity-aware set of replicas.
+
+DaemonSet ensures a Pod runs on eligible nodes, commonly one Pod per node.
+
+DaemonSets are commonly used for node-level agents such as log collectors and monitoring agents.
+
+---
+
+### 27. What is the difference between DaemonSet and Deployment?
+
+A Deployment controls a desired number of replicas independent of node count.
+
+A DaemonSet schedules a Pod on every eligible node, or on every node matching its constraints.
+
+---
+
+### 28. What happens when a new node joins a cluster with a DaemonSet?
+
+The DaemonSet controller sees that the new eligible node does not have the DaemonSet Pod and schedules one there.
+
+This is why DaemonSets are useful for node-level agents.
+
+---
+
+### 29. What is a Job?
+
+A Job is used for a finite task that should run to completion.
+
+It creates Pods and tracks successful completion rather than maintaining an indefinitely running application.
+
+---
+
+### 30. What is the difference between Job and Deployment?
+
+A Deployment is intended for continuously running applications.
+
+A Job is intended for finite work that eventually completes.
+
+For example, an API server would normally use a Deployment, while a database migration could use a Job.
+
+---
+
+### 31. What is a CronJob?
+
+A CronJob creates Jobs according to a schedule expressed using cron syntax.
+
+It is useful for recurring batch tasks such as reports, cleanup tasks, backups, or periodic maintenance.
+
+---
+
+### 32. What is the difference between Job and CronJob?
+
+A Job represents one finite execution.
+
+A CronJob is a scheduler for creating Jobs repeatedly according to a schedule.
+
+---
+
+### 33. What is the difference between scaling a Deployment and scaling a StatefulSet?
+
+Both can be scaled by changing replicas, but StatefulSet scaling preserves stable identities and associated storage relationships.
+
+Deployment replicas are generally interchangeable, while StatefulSet replicas have stable identities.
+
+---
+
+### 34. What is a ReplicaSet's role during a rolling deployment?
+
+The Deployment creates and manages ReplicaSets.
+
+During a rolling update, the new ReplicaSet scales up while the old ReplicaSet scales down, allowing controlled replacement of Pods.
+
+---
+
+### 35. How would you rollback a Deployment?
+
+I would first inspect rollout history:
+
+```bash
+kubectl rollout history deployment/<name>
 ```
 
-I would verify:
+Then rollback:
 
--   Service selector
--   Service port
--   targetPort
--   Protocol
--   Endpoint IP/port
--   Readiness
--   NetworkPolicy
--   kube-proxy/CNI behavior
+```bash
+kubectl rollout undo deployment/<name>
+```
 
-A very common problem is:
+After that I would verify:
 
-``` yaml
+```bash
+kubectl rollout status deployment/<name>
+```
+
+and check the application and Pods.
+
+---
+
+## 3. Services and Networking
+
+### 36. Why do we need a Service when Pods already have IP addresses?
+
+Pod IPs are not stable because Pods can be recreated.
+
+A Service provides a stable virtual IP and DNS name and selects backend Pods using labels.
+
+Applications therefore communicate with the Service rather than tracking individual Pod IPs.
+
+---
+
+### 37. What is the difference between ClusterIP, NodePort and LoadBalancer?
+
+ClusterIP exposes the Service internally within the cluster and is the default.
+
+NodePort exposes the Service through a port on each node.
+
+LoadBalancer normally integrates with a cloud provider to provision an external load balancer.
+
+A typical external flow is:
+
+```text
+Client
+  |
+Load Balancer
+  |
+Service
+  |
+Pods
+```
+
+---
+
+### 38. What is the difference between Service port and targetPort?
+
+`port` is the port exposed by the Service.
+
+`targetPort` is the port on the selected Pod/container where traffic is forwarded.
+
+For example:
+
+```yaml
 ports:
   - port: 80
     targetPort: 8080
 ```
 
-while the application is actually listening on another port.
+means clients connect to Service port 80 and traffic is forwarded to port 8080 on the backend Pods.
 
-------------------------------------------------------------------------
+---
 
-# 31. Production Best Practices
+### 39. What is `nodePort`?
 
-## Q47. What Kubernetes practices would you follow in production?
+`nodePort` is a port exposed on each eligible node for a NodePort Service.
 
-### Answer
+Traffic arriving at a node's IP and that port can be forwarded through the Service to its backend Pods.
 
-I would emphasize:
+---
 
-1.  Define CPU/memory requests and limits appropriately.
-2.  Configure readiness, liveness and startup probes.
-3.  Use PodDisruptionBudgets for critical workloads.
-4.  Use multiple replicas for highly available applications.
-5.  Apply RBAC with least privilege.
-6.  Use Secrets appropriately and enable encryption at rest where
-    required.
-7.  Use NetworkPolicies where appropriate.
-8.  Use namespaces for logical isolation.
-9.  Use resource quotas and LimitRanges.
-10. Monitor cluster and application metrics.
-11. Centralize logs.
-12. Maintain etcd/control-plane backup and disaster recovery procedures.
-13. Use rolling deployments and controlled rollbacks.
-14. Pin or otherwise control container image versions rather than
-    relying blindly on `latest`.
-15. Test Kubernetes manifests in CI before deployment.
+### 40. What happens if a Service has no endpoints?
 
-------------------------------------------------------------------------
+The Service exists, but it has no backend Pods that currently match its selector and qualify as endpoints.
 
-# 32. High-Value Interview Questions --- Rapid Fire
+I would check:
 
-Prepare short answers for these:
-
-### Q48. What is a namespace?
-
-A logical isolation boundary for Kubernetes resources within a cluster.
-
-### Q49. What is kube-proxy?
-
-A node-level component involved in implementing Service networking
-rules, traditionally using mechanisms such as iptables or IPVS depending
-on configuration.
-
-### Q50. What is CNI?
-
-Container Network Interface. It provides the networking integration used
-to configure Pod networking.
-
-### Q51. What is CSI?
-
-Container Storage Interface. It standardizes integration between
-Kubernetes and storage systems.
-
-### Q52. What is CRI?
-
-Container Runtime Interface. It defines how kubelet communicates with a
-container runtime.
-
-### Q53. What is a finalizer?
-
-A mechanism that prevents an object from being fully deleted until
-required cleanup logic is completed.
-
-### Q54. What is an admission controller?
-
-A component/plugin that can validate or mutate API requests after
-authentication/authorization and before persistence.
-
-### Q55. What is a PodDisruptionBudget?
-
-It limits voluntary disruptions to maintain application availability.
-
-### Q56. What is a ServiceAccount?
-
-An identity used by workloads running inside Kubernetes for API
-authentication and authorization.
-
-### Q57. What is a Custom Resource?
-
-An extension of the Kubernetes API that allows additional resource types
-beyond built-in Kubernetes objects.
-
-### Q58. What is an Operator?
-
-A Kubernetes controller pattern that uses APIs and reconciliation logic
-to automate management of an application or system.
-
-------------------------------------------------------------------------
-
-# 33. Must-Know Troubleshooting Decision Tree
-
-## Pod Pending
-
-``` text
-Pod Pending
-    |
-    +--> kubectl describe pod
-             |
-             +--> Insufficient CPU/Memory
-             |
-             +--> Taint/Toleration
-             |
-             +--> Affinity
-             |
-             +--> NodeSelector
-             |
-             +--> PVC
-             |
-             +--> ResourceQuota
-             |
-             +--> Other scheduler event
+```bash
+kubectl get svc <service>
+kubectl get endpoints <service>
+kubectl get endpointslices
+kubectl get pods --show-labels
 ```
 
-## CrashLoopBackOff
+Then compare the Service selector with the Pod labels and check readiness.
 
-``` text
-CrashLoopBackOff
-      |
-      +--> kubectl logs
-      |
-      +--> kubectl logs --previous
-      |
-      +--> kubectl describe pod
-      |
-      +--> Exit Code?
-      |
-      +--> OOMKilled?
-      |
-      +--> Probe failure?
-      |
-      +--> Configuration?
-      |
-      +--> Dependency?
+---
+
+### 41. A Service selector looks correct, but it still has no endpoints. What do you check?
+
+I would check whether:
+
+1. Pod labels exactly match the Service selector.
+2. Pods are in the same namespace as the Service.
+3. Pods are Running and Ready.
+4. The Service `targetPort` matches the application's listening port.
+5. EndpointSlices contain the expected addresses.
+
+Commands:
+
+```bash
+kubectl describe svc <service>
+kubectl get pods --show-labels
+kubectl get endpoints <service>
+kubectl get endpointslices
 ```
 
-## Service Not Working
+---
 
-``` text
-Service problem
-      |
-      +--> Service exists?
-      |
-      +--> Selector correct?
-      |
-      +--> Endpoints exist?
-      |
-      +--> EndpointSlice correct?
-      |
-      +--> targetPort correct?
-      |
-      +--> Pod Ready?
-      |
-      +--> NetworkPolicy?
-      |
-      +--> Ingress/LB?
-      |
-      +--> DNS?
+### 42. What is the difference between Endpoints and EndpointSlice?
+
+Endpoints is the older representation of Service backend addresses.
+
+EndpointSlice is the newer, more scalable mechanism that divides endpoints across multiple objects instead of maintaining one potentially large object.
+
+---
+
+### 43. How does Kubernetes Service discovery work?
+
+Kubernetes DNS creates DNS records for Services.
+
+A client can resolve a Service by name, for example:
+
+```text
+my-service
 ```
 
-------------------------------------------------------------------------
+or, depending on namespace:
 
-# 34. Senior L2 Interview Answer Pattern
-
-When the interviewer gives you a production problem, avoid immediately
-saying:
-
-> "I will restart the Pod."
-
-Instead answer like this:
-
-``` text
-First, I will identify the exact symptom.
-
-Then I will check the Kubernetes object status
-and describe it to inspect events.
-
-Next, I will check application logs and previous
-container logs if the container has restarted.
-
-After that I will verify resources, probes,
-configuration, networking and dependencies.
-
-Once I identify the root cause, I will apply the
-least disruptive fix and verify recovery.
-
-Finally, I will add preventive monitoring or
-configuration changes so that the issue does not
-recur.
+```text
+my-service.my-namespace
 ```
 
-This demonstrates **L2 troubleshooting maturity**, rather than only
-knowledge of `kubectl` commands.
+The DNS name resolves to the Service's stable virtual IP, after which Kubernetes networking forwards traffic to backend endpoints.
 
-------------------------------------------------------------------------
+---
 
-# 35. Top 15 Questions to Memorize Before the Interview
+### 44. What is the difference between a Service IP and a Pod IP?
 
-1.  Pod stuck in Pending --- how do you troubleshoot?
-2.  Pod in CrashLoopBackOff --- what do you check?
-3.  Pod Running but application inaccessible --- troubleshooting steps?
-4.  Service has no endpoints --- why?
-5.  Explain ClusterIP, NodePort and LoadBalancer.
-6.  Explain traffic flow from user to Pod.
-7.  Explain readiness vs liveness vs startup probes.
-8.  Explain requests vs limits.
-9.  What causes OOMKilled?
-10. Node is NotReady --- troubleshooting steps?
-11. Explain PV, PVC and StorageClass.
-12. Explain taints and tolerations.
-13. Explain Deployment, ReplicaSet and rolling update.
-14. Explain Kubernetes RBAC and `kubectl auth can-i`.
-15. Service works internally but not externally --- how do you
-    troubleshoot?
+A Pod IP belongs to an individual Pod and can change when the Pod is recreated.
 
-------------------------------------------------------------------------
+A Service IP is a stable virtual address representing a logical group of Pods.
 
-# Final Interview Tip
+---
 
-For **Senior L2**, interviewers usually care less about whether you can
-recite definitions and more about whether you can **systematically
-isolate a production problem**.
+### 45. What is a headless Service?
 
-For every scenario, remember:
+A headless Service is created with:
 
-``` text
-1. Observe
-2. Describe
-3. Check Events
-4. Check Logs
-5. Check Dependencies
-6. Check Resources
-7. Check Networking
-8. Identify Root Cause
-9. Fix
-10. Verify
-11. Prevent recurrence
+```yaml
+clusterIP: None
 ```
 
-That is the mindset you should demonstrate during the interview.
+It does not allocate a normal virtual ClusterIP. DNS can instead return the addresses of the backing Pods.
+
+It is commonly used with StatefulSets and systems where clients need to discover individual Pod identities.
+
+---
+
+### 46. What is Ingress?
+
+Ingress is an API resource that defines HTTP/HTTPS routing rules into Services.
+
+An Ingress controller implements those rules using an actual proxy/load-balancing implementation.
+
+---
+
+### 47. What is the difference between Ingress and Ingress Controller?
+
+Ingress is the Kubernetes API object containing routing configuration.
+
+The Ingress Controller is the component that watches those resources and actually handles traffic according to the configured rules.
+
+---
+
+### 48. Can an Ingress work without an Ingress Controller?
+
+Creating an Ingress object alone does not provide the data-plane implementation.
+
+An Ingress Controller is required to actually process the rules and route traffic.
+
+---
+
+### 49. What is the difference between Ingress and LoadBalancer Service?
+
+A LoadBalancer Service generally exposes a Service through an external load balancer.
+
+Ingress provides Layer 7 HTTP/HTTPS routing, allowing multiple hosts or URL paths to be routed to different Services.
+
+For example:
+
+```text
+example.com/api  → api-service
+example.com/web  → frontend-service
+```
+
+---
+
+### 50. How would you troubleshoot a Service that is reachable but returns connection errors?
+
+I would trace the path:
+
+```text
+Client → Ingress/LB → Service → EndpointSlice → Pod → Application
+```
+
+Then check:
+
+```bash
+kubectl get ingress
+kubectl get svc
+kubectl get endpointslices
+kubectl get pods -o wide
+kubectl describe svc <service>
+kubectl logs <pod>
+```
+
+I would also verify ports, selectors, NetworkPolicies, DNS and whether the application is actually listening on the expected interface and port.
+
+---
+
+## 4. Probes, Resources and Application Health
+
+### 51. What is the difference between readiness, liveness and startup probes?
+
+Readiness determines whether a Pod should receive traffic.
+
+Liveness determines whether the container is still healthy enough to continue running; repeated failures can cause a restart.
+
+Startup is designed for applications that take a long time to initialize and prevents liveness checks from killing them during startup.
+
+---
+
+### 52. If readiness fails, is the container restarted?
+
+Normally, no.
+
+A readiness failure causes the Pod to be treated as not ready and removed from Service endpoints.
+
+A liveness failure can cause the container to be restarted.
+
+---
+
+### 53. Why would you use a startup probe?
+
+For applications with slow or unpredictable startup times.
+
+It allows the application to finish initialization before liveness probing becomes active.
+
+---
+
+### 54. What is the difference between CPU request and CPU limit?
+
+CPU request is the amount Kubernetes uses for scheduling and resource accounting.
+
+CPU limit is the maximum CPU the container is allowed to consume.
+
+CPU is compressible, so CPU throttling can occur when a container reaches its CPU limit.
+
+---
+
+### 55. What is the difference between memory request and memory limit?
+
+Memory request is used when the scheduler decides whether a node has enough allocatable memory.
+
+Memory limit restricts the container's memory consumption.
+
+Unlike CPU, memory is not compressible. If a container exceeds its memory limit, it can be terminated with an OOM condition.
+
+---
+
+### 56. Why can a Pod be `OOMKilled` even if the node has free memory?
+
+The container may have exceeded its configured memory limit.
+
+Container-level limits can cause an OOM kill even when the node still has available memory.
+
+I would inspect:
+
+```bash
+kubectl describe pod <pod>
+kubectl get pod <pod> -o yaml
+```
+
+and review resource usage and application memory behavior.
+
+---
+
+### 57. What happens if a Pod has no resource requests?
+
+The scheduler has less information about the Pod's expected resource consumption.
+
+This can lead to poor scheduling decisions and resource contention.
+
+In production, I prefer defining appropriate requests and limits based on observed workload behavior.
+
+---
+
+### 58. What is QoS in Kubernetes?
+
+Kubernetes assigns Pods a Quality of Service class based on their CPU and memory requests and limits.
+
+The main classes are:
+
+- Guaranteed
+- Burstable
+- BestEffort
+
+QoS affects behavior during resource pressure, especially eviction decisions.
+
+---
+
+### 59. What is the difference between Guaranteed and Burstable QoS?
+
+A Pod is generally Guaranteed when every container has CPU and memory requests and limits set, with requests equal to limits for those resources.
+
+Burstable Pods have requests and/or limits configured but do not satisfy the Guaranteed criteria.
+
+---
+
+### 60. What is `CrashLoopBackOff`?
+
+It means a container repeatedly starts and exits, so Kubernetes applies an increasing restart backoff delay.
+
+It is a symptom rather than a root cause.
+
+I would inspect:
+
+```bash
+kubectl logs <pod> --previous
+kubectl describe pod <pod>
+```
+
+and investigate application errors, configuration, missing dependencies, permissions, probes and resource limits.
+
+---
+
+### 61. What is the difference between `CrashLoopBackOff` and `ImagePullBackOff`?
+
+`CrashLoopBackOff` means the container starts but repeatedly exits and Kubernetes backs off restarting it.
+
+`ImagePullBackOff` means Kubernetes cannot successfully pull the container image and is backing off subsequent pull attempts.
+
+---
+
+### 62. How would you troubleshoot `ImagePullBackOff`?
+
+I would inspect:
+
+```bash
+kubectl describe pod <pod>
+```
+
+especially Events.
+
+Then I would verify:
+
+- Image name and tag
+- Registry connectivity
+- ImagePullSecrets
+- Registry authentication
+- Node network connectivity
+- Whether the image actually exists
+
+---
+
+## 5. ConfigMaps, Secrets and Storage
+
+### 63. What is the difference between ConfigMap and Secret?
+
+ConfigMap stores non-sensitive configuration.
+
+Secret is intended for sensitive data such as credentials, tokens and certificates.
+
+A Kubernetes Secret is not automatically encrypted merely because it is called a Secret; values are commonly base64 encoded, while encryption at rest must be configured separately.
+
+---
+
+### 64. Are Kubernetes Secrets encrypted by default?
+
+Base64 encoding is not encryption.
+
+Whether Secret data is encrypted at rest depends on the cluster's API server/storage encryption configuration.
+
+For sensitive production environments, I would verify encryption-at-rest configuration and access controls.
+
+---
+
+### 65. What is the difference between environment-variable and volume-based ConfigMap usage?
+
+With environment variables, configuration is injected into the container environment.
+
+With a volume, Kubernetes mounts configuration as files.
+
+Volume-based configuration is useful when applications naturally consume configuration files.
+
+---
+
+### 66. What is a PersistentVolume?
+
+A PersistentVolume is cluster storage represented as a Kubernetes resource.
+
+It abstracts the underlying storage implementation from the application Pod.
+
+---
+
+### 67. What is a PersistentVolumeClaim?
+
+A PVC is a request for storage made by a workload.
+
+The PVC can bind to a suitable PersistentVolume or trigger dynamic provisioning through a StorageClass.
+
+---
+
+### 68. What is the difference between PV and PVC?
+
+PV represents the provisioned storage resource.
+
+PVC represents a user's/workload's request for storage.
+
+A useful mental model is:
+
+```text
+Pod → PVC → PV → Storage backend
+```
+
+---
+
+### 69. What is a StorageClass?
+
+A StorageClass defines a class of storage and provides the information Kubernetes needs for dynamic provisioning.
+
+For example, a cloud StorageClass can dynamically create block volumes when a PVC is requested.
+
+---
+
+### 70. What is dynamic provisioning?
+
+Dynamic provisioning automatically creates storage when a PVC requests it, instead of requiring an administrator to manually create a PV beforehand.
+
+---
+
+### 71. What is the difference between `emptyDir` and a PersistentVolume?
+
+`emptyDir` is temporary Pod-local storage. It exists while the Pod exists and is lost when the Pod is removed from the node.
+
+A PersistentVolume provides storage intended to survive Pod recreation according to the storage backend and reclaim policy.
+
+---
+
+### 72. What happens to a PVC when its Pod is deleted?
+
+Deleting the Pod normally does not delete the PVC.
+
+The PVC remains so that a replacement Pod can mount the same claim, assuming the workload is configured to use it.
+
+---
+
+### 73. What is a StatefulSet volume claim template?
+
+A StatefulSet can use `volumeClaimTemplates` to create a separate PVC for each StatefulSet Pod.
+
+This allows identities such as `database-0` and `database-1` to have their own persistent storage.
+
+---
+
+### 74. What does `ReadWriteOnce` mean?
+
+It generally means the volume can be mounted read-write by a single node at a time.
+
+The exact semantics depend on the storage implementation.
+
+---
+
+### 75. Why would a Pod be stuck in `Pending` because of storage?
+
+Possible reasons include an unbound PVC, no matching StorageClass, insufficient storage capacity, topology constraints, access-mode incompatibility, or a dynamic provisioning failure.
+
+I would check:
+
+```bash
+kubectl get pvc
+kubectl describe pvc <pvc>
+kubectl get pv
+kubectl get storageclass
+```
+
+---
+
+## 6. RBAC and Security
+
+### 76. What is RBAC in Kubernetes?
+
+RBAC controls which identities are allowed to perform which API actions on which Kubernetes resources.
+
+The main objects are Role, ClusterRole, RoleBinding and ClusterRoleBinding.
+
+---
+
+### 77. What is the difference between Role and ClusterRole?
+
+A Role defines permissions within a namespace.
+
+A ClusterRole is cluster-scoped and can define permissions for cluster-scoped resources or reusable permissions that can be bound within namespaces as well.
+
+---
+
+### 78. What is the difference between RoleBinding and ClusterRoleBinding?
+
+RoleBinding grants permissions within a namespace.
+
+ClusterRoleBinding grants the referenced ClusterRole across the cluster scope represented by the binding.
+
+---
+
+### 79. Can a RoleBinding reference a ClusterRole?
+
+Yes.
+
+A RoleBinding can reference a ClusterRole and grant those permissions within the namespace of the RoleBinding.
+
+This is useful for reusing a common permission definition while keeping the actual access namespace-scoped.
+
+---
+
+### 80. What is the principle of least privilege in Kubernetes?
+
+Users, applications and service accounts should receive only the permissions required to perform their intended tasks.
+
+For example, an application that only needs to read ConfigMaps should not receive cluster-admin privileges.
+
+---
+
+### 81. What is a ServiceAccount?
+
+A ServiceAccount provides an identity for workloads running inside the cluster.
+
+Pods can use that identity when interacting with the Kubernetes API or other systems that rely on workload identity.
+
+---
+
+### 82. How would you check why a ServiceAccount cannot access a Kubernetes resource?
+
+I would inspect its Role/ClusterRole and bindings, then use:
+
+```bash
+kubectl auth can-i get pods \
+  --as=system:serviceaccount:<namespace>:<serviceaccount>
+```
+
+This directly tests whether the identity has the requested permission.
+
+---
+
+### 83. What is `kubectl auth can-i` used for?
+
+It checks whether a particular user or ServiceAccount is authorized to perform an API operation.
+
+For example:
+
+```bash
+kubectl auth can-i create deployments
+```
+
+or:
+
+```bash
+kubectl auth can-i get secrets \
+  --as=system:serviceaccount:app:backend
+```
+
+---
+
+### 84. What is a NetworkPolicy?
+
+NetworkPolicy defines rules controlling network traffic to and/or from Pods.
+
+It can restrict traffic based on sources, destinations, namespaces, Pod selectors and ports, depending on the network plugin's capabilities.
+
+---
+
+### 85. Does Kubernetes NetworkPolicy work automatically in every cluster?
+
+The Kubernetes API defines NetworkPolicy objects, but enforcement requires a network plugin that supports NetworkPolicy.
+
+If the CNI does not implement the relevant policies, creating the object alone does not necessarily enforce traffic restrictions.
+
+---
+
+## 7. Control Plane and Kubernetes Internals
+
+### 86. What are the major Kubernetes control-plane components?
+
+The major components are:
+
+- API Server
+- etcd
+- Scheduler
+- Controller Manager
+
+Cloud environments may also have a cloud-controller-manager.
+
+The kubelet and container runtime run on worker nodes rather than being control-plane components.
+
+---
+
+### 87. What is the role of the API Server?
+
+The API Server is the central API endpoint of the Kubernetes control plane.
+
+`kubectl`, controllers, operators and other clients communicate with Kubernetes through the API Server.
+
+It handles authentication, authorization, admission and API operations.
+
+---
+
+### 88. What is etcd?
+
+etcd is the strongly consistent distributed key-value store used by Kubernetes to persist cluster state.
+
+It stores important Kubernetes objects and configuration state.
+
+---
+
+### 89. What happens when you run `kubectl apply -f deployment.yaml`?
+
+At a high level:
+
+```text
+kubectl
+  ↓
+API Server
+  ↓
+Authentication / Authorization / Admission
+  ↓
+Object stored in etcd
+  ↓
+Deployment Controller
+  ↓
+ReplicaSet
+  ↓
+Pod
+  ↓
+Scheduler
+  ↓
+Node
+  ↓
+Kubelet
+  ↓
+Container Runtime
+  ↓
+Container
+```
+
+Controllers continuously reconcile the desired state with the actual state.
+
+---
+
+### 90. What is the difference between desired state and actual state?
+
+Desired state is what the Kubernetes API objects specify should exist.
+
+Actual state is what currently exists in the cluster.
+
+Controllers continuously compare the two and take actions to reduce the difference.
+
+This reconciliation model is fundamental to Kubernetes.
+
+---
+
+### 91. What does the kubelet do?
+
+The kubelet runs on each worker node.
+
+It receives Pod assignments, works with the container runtime to create and manage containers, performs health checks, mounts volumes and reports node/Pod status back to the API Server.
+
+---
+
+### 92. What is the role of the container runtime?
+
+The container runtime is responsible for actually creating and running containers according to the Kubernetes CRI interface.
+
+Examples in modern Kubernetes environments include containerd and CRI-O.
+
+---
+
+### 93. What is the difference between kubelet and kube-proxy?
+
+Kubelet manages Pods and containers on the node.
+
+kube-proxy historically manages Service-related network forwarding rules on nodes. Modern Kubernetes networking can also use eBPF-based implementations that reduce or replace the traditional kube-proxy datapath.
+
+---
+
+### 94. What is the role of the controller manager?
+
+It runs controller processes that continuously reconcile desired state with actual state.
+
+Examples include controllers responsible for Deployments, ReplicaSets, Nodes, Jobs and other Kubernetes resources.
+
+---
+
+### 95. Why is Kubernetes called declarative?
+
+Instead of telling Kubernetes every individual step to perform, we declare the desired end state.
+
+For example:
+
+```yaml
+replicas: 3
+```
+
+means we want three replicas.
+
+Kubernetes controllers continuously work to make the actual state converge toward that desired state.
+
+---
+
+## 8. Real Interview Troubleshooting Scenarios
+
+### 96. A Pod is stuck in `Pending`. How do you troubleshoot it?
+
+I would start with:
+
+```bash
+kubectl get pod <pod> -o wide
+kubectl describe pod <pod>
+```
+
+The Events section usually gives the scheduler reason.
+
+Then I would check:
+
+```bash
+kubectl get nodes
+kubectl describe nodes
+```
+
+and investigate resource requests, taints/tolerations, affinity, node selectors, topology constraints and PVC binding.
+
+I would not randomly change configuration before identifying the scheduling reason.
+
+---
+
+### 97. A Pod is in `CrashLoopBackOff`. What is your troubleshooting approach?
+
+I would first inspect current and previous container logs:
+
+```bash
+kubectl logs <pod>
+kubectl logs <pod> --previous
+```
+
+Then:
+
+```bash
+kubectl describe pod <pod>
+```
+
+I would check exit codes, events, probes, environment variables, ConfigMaps/Secrets, mounted volumes, permissions, dependencies and resource limits.
+
+The important point is that `CrashLoopBackOff` is a symptom. I need to identify why the process is exiting.
+
+---
+
+### 98. A Deployment is healthy, but users cannot access the application. What do you check?
+
+I would trace the complete traffic path:
+
+```text
+Client
+ ↓
+DNS
+ ↓
+Load Balancer / Ingress
+ ↓
+Service
+ ↓
+EndpointSlice
+ ↓
+Pod
+ ↓
+Application
+```
+
+Then I would check:
+
+```bash
+kubectl get ingress
+kubectl get svc
+kubectl get endpointslices
+kubectl get pods -o wide
+kubectl describe svc <service>
+kubectl logs <pod>
+```
+
+I would verify DNS, ports, selectors, readiness, NetworkPolicies, Ingress rules, load balancer configuration and application listening ports.
+
+---
+
+### 99. A Service exists, Pods are Running, but traffic is not reaching them. What could be wrong?
+
+Running does not necessarily mean Ready.
+
+I would first check whether the Service has endpoints:
+
+```bash
+kubectl get endpoints <service>
+kubectl get endpointslices
+```
+
+If there are no endpoints, I would compare Service selectors with Pod labels and inspect readiness probes.
+
+If endpoints exist, I would continue down the path and check Service ports, targetPort, NetworkPolicies, DNS, CNI/networking and application listeners.
+
+---
+
+### 100. A Pod is Running but the application is still unavailable. Does `Running` mean the application is healthy?
+
+No.
+
+`Running` only tells me that the Pod has been assigned to a node and its containers have started according to the Pod lifecycle state.
+
+The application can still be unhealthy, not Ready, unable to accept traffic, or returning application-level errors.
+
+That is why I check readiness, liveness, logs, endpoints and the actual application behavior rather than relying only on `kubectl get pods`.
+
+---
+
+# Quick Interview Revision Matrix
+
+| Topic | Key distinction |
+|---|---|
+| `nodeSelector` vs affinity | Simple exact matching vs expressive rules |
+| Node affinity vs Pod affinity | Node labels vs other Pods |
+| Affinity vs anti-affinity | Together vs apart |
+| Taint vs toleration | Node restriction vs Pod permission |
+| `NoSchedule` vs `NoExecute` | Block scheduling vs block + evict |
+| Deployment vs ReplicaSet | Rollout manager vs replica manager |
+| Deployment vs StatefulSet | Interchangeable replicas vs stable identity |
+| Deployment vs DaemonSet | Replica count vs node coverage |
+| Job vs CronJob | One finite execution vs scheduled executions |
+| Pod vs container | Kubernetes unit vs runtime process |
+| Pod vs Node | Workload unit vs worker machine |
+| ClusterIP vs NodePort | Internal vs node-level exposure |
+| NodePort vs LoadBalancer | Node port exposure vs external LB integration |
+| `port` vs `targetPort` | Service port vs backend port |
+| Service vs Pod IP | Stable virtual endpoint vs ephemeral Pod address |
+| Endpoints vs EndpointSlice | Legacy endpoint object vs scalable endpoint representation |
+| Readiness vs liveness | Traffic eligibility vs restart decision |
+| Startup vs liveness | Startup protection vs ongoing health |
+| Request vs limit | Scheduling baseline vs maximum |
+| CPU vs memory limits | CPU can throttle; memory can cause OOM |
+| ConfigMap vs Secret | Non-sensitive vs sensitive configuration |
+| PV vs PVC | Storage resource vs storage request |
+| PV vs `emptyDir` | Persistent storage vs Pod-lifetime temporary storage |
+| Role vs ClusterRole | Namespace-scoped vs cluster-scoped/reusable permissions |
+| RoleBinding vs ClusterRoleBinding | Namespace grant vs cluster-wide grant |
+| Ingress vs Ingress Controller | Routing configuration vs implementation |
+| API Server vs etcd | Kubernetes API/control gateway vs persistent state store |
+| Scheduler vs kubelet | Selects node vs runs Pod on node |
+| Desired vs actual state | Declared target vs current reality |
+
+---
+
+# Interview Answer Pattern
+
+For scenario questions, avoid giving only a command.
+
+Use this structure:
+
+```text
+1. State what the symptom means
+2. Identify the likely categories of causes
+3. Run commands to collect evidence
+4. Interpret the output
+5. Apply the fix
+6. Verify the result
+7. Explain prevention if relevant
+```
+
+For example:
+
+> "First I would confirm the symptom with `kubectl get` and then use `kubectl describe` and logs to identify the actual failure. I would avoid making changes before confirming the root cause. Once I identify the issue, I would apply the minimal fix and verify the Pod, Service and application health."
+
+This approach is much stronger in a DevOps interview than simply listing commands.
