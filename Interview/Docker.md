@@ -130,7 +130,7 @@ This reduces environment differences and improves artifact traceability.
 
 ## Q7. Explain Docker architecture.
 
-A simplified Linux Docker Engine flow is:
+A simplified Linux Docker Engine mental model is:
 
 ```text
 Docker CLI
@@ -402,7 +402,7 @@ Tags are mutable references; the same tag can later point to different image con
 
 ## Q25. What is an image digest?
 
-A digest is a content-addressed identifier for image content.
+A digest is a content-addressed identifier for specific image content, commonly an image manifest or other OCI content.
 
 Example:
 
@@ -522,7 +522,7 @@ normally replaces the image's default `CMD`.
 
 ## Q32. What does `ENTRYPOINT` do?
 
-**Definition:** `ENTRYPOINT` specifies the primary executable that the container is intended to run.
+**Definition:** `ENTRYPOINT` specifies the primary executable that the container is intended to run. Runtime arguments are appended to an exec-form `ENTRYPOINT`; `--entrypoint` can be used to override the image ENTRYPOINT.
 
 Example:
 
@@ -541,6 +541,12 @@ conceptually runs:
 
 ```text
 python app.py
+```
+
+To override the executable itself:
+
+```bash
+docker run --entrypoint python myapp app.py
 ```
 
 ---
@@ -721,7 +727,7 @@ docker run -p 8080:8080 myapp
 
 ## Q44. What does `VOLUME` do?
 
-`VOLUME` declares a mount point intended for externalized/persistent data.
+`VOLUME` declares a mount point in the image for externalized/persistent data. Persistence depends on the volume or mount used at runtime.
 
 ```dockerfile
 VOLUME ["/var/lib/myapp"]
@@ -1007,7 +1013,10 @@ Then inspect images, containers, and volumes before deleting anything.
 | `bridge` | Common single-host container networking |
 | `host` | Uses host network namespace |
 | `none` | No normal network connectivity |
-| `overlay` | Multi-host networking, commonly used with orchestration |
+| `overlay` | Multi-host Docker networking, commonly used with Swarm/orchestration |
+
+**Interview note:** Overlay networking connects multiple Docker daemon hosts. It is commonly used with Swarm; standalone containers can also use an attachable overlay when the Docker hosts participate in Swarm mode.
+
 
 ---
 
@@ -1036,7 +1045,7 @@ docker run --network host myapp
 
 the container uses the host's network namespace rather than the normal isolated container network namespace.
 
-This reduces network isolation and should be used deliberately.
+This reduces network isolation and should be used deliberately. Normal `-p` host-port publishing is not used with host networking because the container shares the host network namespace.
 
 ---
 
