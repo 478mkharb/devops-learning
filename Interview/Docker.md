@@ -1,45 +1,4 @@
-# Docker Interview Preparation
-
-A structured Docker interview-preparation guide covering **fundamentals,
-architecture, internals, images, Dockerfiles, builds, commands,
-networking, storage, configuration, registries, resources, lifecycle,
-troubleshooting, exit codes, orchestration, advanced concepts,
-scenarios, and Docker/Kubernetes comparison**.
-
-The questions are ordered from foundational concepts to practical
-production troubleshooting.
-
-## Topic Structure
-
-``` text
-Docker Interview Preparation
-│
-├── 1. Docker Fundamentals
-├── 2. Docker Architecture
-├── 3. Docker Internals
-├── 4. Images & Layers
-├── 5. Dockerfile
-├── 6. Multistage Builds
-├── 7. Docker Commands
-├── 8. Docker Networking
-├── 9. Docker Storage
-├── 10. Environment Variables
-├── 11. Container Registries
-├── 12. Resource Management
-├── 13. Container Lifecycle
-├── 14. Troubleshooting
-├── 15. Exit Codes
-├── 16. Scaling & Orchestration
-├── 17. Advanced Docker
-├── 18. Scenario-Based Questions
-├── 19. Docker vs Kubernetes
-├── 20. Modern Docker Build, Security & Operations
-├── 21. Rapid-Fire Questions
-├── 22. Common Interview Traps
-├── 23. Important Commands Cheat Sheet
-└── 24. Final Interview Checklist
-```
-
+# Docker 
 ------------------------------------------------------------------------
 
 # 1. Docker Fundamentals
@@ -77,15 +36,15 @@ cgroups.
 
 ## Q3. Container vs Virtual Machine
 
-  Feature             Container                     Virtual Machine
-  ------------------- ----------------------------- -----------------------------
-  Main abstraction    Isolated processes            Virtual machine/guest OS
-  Kernel              Normally shares host kernel   Guest OS has its own kernel
-  Startup             Usually fast                  Usually slower
-  Resource overhead   Generally lower               Generally higher
-  Typical use         Microservices, CI/CD          Full OS workloads
+| Feature           | Container                   | Virtual Machine             |
+|:------------------|:----------------------------|:----------------------------|
+| Main abstraction  | Isolated processes          | Virtual machine/guest OS    |
+| Kernel            | Normally shares host kernel | Guest OS has its own kernel |
+| Startup           | Usually fast                | Usually slower              |
+| Resource overhead | Generally lower             | Generally higher            |
+| Typical use       | Microservices, CI/CD        | Full OS workloads           |
 
-**Interview point:** A container is not simply a "small VM."
+**Interview point:** A container is not simply a “small VM.”
 
 ------------------------------------------------------------------------
 
@@ -102,18 +61,12 @@ containers still consume CPU, memory, storage, and network resources.
 
 ## Q5. Image vs Container
 
-  -----------------------------------------------------------------------
-  Image                               Container
-  ----------------------------------- -----------------------------------
-  Immutable package/template          Runtime instance
-
-  Contains filesystem and metadata    Uses image plus a writable
-                                      container layer
-
-  Used to create containers           Created from an image
-
-  Can be stored in a registry         Runtime object on a host
-  -----------------------------------------------------------------------
+| Image                            | Container                                  |
+|:---------------------------------|:-------------------------------------------|
+| Immutable package/template       | Runtime instance                           |
+| Contains filesystem and metadata | Uses image plus a writable container layer |
+| Used to create containers        | Created from an image                      |
+| Can be stored in a registry      | Runtime object on a host                   |
 
 Example:
 
@@ -194,10 +147,10 @@ docker run nginx
 `dockerd` is the Docker Engine daemon. It receives Docker API requests
 and manages Docker objects such as:
 
--   Containers
--   Images
--   Networks
--   Volumes
+- Containers
+- Images
+- Networks
+- Volumes
 
 ------------------------------------------------------------------------
 
@@ -271,14 +224,14 @@ nginx process starts
 **Definition:** Linux namespaces isolate system resources so that a
 process has a restricted view of the system.
 
-  Namespace   Main isolation
-  ----------- ------------------------------
-  PID         Process IDs
-  NET         Network interfaces/routes
-  MNT         Mount points/filesystem view
-  UTS         Hostname/domain name
-  IPC         IPC resources
-  USER        User/group IDs
+| Namespace | Main isolation               |
+|:----------|:-----------------------------|
+| PID       | Process IDs                  |
+| NET       | Network interfaces/routes    |
+| MNT       | Mount points/filesystem view |
+| UTS       | Hostname/domain name         |
+| IPC       | IPC resources                |
+| USER      | User/group IDs               |
 
 ------------------------------------------------------------------------
 
@@ -289,10 +242,10 @@ accounting for and controlling resource usage by groups of processes.
 
 Typical resources include:
 
--   CPU
--   Memory
--   PIDs
--   I/O
+- CPU
+- Memory
+- PIDs
+- I/O
 
 Example:
 
@@ -304,11 +257,11 @@ docker run --cpus=1 --memory=512m nginx
 
 ## Q15. Namespace vs cgroup
 
-  Namespace                         cgroup
-  --------------------------------- -----------------------------
-  Isolation                         Resource control/accounting
-  "What can the process see?"       "How much can it use?"
-  PID/network/filesystem examples   CPU/memory examples
+| Namespace                       | cgroup                      |
+|:--------------------------------|:----------------------------|
+| Isolation                       | Resource control/accounting |
+| “What can the process see?”     | “How much can it use?”      |
+| PID/network/filesystem examples | CPU/memory examples         |
 
 ------------------------------------------------------------------------
 
@@ -337,14 +290,14 @@ runtimes.
 
 The two concepts commonly discussed in interviews are:
 
--   OCI Image Specification
--   OCI Runtime Specification
+- OCI Image Specification
+- OCI Runtime Specification
 
 ------------------------------------------------------------------------
 
 ## Q19. What is PID 1 inside a container?
 
-The first process in a container's PID namespace normally has PID 1.
+The first process in a container’s PID namespace normally has PID 1.
 
 PID 1 has important process-management responsibilities, particularly
 around signal handling and reaping orphaned child processes.
@@ -406,10 +359,10 @@ are produced and reused.
 
 Layers allow:
 
--   Reuse of common content
--   Build-cache reuse
--   Efficient distribution of unchanged content
--   Incremental image changes
+- Reuse of common content
+- Build-cache reuse
+- Efficient distribution of unchanged content
+- Incremental image changes
 
 ------------------------------------------------------------------------
 
@@ -464,16 +417,11 @@ A digest is useful when an exact immutable image reference is required.
 
 ## Q26. Tag vs Digest
 
-  -----------------------------------------------------------------------
-  Tag                                 Digest
-  ----------------------------------- -----------------------------------
-  Human-readable                      Content-addressed
-
-  Can move to different content       Identifies exact content
-
-  Convenient for development          Useful for immutable deployment
-                                      references
-  -----------------------------------------------------------------------
+| Tag                           | Digest                                     |
+|:------------------------------|:-------------------------------------------|
+| Human-readable                | Content-addressed                          |
+| Can move to different content | Identifies exact content                   |
+| Convenient for development    | Useful for immutable deployment references |
 
 ------------------------------------------------------------------------
 
@@ -575,7 +523,7 @@ A command supplied to:
 docker run myapp <command>
 ```
 
-normally replaces the image's default `CMD`.
+normally replaces the image’s default `CMD`.
 
 ------------------------------------------------------------------------
 
@@ -615,16 +563,11 @@ docker run --entrypoint python myapp app.py
 
 ## Q33. `CMD` vs `ENTRYPOINT`
 
-  -----------------------------------------------------------------------
-  `CMD`                               `ENTRYPOINT`
-  ----------------------------------- -----------------------------------
-  Default command/arguments           Primary executable
-
-  Easy to replace with a runtime      Intended to define the main
-  command                             executable
-
-  Commonly supplies default arguments Commonly paired with `CMD`
-  -----------------------------------------------------------------------
+| `CMD`                                  | `ENTRYPOINT`                           |
+|:---------------------------------------|:---------------------------------------|
+| Default command/arguments              | Primary executable                     |
+| Easy to replace with a runtime command | Intended to define the main executable |
+| Commonly supplies default arguments    | Commonly paired with `CMD`             |
 
 Example:
 
@@ -698,17 +641,11 @@ For ordinary file copying, `COPY` is generally clearer and preferred.
 
 ## Q37. `COPY` vs `ADD`
 
-  -----------------------------------------------------------------------
-  `COPY`                              `ADD`
-  ----------------------------------- -----------------------------------
-  Straightforward file/directory      Copy plus additional behavior
-  copying                             
-
-  Explicit and simple                 More feature-rich
-
-  Preferred for ordinary copying      Use when ADD-specific behavior is
-                                      actually needed
-  -----------------------------------------------------------------------
+| `COPY`                                 | `ADD`                                             |
+|:---------------------------------------|:--------------------------------------------------|
+| Straightforward file/directory copying | Copy plus additional behavior                     |
+| Explicit and simple                    | More feature-rich                                 |
+| Preferred for ordinary copying         | Use when ADD-specific behavior is actually needed |
 
 ------------------------------------------------------------------------
 
@@ -749,18 +686,12 @@ docker run -e APP_ENV=staging myapp
 
 ## Q40. `ARG` vs `ENV`
 
-  -----------------------------------------------------------------------
-  `ARG`                               `ENV`
-  ----------------------------------- -----------------------------------
-  Build-time variable                 Container environment variable
-
-  Set with `--build-arg`              Set/override with `-e`
-
-  Primarily build configuration       Runtime/application configuration
-
-  Not automatically a runtime         Available in the container
-  environment variable                environment
-  -----------------------------------------------------------------------
+| `ARG`                                            | `ENV`                                  |
+|:-------------------------------------------------|:---------------------------------------|
+| Build-time variable                              | Container environment variable         |
+| Set with `--build-arg`                           | Set/override with `-e`                 |
+| Primarily build configuration                    | Runtime/application configuration      |
+| Not automatically a runtime environment variable | Available in the container environment |
 
 Neither should be used as a general-purpose secret-management mechanism.
 
@@ -858,19 +789,11 @@ exists.
 
 ## Q47. What do `SHELL`, `STOPSIGNAL`, and `ONBUILD` do?
 
-  -----------------------------------------------------------------------
-  Instruction                         Definition
-  ----------------------------------- -----------------------------------
-  `SHELL`                             Changes the default shell used by
-                                      shell-form instructions
-
-  `STOPSIGNAL`                        Defines the signal Docker uses to
-                                      stop the container
-
-  `ONBUILD`                           Registers a deferred instruction
-                                      that runs when the image is later
-                                      used as a base
-  -----------------------------------------------------------------------
+| Instruction  | Definition                                                                        |
+|:-------------|:----------------------------------------------------------------------------------|
+| `SHELL`      | Changes the default shell used by shell-form instructions                         |
+| `STOPSIGNAL` | Defines the signal Docker uses to stop the container                              |
+| `ONBUILD`    | Registers a deferred instruction that runs when the image is later used as a base |
 
 Examples:
 
@@ -914,7 +837,7 @@ docker build -t myapp:1.0 .
 the `.` is the build context.
 
 The build context is the set of files made available to the build
-according to Docker's build rules. `.dockerignore` can exclude files
+according to Docker’s build rules. `.dockerignore` can exclude files
 from it.
 
 ------------------------------------------------------------------------
@@ -944,12 +867,12 @@ CMD ["./app"]
 
 ## Q51. Why use multistage builds?
 
-  Without multistage                   With multistage
-  ------------------------------------ -------------------------------
-  Compiler may remain in final image   Compiler excluded
-  Larger image                         Smaller runtime image
-  More runtime packages                Only required runtime content
-  Larger attack surface                Reduced runtime surface
+| Without multistage                 | With multistage               |
+|:-----------------------------------|:------------------------------|
+| Compiler may remain in final image | Compiler excluded             |
+| Larger image                       | Smaller runtime image         |
+| More runtime packages              | Only required runtime content |
+| Larger attack surface              | Reduced runtime surface       |
 
 ------------------------------------------------------------------------
 
@@ -1032,14 +955,14 @@ docker inspect web
 
 Useful information includes:
 
--   State
--   IP address
--   Mounts
--   Environment
--   Network configuration
--   Entrypoint
--   Command
--   Resource configuration
+- State
+- IP address
+- Mounts
+- Environment
+- Network configuration
+- Entrypoint
+- Command
+- Resource configuration
 
 ------------------------------------------------------------------------
 
@@ -1071,17 +994,11 @@ when Bash exists in the image.
 
 ## Q60. `docker exec` vs `docker attach`
 
-  -----------------------------------------------------------------------
-  `docker exec`                       `docker attach`
-  ----------------------------------- -----------------------------------
-  Starts a new process                Attaches to existing main process
-                                      I/O
-
-  Good for troubleshooting            Useful for interacting with the
-                                      main process
-
-  Example: `docker exec -it web sh`   Example: `docker attach web`
-  -----------------------------------------------------------------------
+| `docker exec`                     | `docker attach`                              |
+|:----------------------------------|:---------------------------------------------|
+| Starts a new process              | Attaches to existing main process I/O        |
+| Good for troubleshooting          | Useful for interacting with the main process |
+| Example: `docker exec -it web sh` | Example: `docker attach web`                 |
 
 ------------------------------------------------------------------------
 
@@ -1093,11 +1010,11 @@ docker diff web
 
 Typical markers:
 
-  Marker   Meaning
-  -------- ---------
-  `A`      Added
-  `C`      Changed
-  `D`      Deleted
+| Marker | Meaning |
+|:-------|:--------|
+| `A`    | Added   |
+| `C`    | Changed |
+| `D`    | Deleted |
 
 ------------------------------------------------------------------------
 
@@ -1116,20 +1033,12 @@ Then inspect images, containers, and volumes before deleting anything.
 
 ## Q63. What are common Docker network drivers?
 
-  -----------------------------------------------------------------------
-  Driver                              Purpose
-  ----------------------------------- -----------------------------------
-  `bridge`                            Common single-host container
-                                      networking
-
-  `host`                              Uses host network namespace
-
-  `none`                              No normal network connectivity
-
-  `overlay`                           Multi-host Docker networking,
-                                      commonly used with
-                                      Swarm/orchestration
-  -----------------------------------------------------------------------
+| Driver    | Purpose                                                              |
+|:----------|:---------------------------------------------------------------------|
+| `bridge`  | Common single-host container networking                              |
+| `host`    | Uses host network namespace                                          |
+| `none`    | No normal network connectivity                                       |
+| `overlay` | Multi-host Docker networking, commonly used with Swarm/orchestration |
 
 **Interview note:** Overlay networking connects multiple Docker daemon
 hosts. It is commonly used with Swarm; standalone containers can also
@@ -1151,7 +1060,7 @@ docker run -d --name api --network app-net my-api
 ```
 
 Containers on the same user-defined network can communicate using
-Docker's embedded DNS/service-name mechanisms.
+Docker’s embedded DNS/service-name mechanisms.
 
 ------------------------------------------------------------------------
 
@@ -1163,7 +1072,7 @@ With:
 docker run --network host myapp
 ```
 
-the container uses the host's network namespace rather than the normal
+the container uses the host’s network namespace rather than the normal
 isolated container network namespace on supported platforms. This is
 most straightforward on Linux Docker Engine; platform support and
 implementation details can differ.
@@ -1202,11 +1111,11 @@ Container TCP 80
 
 ## Q68. `EXPOSE` vs `-p`
 
-  `EXPOSE`                            `-p`
-  ----------------------------------- --------------------------
-  Dockerfile metadata/documentation   Runtime port publishing
-  Does not publish host port          Publishes/maps host port
-  `EXPOSE 80`                         `-p 8080:80`
+| `EXPOSE`                          | `-p`                     |
+|:----------------------------------|:-------------------------|
+| Dockerfile metadata/documentation | Runtime port publishing  |
+| Does not publish host port        | Publishes/maps host port |
+| `EXPOSE 80`                       | `-p 8080:80`             |
 
 ------------------------------------------------------------------------
 
@@ -1273,9 +1182,7 @@ Separate the investigation into:
 DNS → TCP connectivity → Application protocol
 ```
 
-------------------------------------------------------------------------
-
-# 9. Docker Storage
+-------------------------------------------------
 
 ## Q71. Why is the container writable layer considered ephemeral?
 
@@ -1316,18 +1223,12 @@ docker run -d \
 
 ## Q74. Volume vs bind mount
 
-  -----------------------------------------------------------------------
-  Volume                              Bind mount
-  ----------------------------------- -----------------------------------
-  Managed by Docker                   Explicit host path
-
-  Less coupled to host path layout    Strong host filesystem dependency
-
-  Good for persistent application     Useful when host path control is
-  data                                required
-
-  Docker manages storage location     User selects source path
-  -----------------------------------------------------------------------
+| Volume                               | Bind mount                                |
+|:-------------------------------------|:------------------------------------------|
+| Managed by Docker                    | Explicit host path                        |
+| Less coupled to host path layout     | Strong host filesystem dependency         |
+| Good for persistent application data | Useful when host path control is required |
+| Docker manages storage location      | User selects source path                  |
 
 ------------------------------------------------------------------------
 
@@ -1409,16 +1310,16 @@ A container registry stores and distributes container images.
 
 Examples include:
 
--   Docker Hub
--   Amazon ECR
--   GitHub Container Registry
--   Private enterprise registries
+- Docker Hub
+- Amazon ECR
+- GitHub Container Registry
+- Private enterprise registries
 
 ------------------------------------------------------------------------
 
 ## Q80. What is Amazon ECR?
 
-Amazon Elastic Container Registry (ECR) is AWS's managed container
+Amazon Elastic Container Registry (ECR) is AWS’s managed container
 registry.
 
 A common CI/CD flow is:
@@ -1500,9 +1401,9 @@ docker stats myapp
 
 Possible causes include:
 
--   Container memory limit being exceeded
--   Host memory pressure
--   A process being killed by the kernel
+- Container memory limit being exceeded
+- Host memory pressure
+- A process being killed by the kernel
 
 A common symptom is exit code 137, but **137 alone does not prove OOM**.
 
@@ -1573,32 +1474,25 @@ Removed
 
 ## Q88. `docker run` vs `docker start`
 
-  Command                    Meaning
-  -------------------------- ---------------------------------------
-  `docker run IMAGE`         Creates a new container and starts it
-  `docker start CONTAINER`   Starts an existing container
+| Command                  | Meaning                               |
+|:-------------------------|:--------------------------------------|
+| `docker run IMAGE`       | Creates a new container and starts it |
+| `docker start CONTAINER` | Starts an existing container          |
 
 ------------------------------------------------------------------------
 
 ## Q89. `docker stop` vs `docker kill`
 
-  -----------------------------------------------------------------------
-  Command                             Behavior
-  ----------------------------------- -----------------------------------
-  `docker stop`                       Sends the configured stop signal
-                                      (normally SIGTERM), waits for the
-                                      timeout, then forcefully terminates
-                                      if needed
-
-  `docker kill`                       Sends a kill signal immediately by
-                                      default
-  -----------------------------------------------------------------------
+| Command       | Behavior                                                                                                         |
+|:--------------|:-----------------------------------------------------------------------------------------------------------------|
+| `docker stop` | Sends the configured stop signal (normally SIGTERM), waits for the timeout, then forcefully terminates if needed |
+| `docker kill` | Sends a kill signal immediately by default                                                                       |
 
 ------------------------------------------------------------------------
 
 ## Q90. Why does a container exit when the main process exits?
 
-A container's lifecycle is normally tied to its primary process.
+A container’s lifecycle is normally tied to its primary process.
 
 ``` text
 Main process starts
@@ -1670,14 +1564,14 @@ docker inspect <container>
 
 Then check:
 
--   Exit code
--   `CMD`
--   `ENTRYPOINT`
--   Environment variables
--   Configuration files
--   Dependencies
--   Permissions
--   Application startup behavior
+- Exit code
+- `CMD`
+- `ENTRYPOINT`
+- Environment variables
+- Configuration files
+- Dependencies
+- Permissions
+- Application startup behavior
 
 ------------------------------------------------------------------------
 
@@ -1691,13 +1585,13 @@ docker inspect <container>
 
 Investigate:
 
--   Application crash
--   Wrong command
--   Missing configuration
--   Dependency failure
--   Healthcheck
--   Memory/resource limits
--   Restart policy
+- Application crash
+- Wrong command
+- Missing configuration
+- Dependency failure
+- Healthcheck
+- Memory/resource limits
+- Restart policy
 
 ------------------------------------------------------------------------
 
@@ -1765,13 +1659,13 @@ cat /etc/resolv.conf
 
 Then investigate:
 
--   DNS
--   Default route
--   Docker network
--   Host connectivity
--   NAT
--   Firewall
--   Proxy configuration
+- DNS
+- Default route
+- Docker network
+- Host connectivity
+- NAT
+- Firewall
+- Proxy configuration
 
 ------------------------------------------------------------------------
 
@@ -1803,7 +1697,7 @@ port/interface.
 
 ------------------------------------------------------------------------
 
-## Q99. You get "permission denied" inside a container. What do you investigate?
+## Q99. You get “permission denied” inside a container. What do you investigate?
 
 ``` bash
 docker exec -it <container> sh
@@ -1813,11 +1707,11 @@ ls -la
 
 Consider:
 
--   Container user
--   File ownership
--   Bind-mount permissions
--   Read-only mounts
--   Host filesystem permissions
+- Container user
+- File ownership
+- Bind-mount permissions
+- Read-only mounts
+- Host filesystem permissions
 
 ------------------------------------------------------------------------
 
@@ -1872,11 +1766,11 @@ application.
 
 ## Q104. What do exit codes 125, 126, and 127 commonly mean?
 
-    Code Common meaning
-  ------ ---------------------------------------------
-     125 Docker failed to run the container command
-     126 Command was found but could not be executed
-     127 Command was not found
+| Code | Common meaning                              |
+|-----:|:--------------------------------------------|
+|  125 | Docker failed to run the container command  |
+|  126 | Command was found but could not be executed |
+|  127 | Command was not found                       |
 
 These are conventions/common interpretations; always inspect logs and
 command configuration.
@@ -1952,33 +1846,28 @@ Use appropriate healthchecks and application retry/readiness logic.
 
 ## Q109. What is Docker Swarm?
 
-Docker Swarm is Docker's native container orchestration technology for
+Docker Swarm is Docker’s native container orchestration technology for
 managing services across multiple nodes.
 
 It provides concepts such as:
 
--   Managers
--   Workers
--   Services
--   Tasks
--   Desired state
--   Scheduling
--   Scaling
+- Managers
+- Workers
+- Services
+- Tasks
+- Desired state
+- Scheduling
+- Scaling
 
 ------------------------------------------------------------------------
 
 ## Q110. What is the difference between Docker Engine and an orchestrator?
 
-  -----------------------------------------------------------------------
-  Docker Engine/runtime platform      Orchestrator
-  ----------------------------------- -----------------------------------
-  Runs/manages containers on a host   Manages workloads across a cluster
-
-  Container/image/network/volume      Scheduling, desired state, scaling,
-  operations                          rollout
-
-  Example: Docker Engine              Examples: Kubernetes, Swarm
-  -----------------------------------------------------------------------
+| Docker Engine/runtime platform            | Orchestrator                                |
+|:------------------------------------------|:--------------------------------------------|
+| Runs/manages containers on a host         | Manages workloads across a cluster          |
+| Container/image/network/volume operations | Scheduling, desired state, scaling, rollout |
+| Example: Docker Engine                    | Examples: Kubernetes, Swarm                 |
 
 ------------------------------------------------------------------------
 
@@ -1986,7 +1875,7 @@ It provides concepts such as:
 
 ## Q111. What is `docker commit`?
 
-`docker commit` creates a new image from a container's current
+`docker commit` creates a new image from a container’s current
 filesystem state.
 
 ``` bash
@@ -2000,33 +1889,22 @@ preferred for reproducible builds.
 
 ## Q112. `docker commit` vs Dockerfile
 
-  -----------------------------------------------------------------------
-  `docker commit`                     Dockerfile
-  ----------------------------------- -----------------------------------
-  Captures current container state    Defines reproducible build
-                                      instructions
-
-  Manual                              Version-controllable
-
-  Harder to reproduce                 Better for CI/CD
-
-  Useful for experiments              Preferred production approach
-  -----------------------------------------------------------------------
+| `docker commit`                  | Dockerfile                              |
+|:---------------------------------|:----------------------------------------|
+| Captures current container state | Defines reproducible build instructions |
+| Manual                           | Version-controllable                    |
+| Harder to reproduce              | Better for CI/CD                        |
+| Useful for experiments           | Preferred production approach           |
 
 ------------------------------------------------------------------------
 
 ## Q113. `docker export` vs `docker save`
 
-  -----------------------------------------------------------------------
-  `docker export`                     `docker save`
-  ----------------------------------- -----------------------------------
-  Exports a container filesystem      Exports a Docker image
-
-  Container-oriented                  Image-oriented
-
-  Does not preserve the normal image  Preserves image layers/metadata
-  layer/history structure             
-  -----------------------------------------------------------------------
+| `docker export`                                            | `docker save`                   |
+|:-----------------------------------------------------------|:--------------------------------|
+| Exports a container filesystem                             | Exports a Docker image          |
+| Container-oriented                                         | Image-oriented                  |
+| Does not preserve the normal image layer/history structure | Preserves image layers/metadata |
 
 Examples:
 
@@ -2219,11 +2097,11 @@ docker image inspect myapp:latest
 
 Look for:
 
--   Large base image
--   Build tools in final image
--   Unnecessary packages
--   Large build context
--   Unnecessary application files
+- Large base image
+- Build tools in final image
+- Unnecessary packages
+- Large build context
+- Unnecessary application files
 
 Use multistage builds, a suitable base image, and `.dockerignore`.
 
@@ -2272,11 +2150,11 @@ journalctl -k | grep -i oom
 
 Consider:
 
--   Container memory limit
--   Host memory pressure
--   Explicit SIGKILL
+- Container memory limit
+- Host memory pressure
+- Explicit SIGKILL
 
-Do not automatically conclude "137 = OOM."
+Do not automatically conclude “137 = OOM.”
 
 ------------------------------------------------------------------------
 
@@ -2363,13 +2241,13 @@ Docker Engine can run containers on individual hosts.
 
 Kubernetes adds cluster-level capabilities such as:
 
--   Scheduling
--   Desired-state management
--   Self-healing
--   Service discovery
--   Rolling updates
--   Scaling
--   Declarative workload management
+- Scheduling
+- Desired-state management
+- Self-healing
+- Service discovery
+- Rolling updates
+- Scaling
+- Declarative workload management
 
 ------------------------------------------------------------------------
 
@@ -2379,8 +2257,8 @@ No.
 
 Modern Kubernetes commonly uses CRI-compatible runtimes such as:
 
--   containerd
--   CRI-O
+- containerd
+- CRI-O
 
 Kubernetes no longer requires Docker Engine as its container runtime.
 
@@ -2388,22 +2266,13 @@ Kubernetes no longer requires Docker Engine as its container runtime.
 
 ## Q129. Docker vs Kubernetes
 
-  ------------------------------------------------------------------------
-  Docker Engine                        Kubernetes
-  ------------------------------------ -----------------------------------
-  Container platform for building and  Cluster orchestrator for workloads
-  running containers                   and services
-
-  Commonly used directly on a host     Designed around cluster management
-
-  Docker CLI/API                       Kubernetes API
-
-  Manages                              Manages workloads, scheduling,
-  containers/images/networks/volumes   services, rollouts, scaling
-
-  Compose is common for local          Kubernetes resources are used for
-  multi-container apps                 cluster workloads
-  ------------------------------------------------------------------------
+| Docker Engine                                          | Kubernetes                                                 |
+|:-------------------------------------------------------|:-----------------------------------------------------------|
+| Container platform for building and running containers | Cluster orchestrator for workloads and services            |
+| Commonly used directly on a host                       | Designed around cluster management                         |
+| Docker CLI/API                                         | Kubernetes API                                             |
+| Manages containers/images/networks/volumes             | Manages workloads, scheduling, services, rollouts, scaling |
+| Compose is common for local multi-container apps       | Kubernetes resources are used for cluster workloads        |
 
 ------------------------------------------------------------------------
 
@@ -2411,17 +2280,17 @@ Kubernetes no longer requires Docker Engine as its container runtime.
 
 ## Q130. What is BuildKit?
 
-**Definition:** BuildKit is Docker's modern build backend for building
+**Definition:** BuildKit is Docker’s modern build backend for building
 container images.
 
 It improves the build process with capabilities such as:
 
--   Better build caching
--   Parallel execution where possible
--   Efficient transfer of build context and dependencies
--   Multistage-build support
--   Build secrets and SSH mounts
--   Improved support for advanced build workflows
+- Better build caching
+- Parallel execution where possible
+- Efficient transfer of build context and dependencies
+- Multistage-build support
+- Build secrets and SSH mounts
+- Improved support for advanced build workflows
 
 A useful interview distinction is:
 
@@ -2445,11 +2314,11 @@ advanced BuildKit-based build features.
 
 Common uses include:
 
--   Multiplatform builds
--   Multiple builders
--   Advanced cache import/export
--   Build attestations and provenance
--   Building and pushing directly to a registry
+- Multiplatform builds
+- Multiple builders
+- Advanced cache import/export
+- Build attestations and provenance
+- Building and pushing directly to a registry
 
 Example:
 
@@ -2530,11 +2399,11 @@ the final image.
 For runtime secrets, use the secret-management facility provided by the
 deployment platform, for example:
 
--   AWS Secrets Manager
--   AWS Systems Manager Parameter Store
--   Kubernetes Secrets
--   HashiCorp Vault
--   Docker Swarm secrets
+- AWS Secrets Manager
+- AWS Systems Manager Parameter Store
+- Kubernetes Secrets
+- HashiCorp Vault
+- Docker Swarm secrets
 
 **Interview point:** A secret should not be copied into an image layer
 merely because the application needs it during a build.
@@ -2595,12 +2464,12 @@ handled and where they are sent.
 
 Common examples include:
 
--   `json-file`
--   `local`
--   `journald`
--   `syslog`
--   `fluentd`
--   `gelf`
+- `json-file`
+- `local`
+- `journald`
+- `syslog`
+- `fluentd`
+- `gelf`
 
 The exact drivers available depend on the Docker installation and
 platform.
@@ -2609,7 +2478,7 @@ In production, logs are often forwarded to a centralized logging system
 rather than relying only on a local Docker host.
 
 **Interview point:** `docker logs` shows logs available through the
-container's configured logging mechanism; it is not a complete
+container’s configured logging mechanism; it is not a complete
 centralized observability strategy by itself.
 
 ------------------------------------------------------------------------
@@ -2655,13 +2524,13 @@ docker version
 
 Then investigate the specific error, such as:
 
--   Configuration errors
--   Storage/filesystem problems
--   Disk exhaustion
--   Permission issues
--   Invalid daemon configuration
--   Network or dependency problems
--   A failed daemon upgrade
+- Configuration errors
+- Storage/filesystem problems
+- Disk exhaustion
+- Permission issues
+- Invalid daemon configuration
+- Network or dependency problems
+- A failed daemon upgrade
 
 **Interview approach:** Do not immediately restart Docker repeatedly.
 First identify why the daemon failed, correct the root cause, then
@@ -2671,116 +2540,53 @@ restart and verify with `docker info`.
 
 # 21. Rapid-Fire Questions
 
-  -----------------------------------------------------------------------
-  Question                            Answer
-  ----------------------------------- -----------------------------------
-  Docker?                             Platform for building,
-                                      distributing, and running
-                                      containers
-
-  Container?                          Isolated process created from an
-                                      image
-
-  Image?                              Immutable layered package
-
-  VM vs container?                    Guest OS vs isolated process
-                                      sharing host kernel
-
-  `dockerd`?                          Docker Engine daemon
-
-  Docker CLI?                         User-facing Docker client
-
-  `containerd`?                       Container runtime component
-
-  `runc`?                             Low-level OCI runtime
-
-  Namespace?                          Resource isolation
-
-  cgroup?                             Resource control/accounting
-
-  OCI?                                Open container standards
-
-  PID 1?                              First process in container PID
-                                      namespace
-
-  Layer?                              Filesystem change in image
-
-  Tag?                                Mutable human-readable image
-                                      reference
-
-  Digest?                             Content-addressed image reference
-
-  `FROM`?                             Base image/build stage
-
-  `RUN`?                              Build-time command
-
-  `CMD`?                              Default runtime command/args
-
-  `ENTRYPOINT`?                       Primary runtime executable
-
-  `COPY`?                             Copy files into image
-
-  `ADD`?                              Copy plus additional behavior
-
-  `ARG`?                              Build-time variable
-
-  `ENV`?                              Container environment variable
-
-  `WORKDIR`?                          Working directory
-
-  `USER`?                             Default user/group
-
-  `EXPOSE`?                           Documents intended container port
-
-  `-p`?                               Publishes host/container port
-
-  Volume?                             Docker-managed persistent storage
-
-  Bind mount?                         Host path mounted into container
-
-  Registry?                           Image storage/distribution
-
-  Compose?                            Declarative multi-container tool
-
-  Swarm?                              Docker-native orchestration
-
-  Exit 137?                           SIGKILL; often OOM-related
-
-  `docker logs`?                      Container logs
-
-  `docker inspect`?                   Detailed object configuration/state
-
-  `docker exec`?                      New process inside running
-                                      container
-
-  BuildKit?                           Modern Docker image build backend
-
-  `docker buildx`?                    CLI interface for advanced BuildKit
-                                      builds
-
-  Cache invalidation?                 Change in relevant build
-                                      inputs/state prevents cache reuse
-
-  Multiplatform image?                Image index resolving to
-                                      platform-specific images
-
-  Build secret?                       Secret supplied to a build without
-                                      intentionally baking it into the
-                                      image
-
-  `--privileged`?                     Broadly relaxes container
-                                      isolation/capabilities;
-                                      security-sensitive
-
-  Linux capability?                   Fine-grained privilege that can be
-                                      added or dropped
-
-  Logging driver?                     Mechanism controlling container log
-                                      handling/output
-
-  Rootless Docker?                    Docker operation without a
-                                      root-owned daemon for normal use
-  -----------------------------------------------------------------------
+| Question             | Answer                                                                    |
+|:---------------------|:--------------------------------------------------------------------------|
+| Docker?              | Platform for building, distributing, and running containers               |
+| Container?           | Isolated process created from an image                                    |
+| Image?               | Immutable layered package                                                 |
+| VM vs container?     | Guest OS vs isolated process sharing host kernel                          |
+| `dockerd`?           | Docker Engine daemon                                                      |
+| Docker CLI?          | User-facing Docker client                                                 |
+| `containerd`?        | Container runtime component                                               |
+| `runc`?              | Low-level OCI runtime                                                     |
+| Namespace?           | Resource isolation                                                        |
+| cgroup?              | Resource control/accounting                                               |
+| OCI?                 | Open container standards                                                  |
+| PID 1?               | First process in container PID namespace                                  |
+| Layer?               | Filesystem change in image                                                |
+| Tag?                 | Mutable human-readable image reference                                    |
+| Digest?              | Content-addressed image reference                                         |
+| `FROM`?              | Base image/build stage                                                    |
+| `RUN`?               | Build-time command                                                        |
+| `CMD`?               | Default runtime command/args                                              |
+| `ENTRYPOINT`?        | Primary runtime executable                                                |
+| `COPY`?              | Copy files into image                                                     |
+| `ADD`?               | Copy plus additional behavior                                             |
+| `ARG`?               | Build-time variable                                                       |
+| `ENV`?               | Container environment variable                                            |
+| `WORKDIR`?           | Working directory                                                         |
+| `USER`?              | Default user/group                                                        |
+| `EXPOSE`?            | Documents intended container port                                         |
+| `-p`?                | Publishes host/container port                                             |
+| Volume?              | Docker-managed persistent storage                                         |
+| Bind mount?          | Host path mounted into container                                          |
+| Registry?            | Image storage/distribution                                                |
+| Compose?             | Declarative multi-container tool                                          |
+| Swarm?               | Docker-native orchestration                                               |
+| Exit 137?            | SIGKILL; often OOM-related                                                |
+| `docker logs`?       | Container logs                                                            |
+| `docker inspect`?    | Detailed object configuration/state                                       |
+| `docker exec`?       | New process inside running container                                      |
+| BuildKit?            | Modern Docker image build backend                                         |
+| `docker buildx`?     | CLI interface for advanced BuildKit builds                                |
+| Cache invalidation?  | Change in relevant build inputs/state prevents cache reuse                |
+| Multiplatform image? | Image index resolving to platform-specific images                         |
+| Build secret?        | Secret supplied to a build without intentionally baking it into the image |
+| `--privileged`?      | Broadly relaxes container isolation/capabilities; security-sensitive      |
+| Linux capability?    | Fine-grained privilege that can be added or dropped                       |
+| Logging driver?      | Mechanism controlling container log handling/output                       |
+| Rootless Docker?     | Docker operation without a root-owned daemon for normal use               |
 
 ------------------------------------------------------------------------
 
@@ -3029,250 +2835,3 @@ docker system df -v
 ```
 
 ------------------------------------------------------------------------
-
-# 24. Final Interview Checklist
-
-## Fundamentals
-
--   [ ] Docker definition
--   [ ] Container definition
--   [ ] Image vs container
--   [ ] Container vs VM
--   [ ] Why containers are lightweight
--   [ ] CI/CD use of images
-
-## Architecture
-
--   [ ] Docker CLI
--   [ ] Docker API
--   [ ] `dockerd`
--   [ ] `containerd`
--   [ ] OCI runtime / `runc`
--   [ ] Docker socket
--   [ ] `docker run` flow
-
-## Internals
-
--   [ ] Namespaces
--   [ ] cgroups
--   [ ] Namespace vs cgroup
--   [ ] OCI
--   [ ] PID 1
-
-## Images
-
--   [ ] Image
--   [ ] Layers
--   [ ] Build cache
--   [ ] Copy-on-write
--   [ ] Tags
--   [ ] Digests
-
-## Dockerfile
-
--   [ ] `FROM`
--   [ ] `RUN`
--   [ ] `CMD`
--   [ ] `ENTRYPOINT`
--   [ ] `COPY`
--   [ ] `ADD`
--   [ ] `ARG`
--   [ ] `ENV`
--   [ ] `WORKDIR`
--   [ ] `USER`
--   [ ] `EXPOSE`
--   [ ] `VOLUME`
--   [ ] `LABEL`
--   [ ] `HEALTHCHECK`
--   [ ] `SHELL`
--   [ ] `STOPSIGNAL`
--   [ ] `ONBUILD`
--   [ ] `.dockerignore`
--   [ ] Build context
--   [ ] Shell vs exec form
-
-## Builds
-
--   [ ] Multistage builds
--   [ ] `COPY --from`
--   [ ] Image optimization
--   [ ] Cache optimization
-
-## Commands
-
--   [ ] `docker run`
--   [ ] `docker create`
--   [ ] `docker start`
--   [ ] `docker stop`
--   [ ] `docker kill`
--   [ ] `docker exec`
--   [ ] `docker logs`
--   [ ] `docker inspect`
--   [ ] `docker stats`
--   [ ] `docker diff`
--   [ ] `docker history`
-
-## Networking
-
--   [ ] Bridge
--   [ ] Host
--   [ ] None
--   [ ] Overlay
--   [ ] User-defined networks
--   [ ] Docker DNS
--   [ ] Port publishing
--   [ ] `EXPOSE` vs `-p`
--   [ ] `localhost`
--   [ ] Network troubleshooting
-
-## Storage
-
--   [ ] Writable layer
--   [ ] Volume
--   [ ] Bind mount
--   [ ] Persistence
--   [ ] Volume lifecycle
-
-## Configuration
-
--   [ ] `ARG`
--   [ ] `ENV`
--   [ ] Runtime overrides
--   [ ] Secret handling
-
-## Registry
-
--   [ ] Registry
--   [ ] ECR
--   [ ] Pull
--   [ ] Push
--   [ ] Tagging
--   [ ] Digests
--   [ ] CI/CD traceability
-
-## Resources
-
--   [ ] CPU limits
--   [ ] Memory limits
--   [ ] cgroups
--   [ ] OOM investigation
--   [ ] Disk cleanup
-
-## Lifecycle
-
--   [ ] Created
--   [ ] Running
--   [ ] Exited
--   [ ] Restart policies
--   [ ] Main process behavior
-
-## Troubleshooting
-
--   [ ] Container exits
--   [ ] Restart loop
--   [ ] Port failure
--   [ ] DNS failure
--   [ ] Container-to-container failure
--   [ ] Internet connectivity
--   [ ] Permission issues
--   [ ] Daemon issues
--   [ ] Disk exhaustion
--   [ ] Memory pressure
-
-## Orchestration
-
--   [ ] Compose
--   [ ] `depends_on`
--   [ ] Readiness vs startup ordering
--   [ ] Swarm
--   [ ] Scaling
-
-## Modern Build & Security
-
--   [ ] BuildKit
--   [ ] `docker buildx`
--   [ ] Cache invalidation
--   [ ] Multiplatform images
--   [ ] Build-time secrets
--   [ ] Runtime secret management
--   [ ] `--privileged`
--   [ ] Linux capabilities
--   [ ] Logging drivers
--   [ ] Rootless Docker
--   [ ] Docker daemon troubleshooting
-
-## Advanced
-
--   [ ] `docker commit`
--   [ ] `docker export`
--   [ ] `docker save`
--   [ ] Docker socket security
--   [ ] Runtime vs orchestrator
-
-## Scenarios
-
--   [ ] Container exits immediately
--   [ ] Container restarts continuously
--   [ ] Port is inaccessible
--   [ ] API cannot reach DB
--   [ ] Persistent data disappears
--   [ ] Image is too large
--   [ ] Build is too slow
--   [ ] Exit code 137
--   [ ] DNS works but TCP fails
--   [ ] Old image deployed
--   [ ] Docker socket security
-
-------------------------------------------------------------------------
-
-# Interview Answer Formula
-
-For a conceptual question:
-
-``` text
-1. Define it
-2. Explain why it exists
-3. Explain how it works
-4. Give an example
-5. State an important limitation/trap
-```
-
-For a troubleshooting question:
-
-``` text
-1. Identify the symptom
-2. Check state
-3. Check logs
-4. Check configuration
-5. Check networking/storage/resources
-6. Identify root cause
-7. Fix it
-8. Verify the fix
-9. Explain prevention
-```
-
-## Final Mental Model
-
-``` text
-Docker CLI
-    ↓
-Docker API
-    ↓
-dockerd
-    ↓
-containerd
-    ↓
-OCI runtime
-    ↓
-Linux kernel
-    ├── namespaces → isolation
-    └── cgroups    → resource control
-             ↓
-         Container
-             ↓
-       Main Process
-```
-
-If you understand this flow, Dockerfile behavior, image layers,
-networking, storage, lifecycle, resource management, and troubleshooting
-become much easier to reason about.
