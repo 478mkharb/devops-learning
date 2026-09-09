@@ -1,37 +1,3 @@
-# Terraform Interview Preparation — DevOps
-
-A structured Terraform interview guide organized in **learning order**, from core concepts through production-oriented Terraform topics.
-
-This guide is designed for interview preparation: every topic focuses on **what it is, why it matters, how it works, practical examples, common mistakes, and follow-up questions**.
-
----
-
-## How to Use This README
-
-Study in this order rather than jumping directly to advanced topics:
-
-1. Terraform and Infrastructure as Code
-2. Providers, resources, and data sources
-3. Terraform workflow and commands
-4. Dependencies
-5. Variables, `tfvars`, locals, and outputs
-6. Meta-arguments
-7. Lifecycle management
-8. Expressions and dynamic blocks
-9. State and remote backends
-10. Drift, refresh, import, and state recovery
-11. Modules and workspaces
-12. Provisioners, `null_resource`, and `terraform_data`
-13. Terraform vs Ansible
-14. `terraform init` internals
-15. Terragrunt
-16. Sentinel / policy as code
-17. Rapid-fire interview revision
-
-> **Interview rule:** Do not memorize only definitions. Be prepared to explain a concept with a small Terraform example and a real DevOps scenario.
-
----
-
 # 1. Terraform Fundamentals
 
 ## Q1. What is Terraform and why is it used in DevOps?
