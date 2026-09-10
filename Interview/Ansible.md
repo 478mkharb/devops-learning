@@ -29,7 +29,7 @@ A typical controller-driven architecture is:
 
 Ansible automation is normally controller-driven. The exact execution mechanism depends on the connection plugin and module.
 
-RH294 describes the control node as the system where Ansible is installed and run, and managed hosts as the systems listed in inventory. fileciteturn12file0L56-L69
+RH294 describes the control node as the system where Ansible is installed and run, and managed hosts as the systems listed in inventory.
 
 ---
 
@@ -81,7 +81,7 @@ JSON result
 Controller
 ```
 
-RH294 explicitly describes the control node, inventory, plays, tasks, modules, and managed hosts as the core architecture. fileciteturn12file4L231-L261
+RH294 explicitly describes the control node, inventory, plays, tasks, modules, and managed hosts as the core architecture.
 
 ---
 
@@ -163,7 +163,7 @@ Make change
 changed
 ```
 
-RH294 explains that a module is a small piece of code that takes specific arguments and can act on files, install software, or make API calls. fileciteturn12file4L618-L633
+RH294 explains that a module is a small piece of code that takes specific arguments and can act on files, install software, or make API calls.
 
 ---
 
@@ -226,8 +226,6 @@ RH294 2.8-era output demonstrated module search locations such as:
 /usr/share/ansible/plugins/modules
 ```
 
-fileciteturn13file0L10-L20
-
 The exact paths vary with Ansible version, installation method, collections, and configuration.
 
 To inspect installed collections:
@@ -280,7 +278,7 @@ include_tasks
     → dynamic
 ```
 
-RH294 states that imported content is preprocessed when the playbook is parsed, while included content is processed during execution as the play reaches it. fileciteturn16file1L132-L147
+RH294 states that imported content is preprocessed when the playbook is parsed, while included content is processed during execution as the play reaches it.
 
 ---
 
@@ -353,7 +351,7 @@ module execution
 | `~/.ansible/tmp/` | Temporary module execution area |
 | `/tmp` | Generic OS temporary directory |
 
-RH294's command examples show temporary module files under `/home/devops/.ansible/tmp/...`. fileciteturn13file7L347-L363
+RH294's command examples show temporary module files under `/home/devops/.ansible/tmp/...`.
 
 This directory is **not** a Terraform-style state directory.
 
@@ -498,7 +496,7 @@ Input data
 Actual idempotency
 ```
 
-RH294 explicitly emphasizes that playbooks/tasks should be safely repeatable and warns that arbitrary command modules need care to remain idempotent. fileciteturn12file4L637-L650
+RH294 explicitly emphasizes that playbooks/tasks should be safely repeatable and warns that arbitrary command modules need care to remain idempotent.
 
 ---
 
@@ -545,7 +543,7 @@ Compare:
 | `changed` | Whether task reports a change |
 | `failed` | Whether task reports failure |
 
-RH294 examples show command output containing `rc=0`. fileciteturn13file9L492-L506
+RH294 examples show command output containing `rc=0`.
 
 ---
 
@@ -573,7 +571,7 @@ They are useful for:
 - one-off operational actions
 - validating module behavior
 
-RH294 explicitly includes running ad-hoc tasks as a core Ansible objective. fileciteturn12file1L56-L69
+RH294 explicitly includes running ad-hoc tasks as a core Ansible objective.
 
 ---
 
@@ -623,7 +621,7 @@ ansible all -m copy \
   -b
 ```
 
-RH294 uses a similar `copy` ad-hoc example with `--become`. fileciteturn13file7L344-L363
+RH294 uses a similar `copy` ad-hoc example with `--become`.
 
 ### Inventory
 
@@ -677,7 +675,7 @@ Dynamic
 External source/plugin
 ```
 
-RH294 explicitly covers inventory as the source for managed hosts and groups. fileciteturn12file1L56-L64
+RH294 explicitly covers inventory as the source for managed hosts and groups.
 
 ---
 
@@ -719,7 +717,7 @@ Exclusion:
 hosts: datacenter,!test02
 ```
 
-RH294 specifically covers group intersection and `!`-based exclusion patterns. fileciteturn15file2L166-L207
+RH294 specifically covers group intersection and `!`-based exclusion patterns.
 
 ---
 
@@ -736,7 +734,7 @@ For example:
 
 is usually clearer than targeting every host and adding multiple conditions.
 
-RH294 recommends carefully designed host patterns and inventory groups rather than complex task conditions for host selection. fileciteturn15file5L495-L504
+RH294 recommends carefully designed host patterns and inventory groups rather than complex task conditions for host selection.
 
 ---
 
@@ -793,7 +791,7 @@ Hosts / groups / variables
 Ansible
 ```
 
-RH294 explains that dynamic inventory can be generated from external sources such as directory services or cloud-management systems. fileciteturn12file1L61-L69
+RH294 explains that dynamic inventory can be generated from external sources such as directory services or cloud-management systems.
 
 ---
 
@@ -880,7 +878,7 @@ become_method = sudo
 become_user = root
 ```
 
-RH294 explicitly teaches configuring inventory, remote user, and privilege escalation in `ansible.cfg`. fileciteturn13file0L25-L45
+RH294 explicitly teaches configuring inventory, remote user, and privilege escalation in `ansible.cfg`.
 
 ---
 
@@ -888,7 +886,7 @@ RH294 explicitly teaches configuring inventory, remote user, and privilege escal
 
 Ansible searches for its configuration file according to a precedence/order of locations and uses the first relevant configuration it finds.
 
-RH294 emphasizes that Ansible looks for its configuration file in several locations and that the first configuration file found is used. fileciteturn13file3L143-L156
+RH294 emphasizes that Ansible looks for its configuration file in several locations and that the first configuration file found is used.
 
 To determine what configuration is active:
 
@@ -902,7 +900,7 @@ and:
 ansible-config dump -v --only-changed
 ```
 
-RH294 demonstrates that `ansible-config dump -v --only-changed` identifies the configuration file being used. fileciteturn13file4L167-L194
+RH294 demonstrates that `ansible-config dump -v --only-changed` identifies the configuration file being used.
 
 ---
 
@@ -934,7 +932,7 @@ app_port: 8080
 app_port: 8081
 ```
 
-RH294 explicitly recommends `group_vars` and `host_vars` directories instead of putting inventory variables directly in the inventory file. fileciteturn14file1L60-L72
+RH294 explicitly recommends `group_vars` and `host_vars` directories instead of putting inventory variables directly in the inventory file.
 
 ---
 
@@ -992,7 +990,7 @@ ansible-playbook site.yml -e "app_port=8084"
 
 The effective value can become `8084`.
 
-RH294 shows that extra variables can override variables defined in the playbook/inventory. fileciteturn14file2L90-L95
+RH294 shows that extra variables can override variables defined in the playbook/inventory.
 
 ---
 
@@ -1018,7 +1016,7 @@ Example:
         msg: "Deploying to {{ environment }}"
 ```
 
-RH294 explicitly describes command-line variables as extra variables that can override existing values. fileciteturn14file2L90-L95
+RH294 explicitly describes command-line variables as extra variables that can override existing values.
 
 ---
 
@@ -1047,7 +1045,7 @@ Example:
     var: ansible_facts.distribution
 ```
 
-RH294 describes facts as variables automatically discovered from managed hosts. fileciteturn15file1L125-L134
+RH294 describes facts as variables automatically discovered from managed hosts.
 
 ---
 
@@ -1074,7 +1072,7 @@ Facts are then available under:
 ansible_facts
 ```
 
-RH294 demonstrates `ansible webserver -m setup` to inspect facts. fileciteturn14file8L491-L520
+RH294 demonstrates `ansible webserver -m setup` to inspect facts.
 
 ---
 
@@ -1119,7 +1117,7 @@ Important examples:
 | `ansible_facts` | Gathered facts |
 | `playbook_dir` | Playbook directory |
 
-RH294 specifically explains `hostvars`, `group_names`, `groups`, and `inventory_hostname`. fileciteturn14file7L377-L403
+RH294 specifically explains `hostvars`, `group_names`, `groups`, and `inventory_hostname`.
 
 ---
 
@@ -1152,7 +1150,7 @@ changed
 failed
 ```
 
-RH294 explicitly teaches `register` as a way to capture command output for use by later tasks. fileciteturn15file1L125-L134
+RH294 explicitly teaches `register` as a way to capture command output for use by later tasks.
 
 ---
 
@@ -1229,7 +1227,7 @@ Then:
 {{ users.anne.home }}
 ```
 
-RH294 explicitly introduces structured arrays/dictionaries as a way to organize related configuration data. fileciteturn14file2L97-L123
+RH294 explicitly introduces structured arrays/dictionaries as a way to organize related configuration data.
 
 ---
 
@@ -1247,7 +1245,7 @@ Private keys
 Sensitive variables
 ```
 
-RH294 explicitly teaches Vault for protecting sensitive variables and structured data files used by Ansible. fileciteturn13file1L55-L76
+RH294 explicitly teaches Vault for protecting sensitive variables and structured data files used by Ansible.
 
 Example:
 
@@ -1279,7 +1277,7 @@ project/
 └── site.yml
 ```
 
-RH294 explicitly notes that inventory variables, included variable files, variables passed to playbooks, and role variables can be protected with Vault. fileciteturn13file1L66-L71
+RH294 explicitly notes that inventory variables, included variable files, variables passed to playbooks, and role variables can be protected with Vault.
 
 ---
 
@@ -1321,7 +1319,7 @@ ansible-vault view secrets.yml
 ansible-vault rekey secrets.yml
 ```
 
-RH294 explicitly demonstrates create, edit, decrypt and rekey operations. fileciteturn12file6L259-L294
+RH294 explicitly demonstrates create, edit, decrypt and rekey operations.
 
 ---
 
@@ -1342,7 +1340,7 @@ ansible-playbook site.yml \
 
 Modern Ansible commonly uses `--vault-id`.
 
-RH294 demonstrates interactive Vault password entry and password-file usage. fileciteturn13file6L275-L294
+RH294 demonstrates interactive Vault password entry and password-file usage.
 
 ---
 
@@ -1359,7 +1357,7 @@ prod vault    → prod password
 
 This is useful when a playbook uses files encrypted with different Vault passwords.
 
-RH294 explicitly discusses assigning Vault IDs when multiple Vault passwords are used. fileciteturn17file3L207-L214
+RH294 explicitly discusses assigning Vault IDs when multiple Vault passwords are used.
 
 ---
 
@@ -1497,7 +1495,7 @@ The loop variable is:
 item
 ```
 
-RH294 has a dedicated section for writing loops and conditional tasks. fileciteturn15file1L152-L156
+RH294 has a dedicated section for writing loops and conditional tasks.
 
 ---
 
@@ -1570,7 +1568,7 @@ Static import:
 - ansible.builtin.import_tasks: firewall.yml
 ```
 
-RH294 explains that `import_tasks` inserts tasks when the playbook is parsed, whereas `include_tasks` processes the content when execution reaches it. fileciteturn16file0L26-L78
+RH294 explains that `import_tasks` inserts tasks when the playbook is parsed, whereas `include_tasks` processes the content when execution reaches it.
 
 ---
 
@@ -1590,7 +1588,7 @@ Example:
 
 It is used at the top level of a playbook, not inside a play.
 
-RH294 explicitly describes `import_playbook` and notes that imported playbooks execute in order. fileciteturn16file0L10-L25
+RH294 explicitly describes `import_playbook` and notes that imported playbooks execute in order.
 
 ---
 
@@ -1661,7 +1659,7 @@ Task changes configuration
 Handler phase executes
 ```
 
-RH294 explicitly teaches handlers as tasks that run when another task changes the managed host. fileciteturn15file1L140-L150
+RH294 explicitly teaches handlers as tasks that run when another task changes the managed host.
 
 ---
 
@@ -1754,7 +1752,7 @@ roles/
 
 Roles package tasks, variables, handlers, templates, files and metadata into reusable units.
 
-RH294 explicitly describes roles as a standardized directory structure for reusable tasks, variables, files, templates and other resources. fileciteturn12file8L454-L472
+RH294 explicitly describes roles as a standardized directory structure for reusable tasks, variables, files, templates and other resources.
 
 ---
 
@@ -1799,7 +1797,7 @@ Interview answer:
 
 > Use defaults for user-tunable defaults and vars for stronger role-specific values.
 
-RH294 specifically identifies `defaults/main.yml` as the place for initial parameter values to a role. fileciteturn17file0L286-L311
+RH294 specifically identifies `defaults/main.yml` as the place for initial parameter values to a role.
 
 ---
 
@@ -1820,7 +1818,7 @@ dependencies:
 
 This allows one role to depend on another.
 
-RH294 explicitly identifies `meta/main.yml` as the location for role dependencies. fileciteturn17file0L301-L305
+RH294 explicitly identifies `meta/main.yml` as the location for role dependencies.
 
 ---
 
@@ -1843,7 +1841,7 @@ Install:
 ansible-galaxy install -r roles/requirements.yml
 ```
 
-RH294 demonstrates using `roles/requirements.yml` to install a role from Git at a specific version. fileciteturn17file6L402-L429
+RH294 demonstrates using `roles/requirements.yml` to install a role from Git at a specific version.
 
 ---
 
@@ -1860,7 +1858,7 @@ ansible-galaxy role install <role>
 ansible-galaxy collection install <collection>
 ```
 
-RH294 explicitly covers Galaxy for retrieving and installing reusable roles. fileciteturn15file0L50-L60
+RH294 explicitly covers Galaxy for retrieving and installing reusable roles.
 
 ---
 
@@ -1876,8 +1874,6 @@ rhel-system-roles.network
 rhel-system-roles.selinux
 rhel-system-roles.timesync
 ```
-
-fileciteturn17file0L44-L76
 
 They can reduce the need to write repetitive OS-specific configuration logic yourself.
 
@@ -1910,7 +1906,7 @@ Example:
     mode: '0755'
 ```
 
-RH294 states that Ansible's file modules cover creating, copying, editing and modifying file attributes. fileciteturn15file5L455-L463
+RH294 states that Ansible's file modules cover creating, copying, editing and modifying file attributes.
 
 ---
 
@@ -1970,7 +1966,7 @@ latest
 
 The package module compares the requested state with the current state.
 
-RH294 explicitly demonstrates `yum` desired states such as `present`, `absent`, and `latest`. fileciteturn15file4L385-L405
+RH294 explicitly demonstrates `yum` desired states such as `present`, `absent`, and `latest`.
 
 ---
 
@@ -2030,7 +2026,7 @@ SSH key:
     key: "{{ lookup('file', 'deploy.pub') }}"
 ```
 
-RH294 explicitly covers user creation, groups, SSH authorized keys, sudoers and SSH configuration. fileciteturn16file6L481-L504
+RH294 explicitly covers user creation, groups, SSH authorized keys, sudoers and SSH configuration.
 
 ---
 
@@ -2048,7 +2044,7 @@ Important limitation:
 
 > Not every module can completely predict changes in check mode, especially arbitrary command/script operations.
 
-RH294 explicitly describes `--check` as showing changes to be performed for modules that support check mode. fileciteturn15file4L348-L351
+RH294 explicitly describes `--check` as showing changes to be performed for modules that support check mode.
 
 ---
 
@@ -2111,7 +2107,7 @@ ansible host01 -m setup
 
 The `debug` module is particularly useful for inspecting variables and facts.
 
-RH294 recommends `--syntax-check`, verbosity, `debug`, check mode and ad-hoc validation as troubleshooting tools. fileciteturn15file1L87-L113 fileciteturn15file8L690-L707
+RH294 recommends `--syntax-check`, verbosity, `debug`, check mode and ad-hoc validation as troubleshooting tools.
 
 ---
 
@@ -2132,7 +2128,7 @@ Example:
 ansible-playbook site.yml -vvv
 ```
 
-RH294 specifically describes increasing verbosity through these levels and notes that `-vvv` includes connection information. fileciteturn16file2L183-L192
+RH294 specifically describes increasing verbosity through these levels and notes that `-vvv` includes connection information.
 
 ---
 
@@ -2151,7 +2147,7 @@ or via the environment variable:
 export ANSIBLE_LOG_PATH=/var/log/ansible/ansible.log
 ```
 
-RH294 states that logging is not enabled by default and describes `log_path` and `ANSIBLE_LOG_PATH`. fileciteturn15file8L690-L698
+RH294 states that logging is not enabled by default and describes `log_path` and `ANSIBLE_LOG_PATH`.
 
 ---
 
@@ -2237,7 +2233,7 @@ Concurrent execution
 
 Increasing forks can improve throughput only when the real bottleneck is available worker capacity.
 
-RH294 describes `forks` as controlling the maximum number of parallel connections to managed hosts. fileciteturn12file1L61-L69
+RH294 describes `forks` as controlling the maximum number of parallel connections to managed hosts.
 
 ---
 
@@ -2261,7 +2257,7 @@ Batch 2 → 10
 Batch 10 → 10
 ```
 
-RH294 demonstrates `serial: 3` and shows the play running fully on three hosts before moving to the remaining host. fileciteturn16file1L100-L125
+RH294 demonstrates `serial: 3` and shows the play running fully on three hosts before moving to the remaining host.
 
 ---
 
@@ -2330,7 +2326,7 @@ Stop     Next batch
 
 This limits blast radius.
 
-RH294 specifically uses `serial` for rolling updates so the entire web-server fleet is not taken out of service at once. fileciteturn17file2L124-L169
+RH294 specifically uses `serial` for rolling updates so the entire web-server fleet is not taken out of service at once.
 
 ---
 
@@ -2411,7 +2407,7 @@ Managed node
 
 The target normally does not run an Ansible agent that periodically asks for work in the classic SSH model.
 
-RH294 describes the control node connecting to managed hosts through SSH or WinRM. fileciteturn12file4L248-L256
+RH294 describes the control node connecting to managed hosts through SSH or WinRM.
 
 ---
 
@@ -2834,7 +2830,7 @@ failed
 unreachable
 ```
 
-RH294's play recap and execution examples show these result categories and per-host counts. fileciteturn16file2L165-L184
+RH294's play recap and execution examples show these result categories and per-host counts.
 
 ---
 
