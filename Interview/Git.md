@@ -1,8 +1,20 @@
 # Git Senior L2 Interview Preparation
 
-A practical **Senior L2 Git interview guide** focused on Git internals, branching, merging, rebasing, recovery, remotes, troubleshooting, security, and CI/CD.
+A practical **Senior L2 Git interview guide** focused on Git internals, repository state, branching, merging, rebasing, recovery, remotes, troubleshooting, security, performance, and CI/CD.
 
 > **Interview principle:** Do not answer only with commands. Explain **what Git state you are inspecting, why you chose a command, what risk it has, how you verify the result, and how you prevent recurrence.**
+
+---
+
+## How to use this guide
+
+For each question, prepare three layers:
+
+1. **Short interview answer** — 20–40 seconds.
+2. **Technical explanation** — enough depth for follow-up questions.
+3. **Production angle** — what you would actually do on a team.
+
+The goal is not command memorization. A Senior L2 engineer should be able to reason from Git's **objects, references, working tree, index, and commit graph**.
 
 ---
 
@@ -12,100 +24,80 @@ A practical **Senior L2 Git interview guide** focused on Git internals, branchin
 
 ### Short Interview Answer
 
-Git is a **distributed version control system (DVCS)** that records changes to files as a history of commits. Each clone normally contains the repository's history and can create commits locally without a central server.
+Git is a **distributed version control system (DVCS)** that records project history as commits. A normal clone contains the repository's Git history and can create commits locally without a central server.
 
-### Detailed Explanation
+### Key points
 
-Git tracks the evolution of a project through **commits**. A repository contains Git's object database and references such as branches and tags.
+- Git tracks snapshots through commits.
+- Branches and tags are references to Git objects.
+- Developers can work and commit offline.
+- Collaboration happens through remotes.
+- Git itself is different from GitHub, GitLab, or Bitbucket.
 
-Because Git is distributed:
+### Interview distinction
 
-- Developers can commit offline.
-- Branches can be created cheaply.
-- History can be inspected locally.
-- Local history can be rewritten when appropriate.
-- Collaboration is performed through remotes such as GitHub, GitLab, or Bitbucket.
-
-### Important Distinction
-
-Git itself is the version-control system. GitHub/GitLab/Bitbucket are hosting and collaboration platforms built around Git.
-
-### Interview Point
-
-> Git is distributed, so the local clone is a complete working repository rather than merely a client connected to a central history server.
-
----
-
-## Q2. What is the difference between Git and GitHub?
-
-| Git | GitHub |
+| Git | GitHub / GitLab / Bitbucket |
 |---|---|
 | Version-control system | Hosting/collaboration platform |
-| Runs locally | Cloud/service platform |
-| Tracks commits and history | Hosts repositories and adds collaboration features |
-| Works without GitHub | Uses Git underneath |
-| Provides commands such as `commit`, `branch`, `merge` | Provides PRs, reviews, Actions, permissions, branch rules, etc. |
+| Runs locally | Provides a hosted/service layer |
+| Stores Git objects and refs | Hosts repositories and adds PRs, permissions, CI/CD, etc. |
+| Works without a hosting platform | Uses Git underneath |
 
-### Interview Answer
-
-> Git is the version-control technology. GitHub is a platform that hosts Git repositories and provides collaboration, code review, CI/CD, permissions, and other services.
-
-Git can be used without GitHub.
+> **Senior point:** Git is the version-control engine; a hosting platform is an ecosystem around Git.
 
 ---
 
-# 2. Git Architecture and State
+## Q2. Explain the working tree, index, and repository.
 
-## Q3. Explain the working tree, staging area, and repository.
-
-Git's local workflow can be visualized as:
+Think of Git as three important local states:
 
 ```text
-             git add
-Working Tree ─────────→ Staging Area / Index
-                              │
-                              │ git commit
-                              ↓
-                       Local Repository
+Working Tree
+     │
+     │ git add
+     ▼
+Index / Staging Area
+     │
+     │ git commit
+     ▼
+Repository (.git)
 ```
 
-### Working Tree
+| Area | Meaning |
+|---|---|
+| Working tree | Files currently checked out on disk |
+| Index | Exact content selected for the next commit |
+| Repository | Git object database and references |
 
-The files currently checked out on disk. You modify these files while developing.
+### Example
 
-### Staging Area / Index
+If you edit `app.py`:
 
-The exact content selected for the **next commit**.
+```bash
+git diff
+```
 
-This is why:
+shows unstaged working-tree changes.
+
+After:
 
 ```bash
 git add app.py
 ```
 
-does not mean "commit `app.py`". It means "put the current version of `app.py` into the proposed next snapshot."
-
-### Repository
-
-The `.git` database contains objects and references representing commits, trees, blobs, tags, and branch state.
-
-### Useful Commands
+inspect what the next commit contains:
 
 ```bash
-git status
-git add <file>
-git diff
 git diff --staged
-git commit -m "message"
 ```
 
-### Interview Trap
+### Interview trap
 
-`git diff` and `git diff --staged` do not show the same thing.
+`git add` does **not** mean "commit the file." It updates the index so the selected version becomes part of the next snapshot.
 
 ---
 
-## Q4. What happens internally when you run `git commit`?
+## Q3. What happens internally when you run `git commit`?
 
 At a high level:
 
@@ -113,68 +105,62 @@ At a high level:
 Working Tree
      │
      │ git add
-     ↓
-Index / Staging Area
+     ▼
+Index
      │
      │ git commit
-     ↓
-Tree + Commit objects
+     ▼
+Tree + Commit object
      │
-     ↓
+     ▼
 Current branch reference moves
 ```
 
-Git uses the index to determine the tree that the new commit should represent. It creates/reuses the necessary content objects, creates a commit object containing metadata and a reference to the tree, and records the parent commit(s).
+Git uses the index to construct the tree representing the next snapshot. It creates or reuses the necessary objects and creates a commit object containing metadata and references.
 
-A commit normally contains:
+A commit normally records:
 
 - Parent commit(s)
-- Tree reference
+- Root tree
 - Author
 - Committer
+- Timestamps
 - Commit message
-- Timestamps/metadata
 
-The branch itself does not contain the file contents; it is a reference to a commit.
+The branch does not contain the file contents itself; it points to a commit.
 
-### Interview Point
+### Useful inspection
 
-> A commit is a snapshot represented by Git objects and metadata. Creating a commit also advances the current branch reference to the new commit.
+```bash
+git cat-file -t <object-id>
+git cat-file -p <object-id>
+git rev-parse HEAD
+```
+
+> **Senior point:** A commit is a Git object whose identity depends on its contents, including its parent relationship and tree.
 
 ---
 
-# 3. Git Objects
+# 2. Git Internals
 
-## Q5. What are Git's main object types?
-
-Git's core object types are:
+## Q4. What are Git's core object types?
 
 | Object | Purpose |
 |---|---|
 | **Blob** | File content |
-| **Tree** | Directory structure and references to blobs/trees |
+| **Tree** | Directory structure; names, modes, and references to blobs/trees |
 | **Commit** | Points to a tree and parent commit(s), plus metadata |
-| **Tag** | Annotated tag object pointing to another Git object |
+| **Annotated tag object** | Metadata pointing to another Git object |
 
-### Blob
+### Important distinction
 
-A blob stores file content. It does not itself store the filename.
+A blob does **not** contain the filename. The tree associates a filename/path with the blob.
 
-### Tree
+An annotated tag is an actual Git object.
 
-A tree records names, modes, and references to blobs or other trees.
+A lightweight tag is **only a reference**, not a tag object.
 
-### Commit
-
-A commit points to a root tree and one or more parents.
-
-### Tag
-
-An **annotated tag** is a Git object containing information such as tagger, message, target object, and optionally a signature.
-
-A **lightweight tag** is simply a reference and is not a tag object.
-
-### Useful Inspection
+Inspect objects with:
 
 ```bash
 git cat-file -t <object-id>
@@ -183,129 +169,156 @@ git cat-file -p <object-id>
 
 ---
 
-## Q6. What is a Git hash/object ID?
+## Q5. What is a Git object ID/hash?
 
-Git identifies objects using **content-derived object IDs**.
+Git uses **content-derived object IDs**. Depending on repository format, Git can use SHA-1 or SHA-256.
 
-Repositories may use SHA-1 or SHA-256 depending on repository format.
+An object's ID is derived from its object type and content. For a commit, that content includes information such as its tree and parent references.
 
-For an object, its object ID is derived from its type and content. If the relevant content changes, the resulting object ID changes.
+Therefore:
 
-This gives Git:
+```text
+Change content
+     ↓
+Different object content
+     ↓
+Different object ID
+```
 
-- Content addressing
-- Object identity
-- Change detection
-- Efficient object reuse/deduplication
+### Interview trap
 
-### Commands
+Do not say:
+
+> "The commit hash is just a hash of the files."
+
+A commit ID identifies the **commit object**, not merely a file.
+
+---
+
+## Q6. What is `HEAD`? How are local branches and `origin/main` different?
+
+A useful mental model is:
+
+```text
+HEAD
+ │
+ ▼
+main
+ │
+ ▼
+commit C
+```
+
+Here `HEAD` is attached to the local branch `main`.
+
+A detached HEAD looks like:
+
+```text
+HEAD
+ │
+ ▼
+commit C
+```
+
+### Local branch vs remote-tracking branch
+
+| Reference | Meaning |
+|---|---|
+| `main` | Local branch reference |
+| `origin/main` | Local remote-tracking reference representing the last fetched state of `main` from `origin` |
+| `HEAD` | Symbolic reference to the current branch, or direct pointer in detached HEAD |
+
+### Critical point
+
+`origin/main` is **not a live network connection**. It changes when you fetch/pull or otherwise update the remote-tracking ref.
+
+Useful commands:
 
 ```bash
 git rev-parse HEAD
-git cat-file -t <object-id>
-git cat-file -p <object-id>
+git branch -vv
+git remote -v
+git fetch origin
 ```
-
-### Interview Trap
-
-Do not say that every Git "hash" is simply a hash of the file. A commit ID identifies a **commit object**, whose content includes references such as its tree and parents.
 
 ---
 
-# 4. Branching
-
-## Q7. What is a Git branch?
+## Q7. What is a Git branch internally?
 
 A branch is essentially a **movable reference to a commit**.
 
-Example:
-
 ```text
-A---B---C   main
+A---B---C main
      \
       D---E feature
 ```
 
 `main` points to `C`; `feature` points to `E`.
 
-Creating a branch does not copy the complete repository:
+Creating a branch does not copy the repository:
 
 ```bash
 git switch -c feature/login
 ```
 
-It creates a new reference pointing at the current commit and switches `HEAD` to that branch.
+It creates a new reference at the current commit and updates `HEAD`.
 
-### Interview Point
-
-> A branch is a pointer/reference, not a separate copy of the repository.
+> **Senior point:** Branches are lightweight references; commits and their reachable objects contain the actual history.
 
 ---
 
-## Q8. What is the difference between `git checkout` and `git switch`?
+# 3. Branching and History Integration
+
+## Q8. What is the difference between `git checkout`, `git switch`, and `git restore`?
 
 `git checkout` is an older multi-purpose command. It can switch branches, create branches, detach `HEAD`, and restore paths.
 
-`git switch` was introduced specifically for branch switching and is clearer for modern workflows.
+Modern commands separate those concepts:
 
 ```bash
 git switch main
 git switch -c feature/login
+git restore app.py
 ```
 
-For restoring files:
+| Command | Primary modern use |
+|---|---|
+| `git switch` | Branch switching/creation |
+| `git restore` | Restore file contents |
+| `git checkout` | Legacy/multi-purpose command still widely encountered |
 
-```bash
-git restore <file>
-```
+### Interview point
 
-### Practical Rule
-
-Prefer:
-
-```text
-git switch → branch operations
-git restore → file restoration
-```
-
-`checkout` is still valid and widely encountered in existing repositories.
+The important distinction is not that `checkout` is invalid—it is valid—but that `switch` and `restore` make intent clearer.
 
 ---
 
-# 5. Merge
-
 ## Q9. What is Git merge?
 
-`git merge` integrates the history of another branch into the current branch.
-
-Example:
+`git merge` integrates another branch into the **current branch**.
 
 ```text
-A---B---C---D   main
+A---B---C---D main
      \
-      E---F     feature
+      E---F feature
 ```
 
-If you run:
+From `main`:
 
 ```bash
 git switch main
 git merge feature
 ```
 
-Git may create:
+If the histories have diverged, Git may create a merge commit:
 
 ```text
-A---B---C---D---M   main
+A---B---C---D---M
      \         /
       E---F----
 ```
 
-`M` is a merge commit when a true merge is required.
-
-### Important
-
-Merge **does not normally rewrite the existing commits** on the branches being merged.
+A merge normally does not rewrite the existing commits on either branch.
 
 ---
 
@@ -316,12 +329,12 @@ A fast-forward is possible when the current branch is an ancestor of the branch 
 Before:
 
 ```text
-A---B---C   main
+A---B---C main
          \
-          D---E   feature
+          D---E feature
 ```
 
-If `main` has not moved:
+Run:
 
 ```bash
 git switch main
@@ -331,20 +344,18 @@ git merge feature
 Git can simply move `main`:
 
 ```text
-A---B---C---D---E   main
+A---B---C---D---E main
 ```
 
 No merge commit is created.
 
-### Interview Point
-
-> Fast-forward is not really a new merge commit; Git simply advances the target reference.
+> **Interview point:** Fast-forward is a reference movement, not a new merge commit.
 
 ---
 
-## Q11. What is `git merge --no-ff`?
+## Q11. Why use `git merge --no-ff`?
 
-`--no-ff` tells Git to create a merge commit even when a fast-forward would otherwise be possible.
+`--no-ff` forces a merge commit even when a fast-forward is possible:
 
 ```bash
 git merge --no-ff feature
@@ -354,89 +365,81 @@ Conceptually:
 
 ```text
 A---B---C---------M main
-         \       /
-          D---E
+          \       /
+           D---E
 ```
 
-This can preserve an explicit branch integration point.
+This can preserve an explicit integration point for a feature or release.
 
-### Interview Trap
+### Trap
 
-`--no-ff` does **not** preserve the branch's original name forever. It preserves a merge commit representing the integration event.
+`--no-ff` does not permanently preserve the branch name. It preserves a merge commit representing the integration event.
 
 ---
 
-# 6. Merge Conflicts
+## Q12. What causes a merge conflict, and how do you resolve it?
 
-## Q12. What causes a merge conflict and how do you resolve it?
+A conflict occurs when Git cannot safely combine changes automatically.
 
-A conflict occurs when Git cannot automatically determine a valid result for overlapping changes.
-
-Typical case:
+Example:
 
 ```text
 main:    changes line 20 to A
 feature: changes line 20 to B
 ```
 
-Git cannot safely choose A or B.
-
-Check:
+Inspect the state:
 
 ```bash
 git status
 ```
 
-You may see conflict markers:
+You may see:
 
 ```text
 <<<<<<< HEAD
-current branch version
+current branch
 =======
-incoming branch version
+incoming branch
 >>>>>>> feature
 ```
 
-Resolve the file manually, remove the markers, then stage it:
+Resolve the file, remove conflict markers, then:
 
 ```bash
 git add <resolved-file>
-```
-
-For a merge:
-
-```bash
 git commit
 ```
 
-To abandon an in-progress merge:
+To abandon the merge:
 
 ```bash
 git merge --abort
 ```
 
-### Important
+### Senior approach
 
-Do not blindly use:
+1. Inspect the conflict context.
+2. Understand both sides and the intended behavior.
+3. Resolve semantically—not just syntactically.
+4. Stage only reviewed files.
+5. Run tests.
+6. Complete the merge.
 
-```bash
-git add .
-```
-
-during a conflict. Review exactly what you are staging.
+> Do not blindly use `git add .` during a complex conflict.
 
 ---
 
-# 7. Rebase
+# 4. Rebase
 
 ## Q13. What is Git rebase?
 
-Rebase changes the base of a sequence of commits by replaying those commits on another base.
+Rebase changes the base of a sequence of commits by **replaying them** onto another base.
 
 Before:
 
 ```text
-A---B---C   main
+A---B---C main
      \
       D---E feature
 ```
@@ -451,71 +454,71 @@ git rebase main
 Conceptually:
 
 ```text
-A---B---C---D'---E'   feature
+A---B---C---D'---E' feature
 ```
 
-`D'` and `E'` are newly created commits with different IDs.
+`D'` and `E'` are new commits with new IDs.
 
-### Why?
+### Why do IDs change?
 
-A commit includes its parent relationship. Changing the parent changes the commit's content and therefore its object ID.
+A commit includes its parent relationship. Changing the parent changes the commit object's content, so the resulting commit ID changes.
 
-### Interview Point
-
-> Rebase rewrites commit history. The changes may be logically identical, but the rewritten commits are new commits.
+> **Senior point:** Rebase rewrites history even when the logical code changes are unchanged.
 
 ---
 
-## Q14. Merge vs rebase?
+## Q14. Merge vs rebase — when should you choose each?
 
 | Merge | Rebase |
 |---|---|
-| Integrates histories | Replays commits onto another base |
-| Can create a merge commit | Produces rewritten commits |
-| Preserves existing commit IDs | Rewritten commits get new IDs |
+| Integrates histories | Replays commits onto a new base |
+| Can create merge commit | Creates rewritten commits |
+| Existing commit IDs remain | Replayed commit IDs change |
 | Preserves topology | Can produce a linear history |
-| Usually safer for shared public history | Best suited to private/local work unless team policy says otherwise |
+| Good for shared history | Common for private/local feature work |
 
-### Practical Rule
+### Practical rule
 
-> Rebase local/private work when it improves history; avoid rebasing commits that others are already building on unless the team explicitly coordinates it.
+Rebase private/local work when it improves clarity. Avoid rebasing commits that others are already building on unless the team explicitly coordinates the rewrite.
+
+### Senior answer
+
+> "I first determine whether the branch is shared. If it is private, rebase may be appropriate. If others depend on its published history, I normally avoid rewriting it and use merge or another non-destructive integration strategy."
 
 ---
 
 ## Q15. What does `git rebase -i` do?
 
-Interactive rebase lets you modify a sequence of commits.
+Interactive rebase lets you modify a sequence of commits:
 
 ```bash
 git rebase -i HEAD~5
 ```
 
-Common actions:
+Common operations:
 
 | Action | Meaning |
 |---|---|
 | `pick` | Keep commit |
 | `reword` | Keep changes, edit message |
-| `edit` | Stop and amend commit |
-| `squash` | Combine with previous commit and edit combined message |
-| `fixup` | Combine with previous commit, discard this commit's message |
+| `edit` | Stop for manual amendment |
+| `squash` | Combine with previous commit and edit message |
+| `fixup` | Combine and discard this commit's message |
 | `drop` | Remove commit from the rebased sequence |
 
-It is useful for cleaning up **local history before sharing it**.
+Typical use: clean up local history **before sharing it**.
 
 ---
 
-# 8. Rebase Conflicts
+## Q16. How do you resolve a rebase conflict?
 
-## Q16. You are rebasing and get conflicts. What do you do?
-
-First inspect:
+First:
 
 ```bash
 git status
 ```
 
-Resolve each conflict, then:
+Resolve the file, then:
 
 ```bash
 git add <resolved-file>
@@ -524,33 +527,26 @@ git rebase --continue
 
 Repeat until complete.
 
-If you decide to abandon the rebase:
-
-```bash
-git rebase --abort
-```
-
-### If you need to skip a problematic commit
+Other controls:
 
 ```bash
 git rebase --skip
+git rebase --abort
 ```
 
-Use this only when you understand why that commit can be skipped.
+### Important distinction
 
-### Interview Point
-
-During rebase, `git status` is your primary state-inspection command. Do not blindly run `git commit`; `git rebase --continue` controls the rebase sequence.
+During a rebase, do not normally run `git commit` to finish the operation. `git rebase --continue` advances Git's rebase state machine.
 
 ---
 
-# 9. Reset
+# 5. Reset, Revert, and Recovery
 
 ## Q17. Explain `git reset --soft`, `--mixed`, and `--hard`.
 
-`git reset` moves a branch/`HEAD` reference and can also update the index and working tree depending on the mode.
+`git reset` moves the current branch/`HEAD` and may also update the index and working tree.
 
-| Mode | HEAD/branch | Index | Working tree |
+| Mode | Branch/HEAD | Index | Tracked working tree |
 |---|---|---|---|
 | `--soft` | Moves | Unchanged | Unchanged |
 | `--mixed` | Moves | Reset | Unchanged |
@@ -562,9 +558,7 @@ During rebase, `git status` is your primary state-inspection command. Do not bli
 git reset --soft HEAD~1
 ```
 
-The previous commit is removed from the branch history, but its changes remain staged.
-
-Useful when you want to redo a commit.
+The commit is removed from the branch tip, but its changes remain staged.
 
 ### Mixed
 
@@ -572,7 +566,7 @@ Useful when you want to redo a commit.
 git reset HEAD~1
 ```
 
-`--mixed` is the default. It moves the branch and resets the index, while keeping working-tree changes.
+Mixed is the default. The branch moves and the index is reset, while working-tree changes remain.
 
 ### Hard
 
@@ -580,26 +574,24 @@ git reset HEAD~1
 git reset --hard HEAD~1
 ```
 
-Moves the branch and resets the index and tracked working tree to match the target commit.
+The branch, index, and tracked working tree are reset to the target state.
 
 > **Warning:** `--hard` can discard uncommitted tracked changes.
 
-### Interview Trap
+### Senior nuance
 
-Reset does not inherently "delete a commit object immediately." It moves references. The old commit may remain recoverable through reflog until unreachable objects are eventually pruned.
+Reset does not necessarily destroy the old commit immediately. The old commit can remain reachable through reflog or other references until it eventually becomes unreachable and eligible for cleanup.
 
 ---
 
-# 10. Revert
-
-## Q18. What is the difference between reset and revert?
+## Q18. Reset vs revert — which should you use on a shared branch?
 
 | `reset` | `revert` |
 |---|---|
-| Moves a branch/reference | Creates a new commit |
-| Can rewrite local branch history | Preserves existing history |
-| Useful for local history cleanup | Usually preferred for shared branches |
-| Can change index/worktree depending on mode | Applies inverse changes |
+| Moves a reference | Creates a new commit |
+| Can rewrite branch history | Preserves published history |
+| Useful for private/local cleanup | Usually preferred for shared branches |
+| Can affect index/worktree depending on mode | Applies inverse changes |
 
 Example:
 
@@ -607,31 +599,52 @@ Example:
 A---B---C---D
 ```
 
-Run:
-
 ```bash
 git revert C
 ```
 
-Result:
+creates:
 
 ```text
 A---B---C---D---R
 ```
 
-`R` is a new commit that reverses the changes introduced by `C`.
+`R` reverses the changes introduced by `C`.
 
-### Senior L2 Answer
+### Senior answer
 
-> On a shared branch, I normally prefer `revert` because it preserves the published history and records the rollback explicitly. I use `reset` primarily when I intentionally need to move a local/private branch.
+> "On a shared branch I normally use revert because it records the rollback without rewriting published history. I use reset when I intentionally need to move a private/local branch."
 
 ---
 
-# 11. Recovery and Reflog
+## Q19. How do you revert a merge commit?
 
-## Q19. You accidentally ran `git reset --hard`. Can the lost commit be recovered?
+A merge commit has multiple parents, so Git needs to know which parent represents the mainline.
 
-Often, yes, provided the commit/object has not become permanently unavailable through repository cleanup.
+Example:
+
+```bash
+git revert -m 1 <merge-commit>
+```
+
+`-m 1` means **use parent 1 as the mainline**; it does not mean "revert commit number 1."
+
+### Senior caution
+
+Before reverting a merge, inspect the graph:
+
+```bash
+git show --summary <merge-commit>
+git log --graph --oneline --decorate --all
+```
+
+Choose the correct mainline based on the repository topology and intended rollback.
+
+---
+
+## Q20. You accidentally ran `git reset --hard`. Can you recover?
+
+Often yes, if the desired commit has not been permanently pruned.
 
 Start with:
 
@@ -639,38 +652,36 @@ Start with:
 git reflog
 ```
 
-Example:
-
-```text
-HEAD@{0} commit ...
-HEAD@{1} commit ...
-HEAD@{2} commit ...
-```
-
-Find the previous commit and inspect it:
+Find the previous branch/HEAD position:
 
 ```bash
 git show <commit>
 ```
 
-Create a recovery branch before doing anything destructive:
+Create a recovery reference **before experimenting further**:
 
 ```bash
 git switch -c recovery <commit>
 ```
 
-### Senior L2 Approach
+Then verify:
+
+```bash
+git log --graph --oneline --decorate --all
+```
+
+### Senior recovery sequence
 
 1. Stop destructive operations.
 2. Inspect reflog.
-3. Identify the desired commit.
-4. Create a recovery reference.
-5. Verify the recovered history.
-6. Only then restore the intended branch.
+3. Identify the correct old tip.
+4. Create a recovery branch.
+5. Verify commits/files.
+6. Restore the intended branch carefully.
 
 ---
 
-## Q20. What is reflog?
+## Q21. What is reflog, and what are its limitations?
 
 Reflog records **local movements of references**, such as `HEAD` and local branches.
 
@@ -679,27 +690,68 @@ git reflog
 git reflog show main
 ```
 
-It is extremely useful after:
+It is useful after:
 
-- `reset`
-- `rebase`
-- branch movement
-- accidental checkout/reset
-- recovering a previously referenced commit
+- Reset
+- Rebase
+- Accidental branch movement
+- Detached HEAD work
+- Recovery of a previously referenced commit
 
-### Important Limitation
+### Limitations
 
-Reflog is primarily **local**. A remote repository does not automatically contain your local reflog.
+- It is primarily local.
+- It is not a remote backup.
+- Entries can expire.
+- Eventually unreachable objects may be pruned.
 
-So:
-
-> Reflog is a recovery aid, not a substitute for remote backups.
+> **Interview trap:** "I can always recover it with reflog" is incorrect.
 
 ---
 
-# 12. Remote Repositories
+## Q22. A commit "disappeared." How do you investigate?
 
-## Q21. What is the difference between `git fetch` and `git pull`?
+Do not assume it was deleted.
+
+Start with:
+
+```bash
+git log --all --oneline --decorate
+git reflog
+git branch -a
+```
+
+If necessary:
+
+```bash
+git fsck --no-reflogs
+```
+
+Possible causes:
+
+- Branch reset
+- Rebase
+- Branch deletion
+- Commit exists on another branch
+- Commit was never pushed
+- Remote history was force-pushed
+- Commit became unreachable
+
+If you find the commit:
+
+```bash
+git switch -c recovery <commit>
+```
+
+### Senior principle
+
+Create a recovery reference first. Do not make recovery harder by continuing destructive operations.
+
+---
+
+# 6. Remote Repositories
+
+## Q23. What is the difference between `git fetch` and `git pull`?
 
 `git fetch` downloads remote updates and updates remote-tracking references without integrating those changes into your current branch.
 
@@ -707,32 +759,17 @@ So:
 git fetch origin
 ```
 
-`git pull` generally performs:
+`git pull` generally means:
 
 ```text
-git fetch
-   +
-integration (merge or rebase)
+fetch
+ +
+integration
 ```
 
-The exact integration behavior depends on configuration and options.
+The integration may be merge or rebase depending on options/configuration.
 
-### Safer investigation workflow
-
-```bash
-git fetch origin
-git log HEAD..origin/main --oneline
-```
-
-Then decide whether to merge or rebase.
-
----
-
-## Q22. Why is `git fetch` useful for troubleshooting?
-
-Because it updates information about the remote without automatically modifying your current branch.
-
-For example:
+### Safer investigation
 
 ```bash
 git fetch origin
@@ -740,19 +777,15 @@ git log HEAD..origin/main --oneline
 git diff HEAD..origin/main
 ```
 
-Now you can understand what changed remotely before integrating it.
+Then choose the appropriate integration strategy.
 
-### Interview Point
-
-> `fetch` separates **information gathering** from **history integration**.
+> **Senior point:** Fetch separates **information gathering** from **history integration**.
 
 ---
 
-## Q23. What is `origin`?
+## Q24. What is `origin`? What is `upstream`?
 
-`origin` is simply the conventional default name Git assigns to the remote from which a repository was cloned.
-
-Check:
+`origin` is a conventional remote name automatically assigned when cloning. It has no special protocol meaning.
 
 ```bash
 git remote -v
@@ -764,104 +797,26 @@ You can have multiple remotes:
 git remote add upstream <url>
 ```
 
-For example:
+A common fork workflow is:
 
 ```text
 origin   → your fork
 upstream → original project
 ```
 
-The name itself has no special protocol meaning.
+Remote names are configurable labels.
 
 ---
 
-# 13. Push and Force Push
+## Q25. What is an upstream/tracking branch?
 
-## Q24. What is the difference between `git push` and `git push --force`?
-
-Normal push generally requires the remote branch to be updated in a way Git considers a fast-forward (unless special ref rules apply).
-
-```bash
-git push
-```
-
-A force push permits rewriting the remote branch reference:
-
-```bash
-git push --force
-```
-
-This can remove commits from the remote branch's visible history.
-
-### Safer Alternative
-
-```bash
-git push --force-with-lease
-```
-
-This adds a safety check intended to prevent overwriting a remote update that you have not incorporated/observed.
-
-### Important
-
-Neither option should be used casually on protected/shared branches.
-
----
-
-## Q25. When would you use `--force-with-lease`?
-
-Typical example:
-
-```text
-feature branch
-      ↓
-local rebase
-      ↓
-commit IDs changed
-      ↓
-remote feature branch must be updated
-```
-
-You may need:
-
-```bash
-git push --force-with-lease
-```
-
-It is safer than:
-
-```bash
-git push --force
-```
-
-because Git checks the expected remote state before replacing the reference.
-
-### Interview Answer
-
-> I would use `--force-with-lease` for an intentionally rewritten branch, such as my private feature branch after rebase. I would first fetch and confirm nobody else's work needs to be preserved.
-
----
-
-# 14. Tracking / Upstream Branches
-
-## Q26. What is an upstream/tracking branch?
-
-A local branch can have an upstream branch configured.
-
-For example:
+A local branch can track another branch, commonly a remote-tracking branch:
 
 ```bash
 git push -u origin feature/login
 ```
 
-The `-u` establishes tracking between:
-
-```text
-local feature/login
-        ↓
-origin/feature/login
-```
-
-After that, commands such as `git pull` and `git push` can use the configured upstream by default.
+This establishes an upstream relationship.
 
 Inspect it:
 
@@ -869,65 +824,142 @@ Inspect it:
 git branch -vv
 ```
 
-### Interview Trap
+Then Git can infer the default remote branch for commands such as push/pull in many normal workflows.
 
-`origin/feature/login` is a **remote-tracking reference** in your local repository. It is not a live network connection to the remote branch.
+### Important distinction
+
+`feature/login` and `origin/feature/login` are separate local references.
 
 ---
 
-# 15. Cherry-Pick
+## Q26. What is the difference between normal push, force push, and force-with-lease?
 
-## Q27. What is `git cherry-pick`?
+Normal push generally requires a fast-forward-compatible update.
 
-Cherry-pick applies the changes introduced by one or more existing commits onto the current branch.
+```bash
+git push
+```
+
+Force push permits replacing the remote branch reference:
+
+```bash
+git push --force
+```
+
+Safer for intentional rewrites:
+
+```bash
+git push --force-with-lease
+```
+
+| Method | Risk |
+|---|---|
+| `git push` | Lowest for normal collaboration |
+| `git push --force-with-lease` | Controlled rewrite with a remote-state expectation check |
+| `git push --force` | Can overwrite remote history without that safety check |
+
+### Important nuance
+
+`--force-with-lease` is **safer, not magically safe**. Fetch first and verify that you are not discarding someone else's work.
+
+---
+
+## Q27. A feature branch was rebased locally. How do you update the remote safely?
+
+Typical flow:
+
+```bash
+git fetch origin
+git switch feature
+git rebase origin/main
+```
+
+Resolve conflicts and test.
+
+Because the rebase changed commit IDs:
+
+```bash
+git push --force-with-lease origin feature
+```
+
+### Senior checklist
+
+- Confirm the branch is intended to be rewritten.
+- Confirm nobody else has pushed work that must be preserved.
+- Fetch current remote state.
+- Review the resulting graph.
+- Prefer `--force-with-lease` over `--force`.
+- Never normalize force-pushing protected/shared branches.
+
+---
+
+## Q28. `git push` says "non-fast-forward." What does it mean?
+
+It generally means the remote branch contains commits that your local branch does not contain.
+
+First:
+
+```bash
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+
+Then choose the correct integration strategy:
+
+```bash
+git pull --rebase
+```
+
+or:
+
+```bash
+git merge origin/main
+```
+
+Then push again.
+
+### Do not immediately do this
+
+```bash
+git push --force
+```
+
+You may overwrite someone else's work.
+
+---
+
+# 7. Selective and Temporary Changes
+
+## Q29. What is `git cherry-pick`? When would you use it?
+
+Cherry-pick applies the changes introduced by an existing commit onto the current branch:
 
 ```bash
 git cherry-pick <commit>
 ```
 
-Example:
+It creates a **new commit** on the destination branch.
 
-```text
-main:      A---B---C
-                 \
-hotfix:           D
-```
+### Common uses
 
-You can switch to another branch and cherry-pick `D`.
+- Production hotfix
+- Backporting a fix to a release branch
+- Moving one isolated change without merging an entire feature branch
 
-The result is a **new commit** on the destination branch.
-
-### Useful for
-
-- Production hotfixes
-- Backporting a specific fix
-- Moving one isolated change without merging the entire branch
-
-### Interview Point
-
-Cherry-pick copies the **change**, not the original commit identity.
-
----
-
-## Q28. What problems can cherry-pick cause?
-
-Because cherry-pick creates a new commit, it can lead to:
+### Risks
 
 - Duplicate logical changes
 - Conflicts
 - More complicated history
 - Future merge confusion
-- Difficulty identifying that the same logical fix exists under different commit IDs
 
-Use it deliberately rather than replacing normal branch integration.
+> **Interview point:** Cherry-pick copies the **change**, not the original commit identity.
 
 ---
 
-# 16. Stash
+## Q30. What is `git stash`? Is it a backup?
 
-## Q29. What is `git stash`?
-
-Stash temporarily records local changes so you can switch context without committing them to the current branch.
+Stash temporarily records local changes so you can change context without committing them to the current branch.
 
 ```bash
 git stash
@@ -936,33 +968,23 @@ git stash apply
 git stash pop
 ```
 
-Named stash:
-
-```bash
-git stash push -m "WIP login changes"
-```
-
-### Important
-
-Stash can include tracked working-tree changes and staged changes; untracked files require options such as:
+For untracked files:
 
 ```bash
 git stash push -u
 ```
 
-Ignored files require stronger options such as `-a`.
+For ignored files too:
 
-### Interview Point
+```bash
+git stash push -a
+```
 
-> Stash is temporary work management, not a reliable long-term backup strategy.
-
----
-
-## Q30. Is `git stash` a permanent backup?
+### Is it a permanent backup?
 
 No.
 
-A stash is a Git object/reference used for temporary local work, and it can be dropped or eventually become unreachable.
+A stash is temporary local work management. It can be dropped or eventually become unreachable.
 
 For important work, a private branch and commit is generally safer:
 
@@ -974,39 +996,32 @@ git commit -m "WIP: login"
 
 ---
 
-# 17. Tags
+# 8. Tags and Repository Hygiene
 
-## Q31. What is a Git tag?
+## Q31. Lightweight vs annotated tags?
 
-A tag is a reference used to identify a specific object, commonly a release commit.
+| Lightweight tag | Annotated tag |
+|---|---|
+| Reference only | Actual Git tag object |
+| Minimal metadata | Tagger, message, target, optional signature |
+| Good for simple labels | Better suited to releases |
+| No tag object/message | Can be signed |
+
+Examples:
 
 ```bash
 git tag v1.0.0
-git push origin v1.0.0
 ```
 
-Annotated tag:
+and:
 
 ```bash
 git tag -a v1.0.0 -m "Release 1.0.0"
 ```
 
-Tags are normally treated as more stable labels than branches, although a tag reference can technically be moved.
-
----
-
-## Q32. Lightweight vs annotated tag?
-
-| Lightweight tag | Annotated tag |
-|---|---|
-| Simple reference | Git tag object |
-| Minimal metadata | Stores tagger/message/target |
-| Good for simple local labels | Better for releases |
-| No tag message object | Can be signed |
-
 For production release management, annotated tags are often preferable.
 
-### Verify
+Inspect:
 
 ```bash
 git show v1.0.0
@@ -1014,11 +1029,9 @@ git show v1.0.0
 
 ---
 
-# 18. `.gitignore`
+## Q32. What does `.gitignore` do, and what does it NOT do?
 
-## Q33. What is `.gitignore`?
-
-`.gitignore` specifies patterns for files that Git should normally ignore when they are **untracked**.
+`.gitignore` defines patterns for files Git should normally ignore when they are **untracked**.
 
 Example:
 
@@ -1029,11 +1042,11 @@ node_modules/
 .terraform/
 ```
 
-### Critical Point
+### Critical limitation
 
-If a file is already tracked, adding it to `.gitignore` does **not** stop Git from tracking it.
+If a file is already tracked, adding it to `.gitignore` does not stop tracking it.
 
-For example:
+Use:
 
 ```bash
 git rm --cached <file>
@@ -1041,51 +1054,38 @@ git rm --cached <file>
 
 then commit the change.
 
-### Interview Trap
+### Security trap
 
 `.gitignore` is not a secret-management system.
 
-If a secret has already been committed, it must be treated as exposed.
+If a secret has already been committed, treat the credential as exposed.
 
 ---
 
-# 19. Removing Sensitive Data
+## Q33. A password/API key was committed. What is the correct response?
 
-## Q34. A password was accidentally committed. Is deleting the file enough?
+Deleting the file in a later commit is not sufficient because the old commit remains in history.
 
-No.
-
-Suppose:
-
-```text
-Commit A → password.txt
-Commit B → password.txt deleted
-```
-
-The secret can still exist in the history reachable from `A`.
-
-### Correct response
+Correct sequence:
 
 1. **Rotate/revoke the credential immediately.**
-2. Determine where the secret may have been copied.
-3. Remove it from history using an appropriate history-rewriting tool when required.
-4. Coordinate any forced update of shared remotes.
-5. Search for other copies.
-6. Add secret scanning/prevention controls.
+2. Determine where it may have been copied.
+3. Remove it from history if required.
+4. Coordinate any history rewrite/forced update.
+5. Search other branches, clones, artifacts, logs, and caches as appropriate.
+6. Add preventive secret scanning and secure secret storage.
 
-### Key Principle
+For history rewriting, `git filter-repo` is a modern tool to consider.
 
-> Removing a secret from the latest version does not make an exposed credential safe again. Rotate it first.
+### Core principle
 
-### Interview Point
-
-Mention tools such as `git filter-repo` for history rewriting when appropriate, while recognizing that rewriting shared history requires coordination.
+> Remove the secret from Git history, but rotate the credential first. History cleanup does not make an already exposed credential safe.
 
 ---
 
-# 20. Git Log
+# 9. Investigation and Diagnostics
 
-## Q35. How do you inspect Git history effectively?
+## Q34. How do you inspect Git history effectively?
 
 Useful commands:
 
@@ -1108,50 +1108,45 @@ This helps visualize:
 - Branches
 - Merge commits
 - Tags
-- HEAD/current references
+- HEAD
 - Divergence
+- Topology
 
-### Interview Point
+### Senior point
 
-Use `log` to understand **history**, not just to find the latest commit.
+Use `git log` to understand **history and causality**, not merely to find the latest commit.
 
 ---
 
-# 21. Git Diff
+## Q35. Explain `git diff`, `git diff --staged`, and `git diff HEAD`.
 
-## Q36. Explain `git diff` vs `git diff --staged`.
-
-| Command | Shows |
+| Command | Comparison |
 |---|---|
-| `git diff` | Working-tree changes not staged |
-| `git diff --staged` | Changes staged in the index relative to `HEAD` |
-| `git diff HEAD` | Combined working-tree + staged changes relative to `HEAD` |
+| `git diff` | Working tree vs index |
+| `git diff --staged` | Index vs `HEAD` |
+| `git diff HEAD` | Working tree + index vs `HEAD` |
 
-Example:
-
-```bash
-git diff
-git diff --staged
-git diff HEAD
-```
-
-### Interview Scenario
-
-Before committing:
+Typical pre-commit review:
 
 ```bash
 git diff --staged
 ```
 
-is particularly useful because it tells you what your **next commit actually contains**.
+This tells you what the next commit actually contains.
+
+Remote comparison:
+
+```bash
+git diff HEAD..origin/main
+```
+
+after fetching current remote state.
 
 ---
 
-# 22. Git Bisect
+## Q36. What is `git bisect` and why is it useful?
 
-## Q37. What is `git bisect`?
-
-`git bisect` uses binary search to find the commit that introduced a regression.
+`git bisect` uses binary search to identify the commit that introduced a regression.
 
 Start:
 
@@ -1161,9 +1156,7 @@ git bisect bad
 git bisect good <known-good-commit>
 ```
 
-Git checks out candidate commits.
-
-Test the application and tell Git:
+Git checks out candidate commits. Test each candidate and classify it:
 
 ```bash
 git bisect good
@@ -1175,65 +1168,65 @@ or:
 git bisect bad
 ```
 
-Repeat until Git identifies the first bad commit.
-
 Finish:
 
 ```bash
 git bisect reset
 ```
 
-### Why is it powerful?
+If there are roughly 1,024 candidate commits, binary search needs about 10 classification rounds rather than a linear search through all commits.
 
-If you have 1,024 candidate commits, binary search can reduce the investigation to roughly 10 test rounds instead of checking every commit sequentially.
+### Automation
 
-### Interview Point
+```bash
+git bisect run <test-command>
+```
 
-The test must be meaningful and reproducible; otherwise bisect results can be misleading.
+The command must return meaningful exit codes.
+
+### Interview trap
+
+Bisect is only as reliable as the **good/bad test**. A flaky or environment-dependent test can produce misleading results.
 
 ---
 
-# 23. Git Blame
+## Q37. What is `git blame` and how should a Senior engineer use it?
 
-## Q38. What is `git blame`?
-
-`git blame` shows the commit associated with each line of a file.
+`git blame` associates each line with the commit that last changed it:
 
 ```bash
 git blame app.py
 ```
 
-Useful for finding:
+Use it to investigate:
 
-- When a line was introduced
-- Which commit changed it
-- Which author/committer is associated with that change
+- When a line changed
+- Which commit introduced it
+- Which author/committer is associated with the change
 
-### Better Senior-Level Usage
-
-Do not treat blame as assigning personal responsibility.
-
-Use it as a **history investigation starting point**, then inspect the actual commit:
+Then inspect the actual commit:
 
 ```bash
 git show <commit>
 ```
 
+### Senior principle
+
+Do not use blame as a mechanism for assigning personal fault. Use it as a **history investigation starting point**.
+
 ---
 
-# 24. Git Clean
-
-## Q39. What does `git clean` do?
+## Q38. What does `git clean` do?
 
 `git clean` removes untracked files/directories from the working tree.
 
-Always preview first:
+Always preview:
 
 ```bash
 git clean -n
 ```
 
-Then:
+Then, if appropriate:
 
 ```bash
 git clean -f
@@ -1245,29 +1238,13 @@ For directories:
 git clean -fd
 ```
 
-To include ignored files, stronger options such as `-x` are available.
+To include ignored files, options such as `-x` exist.
 
-### Warning
-
-`git clean` can permanently remove local untracked work.
-
-A good production-like troubleshooting habit is:
-
-```bash
-git clean -n
-```
-
-before:
-
-```bash
-git clean -f
-```
+> **Warning:** `git clean` can permanently remove local untracked work.
 
 ---
 
-# 25. Detached HEAD
-
-## Q40. What is detached HEAD?
+## Q39. What is detached HEAD?
 
 Normally:
 
@@ -1279,7 +1256,7 @@ main
 commit C
 ```
 
-In detached HEAD:
+Detached HEAD:
 
 ```text
 HEAD
@@ -1287,7 +1264,7 @@ HEAD
 commit C
 ```
 
-HEAD points directly to a commit rather than a local branch.
+`HEAD` points directly to a commit rather than a local branch.
 
 Example:
 
@@ -1295,342 +1272,68 @@ Example:
 git switch --detach <commit>
 ```
 
-You can inspect or test historical code.
+This is useful for testing historical code.
 
-If you create useful commits, create a branch:
+If you make valuable commits while detached, create a branch:
 
 ```bash
 git switch -c recovery-branch
 ```
 
-### Interview Trap
+### Trap
 
-Detached HEAD does **not** mean your repository is broken. It means `HEAD` is not currently attached to a branch reference.
+Detached HEAD does **not** mean the repository is broken.
 
 ---
 
-# 26. Merge vs Rebase Scenario
+# 10. Senior Production Scenarios
 
-## Q41. Your feature branch is behind `main` and has local commits. What would you do?
+## Q40. Your feature branch is behind `main` and has local commits. What do you do?
 
-First understand the remote state:
+First establish the current remote state:
 
 ```bash
 git fetch origin
-git log --oneline --graph --decorate HEAD..origin/main
+git log --graph --oneline --decorate --all
 ```
 
-For a private feature branch, I may rebase:
+Then inspect the divergence:
+
+```bash
+git log HEAD..origin/main --oneline
+git log origin/main..HEAD --oneline
+```
+
+For private feature work:
 
 ```bash
 git switch feature
 git rebase origin/main
 ```
 
-Resolve conflicts:
-
-```bash
-git add <file>
-git rebase --continue
-```
-
-Then, because rebase rewrote the feature commits:
+Resolve/test, then:
 
 ```bash
 git push --force-with-lease
 ```
 
-If the branch is shared and rewriting its history is undesirable, I would merge instead.
+If the branch is shared, prefer a non-rewriting integration strategy according to team policy.
 
-### Senior L2 Answer
+### Senior answer
 
-> First I fetch and inspect the divergence. Then I choose merge or rebase based on whether the branch is shared and on team policy. I avoid force-pushing without verifying who may be affected.
-
----
-
-# 27. Pull Request Workflow
-
-## Q42. Describe a good Git workflow for a DevOps team.
-
-A common workflow:
-
-```text
-Developer
-   │
-   │ push
-   ↓
-Feature Branch
-   │
-   ↓
-Pull Request
-   │
-   ├── CI
-   ├── Tests
-   ├── Security Scans
-   └── Code Review
-   │
-   ↓
-Protected main
-   │
-   ↓
-Release / Deployment
-```
-
-Typical controls:
-
-- Protected main branch
-- Pull Requests
-- Required reviews
-- Required CI checks
-- Secret/security scanning
-- No uncontrolled direct production changes
-- Controlled release tags
-- Traceability from commit → artifact → deployment
-
-### Interview Point
-
-The exact workflow should follow organizational policy rather than one universal branching model.
+> "First I fetch and inspect the divergence. Then I choose merge or rebase based on branch ownership, publication status, and team policy. I don't force-push until I have verified the remote state and impact."
 
 ---
 
-# 28. Branch Protection
+## Q41. You rebased the wrong branch and need the original history back. What do you do?
 
-## Q43. What is branch protection?
-
-Branch protection is a set of repository-hosting rules that reduce unsafe changes to important branches.
-
-Possible controls include:
-
-- Require Pull Requests
-- Require approvals
-- Require successful CI checks
-- Restrict force pushes
-- Restrict deletion
-- Require signed commits where appropriate
-- Require conversation resolution
-- Enforce status checks
-
-Exact controls depend on the Git hosting platform.
-
-### Senior L2 Answer
-
-> Branch protection is a governance layer around Git collaboration. It does not change Git's underlying object model; it restricts risky operations at the hosting/platform level.
-
----
-
-# 29. Git Hooks
-
-## Q44. What are Git hooks?
-
-Git hooks are scripts/programs triggered by Git lifecycle events.
-
-Examples:
-
-```text
-pre-commit
-commit-msg
-pre-push
-post-merge
-```
-
-Possible uses:
-
-- Formatting
-- Linting
-- Commit-message validation
-- Local checks
-- Developer automation
-
-### Security Limitation
-
-Client-side hooks are not a complete enforcement mechanism because users can bypass or replace them.
-
-Critical checks should also run in CI/server-side controls.
-
----
-
-# 30. Git LFS
-
-## Q45. What is Git LFS?
-
-Git LFS (Large File Storage) is designed for large files such as:
-
-- Large binaries
-- Media
-- Machine-learning artifacts
-- Large datasets
-
-Git stores lightweight pointer files in the normal repository while the actual large content is stored through LFS infrastructure.
-
-### Why?
-
-Large binary files are expensive in normal Git history because Git is optimized primarily for source-oriented versioning, not repeatedly changing large binaries.
-
----
-
-# 31. Git Repository Performance
-
-## Q46. A repository has become very large. How would you investigate?
-
-First inspect repository/object statistics:
-
-```bash
-git count-objects -vH
-```
-
-To inspect objects:
-
-```bash
-git rev-list --objects --all
-```
-
-For deeper investigation, identify large blobs/paths and determine whether the problem is:
-
-- Large binaries
-- Generated files
-- Build artifacts
-- Archives
-- Accidentally committed files
-- Historical secrets
-
-Potential solutions:
-
-- Improve `.gitignore`
-- Use Git LFS
-- Remove generated artifacts from future commits
-- Rewrite history when necessary
-- Run appropriate repository maintenance
-
-### Important
-
-Adding a file to `.gitignore` today does not remove the file from old history.
-
-History rewriting on a shared repository must be coordinated.
-
----
-
-# 32. Git Garbage Collection
-
-## Q47. What is `git gc`?
-
-`git gc` performs repository maintenance such as:
-
-- Packing objects
-- Optimizing storage
-- Pruning objects that are eligible to be removed according to Git's retention rules
-
-Modern Git performs automatic maintenance in many circumstances.
-
-### Recovery Warning
-
-Do not casually perform aggressive cleanup when you are trying to recover recently unreachable commits.
-
-A commit made unreachable by reset/rebase may remain recoverable for some time, but eventual cleanup can make recovery much harder or impossible.
-
----
-
-# 33. Remote Troubleshooting
-
-## Q48. `git push` fails with "non-fast-forward". What does it mean?
-
-It generally means the remote branch has commits that your local branch does not contain, so Git will not move the remote reference forward without integrating the histories.
-
-First:
-
-```bash
-git fetch origin
-```
-
-Then inspect:
-
-```bash
-git log HEAD..origin/main --oneline
-```
-
-Depending on the workflow:
-
-```bash
-git pull --rebase
-```
-
-or:
-
-```bash
-git merge origin/main
-```
-
-Then push again.
-
-### Do Not Immediately Do
-
-```bash
-git push --force
-```
-
-because you may overwrite someone else's remote history.
-
----
-
-# 34. Authentication Failure
-
-## Q49. Git push suddenly asks for credentials or fails authentication. What do you check?
-
-First inspect the remote:
-
-```bash
-git remote -v
-```
-
-Determine whether it uses:
-
-- SSH
-- HTTPS
-- Credential manager
-- Personal access token
-- SSO/enterprise identity
-
-### SSH checks
-
-```bash
-ssh -T git@<git-host>
-ssh-add -l
-```
-
-Also inspect:
-
-```bash
-ssh -vT git@<git-host>
-```
-
-when deeper troubleshooting is required.
-
-### HTTPS
-
-Check whether the token/credential:
-
-- Exists
-- Has expired
-- Has sufficient permissions
-- Is accepted by the organization
-- Requires SSO authorization
-
-Never place credentials directly in repository URLs or scripts.
-
----
-
-# 35. Reflog Recovery Scenario
-
-## Q50. You rebased the wrong branch and lost the original commits. How do you recover?
-
-First:
+Use reflog:
 
 ```bash
 git reflog
 ```
 
-Identify the `HEAD` position before the incorrect rebase.
-
-Inspect:
+Find the position before the incorrect rebase:
 
 ```bash
 git show <old-commit>
@@ -1648,76 +1351,37 @@ Then compare:
 git log --graph --oneline --decorate --all
 ```
 
-Once the correct commits are identified, restore the intended branch carefully.
+Only after identifying the correct history should you restore the intended branch.
 
-### Senior L2 Principle
-
-> Establish a recovery reference before experimenting further. Do not make recovery harder by continuing destructive operations.
+> **Senior principle:** Establish a recovery reference before performing further recovery operations.
 
 ---
 
-# 36. Senior L2 Production Scenarios
+## Q42. Someone force-pushed `main` and removed other developers' commits. What is your response?
 
-## Q51. A developer says their commit disappeared. How do you investigate?
-
-Do not assume deletion.
-
-Start with:
-
-```bash
-git log --all --oneline --decorate
-git reflog
-git branch -a
-```
-
-If necessary:
-
-```bash
-git fsck --no-reflogs
-```
-
-Possible causes:
-
-- Branch reset
-- Rebase
-- Commit exists on another branch
-- Commit was never pushed
-- Branch deleted
-- Remote branch force-pushed
-- Commit became unreachable
-
-If found, create a recovery branch immediately:
-
-```bash
-git switch -c recovery <commit>
-```
-
----
-
-## Q52. Someone force-pushed `main` and removed other developers' commits. What do you do?
-
-Treat it as a history-recovery incident.
+Treat it as a **history-recovery incident**, not simply another Git command problem.
 
 ### Response
 
 1. Stop further destructive pushes.
-2. Determine the intended previous state.
-3. Search local clones/reflogs for the previous tip.
+2. Determine the intended previous `main` tip.
+3. Search local clones and reflogs for the previous tip.
 4. Inspect the lost commits.
 5. Create recovery references.
-6. Coordinate the restoration with the team.
+6. Coordinate restoration with the team.
 7. Restore the protected branch to the agreed state.
-8. Prevent recurrence with branch protection and restricted force pushes.
+8. Investigate how force-push protection failed or was bypassed.
+9. Restrict force pushes and improve branch protection.
 
-### Key Principle
+### Trap
 
-> Do not blindly force-push another "fix." First establish the correct desired history.
+Do not blindly force-push another "fix." First establish the desired canonical history.
 
 ---
 
-## Q53. A merge introduced a production bug. How do you identify the commit?
+## Q43. A production regression was introduced somewhere in the last 200 commits. How do you find it efficiently?
 
-If you know a good commit and a bad commit:
+Use bisect.
 
 ```bash
 git bisect start
@@ -1725,43 +1389,362 @@ git bisect bad
 git bisect good <known-good-commit>
 ```
 
-Run the application's test/validation at each candidate.
+Run the regression test at each candidate.
+
+For repeatable tests:
 
 ```bash
-git bisect good
+git bisect run ./test-regression.sh
 ```
 
-or:
-
-```bash
-git bisect bad
-```
-
-until Git identifies the first bad commit.
-
-Then:
+Once identified:
 
 ```bash
 git bisect reset
+git show <bad-commit>
 ```
 
-### Senior L2 Point
+Then decide whether the correct remediation is revert, forward fix, or another controlled rollback.
 
-Automate the test when possible:
+### Senior point
 
-```bash
-git bisect run <test-command>
-```
-
-The test should return an appropriate success/failure exit code.
+The hard part is not running `bisect`; it is defining a reliable **binary good/bad predicate**.
 
 ---
 
-# 37. Git Security
+## Q44. A merge introduced a bug, but the merge commit itself contains no obvious bad line. How do you reason about it?
+
+Do not assume the merge commit's own textual diff explains the whole regression.
+
+Investigate:
+
+```bash
+git show --cc <merge-commit>
+git log --graph --oneline --decorate --all
+```
+
+Then inspect the commits brought into the branch.
+
+A merge changes the resulting tree based on both parents and conflict-resolution decisions. The defect may therefore originate from:
+
+- A feature commit
+- An incorrect conflict resolution
+- An interaction between two changes
+- A dependency/configuration change
+
+Use bisect or targeted testing against the relevant history when needed.
+
+---
+
+## Q45. How would you investigate a repository that has become very large?
+
+First determine whether the growth is from normal history or large objects:
+
+```bash
+git count-objects -vH
+git rev-list --objects --all
+```
+
+Investigate large:
+
+- Binaries
+- Archives
+- Generated files
+- Build artifacts
+- Datasets
+- Accidentally committed files
+- Historical secrets
+
+Potential remedies:
+
+| Problem | Possible response |
+|---|---|
+| Generated artifacts | Stop tracking; improve `.gitignore` |
+| Large binaries | Consider Git LFS |
+| Bad historical content | History rewrite when justified |
+| Many loose objects | Repository maintenance |
+| Old/unreachable data | Normal Git maintenance/pruning policy |
+
+### Important
+
+Adding a file to `.gitignore` today does **not** remove it from old history.
+
+---
+
+## Q46. What does `git gc` do, and why can it matter during recovery?
+
+Git maintenance can:
+
+- Pack objects
+- Optimize storage
+- Remove/prune objects eligible for cleanup
+- Reduce repository overhead
+
+Modern Git can perform maintenance automatically.
+
+### Recovery warning
+
+If you are recovering recently unreachable commits, do not casually run aggressive cleanup. An unreachable object may remain recoverable for a period, but eventual pruning can make recovery impossible.
+
+> **Senior point:** Repository maintenance and recovery are related because reachability determines whether old objects remain available.
+
+---
+
+# 11. Remote and Authentication Troubleshooting
+
+## Q47. Git push suddenly fails authentication. How do you troubleshoot?
+
+Start with:
+
+```bash
+git remote -v
+```
+
+Determine the transport:
+
+- SSH
+- HTTPS
+- Credential manager
+- Personal access token
+- SSO/enterprise identity
+
+### SSH
+
+```bash
+ssh -T git@<git-host>
+ssh-add -l
+ssh -vT git@<git-host>
+```
+
+Check:
+
+- Correct key
+- Agent state
+- Host/key configuration
+- Repository permissions
+- Organization SSO requirements
+
+### HTTPS
+
+Check:
+
+- Token exists
+- Token has not expired
+- Token has required permissions
+- Organization policy allows it
+- SSO authorization is satisfied
+- Credential manager is not returning stale credentials
+
+### Security rule
+
+Never put credentials directly in repository URLs, shell scripts, or source code.
+
+---
+
+## Q48. A developer can clone but cannot push. What does that tell you?
+
+It suggests that **read access is working but write authorization may not be**—although transport, authentication, branch policy, or repository configuration can still be involved.
+
+Investigate:
+
+```bash
+git remote -v
+git ls-remote origin
+```
+
+Then verify:
+
+- Identity/authentication
+- Repository permissions
+- Target branch permissions
+- Protected branch rules
+- Required PR workflow
+- SSO/token scope
+- Correct remote URL
+
+### Senior point
+
+Separate the problem into:
+
+```text
+Can I reach the remote?
+        ↓
+Can I authenticate?
+        ↓
+Can I read?
+        ↓
+Can I write?
+        ↓
+Is this branch allowed to be updated?
+```
+
+---
+
+# 12. Collaboration and Governance
+
+## Q49. Describe a good Git workflow for a DevOps team.
+
+A common controlled flow is:
+
+```text
+Developer
+   │
+   │ push
+   ▼
+Feature Branch
+   │
+   ▼
+Pull Request
+   │
+   ├── CI
+   ├── Tests
+   ├── Security Scans
+   └── Code Review
+   │
+   ▼
+Protected main
+   │
+   ▼
+Release / Deployment
+```
+
+Typical controls:
+
+- Protected main branch
+- Pull Requests
+- Required reviews
+- Required CI checks
+- Secret/security scanning
+- Restricted force-push
+- Controlled release tags
+- Traceability from commit → artifact → deployment
+
+### Important
+
+There is no single universal branching model. The workflow should match organizational release and deployment policy.
+
+---
+
+## Q50. What is branch protection?
+
+Branch protection is a **hosting/platform governance layer** that reduces unsafe changes to important branches.
+
+Possible controls:
+
+- Require Pull Requests
+- Require approvals
+- Require successful CI checks
+- Restrict force pushes
+- Restrict branch deletion
+- Require signed commits where appropriate
+- Require status checks
+- Require conversation resolution
+
+### Important distinction
+
+Branch protection does not change Git's underlying object model. It restricts operations at the hosting/platform layer.
+
+---
+
+## Q51. What are Git hooks, and are they sufficient for security enforcement?
+
+Hooks are programs triggered by Git lifecycle events.
+
+Examples:
+
+```text
+pre-commit
+commit-msg
+pre-push
+post-merge
+```
+
+Uses include:
+
+- Formatting
+- Linting
+- Commit-message validation
+- Local automation
+- Pre-push tests
+
+### Security limitation
+
+Client-side hooks are not a complete enforcement mechanism because users can bypass or replace them.
+
+Critical controls should also be enforced through:
+
+- CI
+- Server/platform rules
+- Protected branches
+- Central security tooling
+
+---
+
+# 13. Git LFS and Performance
+
+## Q52. What is Git LFS and when would you use it?
+
+Git LFS (Large File Storage) is designed for large files such as:
+
+- Large binaries
+- Media
+- Machine-learning artifacts
+- Large datasets
+
+Normal Git stores a lightweight pointer in the repository while the actual large content is stored in LFS infrastructure.
+
+### Why?
+
+Repeatedly changing large binaries can make normal Git history expensive in storage and transfer.
+
+Use LFS when the files genuinely need versioning but are poorly suited to ordinary Git object storage.
+
+---
+
+## Q53. How would you improve Git performance in a large repository?
+
+First measure instead of guessing.
+
+Useful areas to investigate:
+
+- Repository/object size
+- Large blobs
+- Generated artifacts
+- Huge histories
+- Large working trees
+- Unnecessary files
+- Remote transfer volume
+- CI clone/fetch behavior
+- Repository maintenance
+
+Useful commands include:
+
+```bash
+git count-objects -vH
+git rev-list --objects --all
+git maintenance run
+```
+
+Depending on repository size and workflow, consider:
+
+- Better `.gitignore`
+- Git LFS for suitable large files
+- Removing generated artifacts from version control
+- History cleanup when justified
+- Appropriate Git maintenance
+- CI strategies such as shallow/partial/sparse workflows where compatible with the build
+
+### Senior principle
+
+Do not use history rewriting as the first response to every large repository. Identify the actual source of growth first.
+
+---
+
+# 14. Git Security
 
 ## Q54. How would you secure Git usage in a DevOps environment?
 
-I would combine technical controls and governance:
+Use layered controls:
 
 | Area | Controls |
 |---|---|
@@ -1769,33 +1752,35 @@ I would combine technical controls and governance:
 | Branches | Protected branches, restricted force-push |
 | Review | Pull Requests, required approvals |
 | CI | Tests, SAST, dependency/security scanning |
-| Secrets | Secret scanning, credential rotation, secure secret storage |
+| Secrets | Secret scanning, rotation, secure secret storage |
 | Identity | Short-lived credentials where supported |
 | Integrity | Signed commits/tags where appropriate |
-| Audit | Repository and platform audit logs |
-| Prevention | Hooks plus server/CI enforcement |
+| Audit | Repository/platform audit logs |
+| Prevention | Hooks plus CI/server enforcement |
 
-### Important
+### Important distinction
 
-`.gitignore` only prevents normal tracking of matching untracked files. It is not a secret vault.
+Signed commits/tags can help establish authenticity/integrity of the signed object. They do **not** prove that the code is safe.
+
+`.gitignore` also does not protect secrets.
 
 ---
 
-# 38. Git + CI/CD
+# 15. Git + CI/CD
 
-## Q55. How does Git integrate with Jenkins or another CI/CD system?
+## Q55. How should Git integrate with Jenkins/CI/CD, and why is the commit SHA critical?
 
-Typical flow:
+A typical flow is:
 
 ```text
 Developer
    │
-   │ git push
-   ↓
+   │ push
+   ▼
 Remote Repository
    │
    │ webhook/event
-   ↓
+   ▼
 CI System
    │
    ├── Checkout exact revision
@@ -1805,31 +1790,11 @@ CI System
    ├── Package Artifact
    └── Publish
             │
-            ↓
+            ▼
         Deployment
 ```
 
-The pipeline should identify the **exact commit SHA** being built.
-
-A strong traceability chain is:
-
-```text
-Commit SHA
-    ↓
-Build
-    ↓
-Artifact
-    ↓
-Deployment
-```
-
-This supports auditing and rollback.
-
----
-
-# 39. Commit SHA in CI/CD
-
-## Q56. Why is commit SHA important in CI/CD?
+The pipeline should build a **specific revision**, not an ambiguous moving branch.
 
 A branch name is mutable:
 
@@ -1843,11 +1808,11 @@ Later:
 main → B
 ```
 
-If a deployment record only says `main`, you cannot reliably determine which source revision produced it.
+A deployment record that only says `main` cannot reliably identify which source revision produced it.
 
 A commit SHA identifies the exact commit.
 
-### Strong Production Traceability
+### Strong production traceability
 
 ```text
 Commit SHA
@@ -1861,25 +1826,35 @@ Artifact
 Deployment
 ```
 
-This lets you answer:
+This supports:
+
+- Auditing
+- Reproducibility
+- Rollback
+- Incident investigation
+
+A good deployment record should let you answer:
 
 - Which source produced this artifact?
 - Which artifact is running?
 - Which commit introduced the change?
 - Which exact revision should be rolled back?
 
+> **Senior L2 point:** Git integration is not just "Jenkins checks out the repo." The important engineering property is deterministic traceability from **immutable source revision → build → immutable artifact → deployment**.
+
 ---
 
-# 40. Senior L2 Git Command Sheet
+# 16. Senior L2 Command Sheet
 
-## Repository
+## Repository / state
 
 ```bash
+git status
 git init
 git clone <url>
-git status
 git remote -v
 git config --list
+git rev-parse HEAD
 ```
 
 ## Branches
@@ -1893,7 +1868,7 @@ git switch -c feature/test
 git branch -d feature/test
 ```
 
-## Changes
+## Changes / index
 
 ```bash
 git diff
@@ -1903,12 +1878,13 @@ git add <file>
 git restore <file>
 ```
 
-## Commits
+## Commits / history
 
 ```bash
 git commit -m "message"
 git commit --amend
 git log --oneline
+git log --graph --oneline --decorate --all
 git show <commit>
 ```
 
@@ -1946,73 +1922,63 @@ git rebase --abort
 git reflog
 git reset
 git revert
-git fsck
+git fsck --no-reflogs
 ```
 
-## Selective Changes
+## Selective / temporary work
 
 ```bash
 git cherry-pick <commit>
-```
-
-## Temporary Work
-
-```bash
 git stash
 git stash list
 git stash apply
 git stash pop
 ```
 
-## Investigation
+## Investigation / maintenance
 
 ```bash
 git blame <file>
 git bisect start
-git log --graph --oneline --decorate --all
+git bisect run <test-command>
 git count-objects -vH
-```
-
-## Cleanup
-
-```bash
+git maintenance run
 git clean -n
 git clean -f
-git gc
 ```
 
 ---
 
-# 41. Top 20 Senior L2 Questions
+# 17. Top 20 Senior L2 Questions
 
-Before the interview, make sure you can answer these without memorizing commands:
+Before an interview, be able to answer these without relying on command memorization:
 
-1. Git vs GitHub?
-2. Working tree vs index vs repository?
-3. What happens internally during `git commit`?
-4. What are blobs, trees, commits, and tags?
-5. What is a Git branch internally?
-6. Merge vs rebase?
-7. Fast-forward vs non-fast-forward merge?
-8. How do you resolve merge/rebase conflicts?
-9. Soft vs mixed vs hard reset?
-10. Reset vs revert?
-11. How do you recover a lost commit?
-12. What is reflog and what are its limitations?
-13. Fetch vs pull?
-14. `--force` vs `--force-with-lease`?
-15. What is cherry-pick and what problems can it cause?
-16. What is detached HEAD?
-17. How do you remove an accidentally committed secret?
-18. How do you use `git bisect` to find a regression?
-19. How do you troubleshoot a non-fast-forward push?
-20. How do you maintain Git traceability in CI/CD?
+1. **What is the difference between Git and GitHub/GitLab?**
+2. **Explain working tree vs index vs repository.**
+3. **What happens internally during `git commit`?**
+4. **What are blob, tree, commit, and annotated tag objects?**
+5. **What is a branch internally?**
+6. **What is `HEAD` and how does it relate to a branch?**
+7. **What is `origin/main` actually representing?**
+8. **Merge vs rebase—when would you choose each?**
+9. **What causes a merge/rebase conflict and how do you resolve it safely?**
+10. **Soft vs mixed vs hard reset?**
+11. **Reset vs revert on a shared branch?**
+12. **How do you revert a merge commit with `-m`?**
+13. **How do you recover a lost commit using reflog?**
+14. **Fetch vs pull, and why is fetch useful during troubleshooting?**
+15. **`--force` vs `--force-with-lease`?**
+16. **What is cherry-pick and what problems can it create?**
+17. **How do you remove a committed secret correctly?**
+18. **How do you use `git bisect` to find a production regression?**
+19. **How do you troubleshoot a non-fast-forward push or authentication failure?**
+20. **How do you guarantee commit → artifact → deployment traceability in CI/CD?**
 
 ---
 
-# 42. Senior L2 Answer Strategy
+# 18. Senior L2 Answer Strategy
 
-When the interviewer gives you a Git problem, structure the answer like this:
+When an interviewer gives you a Git incident, structure the response like this:
 
 ```text
 1. Establish current state
@@ -2039,51 +2005,71 @@ When the interviewer gives you a Git problem, structure the answer like this:
 
 6. Verify
         ↓
-   git status
-   git log
-   git diff
+   status / log / diff / tests
 
-7. Push safely
+7. Update the remote safely
         ↓
    git push
    or
    git push --force-with-lease
 ```
 
-### The Senior L2 mindset
+### A strong Senior L2 answer sounds like:
 
-Do not start with:
-
-> "I will run `git reset --hard`."
-
-Start with:
-
-> "First I will establish the current repository state and determine whether the desired commit exists locally, remotely, or only in reflog. Then I will choose the least destructive recovery method."
+> **"First I will establish the current repository state and determine whether the desired commit exists locally, remotely, or only in reflog. I will inspect the branch and commit graph before using a destructive command. Once I identify the root cause, I will choose the least-destructive operation, verify the resulting history and working tree, run the relevant validation, and only then update the remote using the safest appropriate push strategy."**
 
 ---
 
-# Final Interview Rule
+# 19. High-Value Interview Traps
 
-For Senior L2 Git interviews, demonstrate understanding of:
+These are common places where a technically correct command can still produce a weak interview answer.
+
+| Trap | Correct Senior-level understanding |
+|---|---|
+| "GitHub is Git" | Git is the VCS; GitHub is a hosting/collaboration platform |
+| "A branch contains the files" | A branch is a movable reference to a commit |
+| "`origin/main` is the remote branch itself" | It is a local remote-tracking reference updated by fetch/pull |
+| "`git add` commits a file" | It updates the index for the next commit |
+| "Rebase changes only the branch pointer" | Rebase replays commits and creates new commit IDs |
+| "`reset` deletes commits immediately" | It moves references; old commits may remain recoverable |
+| "Reflog is a remote backup" | Reflog is primarily local and can expire |
+| "`--force-with-lease` is completely safe" | It is safer, but remote state and collaboration still need verification |
+| "`git revert <merge>` is enough" | A merge revert normally needs the correct mainline parent via `-m` |
+| "`.gitignore` removes a tracked secret" | It does not; tracked content requires untracking/history cleanup |
+| "Deleting a secret file fixes exposure" | Rotate/revoke first; old history may still contain it |
+| "`git clean` is harmless cleanup" | It can permanently delete untracked work |
+| "Detached HEAD means broken Git" | HEAD simply points directly to a commit |
+| "Blame tells who is responsible" | It is a history investigation tool |
+| "Hooks enforce security" | Client hooks can be bypassed; use CI/server controls |
+| "Signed commits mean safe code" | Signatures help with authenticity/integrity, not code safety |
+| "A branch name identifies a deployment" | Use the exact commit SHA and artifact identity |
+| "Bisect always finds the bug" | It requires a reliable, reproducible good/bad test |
+
+---
+
+# 20. Final Senior L2 Checklist
+
+A Senior L2 Git engineer should be comfortable explaining:
 
 ```text
 Git
-│
-├── Objects
-│   ├── Blob
-│   ├── Tree
-│   ├── Commit
-│   └── Tag
-│
-├── References
-│   ├── Branch
-│   ├── Tag
-│   └── HEAD
 │
 ├── State
 │   ├── Working Tree
 │   ├── Index
 │   └── Repository
+│
+├── Objects
+│   ├── Blob
+│   ├── Tree
+│   ├── Commit
+│   └── Annotated Tag
+│
+├── References
+│   ├── Branch
+│   ├── Tag
+│   ├── HEAD
+│   └── Remote-tracking refs
 │
 ├── History Operations
 │   ├── Merge
@@ -2094,18 +2080,45 @@ Git
 │
 ├── Recovery
 │   ├── Reflog
-│   └── fsck
+│   ├── fsck
+│   └── Recovery branches
 │
-└── Collaboration
-    ├── Fetch
-    ├── Pull
-    ├── Push
-    ├── Tracking branches
-    └── Protected branches
+├── Collaboration
+│   ├── Fetch
+│   ├── Pull
+│   ├── Push
+│   ├── Tracking branches
+│   ├── Force-with-lease
+│   └── Protected branches
+│
+├── Investigation
+│   ├── log
+│   ├── diff
+│   ├── bisect
+│   ├── blame
+│   └── object inspection
+│
+├── Security
+│   ├── Secrets
+│   ├── Signing
+│   ├── Access control
+│   └── Secret scanning
+│
+└── CI/CD
+    ├── Exact commit SHA
+    ├── Reproducible build
+    ├── Artifact identity
+    └── Deployment traceability
 ```
 
-A strong Senior L2 answer sounds like:
+## Final Interview Rule
 
-> **"First I will inspect the current Git state and establish whether the change exists locally or remotely. I will inspect the branch and commit graph before using a destructive command. Once I identify the root cause, I will choose the least destructive operation, verify the resulting history and working tree, and only then update the remote using the safest appropriate push strategy."**
+Do not begin a production Git answer with:
 
-That demonstrates **Git internals + troubleshooting + collaboration + risk management**, rather than simple command memorization.
+> "I will run `git reset --hard`."
+
+Begin with:
+
+> **"First I will establish the current state, inspect the history and references, determine what is recoverable and what is shared, and then choose the least-destructive operation. I will verify the result before changing the remote."**
+
+That demonstrates **Git internals + troubleshooting + collaboration + risk management**, which is what distinguishes a Senior L2 answer from command memorization.
