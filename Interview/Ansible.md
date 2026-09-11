@@ -616,7 +616,7 @@ For this example, `7070` wins because extra vars have the highest precedence.
 
 Do not try to recite all precedence levels unless the interviewer specifically asks for the complete hierarchy. Explain the important levels and give an override example.
 
-> **Source note:** Ansible's official documentation lists the complete precedence order and recommends defining each variable in one clear location where possible. citeturn0search0
+> **Source note:** Ansible's official documentation lists the complete precedence order and recommends defining each variable in one clear location where possible.
 
 ## 16. What is `set_fact`?
 
@@ -1100,7 +1100,7 @@ Normal handler execution point
 Handler runs
 ```
 
-If several tasks notify the same handler, Ansible normally runs that handler only once for the host. Handler execution follows the handler definition/insertion rules, not the order in which the same handler was notified. citeturn1search10
+If several tasks notify the same handler, Ansible normally runs that handler only once for the host. Handler execution follows the handler definition/insertion rules, not the order in which the same handler was notified.
 
 ### `flush_handlers`
 
@@ -1124,7 +1124,7 @@ Use `meta: flush_handlers` when a pending handler must run **before later tasks 
 
 ### `force_handlers`
 
-If a later task fails, pending handlers normally do not run on that failed host. `force_handlers: true` changes that behavior and forces notified handlers to run even after a task failure. citeturn1search9turn1search0
+If a later task fails, pending handlers normally do not run on that failed host. `force_handlers: true` changes that behavior and forces notified handlers to run even after a task failure.
 
 ```yaml
 - name: Deploy application
@@ -1179,13 +1179,13 @@ delegate_to: localhost
 Controller calls LB / DNS / API
 ```
 
-`delegate_to` changes **where the task runs**; it does not change which hosts the play targets. citeturn1search4
+`delegate_to` changes **where the task runs**; it does not change which hosts the play targets.
 
 ## 30. What is `run_once`?
 
 **Priority: 🔴 P1**
 
-`run_once: true` bypasses the normal host loop so the task is attempted once for the **current play/batch**, rather than once per target host. With `serial`, think carefully about the current batch. citeturn1search0
+`run_once: true` bypasses the normal host loop so the task is attempted once for the **current play/batch**, rather than once per target host. With `serial`, think carefully about the current batch.
 
 ```yaml
 - name: Create deployment record
@@ -1331,7 +1331,7 @@ Example:
   when: ansible_facts['os_family'] in ['Debian', 'RedHat']
 ```
 
-Use `include_tasks` when the decision depends on runtime information. `import_tasks` is better when the task structure is known statically. citeturn0search5turn0search6
+Use `include_tasks` when the decision depends on runtime information. `import_tasks` is better when the task structure is known statically.
 
 
 # 8. P1 — Security, Validation and Troubleshooting
@@ -1829,7 +1829,7 @@ The task starts and Ansible does not wait for completion. To check it later, use
   delay: 10
 ```
 
-> **Interview shortcut:** `async` sets the maximum runtime; `poll` controls how Ansible waits/checks the task. `poll: 0` means do not wait. citeturn1search11
+> **Interview shortcut:** `async` sets the maximum runtime; `poll` controls how Ansible waits/checks the task. `poll: 0` means do not wait.
 
 ## 53. What is the difference between `inventory_hostname` and `ansible_hostname`?
 
