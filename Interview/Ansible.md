@@ -565,31 +565,22 @@ This separates configuration from automation logic.
 
 **Priority: 🔴 P1 — Very Important**
 
-A useful interview-oriented hierarchy is:
+## 🔺 Variable Precedence Pyramid (Lowest → Highest)
 
 ```text
-                 HIGHER PRECEDENCE
-                        ▲
-                        |
-              Extra vars (-e / --extra-vars)
-                        |
-              Task / block / play overrides
-                        |
-                 Host-level variables
-                        |
-                  Group variables
-                        |
-              Inventory variables
-                        |
-                 Role variables
-                        |
-               Role defaults
-                        |
-                        ▼
-                 LOWER PRECEDENCE
+                🔺 Extra vars (-e)
+              🔺 Task vars
+            🔺 Block vars
+          🔺 Include vars / set_fact
+        🔺 Role vars (role/vars)
+      🔺 Play vars
+    🔺 Host vars
+  🔺 Group vars
+🔺 Role defaults (role/defaults)
 ```
 
-This is a **simplified conceptual chart**, not the complete official precedence list. Ansible has many variable sources and special cases.
+📌 Bottom = weakest priority
+📌 Top = strongest priority
 
 ### Practical example
 
