@@ -744,69 +744,6 @@ web03: Task1 → Task2 → Task3
 
 This can improve throughput when hosts are independent.
 
-> **📝 Note:** `max_fail_percentage` is **not a strategy**. It is a **play-level failure-control keyword**.
-> Other related execution/control keywords include `strategy`, `serial`, `any_errors_fatal`, `force_handlers`, `run_once`, `delegate_to`, `throttle`, and `order`.
-
-Several Ansible keywords are used to control how a play is executed, how hosts are batched, and how failures are handled.
-
-| Keyword               | Purpose                                                                            |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `strategy`            | Controls how tasks are executed across hosts (`linear`, `free`, `host_pinned`)     |
-| `serial`              | Controls how many hosts are processed in each batch                                |
-| `max_fail_percentage` | Stops the play when the failure percentage exceeds the configured threshold        |
-| `any_errors_fatal`    | Stops the play for all hosts when a fatal error occurs on any host                 |
-| `force_handlers`      | Forces notified handlers to run even if a later task fails                         |
-| `run_once`            | Runs a task only once instead of once per host                                     |
-| `delegate_to`         | Executes a task on a different host                                                |
-| `throttle`            | Limits the number of hosts that can execute a particular task concurrently         |
-| `order`               | Controls the order in which Ansible selects hosts                                  |
-| `forks`               | Controls the maximum number of parallel worker processes on the Ansible controller |
-
-### Example
-
-```yaml
-- name: Rolling deployment
-  hosts: webservers
-  strategy: linear
-  serial: 10
-  max_fail_percentage: 20
-  any_errors_fatal: false
-
-  tasks:
-    - name: Deploy application
-      ...
-```
-
-### Easy way to remember
-
-```text
-strategy
-    ↓
-HOW hosts execute tasks
-
-serial
-    ↓
-HOW MANY hosts are processed at a time
-
-max_fail_percentage
-    ↓
-HOW MUCH failure is tolerated
-
-any_errors_fatal
-    ↓
-SHOULD a fatal error stop the play for everyone?
-
-force_handlers
-    ↓
-SHOULD notified handlers run even after a failure?
-
-forks
-    ↓
-HOW MANY hosts can Ansible process concurrently?
-```
-
-> **Interview Tip:** `strategy`, `serial`, `max_fail_percentage`, and `any_errors_fatal` are all **execution/control keywords**, but they have different purposes. Do not describe `max_fail_percentage` or `serial` as Ansible strategies.
-
 ---
 
 ## 20. What is `host_pinned` strategy and when would you use it?
@@ -1020,6 +957,69 @@ The exact behavior depends on the play and failure conditions.
 ### Interview answer
 
 > "I would use `serial` to reduce blast radius and combine it with health checks and failure thresholds so that a bad release does not continue blindly across the fleet."
+
+**📝 Note:** `max_fail_percentage` is **not a strategy**. It is a **play-level failure-control keyword**.
+Other related execution/control keywords include `strategy`, `serial`, `any_errors_fatal`, `force_handlers`, `run_once`, `delegate_to`, `throttle`, and `order`.
+
+Several Ansible keywords are used to control how a play is executed, how hosts are batched, and how failures are handled.
+
+| Keyword               | Purpose                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| `strategy`            | Controls how tasks are executed across hosts (`linear`, `free`, `host_pinned`)     |
+| `serial`              | Controls how many hosts are processed in each batch                                |
+| `max_fail_percentage` | Stops the play when the failure percentage exceeds the configured threshold        |
+| `any_errors_fatal`    | Stops the play for all hosts when a fatal error occurs on any host                 |
+| `force_handlers`      | Forces notified handlers to run even if a later task fails                         |
+| `run_once`            | Runs a task only once instead of once per host                                     |
+| `delegate_to`         | Executes a task on a different host                                                |
+| `throttle`            | Limits the number of hosts that can execute a particular task concurrently         |
+| `order`               | Controls the order in which Ansible selects hosts                                  |
+| `forks`               | Controls the maximum number of parallel worker processes on the Ansible controller |
+
+### Example
+
+```yaml
+- name: Rolling deployment
+  hosts: webservers
+  strategy: linear
+  serial: 10
+  max_fail_percentage: 20
+  any_errors_fatal: false
+
+  tasks:
+    - name: Deploy application
+      ...
+```
+
+### Easy way to remember
+
+```text
+strategy
+    ↓
+HOW hosts execute tasks
+
+serial
+    ↓
+HOW MANY hosts are processed at a time
+
+max_fail_percentage
+    ↓
+HOW MUCH failure is tolerated
+
+any_errors_fatal
+    ↓
+SHOULD a fatal error stop the play for everyone?
+
+force_handlers
+    ↓
+SHOULD notified handlers run even after a failure?
+
+forks
+    ↓
+HOW MANY hosts can Ansible process concurrently?
+```
+
+> **Interview Tip:** `strategy`, `serial`, `max_fail_percentage`, and `any_errors_fatal` are all **execution/control keywords**, but they have different purposes. Do not describe `max_fail_percentage` or `serial` as Ansible strategies.
 
 ---
 
