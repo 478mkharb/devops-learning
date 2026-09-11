@@ -2,13 +2,12 @@
 
 | Priority | Questions | Main Focus |
 |---|---|---|
-| 🔴 P1 — High | 1–25 | Architecture, push model, requirements, inventory, modules, idempotency |
-| 🔴 P1 — High | 26–45 | Variables, precedence, strategies, forks, serial, handlers, execution control |
-| 🔴 P1 — High | 46–60 | Roles, templates, file modules, Vault, AWS/cloud, troubleshooting |
-| 🟠 P2 — Medium | 61–70 | Supporting features and advanced operational topics |
-| 🟢 P3 — Low | 71–75 | Other configuration-management/automation tools and their models |
+| 🔴 P1 — High | 1–45 | Architecture, YAML, inventory, modules, idempotency, variables, strategies, handlers, roles, security, cloud and production scenarios |
+| 🟠 P2 — Medium | 46–70 | Supporting features, debugging, safe deployments and operational practices |
+| 🟢 P3 — Low | 71–75 | Other automation/configuration-management tools and their models |
 
 ---
+
 
 # 2. P1 — Core Ansible, Architecture and Execution
 
@@ -237,27 +236,22 @@ The fully qualified collection name (FQCN) makes the module's namespace explicit
 
 ---
 
-
----
-
 ## 7. YAML Scalar Styles: What are `|`, `>`, `|-`, `|+`, `>-`, and `>+`?
 
 **Priority: 🔴 P1 — Important YAML/Ansible Fundamental**
 
-These are YAML **block scalar indicators**. They are especially useful in Ansible when writing multi-line content, scripts, configuration blocks, or long strings.
+These are YAML **block scalar indicators** used to control how multi-line strings are represented.
 
-| Syntax | Name | Behavior | Typical Ansible use |
+| Syntax | Name | Behavior | Common Ansible use |
 |---|---|---|---|
-| `|` | Literal block scalar | Preserves line breaks | Multi-line file/config content |
-| `>` | Folded block scalar | Folds line breaks into spaces | Long logical text/commands |
-| `|-` | Literal + strip | Preserves line breaks, removes final newline | Exact multi-line content |
-| `|+` | Literal + keep | Preserves line breaks and trailing newlines | Content where trailing blank lines matter |
-| `>-` | Folded + strip | Folds lines and removes final newline | Long text without trailing newline |
-| `>+` | Folded + keep | Folds lines and preserves trailing newlines | Rare cases where trailing newlines matter |
+| `|` | Literal | Preserves line breaks | Multi-line configuration/content |
+| `>` | Folded | Folds line breaks into spaces | Long logical text |
+| `|-` | Literal + strip | Preserves line breaks, strips final newline | Exact multi-line content |
+| `|+` | Literal + keep | Preserves line breaks and trailing newlines | Rare trailing-newline cases |
+| `>-` | Folded + strip | Folds lines, strips final newline | Long text without final newline |
+| `>+` | Folded + keep | Folds lines, keeps trailing newlines | Rare |
 
-### `|` — Literal block scalar
-
-`|` preserves the line breaks written in YAML.
+### Examples
 
 ```yaml
 content: |
@@ -266,29 +260,7 @@ content: |
   line 3
 ```
 
-Conceptually produces:
-
-```text
-line 1
-line 2
-line 3
-```
-
-Common Ansible use:
-
-```yaml
-- name: Create application configuration
-  ansible.builtin.copy:
-    dest: /etc/myapp/app.conf
-    content: |
-      APP_ENV=prod
-      APP_PORT=8080
-      APP_NAME=notification
-```
-
-### `>` — Folded block scalar
-
-`>` folds most YAML line breaks into spaces.
+The line breaks are preserved.
 
 ```yaml
 message: >
@@ -304,85 +276,21 @@ Conceptually becomes:
 This is a long message written across several lines.
 ```
 
-This is useful when you want YAML readability but the resulting value should behave like one logical line.
-
-### `|-` — Literal with final newline stripped
-
-```yaml
-content: |-
-  hello
-  world
-```
-
-The line breaks between `hello` and `world` remain, but the final newline is stripped.
-
-### `|+` — Literal with trailing newlines kept
-
-```yaml
-content: |+
-  hello
-  world
-
-
-```
-
-Trailing newline/blank-line characters are preserved.
-
-### `>-` — Folded with final newline stripped
-
-```yaml
-message: >-
-  This is a long
-  message.
-```
-
-The lines are folded into one logical line and the final newline is stripped.
-
-### `>+` — Folded with trailing newlines kept
-
-```yaml
-message: >+
-  This is a long
-  message.
-```
-
-The lines are folded, while trailing newline characters are retained.
-
 ### Interview shortcut
 
-Remember:
-
 ```text
-|  → Literal  → line breaks stay
->  → Folded   → line breaks become spaces
+|  → Literal → line breaks stay
+>  → Folded  → line breaks become spaces
 
 -  → strip final newline
 +  → keep trailing newlines
 ```
 
-Therefore:
-
-```text
-|   = literal + normal newline handling
-|-  = literal + strip
-|+  = literal + keep
-
->   = folded + normal newline handling
->-  = folded + strip
->+  = folded + keep
-```
-
-### Common Ansible interview question
-
-**Q: Why do we use `content: |` in Ansible?**
-
-**Answer:** `|` is a YAML literal block scalar. It allows multi-line content to be written clearly while preserving the line breaks in the resulting string/file.
-
-> **Important:** `|` and `>` are YAML syntax, not Ansible modules.
+> **Important:** `|` and `>` are **YAML syntax**, not Ansible modules.
 
 ---
 
-## 7. What is idempotency in Ansible?
+## 8. What is idempotency in Ansible?
 
 **Priority: 🔴 P1**
 
@@ -428,7 +336,7 @@ Better:
 
 ---
 
-## 8. What is the difference between `command`, `shell`, and `raw`?
+## 9. What is the difference between `command`, `shell`, and `raw`?
 
 **Priority: 🔴 P1**
 
@@ -470,34 +378,6 @@ This can be useful when a newly provisioned Linux host does not yet have Python 
 
 ---
 
-## 9. What is the `raw` module used for?
-
-**Priority: 🔴 P1**
-
-The raw module is primarily useful for **bootstrapping or special environments** where normal Ansible module execution cannot yet work.
-
-Typical example:
-
-```yaml
-- name: Install Python on newly provisioned host
-  ansible.builtin.raw: |
-    apt-get update &&
-    apt-get install -y python3
-```
-
-After Python is available, use normal modules:
-
-```yaml
-- name: Install nginx
-  ansible.builtin.apt:
-    name: nginx
-    state: present
-```
-
-Think of `raw` as a **bootstrap tool**, not your normal automation mechanism.
-
----
-
 ## 10. What is an Ansible inventory?
 
 **Priority: 🔴 P1**
@@ -524,7 +404,8 @@ Inventory may be static or dynamically generated through inventory plugins.
 
 ---
 
-# 3. P1 — Dynamic Inventory and Cloud
+
+# 3. P1 — Inventory and Dynamic Inventory
 
 ## 11. What is dynamic inventory and why is it important in cloud environments?
 
@@ -647,7 +528,8 @@ This ensures that a newly created instance can be discovered without manually ed
 
 ---
 
-# 4. P1 — Variables and Precedence
+
+# 4. P1 — Variables and Variable Precedence
 
 ## 14. What are `group_vars` and `host_vars`?
 
@@ -804,6 +686,7 @@ Example:
 ```
 
 ---
+
 
 # 5. P1 — Strategies, Forks and Serial
 
@@ -1082,7 +965,8 @@ The exact behavior depends on the play and failure conditions.
 
 ---
 
-# 6. P1 — File and Configuration Modules
+
+# 6. P1 — File and Configuration Management
 
 ## 26. What is the difference between `lineinfile`, `blockinfile`, and `replace`?
 
@@ -1153,7 +1037,8 @@ For complex application configuration, a `template` is often cleaner than repeat
 
 ---
 
-# 7. P1 — Handlers and Task Execution
+
+# 7. P1 — Handlers and Execution Control
 
 ## 27. What is a handler?
 
@@ -1271,6 +1156,7 @@ run_once: true
 means the task runs once on `localhost`.
 
 ---
+
 
 # 8. P1 — Roles, Templates and Reuse
 
@@ -1396,6 +1282,7 @@ Example:
 is useful when the task file depends on runtime facts.
 
 ---
+
 
 # 9. P1 — Security, Validation and Troubleshooting
 
@@ -1573,6 +1460,7 @@ The important L2 skill is structured diagnosis rather than immediately adding a 
 
 ---
 
+
 # 10. P1 — Cloud and Production Scenarios
 
 ## 43. Can Ansible manage EC2 instances in private subnets?
@@ -1678,6 +1566,7 @@ forks = 20
 Do not simply increase forks without checking controller and target capacity.
 
 ---
+
 
 # 11. P2 — Supporting L2 Questions
 
@@ -1977,7 +1866,8 @@ contains one or more plays
 
 ---
 
-# 12. P2 — Additional Production Questions
+
+# 12. P2 — Production and Operational Questions
 
 ## 61. How do you make an Ansible deployment safe for production?
 
@@ -2188,7 +2078,8 @@ Therefore:
 
 ---
 
-# 13. P3 — Other Tools and Push/Pull Models
+
+# 13. P3 — Other Automation and Configuration-Management Tools
 
 ## 71. What other configuration-management tools are commonly used?
 
@@ -2286,72 +2177,39 @@ Then mention that the tools overlap and modern deployments can use additional me
 
 ---
 
-# 14. Quick Revision Table
-
-| Topic | Remember This |
-|---|---|
-| Ansible model | Primarily push/controller-driven |
-| Agentless | No traditional persistent Ansible agent required on Linux |
-| Dynamic inventory | Discovers current infrastructure from an external source |
-| Module | Performs an operation |
-| Playbook | Defines automation |
-| Role | Packages reusable automation |
-| Idempotency | Repeated execution converges to desired state |
-| `raw` | Useful for bootstrap/special environments |
-| `lineinfile` | One logical line |
-| `blockinfile` | Managed multi-line block |
-| `replace` | Regex-based replacement |
-| Strategy | Controls host/task scheduling behavior |
-| `linear` | Coordinated task progression |
-| `free` | Hosts can progress independently |
-| `host_pinned` | Free-like progression with host/worker affinity |
-| Forks | Worker concurrency capacity |
-| Serial | Rollout batch size |
-| Handler | Runs after notification |
-| `delegate_to` | Changes execution host |
-| `run_once` | Executes once per play |
-| `group_vars` | Group-level configuration |
-| `host_vars` | Host-specific configuration |
-| `set_fact` | Creates runtime fact/variable |
-| `register` | Stores task result |
-| `when` | Task execution condition |
-| `changed_when` | Changes reported status |
-| `failed_when` | Failure condition |
-| `template` | Renders Jinja2 |
-| `copy` | Copies static content |
-| Vault | Encrypts Ansible secrets |
-| `--check` | Preview supported changes |
-| `--diff` | Show supported differences |
-| `|` YAML scalar | Preserve line breaks |
-| `>` YAML scalar | Fold line breaks into spaces |
-| `|-` / `>-` | Strip final newline |
-| `|+` / `>+` | Keep trailing newlines |
-| `become` | Privilege escalation |
-| Collections | Namespaced Ansible content |
-| Dynamic AWS inventory | Useful with EC2/ASG |
-
----
-
-# 15. Frequently Used Ansible Modules in DevOps
+# 14. Frequently Used Ansible Modules in DevOps
 
 **Priority: 🔴 P1/P2 — Practical Reference**
 
-These are the modules you are most likely to use in day-to-day DevOps automation.
-
-## 15.1 File and Configuration Modules
-
-| Module | Main purpose | Typical use |
+| Requirement | Preferred module | Typical purpose |
 |---|---|---|
-| `file` | Manage file/directory state | Create directories, set permissions, create empty files |
-| `copy` | Copy static content | Static config files |
-| `template` | Render Jinja2 templates | Environment-specific configuration |
-| `lineinfile` | Manage one logical line | Change one setting |
-| `blockinfile` | Manage a multi-line block | Add/remove a managed configuration block |
-| `replace` | Regex-based replacement | Replace matching text patterns |
+| Directory/file state | `file` | Directories, empty files, permissions, ownership |
+| Static file/content | `copy` | Copy fixed files/content |
+| Dynamic configuration | `template` | Render Jinja2 templates |
+| One configuration line | `lineinfile` | Ensure/change one line |
+| Multi-line managed block | `blockinfile` | Add/update a block |
+| Regex replacement | `replace` | Replace matching text |
+| Package management | `package` / `apt` / `dnf` | Install/remove packages |
+| Service management | `service` / `systemd_service` | Start/stop/restart/enable services |
+| Users/groups | `user` / `group` | Account management |
+| Git deployment | `git` | Clone/update repositories |
+| File download | `get_url` | HTTP/HTTPS downloads |
+| Archive extraction | `unarchive` | Extract deployment artifacts |
+| Simple command | `command` | Execute without shell interpretation |
+| Shell syntax | `shell` | Pipes/redirection/shell features |
+| Bootstrap | `raw` | Run directly when normal module execution is unavailable |
+| HTTP/API | `uri` | REST/API calls and health checks |
+| Debugging | `debug` | Inspect values/results |
+| File inspection | `stat` | File metadata/state |
+| File discovery | `find` | Locate files |
+| Validation | `assert` | Enforce assumptions |
+| Scheduling | `cron` | Recurring jobs |
+| Kernel settings | `sysctl` | Manage kernel parameters |
+| AWS | `amazon.aws.*` | AWS resource management |
+
+## 14.1 High-value examples
 
 ### `file`
-
-Use `file` to manage the state and properties of files/directories.
 
 ```yaml
 - name: Create application directory
@@ -2363,18 +2221,7 @@ Use `file` to manage the state and properties of files/directories.
     mode: '0755'
 ```
 
-Create an empty file:
-
-```yaml
-- name: Create empty file
-  ansible.builtin.file:
-    path: /opt/myapp/app.log
-    state: touch
-```
-
 ### `copy`
-
-Use `copy` for static content.
 
 ```yaml
 - name: Copy static configuration
@@ -2384,43 +2231,104 @@ Use `copy` for static content.
     mode: '0644'
 ```
 
-Or inline content:
-
-```yaml
-- name: Create configuration
-  ansible.builtin.copy:
-    dest: /etc/myapp/app.conf
-    content: |
-      APP_ENV=prod
-      APP_PORT=8080
-```
-
 ### `template`
 
-Use `template` when the file contains variables/Jinja2 expressions.
-
 ```yaml
-- name: Generate application configuration
+- name: Generate dynamic configuration
   ansible.builtin.template:
     src: app.conf.j2
     dest: /etc/myapp/app.conf
 ```
 
-Example template:
+### `lineinfile`
 
-```jinja2
-APP_ENV={{ app_env }}
-APP_PORT={{ app_port }}
+```yaml
+- name: Set application port
+  ansible.builtin.lineinfile:
+    path: /etc/myapp/app.conf
+    regexp: '^APP_PORT='
+    line: 'APP_PORT=8080'
 ```
 
-### Decision rule
+### `blockinfile`
+
+```yaml
+- name: Add application environment block
+  ansible.builtin.blockinfile:
+    path: /etc/profile.d/myapp.sh
+    marker: "# {mark} ANSIBLE MYAPP"
+    block: |
+      export APP_ENV=prod
+      export APP_PORT=8080
+```
+
+### `replace`
+
+```yaml
+- name: Replace HTTP port
+  ansible.builtin.replace:
+    path: /etc/myapp/app.conf
+    regexp: 'port=80'
+    replace: 'port=8080'
+```
+
+### `git`
+
+```yaml
+- name: Clone application
+  ansible.builtin.git:
+    repo: https://github.com/example/myapp.git
+    dest: /opt/myapp
+    version: main
+```
+
+### `get_url`
+
+```yaml
+- name: Download application artifact
+  ansible.builtin.get_url:
+    url: https://example.com/myapp.tar.gz
+    dest: /tmp/myapp.tar.gz
+```
+
+### `uri`
+
+```yaml
+- name: Check application health
+  ansible.builtin.uri:
+    url: http://localhost:8080/health
+    method: GET
+    status_code: 200
+```
+
+### `systemd_service`
+
+```yaml
+- name: Restart application
+  ansible.builtin.systemd_service:
+    name: myapp
+    state: restarted
+```
+
+### `assert`
+
+```yaml
+- name: Validate application port
+  ansible.builtin.assert:
+    that:
+      - app_port | int > 0
+      - app_port | int < 65536
+    fail_msg: "Invalid application port"
+```
+
+## 14.2 Module selection rule
 
 ```text
-Empty file / permissions / directory?
+Empty file / directory / permissions?
         ↓
       file
 
-Static file/content?
+Static content?
         ↓
       copy
 
@@ -2439,394 +2347,76 @@ Multiple managed lines?
 Regex replacement?
         ↓
      replace
-```
 
----
-
-## 15.2 Package and Service Modules
-
-| Module | Main purpose |
-|---|---|
-| `package` | Generic package management |
-| `apt` | Debian/Ubuntu package management |
-| `dnf` | RHEL/Fedora-family package management |
-| `service` | Generic service management abstraction |
-| `systemd_service` | systemd-specific service management |
-
-Example:
-
-```yaml
-- name: Install nginx
-  ansible.builtin.apt:
-    name: nginx
-    state: present
-    update_cache: true
-```
-
-Generic package example:
-
-```yaml
-- name: Install package
-  ansible.builtin.package:
-    name: nginx
-    state: present
-```
-
-Service:
-
-```yaml
-- name: Ensure nginx is running
-  ansible.builtin.service:
-    name: nginx
-    state: started
-    enabled: true
-```
-
-systemd-specific:
-
-```yaml
-- name: Restart nginx using systemd
-  ansible.builtin.systemd_service:
-    name: nginx
-    state: restarted
-```
-
-For a changed systemd unit file:
-
-```yaml
-- name: Reload systemd manager configuration
-  ansible.builtin.systemd_service:
-    daemon_reload: true
-```
-
----
-
-## 15.3 User and Group Modules
-
-| Module | Main purpose |
-|---|---|
-| `user` | Create/manage users |
-| `group` | Create/manage groups |
-
-```yaml
-- name: Create application user
-  ansible.builtin.user:
-    name: appuser
-    shell: /bin/bash
-    create_home: true
-    state: present
-```
-
-```yaml
-- name: Create application group
-  ansible.builtin.group:
-    name: appgroup
-    state: present
-```
-
----
-
-## 15.4 Deployment and Download Modules
-
-| Module | Main purpose | Think of it as |
-|---|---|---|
-| `git` | Clone/update Git repositories | `git clone` / `git pull` |
-| `get_url` | Download files over HTTP/HTTPS | `wget`-like file download |
-| `unarchive` | Extract archives | Deploy `.tar.gz`/`.zip` content |
-| `command` | Execute a command without shell interpretation | Safe default for simple commands |
-| `shell` | Execute through a shell | Pipes, redirects, shell syntax |
-| `raw` | Execute directly through the connection | Bootstrap when normal module execution is unavailable |
-
-### Git
-
-```yaml
-- name: Clone application repository
-  ansible.builtin.git:
-    repo: https://github.com/example/myapp.git
-    dest: /opt/myapp
-    version: main
-```
-
-### `get_url`
-
-```yaml
-- name: Download application artifact
-  ansible.builtin.get_url:
-    url: https://example.com/myapp.tar.gz
-    dest: /tmp/myapp.tar.gz
-    mode: '0644'
-```
-
-### `unarchive`
-
-```yaml
-- name: Extract application
-  ansible.builtin.unarchive:
-    src: /tmp/myapp.tar.gz
-    dest: /opt/myapp
-    remote_src: true
-```
-
-### `command`
-
-```yaml
-- name: Check application version
-  ansible.builtin.command:
-    cmd: /opt/myapp/bin/app --version
-  changed_when: false
-```
-
-### `shell`
-
-```yaml
-- name: Find errors in log
-  ansible.builtin.shell: "grep ERROR /var/log/myapp.log"
-  register: errors
-  changed_when: false
-```
-
-Prefer a native module or `command` when shell features are not required.
-
-### `raw`
-
-```yaml
-- name: Bootstrap Python
-  ansible.builtin.raw: |
-    apt-get update &&
-    apt-get install -y python3
-```
-
-Use `raw` mainly for bootstrap/special cases rather than normal automation.
-
----
-
-## 15.5 HTTP and API Modules
-
-### `uri`
-
-Use `uri` to interact with HTTP/HTTPS endpoints and APIs.
-
-Health check:
-
-```yaml
-- name: Check application health
-  ansible.builtin.uri:
-    url: http://localhost:8080/health
-    method: GET
-    status_code: 200
-```
-
-POST API:
-
-```yaml
-- name: Trigger deployment API
-  ansible.builtin.uri:
-    url: https://api.example.com/deploy
-    method: POST
-    body_format: json
-    body:
-      version: "2.4.1"
-    status_code: 200,202
-```
-
-### `get_url` vs `uri`
-
-```text
-Need to download a file?
+Download a file?
         ↓
      get_url
 
-Need to interact with an HTTP/API endpoint?
+Call an HTTP/API endpoint?
         ↓
        uri
+
+Simple command?
+        ↓
+     command
+
+Need shell features?
+        ↓
+      shell
+
+Normal module execution unavailable?
+        ↓
+       raw
 ```
+
+> **Interview rule:** Prefer a purpose-built module when one exists. Use `shell`/`command` only when required, and use `raw` mainly for bootstrap or special environments.
 
 ---
 
-## 15.6 Troubleshooting and Validation Modules
+# 15. Quick Revision Table
 
-| Module | Main purpose |
+| Topic | Remember This |
 |---|---|
-| `debug` | Print variables/messages |
-| `stat` | Inspect file attributes |
-| `find` | Find files/directories |
-| `assert` | Validate assumptions |
-
-### `debug`
-
-```yaml
-- name: Show application version
-  ansible.builtin.debug:
-    var: app_version
-```
-
-### `stat`
-
-```yaml
-- name: Check configuration file
-  ansible.builtin.stat:
-    path: /etc/myapp/app.conf
-  register: config_file
-```
-
-### `find`
-
-```yaml
-- name: Find log files
-  ansible.builtin.find:
-    paths: /var/log/myapp
-    patterns: "*.log"
-  register: logs
-```
-
-### `assert`
-
-```yaml
-- name: Validate application port
-  ansible.builtin.assert:
-    that:
-      - app_port | int > 0
-      - app_port | int < 65536
-    fail_msg: "Invalid application port"
-```
-
----
-
-## 15.7 Linux Scheduling and System Configuration
-
-| Module | Main purpose |
-|---|---|
-| `cron` | Schedule recurring jobs |
-| `mount` | Manage filesystem mounts |
-| `sysctl` | Manage kernel parameters |
-
-Example:
-
-```yaml
-- name: Schedule log cleanup
-  ansible.builtin.cron:
-    name: "Application log cleanup"
-    minute: "0"
-    hour: "2"
-    job: "/opt/myapp/cleanup.sh"
-```
-
-```yaml
-- name: Configure kernel parameter
-  ansible.builtin.sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    state: present
-    reload: true
-```
-
----
-
-## 15.8 AWS/Cloud Modules
-
-For AWS automation, Ansible commonly uses the `amazon.aws` collection.
-
-Examples include:
-
-| Module | Typical use |
-|---|---|
-| `amazon.aws.ec2_instance` | Create/manage EC2 instances |
-| `amazon.aws.ec2_security_group` | Manage security groups |
-| `amazon.aws.s3_object` | Manage S3 objects |
-| AWS inventory plugins | Discover current AWS resources |
-
-Example:
-
-```yaml
-- name: Launch EC2 instance
-  amazon.aws.ec2_instance:
-    name: dev-app
-    instance_type: t3.small
-    image_id: ami-xxxxxxxx
-    state: present
-```
-
-For cloud environments, dynamic inventory is often more important than manually maintaining instance IP addresses.
-
----
-
-## 15.9 Practical DevOps Deployment Flow
-
-A typical EC2 application deployment may look like:
-
-```text
-Dynamic Inventory
-       ↓
-Identify application servers
-       ↓
-Install packages
-       ↓
-Create application user/directories
-       ↓
-Download Git/artifact
-       ↓
-Render configuration
-       ↓
-Validate configuration
-       ↓
-Restart/reload service
-       ↓
-Run HTTP health check
-       ↓
-Report result
-```
-
-Possible modules:
-
-```text
-amazon.aws.*       → discover/manage AWS resources
-git                → source deployment
-get_url            → artifact download
-unarchive          → extract artifact
-file               → directories/permissions
-template           → configuration
-systemd_service    → service lifecycle
-uri                → health check
-assert             → validation
-debug              → troubleshooting
-```
-
----
-
-## 15.10 Module Selection Cheat Sheet
-
-| Requirement | Preferred module |
-|---|---|
-| Create directory | `file` |
-| Create empty file | `file` |
-| Set permissions/ownership | `file` |
-| Copy static file | `copy` |
-| Create static inline content | `copy` |
-| Generate dynamic config | `template` |
-| Change one config line | `lineinfile` |
-| Manage multi-line config block | `blockinfile` |
-| Regex text replacement | `replace` |
-| Install package | `package` / `apt` / `dnf` |
-| Start/stop service | `service` / `systemd_service` |
-| Create user | `user` |
-| Create group | `group` |
-| Clone Git repository | `git` |
-| Download file | `get_url` |
-| HTTP/API call | `uri` |
-| Extract archive | `unarchive` |
-| Simple command | `command` |
-| Shell pipeline/redirection | `shell` |
-| Bootstrap host without Python | `raw` |
-| Print variable | `debug` |
-| Inspect file | `stat` |
-| Find files | `find` |
-| Validate condition | `assert` |
-| Schedule cron job | `cron` |
-| Manage kernel parameters | `sysctl` |
-| Manage AWS resources | `amazon.aws.*` |
-
-### Interview rule
-
-> **Prefer a purpose-built Ansible module when one exists. Use `shell`/`command` only when they are actually needed, and use `raw` mainly for bootstrap or special environments.**
-
----
+| Ansible model | Primarily push/controller-driven |
+| Agentless | No traditional persistent Ansible agent required on Linux |
+| Dynamic inventory | Discovers current infrastructure from an external source |
+| Module | Performs an operation |
+| Playbook | Defines automation |
+| Role | Packages reusable automation |
+| Idempotency | Repeated execution converges to desired state |
+| `|` YAML scalar | Literal; preserve line breaks |
+| `>` YAML scalar | Folded; line breaks become spaces |
+| `|-` / `>-` | Strip final newline |
+| `|+` / `>+` | Keep trailing newlines |
+| `raw` | Bootstrap/special environments |
+| `lineinfile` | One logical line |
+| `blockinfile` | Managed multi-line block |
+| `replace` | Regex-based replacement |
+| Strategy | Controls host/task scheduling |
+| `linear` | Coordinated task progression |
+| `free` | Hosts can progress independently |
+| `host_pinned` | Free-like progression with host/worker affinity |
+| Forks | Worker concurrency capacity |
+| Serial | Rollout batch size |
+| Handler | Runs after notification |
+| `delegate_to` | Changes execution host |
+| `run_once` | Executes once per play |
+| `group_vars` | Group-level configuration |
+| `host_vars` | Host-specific configuration |
+| `set_fact` | Creates runtime fact/variable |
+| `register` | Stores task result |
+| `when` | Task execution condition |
+| `changed_when` | Controls changed status |
+| `failed_when` | Controls failure status |
+| `template` | Renders Jinja2 |
+| `copy` | Copies static content |
+| Vault | Encrypts Ansible secrets |
+| `--check` | Preview supported changes |
+| `--diff` | Show supported differences |
+| `become` | Privilege escalation |
+| Collections | Namespaced Ansible content |
+| `uri` | HTTP/API interaction |
+| `get_url` | File download |
+| `git` | Git repository management |
+| `systemd_service` | systemd-specific service management |
+| Dynamic AWS inventory | Useful with EC2/ASG |
