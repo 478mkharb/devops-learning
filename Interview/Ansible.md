@@ -660,11 +660,15 @@ or inspect:
 
 **Priority: 🔴 P1**
 
-| Keyword | Purpose |
-|---|---|
-| `when` | Whether a task should execute |
-| `changed_when` | Whether result should be marked changed |
-| `failed_when` | Whether result should be treated as failure |
+They are generally called Ansible task conditionals or task result-control keywords.
+
+More precisely:
+
+| Keyword        | Common name           | Purpose                                                  |
+| -------------- | --------------------- | -------------------------------------------------------- |
+| `when`         | **Conditional**       | Controls **whether a task runs**                         |
+| `changed_when` | **Change condition**  | Controls whether Ansible reports the task as **changed** |
+| `failed_when`  | **Failure condition** | Controls whether Ansible considers the task **failed**   |
 
 Example:
 
