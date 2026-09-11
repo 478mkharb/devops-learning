@@ -1,15 +1,17 @@
-# Ansible 
+# Ansible L2 Interview Questions
+
+This README is organized for **L2 DevOps / Ansible interviews**. P1 topics are the core interview areas; P2 topics cover supporting operational skills; P3 covers comparison with other automation tools.
 
 | Priority | Questions | Main Focus |
-|---|---|---|
-| 🔴 P1 - High | 1–45 | Architecture, YAML, inventory, modules, idempotency, variables, strategies, handlers, roles, security, cloud and production scenarios |
-| 🟠 P2 - Medium | 46–70 | Supporting features, debugging, safe deployments and operational practices |
-| 🟢 P3 - Low | 71–75 | Other automation/configuration-management tools and their models |
+|---|---:|---|
+| 🔴 P1 - High | 1–44 | Core Ansible, YAML, inventory, modules, idempotency, variables, execution control, handlers, roles, security, troubleshooting, cloud and production scenarios |
+| 🟠 P2 - Medium | 45–66 | Supporting features, debugging, safe deployments and operational practices |
+| 🟢 P3 - Low | 67–71 | Other automation/configuration-management tools and their models |
 
 ---
 
 
-# 2. P1 — Core Ansible, Architecture and Execution
+# 1. P1 — Core Ansible, Architecture and Execution
 
 ## 1. What is Ansible and what problem does it solve?
 
@@ -405,7 +407,7 @@ Inventory may be static or dynamically generated through inventory plugins.
 ---
 
 
-# 3. P1 — Inventory and Dynamic Inventory
+# 2. P1 — Inventory and Dynamic Inventory
 
 ## 11. What is dynamic inventory and why is it important in cloud environments?
 
@@ -529,7 +531,7 @@ This ensures that a newly created instance can be discovered without manually ed
 ---
 
 
-# 4. P1 — Variables and Variable Precedence
+# 3. P1 — Variables and Variable Precedence
 
 ## 14. What are `group_vars` and `host_vars`?
 
@@ -565,22 +567,25 @@ This separates configuration from automation logic.
 
 **Priority: 🔴 P1 — Very Important**
 
-## 🔺 Variable Precedence Pyramid (Lowest → Highest)
+Ansible has a **large precedence hierarchy**. For interviews, remember the practical rule: **more specific / more explicit definitions override weaker defaults, and extra vars (`-e`) have the highest precedence.**
+
+### Simplified conceptual chart — lowest → highest
 
 ```text
-                🔺 Extra vars (-e)
-              🔺 Task vars
-            🔺 Block vars
-          🔺 Include vars / set_fact
-        🔺 Role vars (role/vars)
-      🔺 Play vars
-    🔺 Host vars
-  🔺 Group vars
-🔺 Role defaults (role/defaults)
+Role defaults
+      ↓
+Inventory / group / host variables
+      ↓
+Play / block / task variables
+      ↓
+Role vars / include_vars / registered & set facts
+      ↓
+Role/include parameters
+      ↓
+Extra vars (-e)
 ```
 
-📌 Bottom = weakest priority
-📌 Top = strongest priority
+> **Important:** This is a learning chart, not the complete official precedence list. Ansible has more precedence levels and some levels depend on where a variable is defined.
 
 ### Practical example
 
@@ -605,13 +610,13 @@ Command:
 ansible-playbook site.yml -e "app_port=7070"
 ```
 
-For this example, `7070` wins because extra vars have very high precedence.
+For this example, `7070` wins because extra vars have the highest precedence.
 
-### Interview advice
+### Interview rule
 
-If the interviewer asks for the exact complete precedence order, state that Ansible has a detailed precedence hierarchy and then explain the important high-level levels rather than inventing an oversimplified order.
+Do not try to recite all precedence levels unless the interviewer specifically asks for the complete hierarchy. Explain the important levels and give an override example.
 
----
+> **Source note:** Ansible's official documentation lists the complete precedence order and recommends defining each variable in one clear location where possible. citeturn0search0
 
 ## 16. What is `set_fact`?
 
@@ -660,15 +665,13 @@ or inspect:
 
 **Priority: 🔴 P1**
 
-They are generally called Ansible task conditionals or task result-control keywords.
+These keywords control different parts of task execution and result handling:
 
-More precisely:
-
-| Keyword        | Common name           | Purpose                                                  |
-| -------------- | --------------------- | -------------------------------------------------------- |
-| `when`         | **Conditional**       | Controls **whether a task runs**                         |
-| `changed_when` | **Change condition**  | Controls whether Ansible reports the task as **changed** |
-| `failed_when`  | **Failure condition** | Controls whether Ansible considers the task **failed**   |
+| Keyword | Question it answers | Purpose |
+|---|---|---|
+| `when` | Should the task run? | Controls task execution |
+| `changed_when` | Should Ansible report `changed`? | Overrides the task's changed status |
+| `failed_when` | Should Ansible report `failed`? | Defines custom failure conditions |
 
 Example:
 
@@ -677,13 +680,20 @@ Example:
   ansible.builtin.command: /opt/app/check.sh
   register: result
   changed_when: false
-  failed_when: result.rc == 1
+  failed_when: result.rc not in [0, 2]
+  when: app_enabled | bool
 ```
 
----
+Read it as:
+
+```text
+when          → should the task execute?
+changed_when  → should the result count as CHANGED?
+failed_when   → should the result count as FAILED?
+```
 
 
-# 5. P1 — Strategies, Forks and Serial
+# 4. P1 — Strategies, Forks and Serial
 
 ## 19. What is Ansible's strategy?
 
@@ -941,90 +951,39 @@ Next batch
 
 **Priority: 🔴 P1 — Scenario**
 
-`serial` controls batching; it does not automatically define the complete failure policy.
+`serial` controls **batch size**; it does not by itself define the complete failure policy. In production, combine it with health checks and failure controls.
 
-You should combine rollout control with failure thresholds, health checks, and appropriate error handling.
-
-Useful concepts include:
-
-```yaml
-serial: 2
-max_fail_percentage: 20
-```
-
-The exact behavior depends on the play and failure conditions.
-
-### Interview answer
-
-> "I would use `serial` to reduce blast radius and combine it with health checks and failure thresholds so that a bad release does not continue blindly across the fleet."
-
-**📝 Note:** `max_fail_percentage` is **not a strategy**. It is a **play-level failure-control keyword**.
-Other related execution/control keywords include `strategy`, `serial`, `any_errors_fatal`, `force_handlers`, `run_once`, `delegate_to`, `throttle`, and `order`.
-
-Several Ansible keywords are used to control how a play is executed, how hosts are batched, and how failures are handled.
-
-| Keyword               | Purpose                                                                            |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `strategy`            | Controls how tasks are executed across hosts (`linear`, `free`, `host_pinned`)     |
-| `serial`              | Controls how many hosts are processed in each batch                                |
-| `max_fail_percentage` | Stops the play when the failure percentage exceeds the configured threshold        |
-| `any_errors_fatal`    | Stops the play for all hosts when a fatal error occurs on any host                 |
-| `force_handlers`      | Forces notified handlers to run even if a later task fails                         |
-| `run_once`            | Runs a task only once instead of once per host                                     |
-| `delegate_to`         | Executes a task on a different host                                                |
-| `throttle`            | Limits the number of hosts that can execute a particular task concurrently         |
-| `order`               | Controls the order in which Ansible selects hosts                                  |
-| `forks`               | Controls the maximum number of parallel worker processes on the Ansible controller |
-
-### Example
+Example:
 
 ```yaml
 - name: Rolling deployment
   hosts: webservers
   strategy: linear
-  serial: 10
-  max_fail_percentage: 20
+  serial: 2
+  max_fail_percentage: 50
   any_errors_fatal: false
-
-  tasks:
-    - name: Deploy application
-      ...
 ```
 
-### Easy way to remember
+Think of the controls this way:
 
-```text
-strategy
-    ↓
-HOW hosts execute tasks
+| Keyword | Controls |
+|---|---|
+| `strategy` | How hosts progress through tasks |
+| `serial` | How many hosts are active in the current rollout batch |
+| `forks` | Controller worker capacity |
+| `max_fail_percentage` | Failure threshold for the play |
+| `any_errors_fatal` | Whether an unhandled error stops the play for all hosts |
+| `throttle` | Concurrency for a particular task/block/play |
+| `order` | Order in which hosts are selected |
 
-serial
-    ↓
-HOW MANY hosts are processed at a time
+### Interview answer
 
-max_fail_percentage
-    ↓
-HOW MUCH failure is tolerated
+> "I would use `serial` to reduce blast radius and combine it with health checks and failure thresholds so a bad release does not continue blindly across the fleet."
 
-any_errors_fatal
-    ↓
-SHOULD a fatal error stop the play for everyone?
-
-force_handlers
-    ↓
-SHOULD notified handlers run even after a failure?
-
-forks
-    ↓
-HOW MANY hosts can Ansible process concurrently?
-```
-
-> **Interview Tip:** `strategy`, `serial`, `max_fail_percentage`, and `any_errors_fatal` are all **execution/control keywords**, but they have different purposes. Do not describe `max_fail_percentage` or `serial` as Ansible strategies.
-
----
+> **Important:** `serial` and `max_fail_percentage` are execution/failure-control keywords, not strategy plugins.
 
 
-# 6. P1 — File and Configuration Management
+# 5. P1 — File and Configuration Management
 
 ## 26. What is the difference between `lineinfile`, `blockinfile`, and `replace`?
 
@@ -1096,7 +1055,7 @@ For complex application configuration, a `template` is often cleaner than repeat
 ---
 
 
-# 7. P1 — Handlers and Execution Control
+# 6. P1 — Handlers and Execution Control
 
 ## 27. What is a handler?
 
@@ -1127,430 +1086,127 @@ If the template does not change, the handler is not triggered.
 
 **Priority: 🔴 P1 — Brain Teaser**
 
-By default, handlers run after the normal tasks for the relevant play have completed.
-
-If several tasks notify the same handler:
+A handler is **queued** when a notifying task reports `changed`. By default, notified handlers run at Ansible's normal handler execution points for the play; they do not run immediately after `notify`.
 
 ```text
-Task 1 → notify Restart
-Task 2 → notify Restart
-Task 3 → notify Restart
+Task changes
+    ↓
+notify
+    ↓
+Handler queued
+    ↓
+Normal handler execution point
+    ↓
+Handler runs
 ```
 
-the handler normally executes once for that host.
+If several tasks notify the same handler, Ansible normally runs that handler only once for the host. Handler execution follows the handler definition/insertion rules, not the order in which the same handler was notified. citeturn1search10
 
-It is a queued notification, not an immediate task execution.
+### `flush_handlers`
 
- **📝 Note — Ansible Handlers, `notify`, `flush_handlers`, Failures & `force_handlers`**
+Use `meta: flush_handlers` when a pending handler must run **before later tasks continue**:
 
- ### 1. `notify` does not execute a handler immediately
+```yaml
+- name: Update application config
+  ansible.builtin.template:
+    src: app.conf.j2
+    dest: /etc/myapp/app.conf
+  notify: Restart application
 
- When a task changes something and contains `notify`, Ansible **queues** the specified handler.
+- name: Flush pending handlers
+  ansible.builtin.meta: flush_handlers
 
- ```yaml
- - name: Update application config
-   ansible.builtin.template:
-     src: app.conf.j2
-     dest: /etc/myapp/app.conf
-   notify: Restart application
- ```
-
- ```text
- Task changes
-      ↓
- notify
-      ↓
- Handler is QUEUED
-      ↓
- Handler runs later
- ```
-
- ---
-
- ### 2. Handlers normally run at the normal handler execution point
-
- Handlers are normally executed **after the regular tasks for the play have completed successfully** for a host.
-
- ```text
- Task 1 → notify Handler A
- Task 2 → notify Handler B
- Task 3
- Task 4
-      ↓
- Normal handler execution point
-      ↓
- Handler A
- Handler B
- ```
-
- The physical location of the handler definition under `handlers:` does **not** determine when it runs.
-
- ---
-
- ### 3. If a later task fails, pending handlers normally do not run
-
- ```yaml
- tasks:
-
-   - name: Update configuration
-     ansible.builtin.template:
-       src: app.conf.j2
-       dest: /etc/myapp/app.conf
-     notify: Restart application
-
-   - name: Deploy application
-     ansible.builtin.command: /opt/deploy.sh
-     # FAILS
- ```
-
- Flow:
-
- ```text
- Update configuration
-       ↓
- CHANGED → Handler queued
-       ↓
- Deploy application
-       ↓
- ❌ FAILS
-       ↓
- Handler normally ❌ does not run
- ```
-
- ---
-
- ### 4. `flush_handlers` runs pending handlers immediately
-
- Use:
-
- ```yaml
- - name: Flush pending handlers
-   ansible.builtin.meta: flush_handlers
- ```
-
- This tells Ansible:
-
- **Execute all currently pending/notified handlers NOW.**
-
- Example:
-
- ```yaml
- tasks:
-
-   - name: Update application config
-     ansible.builtin.template:
-       src: app.conf.j2
-       dest: /etc/myapp/app.conf
-     notify: Restart application
-
-   - name: Run migration
-     ansible.builtin.command: /opt/myapp/migrate.sh
-
-   - name: Flush handlers
-     ansible.builtin.meta: flush_handlers
-
-   - name: Verify application
-     ansible.builtin.uri:
-       url: http://localhost:8080/health
- ```
-
- Flow:
-
- ```text
- Update config
-      ↓
- CHANGED → Handler queued
-      ↓
- Migration
-      ↓
- flush_handlers
-      ↓
- Handler runs NOW
-      ↓
- Health check
- ```
-
- This is useful when a handler **must execute before subsequent tasks continue**.
-
- ---
-
- ### 5. If there are multiple pending handlers, `flush_handlers` runs all of them
-
- ```yaml
- - name: Update application config
-   ansible.builtin.template:
-     src: app.conf.j2
-     dest: /etc/myapp/app.conf
-   notify:
-     - Restart application
-     - Reload nginx
-
- - name: Flush handlers
-   ansible.builtin.meta: flush_handlers
- ```
-
- Both pending handlers are executed:
-
- ```text
- notify
-   ↓
- ┌─────────────────────┐
- │ Restart application │ ← pending
- │ Reload nginx        │ ← pending
- └─────────────────────┘
-   ↓
- flush_handlers
-   ↓
- BOTH handlers execute
- ```
-
- `flush_handlers` does **not** take a handler name. It flushes the handlers that are currently pending.
-
- ---
-
- ### 6. Handler execution order
-
- If multiple handlers are pending, Ansible follows its handler execution rules; handler definitions are not executed simply because Ansible encounters them in the YAML file.
-
- A useful interview rule is:
-
- ```text
- notify → handler becomes pending
- flush_handlers → pending handlers execute
- ```
-
- ---
-
- ### 7. If a task after `flush_handlers` fails
-
- This is an important scenario.
-
- ```yaml
- tasks:
-
-   - name: Update application config
-     ansible.builtin.template:
-       src: app.conf.j2
-       dest: /etc/myapp/app.conf
-     notify: Restart application
-
-   - name: Update nginx config
-     ansible.builtin.template:
-       src: nginx.conf.j2
-       dest: /etc/nginx/nginx.conf
-     notify: Reload nginx
-
-   - name: Flush handlers
-     ansible.builtin.meta: flush_handlers
-
-   - name: Deploy application
-     ansible.builtin.command: /opt/deploy.sh
-     # FAILS
- ```
-
- Flow:
-
- ```text
- Task 1 → notify Restart application
- Task 2 → notify Reload nginx
-              ↓
-       flush_handlers
-              ↓
- Restart application ✅
- Reload nginx        ✅
-              ↓
- Task 3 → ❌ FAILS
- ```
-
- The handlers have **already executed**, so the later failure does not prevent those handlers from running.
- ---
-
- ### 8. `force_handlers`
-
- Another important option is:
-
- ```yaml
- force_handlers: true
- ```
-
- It tells Ansible to run notified handlers even when a later task fails.
-
- Example:
-
- ```yaml
- - name: Application deployment
-   hosts: webservers
-   force_handlers: true
-
-   tasks:
-     - name: Update configuration
-       ansible.builtin.template:
-         src: app.conf.j2
-         dest: /etc/myapp/app.conf
-       notify: Restart application
-
-     - name: Deploy application
-       ansible.builtin.command: /opt/deploy.sh
-       # FAILS
-
-   handlers:
-     - name: Restart application
-       ansible.builtin.systemd_service:
-         name: myapp
-         state: restarted
- ```
-
- Without `force_handlers`:
-
- ```text
- Task changes
-      ↓
- Handler queued
-      ↓
- Later task fails
-      ↓
- Handler normally ❌ does not run
- ```
-
- With `force_handlers: true`:
-
- ```text
- Task changes
-      ↓
- Handler queued
-      ↓
- Later task fails
-      ↓
- Handler runs ✅
- ```
-
- ---
-
- ### 9. `flush_handlers` vs `force_handlers`
-
- | Feature          | Purpose                                                 |
- | ---------------- | ------------------------------------------------------- |
- | `notify`         | Queues a handler when a task changes                    |
- | `flush_handlers` | Executes pending handlers **immediately at that point** |
- | `force_handlers` | Ensures notified handlers run even when a task fails    |
-
- Think of them as:
-
- ```text
- notify
-   ↓
- QUEUE
-
- flush_handlers
-   ↓
- RUN NOW
-
- force_handlers
-   ↓
- RUN EVEN AFTER FAILURE
- ```
-
- ---
-
- ### 10. Most important interview scenario
-
- ```text
- Task 1 → CHANGED → notify Handler A
- Task 2 → CHANGED → notify Handler B
- Task 3 → flush_handlers
-             ↓
-        Handler A ✅
-        Handler B ✅
-            ↓
-Task 4 → ❌ FAILS
-
+- name: Verify application
+  ansible.builtin.uri:
+    url: http://localhost:8080/health
+    status_code: 200
 ```
 
-**Result:** Handler A and Handler B have already executed because they were flushed before Task 4.
+### `force_handlers`
 
----
+If a later task fails, pending handlers normally do not run on that failed host. `force_handlers: true` changes that behavior and forces notified handlers to run even after a task failure. citeturn1search9turn1search0
 
-> > **🎯 Interview Tip:** Remember the difference between **queueing** and **executing** a handler. `notify` queues it; `flush_handlers` executes pending handlers immediately; `force_handlers` controls whether notified handlers are executed despite later task failures.
+```yaml
+- name: Deploy application
+  hosts: webservers
+  force_handlers: true
+  tasks:
+    - name: Update configuration
+      ansible.builtin.template:
+        src: app.conf.j2
+        dest: /etc/myapp/app.conf
+      notify: Restart application
 
+    - name: Deploy application
+      ansible.builtin.command: /opt/deploy.sh
+      # If this fails, the notified handler is still forced to run.
+```
 
----
+### Interview shortcut
 
-## 29. What happens to a notified handler if a later task fails?
+```text
+notify           → QUEUE the handler
+flush_handlers   → RUN pending handlers NOW
+force_handlers   → RUN notified handlers even after failure
+```
 
-**Priority: 🔴 P1 — Brain Teaser**
+> **Brain teaser:** If `flush_handlers` runs before Task 4 and Task 4 then fails, the already-flushed handler has already executed. `force_handlers` is a different mechanism: it affects handler execution after a host failure.
+
+## 29. What is `delegate_to`?
+
+**Priority: 🔴 P1**
+
+`delegate_to` makes a specific task execute on another host instead of the current target. This is common for load-balancer, DNS, API or orchestration operations.
 
 Example:
 
-```text
-Task 1 → config changed → notify Restart
-Task 2 → success
-Task 3 → failure
-```
-
-By default, a failed host may not execute its pending handlers.
-
-Use:
-
 ```yaml
-force_handlers: true
-```
-
-when the play's design requires notified handlers to execute despite later task failure.
-
----
-
-## 30. What is `delegate_to`?
-
-**Priority: 🔴 P1**
-
-`delegate_to` changes where a task executes.
-
-```yaml
-- name: Update deployment system
-  ansible.builtin.command: /opt/update.sh
+- name: Remove server from load balancer
+  ansible.builtin.command:
+    cmd: "/usr/local/bin/lb-disable {{ inventory_hostname }}"
   delegate_to: localhost
 ```
 
-The play can target 20 application servers, while this particular task runs on the control node.
+If the play targets `web01`, `web02`, and `web03`, the task still refers to each `inventory_hostname`, but the command executes on `localhost`.
 
-Common uses:
+Typical pattern:
 
-- Load balancer operations
-- API calls
-- DNS operations
-- Orchestration steps
+```text
+Play targets webservers
+        ↓
+delegate_to: localhost
+        ↓
+Controller calls LB / DNS / API
+```
 
----
+`delegate_to` changes **where the task runs**; it does not change which hosts the play targets. citeturn1search4
 
-## 31. What is `run_once`?
+## 30. What is `run_once`?
 
 **Priority: 🔴 P1**
 
-It executes a task once for the current play rather than once per target host.
+`run_once: true` bypasses the normal host loop so the task is attempted once for the **current play/batch**, rather than once per target host. With `serial`, think carefully about the current batch. citeturn1search0
 
 ```yaml
 - name: Create deployment record
   ansible.builtin.command: /opt/create-record.sh
   run_once: true
+  delegate_to: localhost
 ```
 
-With 20 target hosts, the task runs once.
+With a normal play this runs once. With a `serial` rollout, `run_once` is evaluated in the active batch, so do not casually interpret it as "once for the entire playbook regardless of batching."
 
-Together:
+### Interview distinction
 
-```yaml
-delegate_to: localhost
-run_once: true
+```text
+run_once     → HOW MANY times?
+delegate_to  → WHERE does it execute?
 ```
 
-means the task runs once on `localhost`.
 
----
+# 7. P1 — Roles, Templates and Reuse
 
-
-# 8. P1 — Roles, Templates and Reuse
-
-## 32. What is an Ansible Role?
+## 31. What is an Ansible Role?
 
 **Priority: 🔴 P1**
 
@@ -1577,7 +1233,7 @@ Roles improve:
 
 ---
 
-## 33. What is the difference between role `defaults` and `vars`?
+## 32. What is the difference between role `defaults` and `vars`?
 
 **Priority: 🔴 P1**
 
@@ -1595,7 +1251,7 @@ nginx_port: 80
 
 ---
 
-## 34. What is Jinja2 templating?
+## 33. What is Jinja2 templating?
 
 **Priority: 🔴 P1**
 
@@ -1623,7 +1279,7 @@ Variables are rendered before the resulting file is placed on the target.
 
 ---
 
-## 35. What is the difference between `copy` and `template`?
+## 34. What is the difference between `copy` and `template`?
 
 **Priority: 🔴 P1**
 
@@ -1651,32 +1307,36 @@ versus:
 
 ---
 
-## 36. What is the difference between `include_tasks` and `import_tasks`?
+## 35. What is the difference between `include_tasks` and `import_tasks`?
 
 **Priority: 🔴 P1**
 
-The interview-friendly distinction:
+The interview-friendly distinction is **dynamic vs static inclusion**:
 
 | `import_tasks` | `include_tasks` |
 |---|---|
 | Static | Dynamic |
-| Processed during parsing | Included during execution |
-| Good for predictable task structure | Good for runtime conditions/selection |
+| Tasks are added when the playbook is parsed | Tasks are included during execution |
+| Good for predictable task structure | Good for runtime selection/conditions |
+| Most keywords apply to the imported tasks | Task keywords can apply to the include itself |
 
 Example:
 
 ```yaml
-- ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
+- name: Import common tasks
+  ansible.builtin.import_tasks: common.yml
+
+- name: Include OS-specific tasks
+  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] }}.yml"
+  when: ansible_facts['os_family'] in ['Debian', 'RedHat']
 ```
 
-is useful when the task file depends on runtime facts.
-
----
+Use `include_tasks` when the decision depends on runtime information. `import_tasks` is better when the task structure is known statically. citeturn0search5turn0search6
 
 
-# 9. P1 — Security, Validation and Troubleshooting
+# 8. P1 — Security, Validation and Troubleshooting
 
-## 37. What is Ansible Vault?
+## 36. What is Ansible Vault?
 
 **Priority: 🔴 P1**
 
@@ -1713,41 +1373,47 @@ Only encrypted data is protected by Vault.
 
 ---
 
-## 38. What is check mode?
+## 37. What is check mode and what are its limitations?
 
 **Priority: 🔴 P1**
 
-Check mode previews changes where the relevant modules support it.
+Check mode asks supported modules to **predict changes without applying them**. It is useful as a safety check, but it is not a universal simulation of every side effect. Module support varies.
 
 ```bash
 ansible-playbook site.yml --check
 ```
 
-It is useful before production changes.
-
----
-
-## 39. What is diff mode?
-
-**Priority: 🔴 P1**
-
-Diff mode shows supported configuration differences.
-
-```bash
-ansible-playbook site.yml --diff
-```
-
-Often:
+For configuration review, combine it with diff mode when appropriate:
 
 ```bash
 ansible-playbook site.yml --check --diff
 ```
 
-Be careful because diffs can expose sensitive configuration.
+`--diff` shows supported before/after differences, but it can expose sensitive values. Use it carefully in CI/CD logs.
 
----
+### Interview answer
 
-## 40. `ansible all -m ping` works but the playbook fails with sudo/password errors. Why?
+> "Check mode is a useful preview, but I do not treat it as a guaranteed dry-run of every module or external side effect."
+
+## 38. What is diff mode?
+
+**Priority: 🔴 P1**
+
+Diff mode asks supported modules to return the configuration differences they detect.
+
+```bash
+ansible-playbook site.yml --diff
+```
+
+Common production review:
+
+```bash
+ansible-playbook site.yml --check --diff
+```
+
+> **Security warning:** diffs can contain passwords, tokens or other sensitive configuration. Do not blindly expose `--diff` output in shared CI/CD logs.
+
+## 39. `ansible all -m ping` works but the playbook fails with sudo/password errors. Why?
 
 **Priority: 🔴 P1 — Scenario**
 
@@ -1780,7 +1446,7 @@ and the become configuration.
 
 ---
 
-## 41. `ansible all -m ping` fails with SSH timeout. What do you check?
+## 40. `ansible all -m ping` fails with SSH timeout. What do you check?
 
 **Priority: 🔴 P1 — Troubleshooting Scenario**
 
@@ -1817,7 +1483,7 @@ ansible all -m ping -vvv
 
 ---
 
-## 42. Playbook reports success, but application still uses old configuration. What do you investigate?
+## 41. Playbook reports success, but application still uses old configuration. What do you investigate?
 
 **Priority: 🔴 P1 — Troubleshooting Brain Teaser**
 
@@ -1851,9 +1517,9 @@ The important L2 skill is structured diagnosis rather than immediately adding a 
 ---
 
 
-# 10. P1 — Cloud and Production Scenarios
+# 9. P1 — Cloud and Production Scenarios
 
-## 43. Can Ansible manage EC2 instances in private subnets?
+## 42. Can Ansible manage EC2 instances in private subnets?
 
 **Priority: 🔴 P1**
 
@@ -1887,7 +1553,7 @@ The important point is:
 
 ---
 
-## 44. How would you perform a zero/low-downtime deployment with Ansible?
+## 43. How would you perform a zero/low-downtime deployment with Ansible?
 
 **Priority: 🔴 P1 — Scenario**
 
@@ -1924,7 +1590,7 @@ The goal is to control **blast radius** and prevent a bad release from reaching 
 
 ---
 
-## 45. How would you troubleshoot a playbook that is slow on hundreds of servers?
+## 44. How would you troubleshoot a playbook that is slow on hundreds of servers?
 
 **Priority: 🔴 P1**
 
@@ -1958,9 +1624,9 @@ Do not simply increase forks without checking controller and target capacity.
 ---
 
 
-# 11. P2 — Supporting L2 Questions
+# 10. P2 — Supporting L2 Questions
 
-## 46. What is `become`?
+## 45. What is `become`?
 
 **Priority: 🟠 P2**
 
@@ -1974,7 +1640,7 @@ Commonly this means using sudo to execute tasks as root.
 
 ---
 
-## 47. What are tags?
+## 46. What are tags?
 
 **Priority: 🟠 P2**
 
@@ -1996,7 +1662,7 @@ ansible-playbook site.yml --tags install
 
 ---
 
-## 48. What is `block`, `rescue`, and `always`?
+## 47. What is `block`, `rescue`, and `always`?
 
 **Priority: 🟠 P2**
 
@@ -2028,26 +1694,38 @@ always = cleanup/finalization
 
 ---
 
-## 49. What is Ansible Galaxy?
+## 48. What is Ansible Galaxy?
 
 **Priority: 🟠 P2**
 
-Galaxy is an ecosystem for reusable Ansible content, including roles and collections.
+Ansible Galaxy is a distribution ecosystem for reusable Ansible content, including **roles and collections**. It can reduce duplicated automation and provide reusable community/vendor content.
 
-It reduces duplicated automation and helps teams consume reusable community/vendor content.
+Example:
 
----
+```bash
+ansible-galaxy collection install amazon.aws
+```
 
-## 50. What are Ansible Collections?
+Think:
+
+```text
+Galaxy
+  ↓
+Distribution / discovery of reusable content
+  ↓
+Roles + Collections
+```
+
+## 49. What are Ansible Collections?
 
 **Priority: 🟠 P2**
 
-Collections package Ansible content such as:
+A collection is a versionable package of Ansible content such as:
 
 - Modules
 - Plugins
 - Roles
-- Supporting utilities
+- Supporting content
 
 Examples:
 
@@ -2055,33 +1733,41 @@ Examples:
 amazon.aws.ec2_instance:
 ```
 
-and:
-
 ```yaml
 community.general.some_module:
 ```
 
----
+Install a collection with:
 
-## 51. What is a module versus a plugin?
+```bash
+ansible-galaxy collection install amazon.aws
+```
+
+Collections also provide the namespace used by FQCNs such as `amazon.aws.ec2_instance`.
+
+## 50. What is a module versus a plugin?
 
 **Priority: 🟠 P2**
 
-A **module** performs an operation on a managed system.
+A **module** performs an operation, usually against a managed system. A **plugin** extends or changes how Ansible itself behaves.
 
-A **plugin** extends Ansible behavior.
+| Type | Example | Purpose |
+|---|---|---|
+| Module | `ansible.builtin.copy` | Manage/copy a file |
+| Inventory plugin | `amazon.aws.aws_ec2` | Discover EC2 hosts dynamically |
+| Connection plugin | SSH/WinRM/other connection plugins | Define how Ansible connects |
+| Lookup plugin | `lookup(...)` | Retrieve data for templating/playbooks |
+| Callback plugin | Callback implementations | Control/display execution output |
+| Filter plugin | Jinja/Ansible filters | Transform values in templates |
 
-Examples of plugins:
+### Easy distinction
 
-- Inventory plugins
-- Connection plugins
-- Lookup plugins
-- Filter plugins
-- Callback plugins
+```text
+Module → performs the operation
+Plugin → extends Ansible's behavior
+```
 
----
-
-## 52. What is a lookup?
+## 51. What is a lookup?
 
 **Priority: 🟠 P2**
 
@@ -2097,11 +1783,13 @@ Lookups are especially useful when data needs to be retrieved from the control-n
 
 ---
 
-## 53. What is `async` and `poll`?
+## 52. What are `async` and `poll`?
 
-**Priority: 🟠 P2**
+**Priority: 🟠 P2 — Important**
 
-They support long-running asynchronous tasks.
+They are used for long-running tasks that should not be handled as normal synchronous execution.
+
+### `poll > 0`: asynchronous task with polling
 
 ```yaml
 - name: Run long deployment
@@ -2110,11 +1798,40 @@ They support long-running asynchronous tasks.
   poll: 10
 ```
 
-This allows the task to run asynchronously while Ansible polls for completion.
+Meaning:
 
----
+```text
+async: 1800 → maximum runtime: 1800 seconds
+poll: 10    → check status every 10 seconds
+```
 
-## 54. What is the difference between `inventory_hostname` and `ansible_hostname`?
+Ansible still waits for the task to finish, but the asynchronous mechanism helps avoid a normal connection timeout.
+
+### `poll: 0`: fire-and-forget
+
+```yaml
+- name: Start background job
+  ansible.builtin.command: /opt/long-job.sh
+  async: 1800
+  poll: 0
+  register: job
+```
+
+The task starts and Ansible does not wait for completion. To check it later, use `async_status` with the returned job ID.
+
+```yaml
+- name: Check background job
+  ansible.builtin.async_status:
+    jid: "{{ job.ansible_job_id }}"
+  register: job_status
+  until: job_status.finished
+  retries: 30
+  delay: 10
+```
+
+> **Interview shortcut:** `async` sets the maximum runtime; `poll` controls how Ansible waits/checks the task. `poll: 0` means do not wait. citeturn1search11
+
+## 53. What is the difference between `inventory_hostname` and `ansible_hostname`?
 
 **Priority: 🟠 P2**
 
@@ -2130,23 +1847,36 @@ They can be different.
 
 ---
 
-## 55. What happens if a task is not idempotent?
+## 54. What happens if a task is not idempotent?
 
-**Priority: 🟠 P2**
+**Priority: 🟠 P2 — Scenario**
 
-Repeated playbook execution may:
+Suppose a deployment script restarts nginx every time the playbook runs:
 
-- Report unnecessary changes
-- Recreate resources
-- Restart services unnecessarily
-- Fail on subsequent runs
-- Produce configuration drift
+```yaml
+- name: Restart nginx
+  ansible.builtin.command: systemctl restart nginx
+```
 
-L2 engineers should identify non-idempotent operations and replace them with state-aware modules where possible.
+The play may report `changed` on every run, even when no configuration changed. Repeated runs can therefore cause unnecessary restarts, downtime, or other side effects.
 
----
+### Better approach
 
-## 56. What is `changed_when: false` useful for?
+Use a state-aware module where possible:
+
+```yaml
+- name: Ensure nginx is running
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+```
+
+If a command is genuinely required, use `changed_when` or another appropriate condition to make Ansible's result reflect reality.
+
+> **Interview answer:** "I identify the source of non-idempotency and replace the command with a state-aware module where possible; otherwise I explicitly control the changed/failed conditions."
+
+## 55. What is `changed_when: false` useful for?
 
 **Priority: 🟠 P2**
 
@@ -2162,7 +1892,7 @@ This keeps reporting accurate.
 
 ---
 
-## 57. How do you run only one part of a large playbook?
+## 56. How do you run only one part of a large playbook?
 
 **Priority: 🟠 P2**
 
@@ -2187,7 +1917,7 @@ They solve different problems:
 
 ---
 
-## 58. Why should you prefer FQCNs?
+## 57. Why should you prefer FQCNs?
 
 **Priority: 🟠 P2**
 
@@ -2214,21 +1944,7 @@ Benefits:
 
 ---
 
-## 59. What is strategy `free` useful for?
-
-**Priority: 🟠 P2**
-
-Use it when target hosts are relatively independent and waiting for the slowest host is undesirable.
-
-```yaml
-strategy: free
-```
-
-It can improve throughput but should not be used blindly when task ordering across hosts matters.
-
----
-
-## 60. What is the difference between a module, role, play, and playbook?
+## 58. What is the difference between a module, role, play, and playbook?
 
 **Priority: 🟠 P2**
 
@@ -2257,9 +1973,9 @@ contains one or more plays
 ---
 
 
-# 12. P2 — Production and Operational Questions
+# 11. P2 — Production and Operational Questions
 
-## 61. How do you make an Ansible deployment safe for production?
+## 59. How do you make an Ansible deployment safe for production?
 
 **Priority: 🟠 P2**
 
@@ -2280,51 +1996,38 @@ Use:
 
 ---
 
-## 62. How would you structure Dev, QA and Prod inventories?
+## 60. How would you structure Dev, QA and Prod inventories?
 
 **Priority: 🟠 P2**
 
-A common approach:
+A common structure is:
 
 ```text
 inventories/
 ├── dev/
+│   ├── hosts.yml
+│   └── group_vars/
 ├── qa/
+│   ├── hosts.yml
+│   └── group_vars/
 └── prod/
+    ├── hosts.yml
+    └── group_vars/
 ```
 
-Environment-specific values can be managed through group variables and inventory variables.
+Keep the **automation logic reusable** and move environment differences into inventory/group variables.
 
-Keep the automation logic reusable and move environment differences into configuration.
-
----
-
-## 63. Why should you avoid excessive `shell` usage?
-
-**Priority: 🟠 P2**
-
-Because native modules generally provide:
-
-- Better idempotency
-- Structured results
-- Better portability
-- Clearer intent
-- Easier maintenance
-
-Use:
-
-```yaml
-ansible.builtin.user
-ansible.builtin.file
-ansible.builtin.service
-ansible.builtin.apt
+```text
+Same playbook / roles
+        +
+Different inventory + variables
+        ↓
+Dev / QA / Prod
 ```
 
-instead of shelling out to equivalent OS commands whenever a suitable module exists.
+For cloud environments, the same separation can be implemented with dynamic inventory and environment-specific filters/tags.
 
----
-
-## 64. How do you debug an Ansible task?
+## 61. How do you debug an Ansible task?
 
 **Priority: 🟠 P2**
 
@@ -2346,7 +2049,7 @@ Also inspect registered variables:
 
 ---
 
-## 65. What is the difference between failure and unreachable?
+## 62. What is the difference between failure and unreachable?
 
 **Priority: 🟠 P2**
 
@@ -2368,31 +2071,44 @@ This distinction matters when designing recovery and troubleshooting logic.
 
 ---
 
-## 66. How would you prevent a bad configuration from being deployed?
+## 63. How would you prevent a bad configuration from being deployed?
 
-**Priority: 🟠 P2**
+**Priority: 🟠 P2 — Scenario**
 
-Use:
+Validate the generated configuration **before** it replaces the active configuration. Where the module supports it, use `validate`.
 
-```text
-Template generation
-      ↓
-Validation
-      ↓
-Deploy configuration
-      ↓
-Notify handler
-      ↓
-Reload/restart
+Example with nginx:
+
+```yaml
+- name: Deploy nginx configuration safely
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    validate: 'nginx -t -c %s'
+  notify: Reload nginx
 ```
 
-For supported services/modules, validate the generated configuration before applying it.
+Flow:
 
-For example, use an application's native configuration test before restarting it.
+```text
+Render temporary config
+        ↓
+Native validation
+        ↓
+Validation passes?
+   /             \
+ YES              NO
+  ↓                ↓
+Install file     Task fails
+  ↓
+Notify handler
+  ↓
+Reload service
+```
 
----
+This is safer than deploying a file first and discovering the syntax error only after restarting the service.
 
-## 67. How would you roll back an application deployment?
+## 64. How would you roll back an application deployment?
 
 **Priority: 🟠 P2**
 
@@ -2414,7 +2130,7 @@ Ansible can implement this with roles, blocks/rescue, versioned artifacts, and d
 
 ---
 
-## 68. How do you avoid exposing secrets in Ansible logs?
+## 65. How do you avoid exposing secrets in Ansible logs?
 
 **Priority: 🟠 P2**
 
@@ -2435,7 +2151,7 @@ Also:
 
 ---
 
-## 69. What is the purpose of `ansible.cfg`?
+## 66. What is the purpose of `ansible.cfg`?
 
 **Priority: 🟠 P2**
 
@@ -2454,24 +2170,10 @@ Be careful with security-sensitive configuration such as disabling host key chec
 
 ---
 
-## 70. What is check mode not guaranteed to do?
 
-**Priority: 🟠 P2**
+# 12. P3 — Other Automation and Configuration-Management Tools
 
-`--check` depends on module support.
-
-Some modules can accurately predict changes; others cannot.
-
-Therefore:
-
-> Check mode is a useful safety mechanism, not a universal simulation of every side effect.
-
----
-
-
-# 13. P3 — Other Automation and Configuration-Management Tools
-
-## 71. What other configuration-management tools are commonly used?
+## 67. What other configuration-management tools are commonly used?
 
 **Priority: 🟢 P3**
 
@@ -2490,7 +2192,7 @@ They solve overlapping but not identical problems.
 
 ---
 
-## 72. Which tools are generally push-based and which are pull-based?
+## 68. Which tools are generally push-based and which are pull-based?
 
 **Priority: 🟢 P3**
 
@@ -2514,7 +2216,7 @@ Likewise, Kubernetes is not normally described using only "push vs pull" because
 
 ---
 
-## 73. Why did Ansible become popular compared with agent-based tools?
+## 69. Why did Ansible become popular compared with agent-based tools?
 
 **Priority: 🟢 P3**
 
@@ -2532,7 +2234,7 @@ Agent-based tools can still be preferable when continuous policy enforcement and
 
 ---
 
-## 74. Is pull-based automation always better than push-based automation?
+## 70. Is pull-based automation always better than push-based automation?
 
 **Priority: 🟢 P3**
 
@@ -2555,7 +2257,7 @@ The choice depends on network topology, compliance requirements, scale, drift-ma
 
 ---
 
-## 75. In an interview, how would you compare Ansible with Puppet?
+## 71. In an interview, how would you compare Ansible with Puppet?
 
 **Priority: 🟢 P3**
 
@@ -2567,37 +2269,39 @@ Then mention that the tools overlap and modern deployments can use additional me
 
 ---
 
-# 14. Frequently Used Ansible Modules in DevOps
+# 13. Frequently Used Ansible Modules in DevOps
 
 **Priority: 🔴 P1/P2 — Practical Reference**
 
+Use this section as the **single detailed module reference**. Earlier interview questions explain the concepts; this section contains the practical module examples.
+
 | Requirement | Preferred module | Typical purpose |
 |---|---|---|
-| Directory/file state | `file` | Directories, empty files, permissions, ownership |
-| Static file/content | `copy` | Copy fixed files/content |
-| Dynamic configuration | `template` | Render Jinja2 templates |
-| One configuration line | `lineinfile` | Ensure/change one line |
-| Multi-line managed block | `blockinfile` | Add/update a block |
-| Regex replacement | `replace` | Replace matching text |
-| Package management | `package` / `apt` / `dnf` | Install/remove packages |
-| Service management | `service` / `systemd_service` | Start/stop/restart/enable services |
-| Users/groups | `user` / `group` | Account management |
-| Git deployment | `git` | Clone/update repositories |
-| File download | `get_url` | HTTP/HTTPS downloads |
-| Archive extraction | `unarchive` | Extract deployment artifacts |
+| File/directory state | `file` | Create directories, manage permissions/ownership, create empty files, links |
+| Static file/content | `copy` | Copy fixed files or inline static content |
+| Dynamic configuration | `template` | Render Jinja2 configuration |
+| One logical line | `lineinfile` | Ensure/change one line |
+| Managed multi-line block | `blockinfile` | Manage an identifiable block |
+| Regex replacement | `replace` | Replace text using regular expressions |
+| Packages | `package` / `apt` / `dnf` | Install/remove packages |
+| Services | `service` / `systemd_service` | Start/stop/restart/enable services |
+| Users/groups | `user` / `group` | Account and group management |
+| Source control | `git` | Clone/update repositories |
+| File download | `get_url` | Download artifacts |
+| Archive | `unarchive` | Extract deployment artifacts |
 | Simple command | `command` | Execute without shell interpretation |
-| Shell syntax | `shell` | Pipes/redirection/shell features |
+| Shell features | `shell` | Use pipes/redirection/shell syntax when necessary |
 | Bootstrap | `raw` | Run directly when normal module execution is unavailable |
-| HTTP/API | `uri` | REST/API calls and health checks |
-| Debugging | `debug` | Inspect values/results |
-| File inspection | `stat` | File metadata/state |
-| File discovery | `find` | Locate files |
-| Validation | `assert` | Enforce assumptions |
-| Scheduling | `cron` | Recurring jobs |
+| HTTP/API | `uri` | REST calls and health checks |
+| Debugging | `debug` | Inspect variables/results |
+| File inspection | `stat` | Inspect file metadata/state |
+| File discovery | `find` | Find files matching criteria |
+| Validation | `assert` | Enforce assumptions/preconditions |
+| Scheduling | `cron` | Manage cron jobs |
 | Kernel settings | `sysctl` | Manage kernel parameters |
-| AWS | `amazon.aws.*` | AWS resource management |
+| AWS resources | `amazon.aws.*` | Manage AWS resources |
 
-## 14.1 High-value examples
+## 13.1 High-value examples
 
 ### `file`
 
@@ -2618,6 +2322,8 @@ Then mention that the tools overlap and modern deployments can use additional me
   ansible.builtin.copy:
     src: app.conf
     dest: /etc/myapp/app.conf
+    owner: root
+    group: root
     mode: '0644'
 ```
 
@@ -2628,6 +2334,9 @@ Then mention that the tools overlap and modern deployments can use additional me
   ansible.builtin.template:
     src: app.conf.j2
     dest: /etc/myapp/app.conf
+    owner: root
+    group: root
+    mode: '0644'
 ```
 
 ### `lineinfile`
@@ -2646,7 +2355,7 @@ Then mention that the tools overlap and modern deployments can use additional me
 - name: Add application environment block
   ansible.builtin.blockinfile:
     path: /etc/profile.d/myapp.sh
-    marker: "# {mark} ANSIBLE MYAPP"
+    marker: '# {mark} ANSIBLE MYAPP'
     block: |
       export APP_ENV=prod
       export APP_PORT=8080
@@ -2658,18 +2367,48 @@ Then mention that the tools overlap and modern deployments can use additional me
 - name: Replace HTTP port
   ansible.builtin.replace:
     path: /etc/myapp/app.conf
-    regexp: 'port=80'
+    regexp: '^port=80$'
     replace: 'port=8080'
+```
+
+### `package`
+
+```yaml
+- name: Install curl
+  ansible.builtin.package:
+    name: curl
+    state: present
+```
+
+### `systemd_service`
+
+```yaml
+- name: Ensure application is running
+  ansible.builtin.systemd_service:
+    name: myapp
+    state: started
+    enabled: true
+```
+
+### `user`
+
+```yaml
+- name: Create application user
+  ansible.builtin.user:
+    name: myapp
+    system: true
+    create_home: false
 ```
 
 ### `git`
 
 ```yaml
-- name: Clone application
+- name: Deploy application repository
   ansible.builtin.git:
-    repo: https://github.com/example/myapp.git
+    repo: 'https://github.com/example/myapp.git'
     dest: /opt/myapp
     version: main
+    update: true
 ```
 
 ### `get_url`
@@ -2677,27 +2416,84 @@ Then mention that the tools overlap and modern deployments can use additional me
 ```yaml
 - name: Download application artifact
   ansible.builtin.get_url:
-    url: https://example.com/myapp.tar.gz
+    url: 'https://example.com/myapp.tar.gz'
     dest: /tmp/myapp.tar.gz
+    mode: '0644'
+```
+
+### `unarchive`
+
+```yaml
+- name: Extract application artifact
+  ansible.builtin.unarchive:
+    src: /tmp/myapp.tar.gz
+    dest: /opt/myapp
+    remote_src: true
+```
+
+### `command`
+
+```yaml
+- name: Check application version
+  ansible.builtin.command: /opt/myapp/bin/myapp --version
+  changed_when: false
+```
+
+### `shell`
+
+```yaml
+- name: Read only error lines from log
+  ansible.builtin.shell: "grep 'ERROR' /var/log/myapp/app.log"
+  args:
+    executable: /bin/bash
+  changed_when: false
+```
+
+Use `shell` only when shell features are actually required.
+
+### `raw`
+
+```yaml
+- name: Bootstrap Python on a minimal host
+  ansible.builtin.raw: apt-get update && apt-get install -y python3
 ```
 
 ### `uri`
 
 ```yaml
-- name: Check application health
+- name: Verify application health
   ansible.builtin.uri:
     url: http://localhost:8080/health
     method: GET
     status_code: 200
 ```
 
-### `systemd_service`
+### `debug`
 
 ```yaml
-- name: Restart application
-  ansible.builtin.systemd_service:
-    name: myapp
-    state: restarted
+- name: Show deployment version
+  ansible.builtin.debug:
+    var: app_version
+```
+
+### `stat`
+
+```yaml
+- name: Check application config
+  ansible.builtin.stat:
+    path: /etc/myapp/app.conf
+  register: app_config
+```
+
+### `find`
+
+```yaml
+- name: Find old log files
+  ansible.builtin.find:
+    paths: /var/log/myapp
+    patterns: '*.log'
+    age: 7d
+  register: old_logs
 ```
 
 ### `assert`
@@ -2708,92 +2504,102 @@ Then mention that the tools overlap and modern deployments can use additional me
     that:
       - app_port | int > 0
       - app_port | int < 65536
-    fail_msg: "Invalid application port"
+    fail_msg: 'Invalid application port'
 ```
 
-## 14.2 Module selection rule
+### `cron`
+
+```yaml
+- name: Schedule log cleanup
+  ansible.builtin.cron:
+    name: 'myapp log cleanup'
+    minute: '0'
+    hour: '2'
+    job: '/usr/local/bin/cleanup-myapp-logs.sh'
+```
+
+### `sysctl`
+
+```yaml
+- name: Enable IP forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: true
+```
+
+### AWS collection
+
+```yaml
+- name: Create an EC2 instance
+  amazon.aws.ec2_instance:
+    name: dev-web-01
+    instance_type: t3.micro
+    image_id: ami-xxxxxxxxxxxxxxxxx
+    state: present
+```
+
+> AWS modules require the appropriate `amazon.aws` collection and AWS credentials/permissions.
+
+## 13.2 Module selection rule
 
 ```text
-Empty file / directory / permissions?
-        ↓
-      file
+Need file/directory state?       → file
+Static file/content?             → copy
+Dynamic/Jinja2 content?          → template
+One logical line?                → lineinfile
+Managed multi-line block?        → blockinfile
+Regex replacement?               → replace
+Install a package?               → package / apt / dnf
+Manage a service?                → systemd_service / service
+Download a file?                 → get_url
+Extract an archive?              → unarchive
+Git repository?                  → git
+Call an HTTP/API endpoint?      → uri
+Simple command?                  → command
+Need shell syntax?               → shell
+Normal module execution missing? → raw
 
-Static content?
-        ↓
-      copy
-
-Dynamic/Jinja2 content?
-        ↓
-    template
-
-One logical line?
-        ↓
-   lineinfile
-
-Multiple managed lines?
-        ↓
-   blockinfile
-
-Regex replacement?
-        ↓
-     replace
-
-Download a file?
-        ↓
-     get_url
-
-Call an HTTP/API endpoint?
-        ↓
-       uri
-
-Simple command?
-        ↓
-     command
-
-Need shell features?
-        ↓
-      shell
-
-Normal module execution unavailable?
-        ↓
-       raw
+Interview rule:
+Prefer a purpose-built module when one exists. Use `shell`/`command` only when required, and use `raw` mainly for bootstrap/special environments.
 ```
 
-> **Interview rule:** Prefer a purpose-built module when one exists. Use `shell`/`command` only when required, and use `raw` mainly for bootstrap or special environments.
-
----
-
-# 15. Quick Revision Table
+# 14. Quick Revision Table
 
 | Topic | Remember This |
 |---|---|
 | Ansible model | Primarily push/controller-driven |
-| Agentless | No traditional persistent Ansible agent required on Linux |
+| Agentless | No traditional persistent Ansible agent required on Linux; a valid connection path is still required |
 | Dynamic inventory | Discovers current infrastructure from an external source |
 | Module | Performs an operation |
-| Playbook | Defines automation |
+| Playbook | Automation blueprint containing one or more plays |
 | Role | Packages reusable automation |
-| Idempotency | Repeated execution converges to desired state |
-| `|` YAML scalar | Literal; preserve line breaks |
-| `>` YAML scalar | Folded; line breaks become spaces |
+| Idempotency | Repeated execution converges toward desired state |
+| `|` YAML scalar | Literal; preserves line breaks |
+| `>` YAML scalar | Folded; folds line breaks into spaces |
 | `|-` / `>-` | Strip final newline |
-| `|+` / `>+` | Keep trailing newlines |
-| `raw` | Bootstrap/special environments |
+| `|+` / `>+` | Preserve trailing newlines |
+| `raw` | Bootstrap/special environments when normal module execution is unavailable |
 | `lineinfile` | One logical line |
 | `blockinfile` | Managed multi-line block |
 | `replace` | Regex-based replacement |
-| Strategy | Controls host/task scheduling |
-| `linear` | Coordinated task progression |
+| `strategy` | Controls host/task scheduling behavior |
+| `linear` | Hosts progress in lockstep within the active batch |
 | `free` | Hosts can progress independently |
 | `host_pinned` | Free-like progression with host/worker affinity |
-| Forks | Worker concurrency capacity |
-| Serial | Rollout batch size |
-| Handler | Runs after notification |
-| `delegate_to` | Changes execution host |
-| `run_once` | Executes once per play |
+| `forks` | Controller worker capacity |
+| `serial` | Rollout batch size |
+| `max_fail_percentage` | Failure threshold for a play |
+| `throttle` | Limits concurrency for a task/block/play |
+| `notify` | Queues a handler after a changed task |
+| `flush_handlers` | Runs pending handlers immediately |
+| `force_handlers` | Runs notified handlers even after host task failure |
+| `delegate_to` | Changes execution host for a task |
+| `run_once` | Executes once for the current play/batch |
 | `group_vars` | Group-level configuration |
 | `host_vars` | Host-specific configuration |
-| `set_fact` | Creates runtime fact/variable |
+| `set_fact` | Creates runtime variables/facts |
 | `register` | Stores task result |
 | `when` | Task execution condition |
 | `changed_when` | Controls changed status |
@@ -2805,8 +2611,12 @@ Normal module execution unavailable?
 | `--diff` | Show supported differences |
 | `become` | Privilege escalation |
 | Collections | Namespaced Ansible content |
+| `async` | Maximum runtime for an asynchronous task |
+| `poll` | Polling interval; `0` means do not wait |
+| `async_status` | Checks an asynchronous job |
 | `uri` | HTTP/API interaction |
 | `get_url` | File download |
 | `git` | Git repository management |
 | `systemd_service` | systemd-specific service management |
+| `validate` | Validate generated configuration before replacement when supported |
 | Dynamic AWS inventory | Useful with EC2/ASG |
