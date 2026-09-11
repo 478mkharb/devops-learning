@@ -1141,336 +1141,337 @@ the handler normally executes once for that host.
 
 It is a queued notification, not an immediate task execution.
 
-> **📝 Note — Ansible Handlers, `notify`, `flush_handlers`, Failures & `force_handlers`**
->
-> ### 1. `notify` does not execute a handler immediately
->
-> When a task changes something and contains `notify`, Ansible **queues** the specified handler.
->
-> ```yaml
-> - name: Update application config
->   ansible.builtin.template:
->     src: app.conf.j2
->     dest: /etc/myapp/app.conf
->   notify: Restart application
-> ```
->
-> ```text
-> Task changes
->      ↓
-> notify
->      ↓
-> Handler is QUEUED
->      ↓
-> Handler runs later
-> ```
->
-> ---
->
-> ### 2. Handlers normally run at the normal handler execution point
->
-> Handlers are normally executed **after the regular tasks for the play have completed successfully** for a host.
->
-> ```text
-> Task 1 → notify Handler A
-> Task 2 → notify Handler B
-> Task 3
-> Task 4
->      ↓
-> Normal handler execution point
->      ↓
-> Handler A
-> Handler B
-> ```
->
-> The physical location of the handler definition under `handlers:` does **not** determine when it runs.
->
-> ---
->
-> ### 3. If a later task fails, pending handlers normally do not run
->
-> ```yaml
-> tasks:
->
->   - name: Update configuration
->     ansible.builtin.template:
->       src: app.conf.j2
->       dest: /etc/myapp/app.conf
->     notify: Restart application
->
->   - name: Deploy application
->     ansible.builtin.command: /opt/deploy.sh
->     # FAILS
-> ```
->
-> Flow:
->
-> ```text
-> Update configuration
->       ↓
-> CHANGED → Handler queued
->       ↓
-> Deploy application
->       ↓
-> ❌ FAILS
->       ↓
-> Handler normally ❌ does not run
-> ```
->
-> ---
->
-> ### 4. `flush_handlers` runs pending handlers immediately
->
-> Use:
->
-> ```yaml
-> - name: Flush pending handlers
->   ansible.builtin.meta: flush_handlers
-> ```
->
-> This tells Ansible:
->
-> > **Execute all currently pending/notified handlers NOW.**
->
-> Example:
->
-> ```yaml
-> tasks:
->
->   - name: Update application config
->     ansible.builtin.template:
->       src: app.conf.j2
->       dest: /etc/myapp/app.conf
->     notify: Restart application
->
->   - name: Run migration
->     ansible.builtin.command: /opt/myapp/migrate.sh
->
->   - name: Flush handlers
->     ansible.builtin.meta: flush_handlers
->
->   - name: Verify application
->     ansible.builtin.uri:
->       url: http://localhost:8080/health
-> ```
->
-> Flow:
->
-> ```text
-> Update config
->      ↓
-> CHANGED → Handler queued
->      ↓
-> Migration
->      ↓
-> flush_handlers
->      ↓
-> Handler runs NOW
->      ↓
-> Health check
-> ```
->
-> This is useful when a handler **must execute before subsequent tasks continue**.
->
-> ---
->
-> ### 5. If there are multiple pending handlers, `flush_handlers` runs all of them
->
-> ```yaml
-> - name: Update application config
->   ansible.builtin.template:
->     src: app.conf.j2
->     dest: /etc/myapp/app.conf
->   notify:
->     - Restart application
->     - Reload nginx
->
-> - name: Flush handlers
->   ansible.builtin.meta: flush_handlers
-> ```
->
-> Both pending handlers are executed:
->
-> ```text
-> notify
->   ↓
-> ┌─────────────────────┐
-> │ Restart application │ ← pending
-> │ Reload nginx        │ ← pending
-> └─────────────────────┘
->   ↓
-> flush_handlers
->   ↓
-> BOTH handlers execute
-> ```
->
-> `flush_handlers` does **not** take a handler name. It flushes the handlers that are currently pending.
->
-> ---
->
-> ### 6. Handler execution order
->
-> If multiple handlers are pending, Ansible follows its handler execution rules; handler definitions are not executed simply because Ansible encounters them in the YAML file.
->
-> A useful interview rule is:
->
-> ```text
-> notify → handler becomes pending
-> flush_handlers → pending handlers execute
-> ```
->
-> ---
->
-> ### 7. If a task after `flush_handlers` fails
->
-> This is an important scenario.
->
-> ```yaml
-> tasks:
->
->   - name: Update application config
->     ansible.builtin.template:
->       src: app.conf.j2
->       dest: /etc/myapp/app.conf
->     notify: Restart application
->
->   - name: Update nginx config
->     ansible.builtin.template:
->       src: nginx.conf.j2
->       dest: /etc/nginx/nginx.conf
->     notify: Reload nginx
->
->   - name: Flush handlers
->     ansible.builtin.meta: flush_handlers
->
->   - name: Deploy application
->     ansible.builtin.command: /opt/deploy.sh
->     # FAILS
-> ```
->
-> Flow:
->
-> ```text
-> Task 1 → notify Restart application
-> Task 2 → notify Reload nginx
->              ↓
->       flush_handlers
->              ↓
-> Restart application ✅
-> Reload nginx        ✅
->              ↓
-> Task 3 → ❌ FAILS
-> ```
->
-> The handlers have **already executed**, so the later failure does not prevent those handlers from running.
->
-> ---
->
-> ### 8. `force_handlers`
->
-> Another important option is:
->
-> ```yaml
-> force_handlers: true
-> ```
->
-> It tells Ansible to run notified handlers even when a later task fails.
->
-> Example:
->
-> ```yaml
-> - name: Application deployment
->   hosts: webservers
->   force_handlers: true
->
->   tasks:
->     - name: Update configuration
->       ansible.builtin.template:
->         src: app.conf.j2
->         dest: /etc/myapp/app.conf
->       notify: Restart application
->
->     - name: Deploy application
->       ansible.builtin.command: /opt/deploy.sh
->       # FAILS
->
->   handlers:
->     - name: Restart application
->       ansible.builtin.systemd_service:
->         name: myapp
->         state: restarted
-> ```
->
-> Without `force_handlers`:
->
-> ```text
-> Task changes
->      ↓
-> Handler queued
->      ↓
-> Later task fails
->      ↓
-> Handler normally ❌ does not run
-> ```
->
-> With `force_handlers: true`:
->
-> ```text
-> Task changes
->      ↓
-> Handler queued
->      ↓
-> Later task fails
->      ↓
-> Handler runs ✅
-> ```
->
-> ---
->
-> ### 9. `flush_handlers` vs `force_handlers`
->
-> | Feature          | Purpose                                                 |
-> | ---------------- | ------------------------------------------------------- |
-> | `notify`         | Queues a handler when a task changes                    |
-> | `flush_handlers` | Executes pending handlers **immediately at that point** |
-> | `force_handlers` | Ensures notified handlers run even when a task fails    |
->
-> Think of them as:
->
-> ```text
-> notify
->   ↓
-> QUEUE
->
-> flush_handlers
->   ↓
-> RUN NOW
->
-> force_handlers
->   ↓
-> RUN EVEN AFTER FAILURE
-> ```
->
-> ---
->
-> ### 10. Most important interview scenario
->
-> ```text
-> Task 1 → CHANGED → notify Handler A
-> Task 2 → CHANGED → notify Handler B
-> Task 3 → flush_handlers
->             ↓
->        Handler A ✅
->        Handler B ✅
->             ↓
-> Task 4 → ❌ FAILS
-> ```
->
-> **Result:** Handler A and Handler B have already executed because they were flushed before Task 4.
->
-> ---
->
+ **📝 Note — Ansible Handlers, `notify`, `flush_handlers`, Failures & `force_handlers`**
+
+ ### 1. `notify` does not execute a handler immediately
+
+ When a task changes something and contains `notify`, Ansible **queues** the specified handler.
+
+ ```yaml
+ - name: Update application config
+   ansible.builtin.template:
+     src: app.conf.j2
+     dest: /etc/myapp/app.conf
+   notify: Restart application
+ ```
+
+ ```text
+ Task changes
+      ↓
+ notify
+      ↓
+ Handler is QUEUED
+      ↓
+ Handler runs later
+ ```
+
+ ---
+
+ ### 2. Handlers normally run at the normal handler execution point
+
+ Handlers are normally executed **after the regular tasks for the play have completed successfully** for a host.
+
+ ```text
+ Task 1 → notify Handler A
+ Task 2 → notify Handler B
+ Task 3
+ Task 4
+      ↓
+ Normal handler execution point
+      ↓
+ Handler A
+ Handler B
+ ```
+
+ The physical location of the handler definition under `handlers:` does **not** determine when it runs.
+
+ ---
+
+ ### 3. If a later task fails, pending handlers normally do not run
+
+ ```yaml
+ tasks:
+
+   - name: Update configuration
+     ansible.builtin.template:
+       src: app.conf.j2
+       dest: /etc/myapp/app.conf
+     notify: Restart application
+
+   - name: Deploy application
+     ansible.builtin.command: /opt/deploy.sh
+     # FAILS
+ ```
+
+ Flow:
+
+ ```text
+ Update configuration
+       ↓
+ CHANGED → Handler queued
+       ↓
+ Deploy application
+       ↓
+ ❌ FAILS
+       ↓
+ Handler normally ❌ does not run
+ ```
+
+ ---
+
+ ### 4. `flush_handlers` runs pending handlers immediately
+
+ Use:
+
+ ```yaml
+ - name: Flush pending handlers
+   ansible.builtin.meta: flush_handlers
+ ```
+
+ This tells Ansible:
+
+ **Execute all currently pending/notified handlers NOW.**
+
+ Example:
+
+ ```yaml
+ tasks:
+
+   - name: Update application config
+     ansible.builtin.template:
+       src: app.conf.j2
+       dest: /etc/myapp/app.conf
+     notify: Restart application
+
+   - name: Run migration
+     ansible.builtin.command: /opt/myapp/migrate.sh
+
+   - name: Flush handlers
+     ansible.builtin.meta: flush_handlers
+
+   - name: Verify application
+     ansible.builtin.uri:
+       url: http://localhost:8080/health
+ ```
+
+ Flow:
+
+ ```text
+ Update config
+      ↓
+ CHANGED → Handler queued
+      ↓
+ Migration
+      ↓
+ flush_handlers
+      ↓
+ Handler runs NOW
+      ↓
+ Health check
+ ```
+
+ This is useful when a handler **must execute before subsequent tasks continue**.
+
+ ---
+
+ ### 5. If there are multiple pending handlers, `flush_handlers` runs all of them
+
+ ```yaml
+ - name: Update application config
+   ansible.builtin.template:
+     src: app.conf.j2
+     dest: /etc/myapp/app.conf
+   notify:
+     - Restart application
+     - Reload nginx
+
+ - name: Flush handlers
+   ansible.builtin.meta: flush_handlers
+ ```
+
+ Both pending handlers are executed:
+
+ ```text
+ notify
+   ↓
+ ┌─────────────────────┐
+ │ Restart application │ ← pending
+ │ Reload nginx        │ ← pending
+ └─────────────────────┘
+   ↓
+ flush_handlers
+   ↓
+ BOTH handlers execute
+ ```
+
+ `flush_handlers` does **not** take a handler name. It flushes the handlers that are currently pending.
+
+ ---
+
+ ### 6. Handler execution order
+
+ If multiple handlers are pending, Ansible follows its handler execution rules; handler definitions are not executed simply because Ansible encounters them in the YAML file.
+
+ A useful interview rule is:
+
+ ```text
+ notify → handler becomes pending
+ flush_handlers → pending handlers execute
+ ```
+
+ ---
+
+ ### 7. If a task after `flush_handlers` fails
+
+ This is an important scenario.
+
+ ```yaml
+ tasks:
+
+   - name: Update application config
+     ansible.builtin.template:
+       src: app.conf.j2
+       dest: /etc/myapp/app.conf
+     notify: Restart application
+
+   - name: Update nginx config
+     ansible.builtin.template:
+       src: nginx.conf.j2
+       dest: /etc/nginx/nginx.conf
+     notify: Reload nginx
+
+   - name: Flush handlers
+     ansible.builtin.meta: flush_handlers
+
+   - name: Deploy application
+     ansible.builtin.command: /opt/deploy.sh
+     # FAILS
+ ```
+
+ Flow:
+
+ ```text
+ Task 1 → notify Restart application
+ Task 2 → notify Reload nginx
+              ↓
+       flush_handlers
+              ↓
+ Restart application ✅
+ Reload nginx        ✅
+              ↓
+ Task 3 → ❌ FAILS
+ ```
+
+ The handlers have **already executed**, so the later failure does not prevent those handlers from running.
+ ---
+
+ ### 8. `force_handlers`
+
+ Another important option is:
+
+ ```yaml
+ force_handlers: true
+ ```
+
+ It tells Ansible to run notified handlers even when a later task fails.
+
+ Example:
+
+ ```yaml
+ - name: Application deployment
+   hosts: webservers
+   force_handlers: true
+
+   tasks:
+     - name: Update configuration
+       ansible.builtin.template:
+         src: app.conf.j2
+         dest: /etc/myapp/app.conf
+       notify: Restart application
+
+     - name: Deploy application
+       ansible.builtin.command: /opt/deploy.sh
+       # FAILS
+
+   handlers:
+     - name: Restart application
+       ansible.builtin.systemd_service:
+         name: myapp
+         state: restarted
+ ```
+
+ Without `force_handlers`:
+
+ ```text
+ Task changes
+      ↓
+ Handler queued
+      ↓
+ Later task fails
+      ↓
+ Handler normally ❌ does not run
+ ```
+
+ With `force_handlers: true`:
+
+ ```text
+ Task changes
+      ↓
+ Handler queued
+      ↓
+ Later task fails
+      ↓
+ Handler runs ✅
+ ```
+
+ ---
+
+ ### 9. `flush_handlers` vs `force_handlers`
+
+ | Feature          | Purpose                                                 |
+ | ---------------- | ------------------------------------------------------- |
+ | `notify`         | Queues a handler when a task changes                    |
+ | `flush_handlers` | Executes pending handlers **immediately at that point** |
+ | `force_handlers` | Ensures notified handlers run even when a task fails    |
+
+ Think of them as:
+
+ ```text
+ notify
+   ↓
+ QUEUE
+
+ flush_handlers
+   ↓
+ RUN NOW
+
+ force_handlers
+   ↓
+ RUN EVEN AFTER FAILURE
+ ```
+
+ ---
+
+ ### 10. Most important interview scenario
+
+ ```text
+ Task 1 → CHANGED → notify Handler A
+ Task 2 → CHANGED → notify Handler B
+ Task 3 → flush_handlers
+             ↓
+        Handler A ✅
+        Handler B ✅
+            ↓
+Task 4 → ❌ FAILS
+
+```
+
+**Result:** Handler A and Handler B have already executed because they were flushed before Task 4.
+
+---
+
 > > **🎯 Interview Tip:** Remember the difference between **queueing** and **executing** a handler. `notify` queues it; `flush_handlers` executes pending handlers immediately; `force_handlers` controls whether notified handlers are executed despite later task failures.
+
 
 ---
 
