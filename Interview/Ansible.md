@@ -2,9 +2,9 @@
 
 | Priority | Questions | Main Focus |
 |---|---|---|
-| 🔴 P1 — High | 1–45 | Architecture, YAML, inventory, modules, idempotency, variables, strategies, handlers, roles, security, cloud and production scenarios |
-| 🟠 P2 — Medium | 46–70 | Supporting features, debugging, safe deployments and operational practices |
-| 🟢 P3 — Low | 71–75 | Other automation/configuration-management tools and their models |
+| 🔴 P1 - High | 1–45 | Architecture, YAML, inventory, modules, idempotency, variables, strategies, handlers, roles, security, cloud and production scenarios |
+| 🟠 P2 - Medium | 46–70 | Supporting features, debugging, safe deployments and operational practices |
+| 🟢 P3 - Low | 71–75 | Other automation/configuration-management tools and their models |
 
 ---
 
