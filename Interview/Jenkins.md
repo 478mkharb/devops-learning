@@ -1,918 +1,1403 @@
-# Jenkins Interview Questions — L2/L3 Focused
+# Jenkins L2/L3 Interview Questions and Detailed Answers
 
-> One-day revision guide based on the supplied Jenkins notes and selected L2/L3 interview topics.
->
-> **Excluded:** Prometheus/Grafana monitoring, AWS IAM, SSM deployments, artifact immutability/promotion, Terraform state locking/approval workflows, Kubernetes dynamic agents, and detailed Shared Libraries.
+> A structured, interview-focused guide for DevOps engineers working with Jenkins, CI/CD, Git, SonarQube, credentials, distributed builds, pipelines, security, troubleshooting, and production operations.
 
-## How to Use
+---
 
-- **Must Know:** Read first.
-- **L2:** Practical questions.
-- **L3 Scenario:** Troubleshooting/design.
-- Learn the reason and investigation flow; do not memorize every sentence.
+## Table of Contents
+
+1. Jenkins Fundamentals
+2. Jenkins Architecture
+3. Jobs, Builds, Workspaces, Artifacts, and Executors
+4. Upstream and Downstream Jobs
+5. Build Triggers
+6. Freestyle Jobs vs Pipeline Jobs
+7. Declarative and Scripted Pipelines
+8. Pipeline Syntax and Execution
+9. Parameters, Environment Variables, and Credentials
+10. Git, Webhooks, Polling, and Multibranch Pipelines
+11. Shared Libraries
+12. Plugins, JCasC, and Job DSL
+13. Jenkins Security
+14. SonarQube and Quality Gates
+15. CI/CD Pipeline Design
+16. Notifications and Post-Build Actions
+17. Artifacts and Artifact Repositories
+18. Jenkins Backup and Disaster Recovery
+19. Performance, Scaling, and Reliability
+20. Troubleshooting Scenarios
+21. L2/L3 Design and Scenario Questions
+22. Common Interview Traps
+23. Full Forms and Quick Revision Tables
 
 ---
 
 # 1. Jenkins Fundamentals
 
-### Q1. What is Jenkins? — Must Know
+## Q1. What is Jenkins?
 
-Jenkins is an open-source automation server used to automate build, test, integration, and delivery activities. Jenkins orchestrates tools such as Git, Maven, Gradle, npm, Python, scanners, and deployment commands; it does not compile or test code by itself.
+Jenkins is an open-source automation server used to automate software delivery activities such as:
 
-### Q2. CI vs Continuous Delivery vs Continuous Deployment
+- Source-code checkout
+- Compilation and packaging
+- Unit and integration testing
+- Static code analysis
+- Security scanning
+- Docker image building
+- Artifact publishing
+- Deployment to virtual machines, Kubernetes, or cloud platforms
+- Notifications and approval workflows
 
-| Term | Meaning |
+Jenkins is commonly used as a CI/CD orchestrator.
+
+- **Continuous Integration (CI):** Frequently integrate code changes and automatically validate them.
+- **Continuous Delivery:** Keep software in a releasable state and deploy through a controlled process.
+- **Continuous Deployment:** Automatically deploy validated changes to production.
+
+Jenkins does not itself replace Git, Maven, Gradle, SonarQube, Terraform, Ansible, or Kubernetes. It coordinates them through jobs and pipelines.
+
+## Q2. Why is Jenkins used in DevOps?
+
+Jenkins provides:
+
+1. Automation of repetitive tasks.
+2. Early detection of defects.
+3. Consistent build and deployment processes.
+4. Integration with source-control systems.
+5. Plugin-based extensibility.
+6. Pipeline-as-code using a `Jenkinsfile`.
+7. Parallel execution.
+8. Approval and promotion stages.
+9. Auditability through build history and logs.
+10. Integration with cloud, security, monitoring, and deployment tools.
+
+## Q3. What is the difference between CI, Continuous Delivery, and Continuous Deployment?
+
+| Concept | Meaning | Example |
+|---|---|---|
+| CI | Build and test every code change | Git commit triggers unit tests |
+| Continuous Delivery | Code is always ready for release, but production may require approval | Pipeline deploys to staging and waits for approval |
+| Continuous Deployment | Every validated change is automatically released | Successful main-branch build deploys to production |
+
+## Q4. What are the main components of Jenkins?
+
+- Jenkins controller
+- Jenkins agents/nodes
+- Executors
+- Jobs/projects
+- Builds
+- Workspaces
+- Pipelines
+- Plugins
+- Credentials
+- Artifacts
+- Build queue
+- Logs and reports
+- Jenkins home directory
+
+## Q5. What is Jenkins Home?
+
+`JENKINS_HOME` is the directory where Jenkins stores its operational data, including:
+
+- Job configurations
+- Build history
+- Pipeline metadata
+- Credentials configuration
+- Plugin data
+- User data
+- Nodes and agents configuration
+- Fingerprints
+- Workspace references
+
+Typical locations:
+
+```bash
+/var/lib/jenkins
+```
+
+or a custom path configured through the service definition.
+
+**Important:** Backing up only job files is not enough. A proper backup must include credentials, plugin information, security configuration, and relevant build metadata.
+
+---
+
+# 2. Jenkins Architecture
+
+## Q6. What is the Jenkins controller?
+
+The Jenkins controller is the central Jenkins service responsible for:
+
+- Serving the web UI and API
+- Managing jobs and pipeline definitions
+- Maintaining the build queue
+- Scheduling builds
+- Managing credentials and security
+- Coordinating agents
+- Storing build metadata
+- Displaying logs and reports
+
+Modern Jenkins terminology prefers **controller** instead of the older term **master**.
+
+## Q7. What is a Jenkins agent?
+
+A Jenkins agent is a machine or execution environment where Jenkins runs build steps.
+
+An agent may be:
+
+- A virtual machine
+- A physical server
+- A cloud instance
+- A Kubernetes pod
+- A container-based worker
+- A dynamically provisioned cloud node
+
+Example:
+
+```text
+Controller
+   |
+   +-- Linux Agent: Java, Maven, Git
+   +-- Docker Agent: Docker build tools
+   +-- Security Agent: Trivy, ZAP
+   +-- Deployment Agent: Ansible, Terraform
+```
+
+## Q8. What is the difference between controller, node, and agent?
+
+- **Controller:** Central Jenkins service.
+- **Node:** A machine registered with Jenkins. The controller itself can technically be a node, although builds on the controller are generally discouraged.
+- **Agent:** The process that connects a worker machine to Jenkins and executes tasks.
+
+In common usage, “node” and “agent” are often used interchangeably, but technically a node is the configured machine and an agent is the running Jenkins worker process.
+
+## Q9. What is an executor?
+
+An executor is a slot that can run one build or task at a time.
+
+If an agent has four executors, it can execute up to four independent tasks concurrently, subject to CPU, memory, I/O, and pipeline constraints.
+
+Example:
+
+```text
+Agent CPU: 8 vCPU
+Executors: 4
+
+Possible workload:
+- Executor 1: Maven build
+- Executor 2: Unit tests
+- Executor 3: Terraform plan
+- Executor 4: Security scan
+```
+
+More executors do not automatically mean better performance. Too many executors can cause CPU and memory contention.
+
+## Q10. Why should heavy builds not run on the controller?
+
+Running builds on the controller can cause:
+
+- Slow Jenkins UI
+- Delayed scheduling
+- Memory pressure
+- Security exposure
+- Plugin instability affecting the entire Jenkins service
+- Reduced availability of the control plane
+
+Best practice:
+
+- Keep the controller dedicated to orchestration.
+- Run builds on agents.
+- Use labels to select suitable agents.
+- Restrict controller executors where practical.
+
+## Q11. What is a Jenkins workspace?
+
+A workspace is the directory on an agent where Jenkins checks out source code and performs build operations.
+
+Example:
+
+```text
+/var/lib/jenkins/workspace/my-pipeline
+```
+
+A workspace may contain:
+
+- Source code
+- Build files
+- Temporary files
+- Test reports
+- Generated packages
+- Dependency caches
+
+A workspace is not a permanent artifact repository. It can be deleted or recreated.
+
+## Q12. What is the difference between workspace and artifact?
+
+| Workspace | Artifact |
 |---|---|
-| CI | Frequently integrate code and run automated validation |
-| Continuous Delivery | Keep software deployable; production release may require approval |
-| Continuous Deployment | Automatically deploy every validated change |
+| Temporary build directory | Output intended for reuse or distribution |
+| Exists on an agent | Should be stored in durable storage |
+| Can be deleted after build | Must be retained according to policy |
+| Contains source and intermediate files | Contains packages, binaries, images, reports |
 
-### Q3. Job vs Build vs Workspace
+Examples of artifacts:
 
-| Term | Meaning |
-|---|---|
-| Job | Configuration defining what Jenkins executes |
-| Build | One execution of a job |
-| Workspace | Directory where the build runs |
-| Build number | Sequence number for a build |
-| Console log | Build output |
+- `.jar`
+- `.war`
+- `.zip`
+- `.deb`
+- `.rpm`
+- Test reports
+- Terraform plan files
+- Container image references
 
-### Q4. Why Pipeline over Freestyle?
+---
 
-Pipeline is stored as code, can be reviewed in Git, supports stages/conditions/parallelism/retries, is easier to reproduce, and is better for complex workflows.
+# 3. Jobs, Builds, Workspaces, Artifacts, and Executors
 
-### Q5. What is a Jenkins Pipeline?
+## Q13. What is a Jenkins job?
 
-A Pipeline is a CI/CD process defined as code.
+A job is a configured unit of automation. It defines what Jenkins should execute and under which conditions.
+
+Examples:
+
+- Freestyle project
+- Pipeline job
+- Multibranch Pipeline
+- Maven project
+- Organization Folder
+- External job
+- Matrix project
+
+## Q14. What is a build?
+
+A build is one execution of a job.
+
+A build has:
+
+- Build number
+- Start and end time
+- Console log
+- Result
+- Workspace
+- Parameters
+- Artifacts
+- Test reports
+- Cause of execution
+
+Possible results include:
+
+- `SUCCESS`
+- `FAILURE`
+- `UNSTABLE`
+- `ABORTED`
+- `NOT_BUILT`
+
+## Q15. What is the build queue?
+
+The build queue contains tasks waiting for an available executor or required resource.
+
+A build may remain queued because:
+
+- No executor is available.
+- No agent matches the label.
+- Required agent is offline.
+- A lockable resource is busy.
+- Throttling rules limit concurrency.
+- The job is waiting for an upstream dependency.
+
+## Q16. What is `cleanWs()` and why is it useful?
+
+`cleanWs()` is provided by the Workspace Cleanup plugin and removes workspace contents.
+
+Example:
+
+```groovy
+post {
+    always {
+        cleanWs()
+    }
+}
+```
+
+Benefits:
+
+- Prevents stale files from affecting later builds.
+- Reduces disk usage.
+- Avoids accidental reuse of old artifacts.
+- Improves build reproducibility.
+
+Use it carefully when builds depend on caches. Prefer dedicated dependency caches instead of preserving the entire workspace.
+
+---
+
+# 4. Upstream and Downstream Jobs
+
+## Q17. What is an upstream job?
+
+An upstream job is a job that executes before another job and triggers or influences it.
+
+Example:
+
+```text
+Compile Job
+    |
+    v
+Test Job
+    |
+    v
+Deploy Job
+```
+
+Here:
+
+- Compile is upstream of Test.
+- Test is downstream of Compile.
+- Test is upstream of Deploy.
+
+## Q18. What is a downstream job?
+
+A downstream job is a job triggered by another job or dependent on another job’s result.
+
+For example, a deployment job may be downstream of a successful CI job.
+
+## Q19. How can one Jenkins job trigger another job?
+
+Common methods:
+
+1. **Build after other projects are built** in Freestyle jobs.
+2. `build` step in a Pipeline.
+3. Parameterized Trigger plugin.
+4. REST API call.
+5. Remote trigger token.
+6. Event-based integration through another automation system.
+
+Pipeline example:
 
 ```groovy
 pipeline {
     agent any
+
     stages {
         stage('Build') {
             steps {
                 sh 'mvn clean package'
             }
         }
+
+        stage('Trigger Tests') {
+            steps {
+                build job: 'test-job', wait: true, propagate: true
+            }
+        }
+    }
+}
+```
+
+## Q20. What do `wait` and `propagate` mean in the `build` step?
+
+```groovy
+build job: 'downstream-job', wait: true, propagate: true
+```
+
+- `wait: true` means the upstream job waits for the downstream job to finish.
+- `wait: false` means the upstream job triggers the downstream job and continues without waiting.
+- `propagate: true` means the downstream result affects the upstream build result.
+- `propagate: false` means the upstream job does not automatically fail because the downstream job failed.
+
+Example:
+
+```groovy
+def result = build job: 'security-scan', wait: true, propagate: false
+
+echo "Security scan result: ${result.result}"
+
+if (result.result != 'SUCCESS') {
+    error 'Security scan failed'
+}
+```
+
+This allows custom handling of downstream results.
+
+## Q21. What is the difference between chaining jobs and using one Pipeline?
+
+| Job chaining | Single Pipeline |
+|---|---|
+| Logic is distributed across jobs | Logic is centralized in Jenkinsfile |
+| Can be useful for independent teams | Easier to view end-to-end flow |
+| More configuration overhead | Better version control |
+| Debugging may require multiple jobs | One build contains all stages |
+| Useful for independent lifecycle boundaries | Useful for application CI/CD |
+
+Use separate jobs when there is a strong boundary, such as a reusable security scan or independent deployment process. Use one Pipeline when stages form one logical delivery workflow.
+
+---
+
+# 5. Build Triggers
+
+## Q22. What is a build trigger?
+
+A build trigger is an event or schedule that starts a Jenkins job.
+
+Common triggers:
+
+- Manual trigger
+- Git webhook
+- Poll SCM
+- Cron schedule
+- Upstream job completion
+- Remote API trigger
+- Scheduled parameterized trigger
+- Plugin-specific event
+
+## Q23. What is the difference between webhook and polling?
+
+| Webhook | Polling |
+|---|---|
+| Git provider sends an event to Jenkins | Jenkins periodically checks Git |
+| Near real-time | Delayed until next poll |
+| More efficient | Creates repeated Git checks |
+| Requires network access to Jenkins endpoint | Does not require inbound webhook if Jenkins can reach Git |
+| Preferred when available | Useful when webhook is not possible |
+
+Webhook flow:
+
+```text
+Git Push
+   -> Git Provider Webhook
+   -> Jenkins Endpoint
+   -> Job Trigger
+   -> Checkout and Build
+```
+
+Polling example:
+
+```groovy
+triggers {
+    pollSCM('H/5 * * * *')
+}
+```
+
+This checks approximately every five minutes, with Jenkins distributing the load using `H`.
+
+## Q24. Explain Jenkins cron syntax.
+
+Jenkins uses five fields:
+
+```text
+MINUTE HOUR DAY-OF-MONTH MONTH DAY-OF-WEEK
+```
+
+Examples:
+
+```text
+H/5 * * * *       Every approximately 5 minutes
+H * * * *         Once every hour
+H 2 * * *         Once daily around 2 AM
+H 2 * * 1-5       Weekdays around 2 AM
+H H * * 0         Every Sunday
+```
+
+`H` means hash-based distribution. It avoids every job starting at exactly the same minute.
+
+## Q25. What is the difference between manual trigger and automated trigger?
+
+- **Manual:** A user clicks “Build Now” or “Build with Parameters.”
+- **Automated:** A webhook, schedule, upstream job, API call, or plugin starts the job.
+
+Production deployments often use automated CI but controlled approval for production release.
+
+---
+
+# 6. Freestyle Jobs vs Pipeline Jobs
+
+## Q26. What is a Freestyle job?
+
+A Freestyle project is configured mainly through the Jenkins UI.
+
+It can contain:
+
+- Source-code management configuration
+- Build triggers
+- Build environment options
+- Build steps
+- Post-build actions
+
+Advantages:
+
+- Easy for beginners.
+- Useful for simple tasks.
+- Fast to configure for small jobs.
+
+Limitations:
+
+- Configuration is not naturally versioned.
+- Complex workflows become difficult to maintain.
+- Reuse is limited.
+- Changes may not be reviewed through Git.
+
+## Q27. What is a Pipeline job?
+
+A Pipeline job defines automation using Pipeline syntax, usually stored in a `Jenkinsfile`.
+
+Advantages:
+
+- Pipeline-as-code
+- Version control
+- Code review
+- Stages and parallelism
+- Error handling
+- Approvals
+- Reusable shared libraries
+- Better auditability
+
+Example:
+
+```groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'make build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'make test'
+            }
+        }
+    }
+}
+```
+
+## Q28. What is a Multibranch Pipeline?
+
+A Multibranch Pipeline automatically discovers branches containing a `Jenkinsfile` and creates separate branch jobs.
+
+Example:
+
+```text
+Repository
+├── main       -> main job
+├── develop    -> develop job
+├── feature/a  -> feature-a job
+└── feature/b  -> feature-b job
+```
+
+Benefits:
+
+- Automatic branch discovery
+- Branch-specific Jenkinsfiles
+- Pull-request integration
+- Isolated build history per branch
+- Reduced manual job creation
+
+---
+
+# 7. Declarative and Scripted Pipelines
+
+## Q29. What is Declarative Pipeline?
+
+Declarative Pipeline is a structured Pipeline syntax with a defined format.
+
+Example:
+
+```groovy
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
         stage('Test') {
             steps {
                 sh 'mvn test'
             }
         }
     }
-}
-```
 
----
-
-# 2. Jenkins Architecture
-
-### Q6. Explain controller-agent architecture. — Must Know
-
-```text
-Developer -> Git -> Jenkins Controller -> Build Queue -> Jenkins Agents
-                                      |              |       |
-                                      |              |       +-- Java build
-                                      |              +---------- Node build
-                                      +------------------------- Test/scan
-```
-
-The controller schedules and coordinates work. Agents execute build commands.
-
-### Q7. What does the controller do?
-
-- Schedules builds
-- Manages jobs and Pipelines
-- Provides UI/API
-- Coordinates agents
-- Stores configuration and build metadata
-- Persists Pipeline state
-
-### Q8. What is an agent?
-
-A machine or runtime where Jenkins executes build steps. Agents may be static, dynamic, or ephemeral.
-
-### Q9. Node vs Agent vs Executor
-
-| Item | Meaning |
-|---|---|
-| Node | Machine/runtime registered with Jenkins |
-| Agent | Build execution environment |
-| Executor | Capacity slot that runs one task |
-
-### Q10. Why avoid builds on the controller?
-
-Builds can consume CPU, memory, disk, and network resources; execute untrusted code; and affect Jenkins scheduling/UI. A common design keeps controller executors at zero and runs builds on agents.
-
-### Q11. What is a label?
-
-A label identifies nodes with a capability or purpose.
-
-```groovy
-pipeline {
-    agent { label 'java' }
-    stages {
-        stage('Build') {
-            steps { sh 'mvn package' }
+    post {
+        always {
+            archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
         }
     }
 }
 ```
 
-### Q12. Why is a build queued even when an agent is online?
+Advantages:
 
-- Label does not match
-- All matching executors are busy
-- Node is disabled
-- Job is restricted to another node
-- Lock/throttle is active
-- Dynamic provisioning is delayed or failing
+- Easier to read.
+- Built-in validation.
+- Standard structure.
+- Good for most CI/CD workflows.
+- Supports `post`, `when`, `options`, `parameters`, and `environment`.
 
-### Q13. Executor sizing best practice
+## Q30. What is Scripted Pipeline?
 
-Start conservatively. One executor per node is often safest. Increase only after checking CPU, memory, disk I/O, and workload behavior. More executors do not automatically mean better performance.
+Scripted Pipeline is Groovy-based and gives greater programming flexibility.
 
----
-
-# 3. Generic Cloud Agents — Short Revision
-
-### Q14. What is a cloud agent?
-
-An agent provisioned dynamically when Jenkins needs additional capacity.
-
-### Q15. Static vs dynamic cloud agent
-
-| Static | Dynamic |
-|---|---|
-| Fixed capacity | Elastic capacity |
-| May remain idle | Created when needed |
-| Manual maintenance | Requires provisioning logic |
-
-### Q16. Cloud agent is provisioned but never connects. What do you check?
-
-Provisioning logs, runtime/JVM, network, connection settings, work-directory permissions, labels, and controller-agent compatibility.
-
----
-
-# 4. Jobs, Workspaces, and Artifacts
-
-### Q17. What is a workspace?
-
-The directory where Jenkins checks out code and runs commands. It may contain source, reports, temporary files, and build outputs. It is not permanent storage.
-
-### Q18. Why can two builds interfere with each other?
-
-They may use the same workspace and overwrite source, build directories, reports, or temporary files.
+Example:
 
 ```groovy
-options {
-    disableConcurrentBuilds()
+node('linux') {
+    try {
+        stage('Build') {
+            sh 'mvn clean package'
+        }
+
+        stage('Test') {
+            sh 'mvn test'
+        }
+    } catch (err) {
+        currentBuild.result = 'FAILURE'
+        throw err
+    } finally {
+        cleanWs()
+    }
 }
 ```
 
-Other solutions: isolated workspaces, separate agents, and unique temporary directories.
+Use Scripted Pipeline when dynamic logic is complex and difficult to express declaratively.
 
-### Q19. `stash` vs `unstash` vs `archiveArtifacts`
+## Q31. Declarative vs Scripted Pipeline: which should be preferred?
 
-| Feature | Purpose |
-|---|---|
-| `stash` | Temporarily save files inside the same Pipeline |
-| `unstash` | Retrieve stashed files |
-| `archiveArtifacts` | Store files with the build record |
+Prefer Declarative Pipeline for most application CI/CD workflows because it provides structure and readability.
 
-### Q20. How do you clean a workspace?
+Use Scripted Pipeline when:
 
-```groovy
-steps {
-    deleteDir()
-    checkout scm
-}
-```
+- Dynamic stage generation is required.
+- Complex branching logic is unavoidable.
+- Advanced Groovy control is needed.
+- A shared library requires scripted implementation.
 
-With the Workspace Cleanup plugin:
-
-```groovy
-steps {
-    cleanWs()
-}
-```
-
-### Q21. What is build retention?
-
-Removing old builds and logs according to configured rules.
-
-```groovy
-options {
-    buildDiscarder(logRotator(numToKeepStr: '10'))
-}
-```
+Do not use complex Groovy merely because it is possible. Keep the Jenkinsfile simple and move reusable logic into shared libraries or scripts.
 
 ---
 
-# 5. Jenkins Job Configuration and Build Triggers
+# 8. Pipeline Syntax and Execution
 
-## Q. What are the main components of a Jenkins job?
+## Q32. What are the main sections of a Declarative Pipeline?
 
-A Jenkins job commonly contains:
+- `pipeline`
+- `agent`
+- `options`
+- `parameters`
+- `environment`
+- `triggers`
+- `stages`
+- `stage`
+- `steps`
+- `post`
+- `when`
+- `input`
+- `tools`
 
-1. **General** — description, parameters, log rotation, concurrency settings.
-2. **Source Code Management** — Git repository, branch, credentials, checkout behavior.
-3. **Build Triggers** — when the job should start.
-4. **Build Environment** — tools, environment variables, cleanup, timestamps.
-5. **Build Steps / Pipeline** — commands or Jenkinsfile execution.
-6. **Post-build Actions** — archive reports, publish test results, notify users, trigger another job.
-7. **Permissions** — who can view, build, configure, or administer the job.
+## Q33. Difference between stage and step?
 
-## Q. Explain Jenkins build triggers.
+- **Stage:** Logical phase of the workflow.
+- **Step:** Individual action executed inside a stage.
 
-| Trigger | Use case | Important point |
-|---|---|---|
-| Manual | Developer or operator starts a build | Useful for controlled releases or troubleshooting |
-| Webhook | Git provider notifies Jenkins after a push or PR event | Usually better than frequent polling |
-| Poll SCM | Jenkins checks Git periodically | Consumes resources and may delay detection |
-| Build periodically | Run on a schedule regardless of code changes | Uses cron syntax |
-| Upstream project | Start after another job completes | Useful for chained workflows |
-| Remote/API trigger | Start using an authenticated HTTP/API request | Protect the endpoint |
-| Parameterized trigger | Pass values from one job to another | Validate parameters before use |
+Example:
 
-### Q22. Example cron expressions
-
-```text
-H/15 * * * *     Run approximately every 15 minutes
-H 2 * * *        Run once daily around 2 AM
-H H * * 1-5      Run once on weekdays
+```groovy
+stage('Build') {
+    steps {
+        sh 'mvn clean package'
+        archiveArtifacts artifacts: 'target/*.jar'
+    }
+}
 ```
 
-`H` spreads jobs across different times to avoid a thundering herd at exactly the same minute.
+`Build` is the stage. `sh` and `archiveArtifacts` are steps.
 
-## Q. How do you prevent duplicate builds?
+## Q34. What is the purpose of `agent`?
 
-- Enable **Disable concurrent builds** when only one build should run at a time.
-- Use a queue/throttling strategy for shared environments.
-- Avoid configuring both webhook and aggressive polling without understanding the behavior.
-- Use a unique build or deployment lock for shared target environments.
-- Cancel obsolete builds for fast-moving branches where appropriate.
+`agent` defines where the Pipeline or stage executes.
 
----
+Examples:
 
-# 6. Pipeline Syntax — Must Know
+```groovy
+agent any
+```
 
-### Q23. Main Declarative blocks
+```groovy
+agent none
+```
 
-| Block | Purpose |
-|---|---|
-| `pipeline` | Root block |
-| `agent` | Execution location |
-| `stages` | Collection of stages |
-| `stage` | Logical phase |
-| `steps` | Commands |
-| `post` | Actions after execution |
-| `environment` | Environment variables |
-| `options` | Pipeline behavior |
-| `parameters` | User inputs |
-| `when` | Conditional execution |
-| `triggers` | Automatic triggers |
-| `tools` | Tool configuration |
+```groovy
+agent { label 'linux' }
+```
 
-### Q24. Stage vs step
+```groovy
+agent {
+    docker { image 'maven:3.9-eclipse-temurin-17' }
+}
+```
 
-A stage is a logical phase such as Build or Test. A step is an executable operation such as `sh`, `echo`, or `checkout`.
+With `agent none`, each stage must define its own agent if it executes commands.
 
-### Q25. What is `agent none`?
+## Q35. What is `agent none` useful for?
 
-It avoids allocating one global agent and lets individual stages choose their own agents.
+It prevents Jenkins from reserving an executor for the entire Pipeline.
+
+Example:
 
 ```groovy
 pipeline {
     agent none
+
     stages {
         stage('Build') {
             agent { label 'java' }
-            steps { sh 'mvn package' }
+            steps {
+                sh 'mvn package'
+            }
         }
-        stage('Test') {
-            agent { label 'test' }
-            steps { sh 'mvn test' }
+
+        stage('Security Scan') {
+            agent { label 'security' }
+            steps {
+                sh 'trivy fs .'
+            }
         }
     }
 }
 ```
 
-### Q26. What is `post`?
+## Q36. What is the purpose of `post`?
 
-It runs actions after execution. Common conditions are `always`, `success`, `failure`, `unstable`, `aborted`, `changed`, and `cleanup`.
+`post` defines actions after a stage or Pipeline completes.
 
-### Q27. What is `when`?
+Conditions include:
 
-It controls whether a stage runs.
+- `always`
+- `success`
+- `failure`
+- `unstable`
+- `aborted`
+- `changed`
+- `fixed`
+- `regression`
+
+Example:
 
 ```groovy
-stage('Deploy') {
-    when { branch 'main' }
-    steps { sh './deploy.sh' }
+post {
+    always {
+        junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        cleanWs()
+    }
+    success {
+        echo 'Pipeline completed successfully'
+    }
+    failure {
+        echo 'Pipeline failed'
+    }
 }
 ```
 
-### Q28. Timeout and retry
+## Q37. What is `when`?
+
+`when` conditionally executes a stage.
+
+Examples:
+
+```groovy
+when {
+    branch 'main'
+}
+```
+
+```groovy
+when {
+    expression {
+        return params.DEPLOY == true
+    }
+}
+```
+
+```groovy
+when {
+    anyOf {
+        branch 'main'
+        branch 'release/*'
+    }
+}
+```
+
+## Q38. What are `timeout`, `retry`, and `timestamps`?
 
 ```groovy
 options {
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 45, unit: 'MINUTES')
+    retry(2)
+    timestamps()
 }
 ```
 
+- `timeout`: Stops a build that exceeds the allowed time.
+- `retry`: Repeats a block after failure.
+- `timestamps`: Adds timestamps to console output.
+
+Use `retry` only for transient operations. Retrying a deterministic compilation error usually wastes time.
+
+## Q39. What is the `input` step?
+
+`input` pauses a Pipeline and waits for human approval or input.
+
+Example:
+
 ```groovy
-steps {
-    retry(3) {
-        sh './temporary-command.sh'
+stage('Production Approval') {
+    steps {
+        input message: 'Deploy to production?', ok: 'Deploy'
     }
 }
 ```
 
-Retry only operations safe to repeat.
+For stronger governance, configure:
 
-### Q29. `error` vs `catchError` vs `returnStatus`
+- Authorized approvers
+- Submission timeout
+- Audit requirements
+- Separation of duties
+- Deployment change records
 
-| Feature | Behavior |
-|---|---|
-| `error` | Explicitly fails Pipeline |
-| `catchError` | Catches failure and controls result |
-| `returnStatus` | Returns exit code instead of failing automatically |
+## Q40. What is parallel execution?
 
-### Q30. Parallel stages
+Parallel execution runs independent branches simultaneously.
+
+Example:
 
 ```groovy
-stage('Parallel Tests') {
+stage('Parallel Checks') {
     parallel {
         stage('Unit Tests') {
-            steps { sh './run-unit-tests.sh' }
+            steps {
+                sh 'mvn test'
+            }
         }
         stage('Lint') {
-            steps { sh './run-lint.sh' }
+            steps {
+                sh 'make lint'
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                sh 'trivy fs .'
+            }
         }
     }
 }
 ```
 
----
-
-# 7. Declarative vs Scripted Pipeline
-
-### Q31. Declarative vs Scripted
-
-| Feature | Declarative | Scripted |
-|---|---|---|
-| Structure | Defined syntax | Groovy-driven |
-| Validation | Stronger early validation | More runtime-oriented |
-| Readability | Usually easier | Depends on code |
-| Flexibility | Moderate | High |
-| Best use | Standard CI/CD | Complex custom logic |
-
-### Q32. What is `script {}`?
-
-It permits Scripted Pipeline/Groovy logic inside Declarative Pipeline.
-
-```groovy
-steps {
-    script {
-        def status = sh(script: './check.sh', returnStatus: true)
-        if (status == 0) {
-            echo 'Passed'
-        }
-    }
-}
-```
+Parallelism reduces duration but increases resource usage and requires independent tasks.
 
 ---
 
-# 8. Pipeline Execution Internals
+# 9. Parameters, Environment Variables, and Credentials
 
-### Q33. What happens when a Pipeline starts?
+## Q41. What are build parameters?
 
-```text
-Trigger -> Schedule -> Load Jenkinsfile -> Allocate Agent
-       -> Execute Stages/Steps -> Persist Results -> post actions
-```
+Parameters allow users or upstream jobs to provide values at runtime.
 
-### Q34. What is CPS?
-
-Jenkins uses continuation-passing style transformation so Pipeline execution can pause and resume across steps, input, agent allocation, and supported restart situations.
-
-### Q35. What is `@NonCPS`?
-
-It prevents CPS transformation for a method. Use it only for suitable pure Groovy data processing.
-
-Incorrect:
-
-```groovy
-@NonCPS
-def invalidMethod() {
-    sh 'echo Hello'
-}
-```
-
-Pipeline steps must not be called from an `@NonCPS` method.
-
-### Q36. Why can a Pipeline resume after restart?
-
-Jenkins persists Pipeline execution state. However, external processes may not resume, agents may be lost, and non-durable operations may behave differently.
-
-### Q37. Why avoid heavy computation in Pipeline Groovy?
-
-It can create controller memory pressure, serialization overhead, slow execution, and CPS problems. Move heavy work to scripts or application code.
-
----
-
-# 9. Parameters, Environment, and Credentials
-
-### Q38. How do you define parameters?
+Example:
 
 ```groovy
 parameters {
     choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'prod'])
-    booleanParam(name: 'RUN_TESTS', defaultValue: true)
+    booleanParam(name: 'RUN_SECURITY_SCAN', defaultValue: true)
+    string(name: 'VERSION', defaultValue: '1.0.0')
 }
 ```
 
-Use `params.ENVIRONMENT`.
+Usage:
 
-### Q39. `params` vs `env`
+```groovy
+echo "Deploying ${params.VERSION} to ${params.ENVIRONMENT}"
+```
 
-| `params` | `env` |
+Do not allow arbitrary production deployment parameters without validation.
+
+## Q42. What is the difference between parameters and environment variables?
+
+| Parameters | Environment variables |
 |---|---|
-| Build parameters | Environment variables |
-| Usually user input | Runtime/configuration values |
-| `params.NAME` | `env.NAME` |
+| Input supplied to a build | Values available to processes |
+| Usually selected by user/upstream job | Can be static or dynamically assigned |
+| Accessed using `params.NAME` | Accessed using `env.NAME` or shell `$NAME` |
+| Used for build decisions | Used for configuration and command execution |
 
-### Q40. How do you define environment variables?
+## Q43. How do you define environment variables?
+
+Pipeline-level:
 
 ```groovy
 environment {
-    APP_NAME = 'otms'
-    LOG_LEVEL = 'INFO'
+    APP_NAME = 'attendance-api'
+    BUILD_MODE = 'release'
 }
 ```
 
-### Q41. How should credentials be used?
+Stage-level:
 
-Store them in Jenkins Credentials and reference them by ID.
+```groovy
+stage('Deploy') {
+    environment {
+        TARGET_ENV = 'qa'
+    }
+    steps {
+        sh 'echo $TARGET_ENV'
+    }
+}
+```
+
+## Q44. How should Jenkins credentials be managed?
+
+Use Jenkins Credentials rather than hardcoding secrets in:
+
+- Jenkinsfiles
+- Shell scripts
+- Git repositories
+- Dockerfiles
+- Terraform variables committed to Git
+- Console output
+
+Example:
 
 ```groovy
 withCredentials([
     usernamePassword(
-        credentialsId: 'repo-creds',
-        usernameVariable: 'USER',
-        passwordVariable: 'PASS'
+        credentialsId: 'registry-creds',
+        usernameVariable: 'REG_USER',
+        passwordVariable: 'REG_PASS'
     )
 ]) {
+    sh 'echo "$REG_PASS" | docker login --username "$REG_USER" --password-stdin'
+}
+```
+
+Recommended practices:
+
+- Use least privilege.
+- Rotate secrets.
+- Restrict credential scope.
+- Avoid printing secrets.
+- Prefer cloud identity or workload roles where possible.
+- Use external secret managers for highly sensitive environments.
+
+## Q45. What is the difference between secret text, username/password, SSH key, and certificate credentials?
+
+- **Secret text:** API token, password, access token.
+- **Username/password:** Registry, database, or application login.
+- **SSH username with private key:** Git over SSH or remote server access.
+- **Certificate:** Mutual TLS or certificate-based authentication.
+
+Choose the credential type based on the target system’s authentication method.
+
+## Q46. How can credentials leak in Jenkins?
+
+Common causes:
+
+- `echo $PASSWORD`
+- Shell tracing using `set -x`
+- Passing secrets in command-line arguments
+- Writing secrets to artifacts
+- Unsafe Groovy interpolation
+- Printing environment variables
+- Uploading logs to public storage
+- Malicious or untrusted Pipeline code
+
+Safer example:
+
+```groovy
+withCredentials([string(credentialsId: 'token', variable: 'TOKEN')]) {
     sh '''
         set +x
-        ./login.sh "$USER" "$PASS"
+        curl -H "Authorization: Bearer $TOKEN" https://example.internal/api
     '''
 }
 ```
 
-Never hardcode passwords, tokens, or private keys.
-
-### Q42. Is secret masking complete security?
-
-No. Secrets can leak through debug output, shell quoting, process arguments, workspace files, or malicious build scripts. Use least privilege.
-
 ---
 
-# 10. Git, Webhooks, and Multibranch
+# 10. Git, Webhooks, Polling, and Multibranch Pipelines
 
-### Q43. Poll SCM vs webhook
+## Q47. What happens when a Git webhook triggers Jenkins?
 
-| Poll SCM | Webhook |
-|---|---|
-| Jenkins checks periodically | Git provider sends an event |
-| More repeated traffic | Event-driven |
-| May detect changes late | Usually faster |
+Typical flow:
 
-### Q44. Webhook flow
+1. Developer pushes code.
+2. Git provider receives the push.
+3. Git provider sends an HTTP request to Jenkins.
+4. Jenkins validates the event.
+5. Jenkins identifies the matching job.
+6. Jenkins schedules a build.
+7. Agent checks out the correct commit.
+8. Pipeline executes.
+9. Jenkins reports status back to the Git provider.
 
-```text
-Developer Push -> Git Provider -> Webhook -> Jenkins Trigger -> Job/Branch -> Pipeline
+## Q48. Why can a webhook succeed but the Jenkins build not start?
+
+Possible causes:
+
+- Incorrect webhook URL.
+- Jenkins endpoint not reachable.
+- Reverse proxy misconfiguration.
+- CSRF or authentication issue.
+- Wrong repository/job mapping.
+- Branch filtering.
+- Missing plugin integration.
+- Webhook event type not supported.
+- Jenkins job disabled.
+- Duplicate or ignored events.
+
+Check:
+
+- Git provider webhook delivery logs.
+- Jenkins system log.
+- Job trigger configuration.
+- Plugin status.
+- Reverse proxy logs.
+- Network security rules.
+
+## Q49. What is a Git checkout in Jenkins?
+
+Checkout retrieves source code into the workspace.
+
+Example:
+
+```groovy
+checkout scm
 ```
 
-### Q45. Webhook received but build does not start. What do you check?
+or:
 
-Webhook delivery, endpoint URL, trigger configuration, repository/branch matching, credentials/token, multibranch indexing, permissions, event filters, and Jenkins logs.
+```groovy
+git branch: 'main',
+    credentialsId: 'git-creds',
+    url: 'https://git.example.com/team/app.git'
+```
 
-### Q46. What is a Multibranch Pipeline?
+For Multibranch Pipelines, `checkout scm` is usually preferred because Jenkins already knows the branch and revision.
 
-It discovers branches containing a Jenkinsfile and creates a Pipeline job for each discovered branch.
+## Q50. What is a shallow clone?
 
-### Q47. What is branch indexing?
+A shallow clone retrieves limited Git history.
 
-Scanning a repository for new/deleted branches, changed Jenkinsfiles, pull requests, and branch metadata.
+Example:
 
-### Q48. Why can a webhook trigger duplicate builds?
+```bash
+git clone --depth 1 https://git.example.com/team/app.git
+```
 
-Webhook plus polling, multiple endpoints, duplicate triggers, branch and pull-request events both matching, or Git-provider retries.
+Benefits:
 
----
+- Faster checkout.
+- Lower network usage.
+- Less disk space.
 
-# 11. Plugins
+Limitations:
 
-### Q49. Why does Jenkins need plugins?
-
-Plugins provide SCM integrations, Pipeline steps, credential types, agent integrations, test reporting, security features, and UI features.
-
-### Q50. What causes `No such DSL method`?
-
-- Plugin missing or failed to load
-- Incorrect step name
-- Plugin/version mismatch
-- Missing dependency
-- Incorrect Pipeline syntax
-- Missing custom functionality
-
-### Q51. How do you troubleshoot a plugin failure?
-
-Identify the failing step, check installed/versioned plugins, inspect dependency warnings and startup logs, reproduce with a minimal Pipeline, and review recent upgrades.
+- Some versioning commands require full history.
+- Changelog generation may be incomplete.
+- Git merge-base operations may fail.
 
 ---
 
-# 12. JCasC and Job DSL — Important Only
+# 11. Shared Libraries
 
-### Q52. What is JCasC?
+## Q51. What is a Jenkins Shared Library?
 
-Jenkins Configuration as Code manages Jenkins system configuration using YAML.
+A Shared Library stores reusable Pipeline code in a separate Git repository.
 
-### Q53. What is Job DSL?
+Typical structure:
 
-Job DSL creates and manages Jenkins jobs using Groovy definitions.
+```text
+jenkins-shared-library/
+├── vars/
+│   └── deployApplication.groovy
+├── src/
+│   └── com/company/Utils.groovy
+└── resources/
+```
 
-### Q54. JCasC vs Job DSL
+Usage:
 
-| JCasC | Job DSL |
-|---|---|
-| Jenkins system configuration | Job creation/configuration |
-| Usually YAML | Groovy DSL |
-| System-level | Job-level |
+```groovy
+@Library('company-shared-library') _
+
+deployApplication(environment: 'qa')
+```
+
+Benefits:
+
+- Reuse
+- Standardization
+- Centralized maintenance
+- Reduced Jenkinsfile size
+- Consistent security and deployment patterns
+
+## Q52. What belongs in `vars` and `src`?
+
+- `vars`: Global Pipeline steps or DSL-like functions.
+- `src`: Groovy classes and reusable application logic.
+- `resources`: Static files loaded by the library.
+
+Example `vars/buildJava.groovy`:
+
+```groovy
+def call(Map config = [:]) {
+    sh "${config.maven ?: 'mvn'} clean package"
+}
+```
+
+## Q53. What are risks of Shared Libraries?
+
+- A central change can affect many pipelines.
+- Unsafe code may access credentials or agents.
+- Poor versioning can break old jobs.
+- Unreviewed changes can create supply-chain risk.
+
+Best practices:
+
+- Version libraries using tags or branches.
+- Review changes.
+- Test library functions.
+- Use trusted libraries carefully.
+- Avoid unnecessary global privileges.
+
+---
+
+# 12. Plugins, JCasC, and Job DSL
+
+## Q54. What is a Jenkins plugin?
+
+A plugin extends Jenkins functionality.
+
+Examples:
+
+- Git plugin
+- Pipeline plugin
+- Credentials plugin
+- SSH Build Agents plugin
+- Workspace Cleanup plugin
+- SonarQube Scanner plugin
+- Docker Pipeline plugin
+- Kubernetes plugin
+- Email Extension plugin
+
+Plugin risks:
+
+- Compatibility issues
+- Security vulnerabilities
+- Dependency conflicts
+- Unexpected behavior after upgrades
+
+## Q55. How should Jenkins plugins be managed?
+
+- Maintain an approved plugin list.
+- Remove unused plugins.
+- Test upgrades in a non-production Jenkins instance.
+- Review security advisories.
+- Pin versions where required.
+- Back up before upgrades.
+- Monitor plugin dependencies.
+
+## Q56. What is JCasC?
+
+**JCasC** means **Jenkins Configuration as Code**.
+
+It defines Jenkins configuration in YAML instead of manually configuring everything through the UI.
+
+Example:
+
+```yaml
+jenkins:
+  systemMessage: "Managed by Configuration as Code"
+  numExecutors: 0
+```
+
+Benefits:
+
+- Repeatability
+- Version control
+- Faster recovery
+- Consistent environments
+- Easier automation
+
+Do not store secrets directly in a public YAML file. Use secret references or an external secret-management solution.
+
+## Q57. What is Job DSL?
+
+Job DSL is a Groovy-based method for generating Jenkins jobs programmatically.
+
+Example concept:
+
+```groovy
+pipelineJob('application-ci') {
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://git.example.com/app.git')
+                    }
+                    branch('*/main')
+                }
+            }
+            scriptPath('Jenkinsfile')
+        }
+    }
+}
+```
+
+Difference:
+
+- **JCasC:** Configures Jenkins itself.
+- **Job DSL:** Creates and configures jobs.
+- **Jenkinsfile:** Defines the execution workflow of a job.
 
 ---
 
 # 13. Jenkins Security
 
-### Q55. Authentication vs authorization
+## Q58. What is authentication?
+
+Authentication verifies **who** a user or system is.
+
+Examples:
+
+- Username/password
+- LDAP
+- Active Directory
+- SSO
+- SAML
+- OpenID Connect
+- API token
+- SSH key
+
+## Q59. What is authorization?
+
+Authorization determines **what** an authenticated identity is allowed to do.
+
+Examples:
+
+- Read jobs
+- Build jobs
+- Configure jobs
+- Cancel builds
+- Manage credentials
+- Manage Jenkins
+
+## Q60. Authentication vs authorization?
 
 | Authentication | Authorization |
 |---|---|
 | Who are you? | What can you do? |
+| Login verification | Permission evaluation |
+| Happens before access | Controls allowed actions |
+| Example: LDAP login | Example: build-only permission |
 
-### Q56. What is least privilege?
+## Q61. What is Role-Based Access Control?
 
-Give users, jobs, agents, and credentials only the permissions required. Avoid unnecessary administrator access and restrict production credentials.
+**RBAC** means **Role-Based Access Control**.
 
-### Q57. What is the Groovy sandbox?
+Permissions are assigned to roles rather than individually to every user.
 
-It restricts potentially dangerous Groovy operations. Some operations require administrator approval.
+Example roles:
 
-### Q58. Why are agents a security boundary?
+- Developer: Read and build development jobs.
+- Release Engineer: Deploy to staging.
+- Production Approver: Approve production releases.
+- Jenkins Administrator: Manage global configuration.
 
-Build scripts may access workspace files, environment variables, exposed credentials, and network resources. A compromised agent should not compromise the controller.
+Use least privilege and separate production permissions from development permissions.
+
+## Q62. What is the Groovy sandbox?
+
+The Groovy sandbox restricts Pipeline scripts from executing potentially dangerous methods without approval.
+
+It protects Jenkins from unsafe Pipeline code, especially when code is contributed by users who should not have unrestricted administrative access.
+
+Do not approve every script-signature request blindly. Review what the method does and whether the library or script is trusted.
+
+## Q63. How do you secure Jenkins?
+
+- Enable authentication.
+- Use authorization strategies.
+- Enforce HTTPS.
+- Restrict anonymous access.
+- Use least-privilege service accounts.
+- Protect credentials.
+- Keep plugins updated.
+- Restrict controller builds.
+- Isolate agents.
+- Use network segmentation.
+- Enable audit logging.
+- Back up securely.
+- Restrict script approval.
+- Avoid exposing Jenkins directly to the internet.
+- Use CSRF protection and secure reverse-proxy configuration.
 
 ---
 
-# 14. Advanced Administration and Pipeline Topics
+# 14. SonarQube and Quality Gates
 
-## Jenkins Agent Connectivity: JNLP vs SSM
+## Q64. What is SonarQube?
 
-### Q82. What is JNLP in Jenkins?
+SonarQube is a code-quality and static-analysis platform. It analyzes source code for issues such as:
 
-JNLP is the older term for a Jenkins **inbound agent** connection. The agent initiates the connection to the controller, which is useful behind NAT, firewalls, or in private networks.
+- Bugs
+- Vulnerabilities
+- Code smells
+- Duplicated code
+- Maintainability problems
+- Coverage information from test tools
 
-```text
-Jenkins Agent  ──initiates connection──>  Jenkins Controller
-```
+## Q65. What is a Quality Gate?
 
-### Q83. Is JNLP required when using AWS SSM?
+A Quality Gate is a set of conditions that determines whether code meets an organization’s quality standards.
 
-**No.** SSM executes commands on EC2; JNLP connects a Jenkins build agent to the controller.
+Example conditions:
 
-```text
-Jenkins → SSM → EC2 → Deployment
-```
-
-If Jenkins only deploys through SSM, no Jenkins agent or JNLP is required. JNLP is needed only if the EC2 instance runs Jenkins build steps as an agent.
-
-### Q84. Can SSM and JNLP be used together?
-
-Yes. JNLP may run builds on one EC2 instance while SSM deploys to another. They are independent mechanisms.
-
-## Jenkins Security Lockout
-
-### Q85. What causes a Jenkins security lockout?
-
-Incorrect LDAP/AD, SAML/OIDC, Security Realm, matrix authorization, role mapping, or administrator permissions can prevent login or leave the user without administration rights.
-
-### Q86. How do you recover Jenkins after security misconfiguration?
-
-1. Back up the configuration:
-
-```bash
-sudo cp /var/lib/jenkins/config.xml /var/lib/jenkins/config.xml.backup
-```
-
-2. Stop Jenkins:
-
-```bash
-sudo systemctl stop jenkins
-```
-
-3. Edit `/var/lib/jenkins/config.xml` and temporarily change:
-
-```xml
-<useSecurity>true</useSecurity>
-```
-
-to:
-
-```xml
-<useSecurity>false</useSecurity>
-```
-
-4. Start Jenkins, repair the Security Realm and Authorization Strategy, re-enable security, and restart Jenkins.
-
-Do not delete the complete `securityRealm` section unless it is specifically required. Identify whether the issue is authentication or authorization first.
-
-## LDAP Authentication
-
-### Q87. What is LDAP?
-
-LDAP means **Lightweight Directory Access Protocol**. It is used to access directory data such as users, groups, departments, email addresses, and organizational units.
-
-### Q88. How does LDAP work with Jenkins?
-
-```text
-User → Jenkins → LDAP verifies identity → Jenkins authorization grants permissions
-```
-
-LDAP authenticates the user. Jenkins decides whether the user can read, build, configure, or administer jobs.
-
-### Q89. LDAP vs Active Directory
-
-| LDAP | Active Directory |
-|---|---|
-| Protocol | Microsoft's directory service |
-| Defines access to directory data | Stores users, groups, computers, and policies |
-| Used by many directory systems | Supports LDAP and other protocols |
-
-### Q90. Important LDAP terms
-
-| Term | Example |
-|---|---|
-| Base DN | `dc=company,dc=com` |
-| User DN | `uid=mukesh,ou=users,dc=company,dc=com` |
-| OU | `ou=developers` |
-| Group | `cn=jenkins-admins,ou=groups,dc=company,dc=com` |
-
-Common LDAP failures include wrong URL, Base DN, search filter, bind credentials, DNS, TLS certificate, username attribute, group mapping, or system time.
-
-## Jenkins SSO
-
-### Q91. What is SSO?
-
-SSO, or **Single Sign-On**, allows users to authenticate through a central Identity Provider such as Entra ID, Okta, Keycloak, or Google Workspace.
-
-```text
-User → Jenkins → Identity Provider → SAML response/OIDC token → Jenkins authorization
-```
-
-### Q92. General SAML/OIDC configuration steps
-
-1. Install an approved SAML or OIDC Jenkins plugin.
-2. Register Jenkins as an application in the Identity Provider.
-3. Configure the exact Entity ID and ACS/Reply or Redirect URL.
-4. Configure the issuer/SSO URL, certificate or client ID/secret.
-5. Map username, email, and group claims.
-6. Map IdP groups to Jenkins roles.
-7. Test with a separate user and keep a recovery administrator.
-
-### Q93. Most common SSO problem
-
-The Jenkins callback URL and IdP redirect/Reply URL do not match exactly. Check protocol, hostname, port, path, trailing slash, issuer, certificate, audience, group claims, reverse-proxy headers, and system time.
-
-**SSO authenticates; Jenkins authorization decides permissions.** SSO does not automatically make a user an administrator.
-
-## Jenkins Backup Strategies
-
-### Q94. What should be backed up?
-
-The main directory is:
-
-```bash
-$JENKINS_HOME
-
-`JENKINS_HOME` is commonly `/var/lib/jenkins` on Linux installations.
-```
-
-Back up `config.xml`, `jobs/`, `credentials.xml`, `secrets/`, `plugins/`, `users/`, `nodes/`, `builds/`, `fingerprints/`, and `userContent/`.
-
-**Important:** Restore `credentials.xml` together with `secrets/`; otherwise Jenkins may not decrypt credentials.
-
-### Q95. Main backup strategies
-
-1. **File-system backup** — tar the Jenkins home directory.
-2. **Thin Backup plugin** — useful for Jenkins configuration.
-3. **Disk/volume snapshots** — useful for full-server recovery; ensure consistency.
-4. **External storage** — copy backups to S3, Blob Storage, NFS, or enterprise backup storage.
-5. **Configuration as Code** — store JCasC, Jenkinsfiles, plugin lists, Job DSL, and scripts in Git.
-
-Example:
-
-```bash
-sudo systemctl stop jenkins
-sudo tar -czf /backup/jenkins-$(date +%F).tar.gz -C /var/lib jenkins
-sudo systemctl start jenkins
-```
-
-Workspaces usually do not need backup because they are reproducible. Use encrypted off-site backups and the 3-2-1 rule: three copies, two storage types, one off-site copy.
-
-### Q96. Jenkins restore process
-
-1. Provision a compatible Jenkins server.
-2. Stop Jenkins.
-3. Restore `$JENKINS_HOME`, including `credentials.xml` and `secrets/`.
-4. Restore compatible plugins.
-5. Fix ownership:
-
-```bash
-sudo chown -R jenkins:jenkins /var/lib/jenkins
-```
-
-6. Start Jenkins and validate jobs, credentials, agents, plugins, webhooks, and pipelines.
-
-### Q97. RPO vs RTO
-
-| Term | Meaning |
-|---|---|
-| RPO | Maximum acceptable data loss |
-| RTO | Maximum acceptable recovery time |
-
-## Scripted Pipeline vs Jenkinsfile vs Declarative Pipeline
-
-### Q98. Is Scripted Pipeline the same as a Jenkinsfile?
-
-No. A **Jenkinsfile is the file** containing Pipeline code. Its contents can be Declarative or Scripted.
-
-### Q99. Scripted Pipeline
-
-Scripted Pipeline is a Groovy-based, programmatic DSL:
-
-```groovy
-node('linux') {
-    stage('Build') {
-        sh 'mvn clean package'
-    }
-
-    if (env.BRANCH_NAME == 'main') {
-        stage('Deploy') {
-            sh './deploy.sh'
-        }
-    }
-}
-```
-
-It supports flexible loops, functions, closures, dynamic stages, complex branching, and `try/catch` handling.
-
-### Q100. Declarative Pipeline
-
-Declarative Pipeline is a structured DSL:
-
-```groovy
-pipeline {
-    agent any
-
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh './deploy.sh'
-            }
-        }
-    }
-}
-```
-
-### Q101. Technical comparison
-
-| Area | Scripted | Declarative |
-|---|---|---|
-| Top-level form | Usually `node {}` | `pipeline {}` |
-| Model | Programmatic Groovy | Structured DSL |
-| Flexibility | Very high | Intentionally restricted |
-| Validation | More runtime-oriented | Pipeline model validation |
-| Dynamic stages | Natural | Less natural |
-| Error handling | `try/catch/finally` | `post`, `retry`, `catchError`, or `script` |
-| Agent allocation | `node()` | `agent` |
-| Standard directives | Manually composed | `environment`, `options`, `parameters`, `when`, `post` |
-| Best use | Dynamic orchestration | Standard CI/CD |
-
-### Q102. Why is `script {}` used?
-
-Declarative restricts arbitrary Groovy inside `steps`. Use `script {}` for imperative logic:
-
-```groovy
-pipeline {
-    agent any
-    stages {
-        stage('Example') {
-            steps {
-                script {
-                    def value = 10
-                    if (value > 5) {
-                        sh 'echo greater'
-                    }
-                }
-            }
-        }
-    }
-}
-```
-
-`script {}` does not allocate an agent. Excessive use reduces Declarative readability and validation benefits.
-
-### Q103. CPS and `@NonCPS`
-
-Both pipeline styles use the Jenkins Pipeline CPS execution engine, which allows pausing and resuming at steps such as `input`. Avoid carrying non-serializable objects across suspension points.
-
-Use `@NonCPS` only for pure Groovy methods that do not call Pipeline steps:
-
-```groovy
-@NonCPS
-def calculateTotal(numbers) {
-    return numbers.sum()
-}
-```
-
-### Q104. Which style should be preferred?
-
-Use Declarative by default for standard CI/CD, governance, and maintainability. Use Scripted when the workflow is highly dynamic or requires complex runtime orchestration.
-
----
-
----
-
-# 15. SonarQube and Quality Gates
-
-## Q. What is the difference between SonarQube and SonarScanner?
-
-- **SonarQube** is the server that stores and analyzes code-quality results and displays dashboards.
-- **SonarScanner** is the client-side analysis tool that scans source code and sends the report to SonarQube.
-- Jenkins orchestrates the scan; SonarQube evaluates the result against the configured Quality Gate.
-
-## Q. What is a Quality Profile?
-
-A **Quality Profile** is the set of rules used during analysis. It defines which bugs, vulnerabilities, code smells, and language-specific issues are checked.
-
-## Q. What is a Quality Gate?
-
-A **Quality Gate** is the pass/fail policy applied to analysis results. Typical conditions include:
-
-- New bugs or vulnerabilities must be zero.
-- New code coverage must be above a threshold.
+- New bugs must be zero.
+- New vulnerabilities must be zero.
+- Coverage on new code must be above a threshold.
 - Duplicated lines must remain below a threshold.
-- Reliability, security, and maintainability ratings must meet the policy.
+- Maintainability rating must meet the required level.
 
-A Quality Profile defines **what is checked**. A Quality Gate defines **whether the result is acceptable**.
+## Q66. How does Jenkins integrate with SonarQube?
 
-## Q. Typical Jenkins SonarQube flow
+Typical flow:
 
 ```text
 Checkout
-   ↓
-Build and unit tests
-   ↓
-Generate coverage report
-   ↓
-SonarScanner analysis
-   ↓
-SonarQube processes the report
-   ↓
-Jenkins waits for Quality Gate
-   ↓
-Continue or fail the pipeline
+   -> Build
+   -> Unit Tests
+   -> SonarQube Analysis
+   -> Wait for Quality Gate
+   -> Continue or Fail
 ```
 
-### Q59. Declarative Pipeline example
+Example:
 
 ```groovy
 stage('SonarQube Analysis') {
     steps {
         withSonarQubeEnv('sonarqube-server') {
-            sh 'mvn clean verify sonar:sonar'
+            sh 'mvn sonar:sonar'
         }
     }
 }
@@ -926,805 +1411,939 @@ stage('Quality Gate') {
 }
 ```
 
-## Q. Why is the SonarQube webhook required?
+## Q67. Why should the Quality Gate have a timeout?
 
-`waitForQualityGate` does not continuously perform expensive polling. SonarQube sends the completed analysis status to Jenkins through a webhook. The webhook must point to the Jenkins SonarQube webhook endpoint, commonly:
+Without a timeout, Jenkins may wait indefinitely if:
+
+- SonarQube is unavailable.
+- The webhook is not delivered.
+- The analysis remains pending.
+- The task fails to complete.
+
+A timeout prevents executor starvation and stuck pipelines.
+
+## Q68. What is the difference between static analysis and dynamic testing?
+
+- **Static analysis:** Examines code or binaries without running the application. Example: SonarQube, Checkstyle, PMD.
+- **Dynamic testing:** Tests behavior while the application is running. Example: integration tests, DAST, API tests.
+
+---
+
+# 15. CI/CD Pipeline Design
+
+## Q69. Design a production-grade Java CI pipeline.
+
+A typical pipeline:
 
 ```text
-https://<jenkins-url>/sonarqube-webhook/
+Checkout
+   -> Validate
+   -> Compile
+   -> Unit Test
+   -> Code Coverage
+   -> Static Analysis
+   -> Quality Gate
+   -> Dependency/SCA Scan
+   -> Package
+   -> Publish Artifact
+   -> Notify
 ```
 
-Common failures:
-
-- Webhook URL is incorrect.
-- Jenkins is not reachable from SonarQube.
-- The SonarQube server name in `withSonarQubeEnv` does not match Jenkins configuration.
-- The scanner runs but no report task is created.
-- The pipeline waits forever because the webhook or task status is broken.
-
-## Q. Should a failed Quality Gate fail the build?
-
-For production-quality CI, normally yes. Use:
+Example:
 
 ```groovy
-waitForQualityGate abortPipeline: true
+pipeline {
+    agent { label 'java' }
+
+    options {
+        timestamps()
+        timeout(time: 45, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile and Test') {
+            steps {
+                sh 'mvn clean verify'
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube-server') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Publish') {
+            when {
+                branch 'main'
+            }
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        always {
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+            cleanWs()
+        }
+    }
+}
 ```
 
-For an advisory phase, the result may be recorded without blocking the pipeline, but this should be an explicit policy rather than an accidental configuration.
+## Q70. What makes a pipeline production-ready?
 
----
+A production-ready pipeline should include:
 
-# 16. Generic CI Pipeline Design
+- Version-controlled Jenkinsfile
+- Clear stages
+- Immutable artifacts
+- Secure credentials
+- Input validation
+- Timeouts
+- Retry only for transient operations
+- Test reports
+- Static analysis
+- Security scanning
+- Quality gates
+- Manual approval where required
+- Notifications
+- Workspace cleanup
+- Concurrency control
+- Rollback strategy
+- Auditability
+- Monitoring and metrics
 
-## Q. Design a standard CI pipeline for a microservices repository.
+## Q71. Why should build and deployment be separated?
 
-A practical sequence is:
+Separating build and deployment provides:
+
+- Artifact promotion.
+- Repeatable deployments.
+- Independent approvals.
+- Reduced rebuild risk.
+- Better traceability.
+- Easier rollback.
+
+Preferred model:
 
 ```text
-Checkout source
-   ↓
-Validate branch / parameters
-   ↓
-Compile or install dependencies
-   ↓
-Unit tests
-   ↓
-Coverage report
-   ↓
-Static analysis / SonarQube
-   ↓
-Dependency and vulnerability scan
-   ↓
-Credential/secrets scan
-   ↓
-Package or build image
-   ↓
-Optional DAST / ZAP scan
-   ↓
-Publish reports and artifacts
-   ↓
-Notify result
+Commit
+  -> Build once
+  -> Publish immutable artifact
+  -> Deploy same artifact to QA
+  -> Approve
+  -> Deploy same artifact to Production
 ```
 
-The exact tools depend on the language:
+Do not rebuild the application separately for each environment if the goal is to promote the exact same binary.
 
-| Application | Build/test tools | Common checks |
-|---|---|---|
-| Java | Maven or Gradle, JUnit | Checkstyle, PMD, JaCoCo, SonarQube |
-| React/Node.js | npm/pnpm/yarn | ESLint, Jest, coverage, npm audit/SCA |
-| Python | pytest, pip/poetry | pylint, flake8, bandit, coverage |
-| Go | go test, go build | go vet, golangci-lint, coverage |
+## Q72. How should failures be handled?
 
-## Q. Where should security scans be placed?
+Classify failures:
 
-| Scan | Stage | Purpose |
-|---|---|---|
-| GitLeaks or secret scan | Early, before build | Detect committed credentials and tokens |
-| SCA/dependency scan | After dependency resolution | Detect vulnerable third-party packages |
-| SAST/SonarQube | After source checkout/build metadata | Detect code-quality and source-level issues |
-| Container scan | After image build | Detect vulnerable packages in the image |
-| DAST/ZAP | Against a running test environment | Detect runtime web vulnerabilities |
-| License scan | During dependency validation | Detect policy violations in licenses |
+1. **Code failure:** Fix source code.
+2. **Test failure:** Investigate application or test logic.
+3. **Infrastructure failure:** Check agent, network, disk, CPU, memory, or service availability.
+4. **Credential failure:** Validate credential ID, permissions, and expiry.
+5. **Tool failure:** Check Maven, Git, SonarQube, Terraform, or scanner versions.
+6. **Pipeline logic failure:** Review conditions, variables, and error handling.
 
-Do not treat one scan as a replacement for all others. They inspect different layers.
-
-## Q. What should happen when a security scan fails?
-
-Define policy explicitly:
-
-- Block on critical/high vulnerabilities when required.
-- Allow warnings for low-risk findings if the organization permits it.
-- Publish the report even when the build fails.
-- Record the dependency, source revision, scanner version, and policy used.
-- Provide an exception process with owner and expiry date rather than permanently ignoring findings.
+Avoid blindly retrying all failures.
 
 ---
 
-# 17. Jenkins Post-build Actions and Notifications
+# 16. Notifications and Post-Build Actions
 
-## Q. What are common post-build actions?
+## Q73. What are post-build actions?
 
-- Publish JUnit test results.
-- Publish coverage reports.
-- Archive build artifacts.
-- Publish static-analysis reports.
-- Send email, Slack, Teams, or webhook notifications.
-- Trigger downstream jobs.
-- Clean the workspace.
-- Update commit status in GitHub/GitLab/Bitbucket.
+Post-build actions run after a job completes.
 
-### Q60. Example
+Examples:
+
+- Archive artifacts
+- Publish JUnit results
+- Publish HTML reports
+- Send email
+- Send Slack notification
+- Trigger downstream job
+- Clean workspace
+- Upload reports
+- Update Git commit status
+
+## Q74. How do you send notifications only when a build fails?
+
+Example:
 
 ```groovy
 post {
-    always {
-        junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-        archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-    }
-    success {
-        echo 'Build succeeded'
-    }
     failure {
-        echo 'Build failed'
-    }
-    cleanup {
-        cleanWs()
+        echo 'Sending failure notification'
+        // slackSend or emailext can be used here
     }
 }
 ```
 
-## Q. Why publish reports even when the build fails?
+For production, include:
 
-A failed test or scan often produces the most useful diagnostic evidence. Publishing reports in `always` allows developers and interviewers to inspect the failure instead of losing the evidence during cleanup.
+- Job name
+- Build number
+- Branch
+- Commit ID
+- Failed stage
+- Console log link
+- Responsible team
+- Environment
 
----
+## Q75. What is the difference between `always`, `success`, and `failure` in `post`?
 
-# 18. Performance and Scaling
+- `always`: Runs regardless of result.
+- `success`: Runs only after successful completion.
+- `failure`: Runs only after failure.
 
-### Q61. Why does Jenkins become slow?
-
-Builds on the controller, too many executors, large logs, heavy Pipeline Groovy, large build history, disk pressure, plugin overhead, too many concurrent jobs, slow SCM, or insufficient agents.
-
-### Q62. How do you reduce controller load?
-
-Run builds on agents, keep controller executors at zero where practical, move heavy logic to scripts, reduce logs, retain fewer builds, avoid excessive polling, and remove unused plugins.
-
-### Q63. What is the danger of too many executors?
-
-CPU contention, memory exhaustion, disk I/O contention, slower builds, and agent instability.
-
-### Q64. How do you investigate a growing queue?
-
-Read the queue reason, check labels, agent status, executors, locks/throttling, provisioning, input steps, and controller resource pressure.
+Cleanup and report publishing often belong in `always`; deployment notifications belong in `success` or `failure`.
 
 ---
 
-# 19. Troubleshooting Scenarios
+# 17. Artifacts and Artifact Repositories
 
-### Q65. Agent is offline. What do you check?
+## Q76. What is artifact archiving in Jenkins?
 
-Agent logs, runtime/JVM, network, work directory, disk space, permissions, connection settings, and controller-agent compatibility.
+`archiveArtifacts` stores build outputs with the Jenkins build record.
 
-### Q66. Agent is online but build does not run.
-
-Check label mismatch, busy executors, node restrictions, disabled node, throttling, locks, input steps, and `when` conditions.
-
-### Q67. Build works manually but fails in Jenkins.
-
-Compare user account, PATH, HOME, tool versions, permissions, working directory, credentials, environment variables, network, and non-interactive shell behavior.
-
-### Q68. Git checkout fails.
-
-Check repository URL, branch, credentials, network/DNS, host-key verification, Git installation, workspace permissions, and repository access.
-
-### Q69. Shell command fails with exit code 1.
-
-Inspect the actual command and environment:
+Example:
 
 ```groovy
-sh '''
-    set -eux
-    whoami
-    pwd
-    env | sort
-    ./build.sh
-'''
+archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
 ```
 
-Do not blindly ignore the exit code.
+Use it for small or moderate outputs and short-term retention.
 
-### Q70. Pipeline succeeds although a command failed.
+## Q77. Why should large artifacts not be stored only in Jenkins?
 
-Possible causes: `|| true`, `returnStatus`, `catchError`, ignored script errors, a successful final command, or a changed build result.
+Jenkins is primarily an automation server, not a full artifact-management platform.
 
-### Q71. Pipeline is waiting for a long time.
+For large-scale environments, use:
 
-Check `input`, queue, agent allocation, external commands, network calls, locks, retries, sleeps, plugin steps, and dead processes. Use timeouts.
+- Nexus
+- JFrog Artifactory
+- AWS S3
+- Container registries
+- Cloud package repositories
 
-### Q72. Two builds corrupt each other.
+Benefits:
 
-Use `disableConcurrentBuilds()`, isolated workspaces, unique temporary directories, separate agents, and unique filenames.
+- Better retention management
+- Versioning
+- Access control
+- Replication
+- Scalability
+- Artifact promotion
 
-### Q73. Plugin upgrade caused failures.
+## Q78. What is artifact immutability?
 
-Identify the first failing step, review upgrade history/dependencies, check Jenkins core and Java compatibility, reproduce minimally, and roll back carefully if necessary.
+An immutable artifact is not modified after publication.
 
----
+Example:
 
-# 20. L2/L3 Scenarios
+```text
+attendance-api:1.4.2
+```
 
-### Q74. 100 builds are queued but agents are mostly idle. Explain.
-
-Likely causes are incorrect labels, disabled nodes, reserved executors, locks/throttling, failed dynamic provisioning, or jobs requiring a special agent. Start with the queue reason.
-
-### Q75. One agent works and another fails. What do you compare?
-
-OS/architecture, Java/runtime, tools, PATH, user permissions, disk, workspace ownership, network/DNS, credentials, and labels.
-
-### Q76. Controller CPU is high during builds. What do you do?
-
-Confirm builds are not on the controller; inspect Pipeline Groovy loops, large logs, concurrency, plugins, recent changes, and build retention. Move heavy work to agents/scripts.
-
-### Q77. Jenkinsfile is very large. What do you recommend?
-
-Remove repetition, keep the Jenkinsfile readable, use the existing Shared Library solution for reusable logic, and move business logic to tested scripts/application code.
-
-### Q78. Webhook works for one branch but not another.
-
-Check branch indexing, Jenkinsfile existence, branch naming, multibranch configuration, event type, filters, permissions, and Pipeline syntax.
-
-### Q79. Build fails after Jenkins restart.
-
-Investigate Pipeline resumability, agent loss, external processes, plugin errors, persisted state, workspace availability, and credentials/network state.
-
-### Q80. How would you design Jenkins for many teams?
-
-Use folders, consistent permissions/naming, agents and labels, Pipeline-as-code, controlled plugin versions, configuration as code, build retention, workload limits, and tested backups.
-
-### Q81. Pipeline is slow but not failed. How do you investigate?
-
-Break time into queue wait, agent provisioning, checkout, dependency downloads, build, tests, archive/report steps, and post actions. Optimize the slowest stage.
+The same artifact should be promoted through environments instead of rebuilding different content under the same version.
 
 ---
 
-# 21. Additional Troubleshooting Scenarios
+# 18. Jenkins Backup and Disaster Recovery
 
-## Scenario 1: Job does not start after a Git push
+## Q79. What should be backed up in Jenkins?
 
-Investigation order:
+At minimum:
 
-1. Confirm the webhook was delivered by the Git provider.
-2. Check the Jenkins endpoint and reverse proxy.
-3. Confirm the job trigger is enabled.
-4. Verify repository URL and credentials.
-5. Check branch filters and PR rules.
-6. Inspect Jenkins system log and job event logs.
-7. Check whether the job is disabled or blocked by queue/concurrency rules.
+- `JENKINS_HOME`
+- Job configurations
+- Pipeline definitions
+- Credentials configuration and required secret material
+- Plugin list and versions
+- Security configuration
+- JCasC files
+- Shared library references
+- User and permission configuration
+- Important build metadata
+- External configuration and reverse-proxy settings
 
-## Scenario 2: Build is stuck in the queue
+Do not assume encrypted credential values are useful without the Jenkins encryption keys and correct restoration environment.
+
+## Q80. What is the difference between RPO and RTO?
+
+- **RPO — Recovery Point Objective:** Maximum acceptable data loss measured in time.
+- **RTO — Recovery Time Objective:** Maximum acceptable time to restore service.
+
+Example:
+
+```text
+RPO: 15 minutes
+RTO: 1 hour
+```
+
+This means the organization accepts losing at most approximately 15 minutes of Jenkins data and expects recovery within one hour.
+
+## Q81. What is a good Jenkins backup strategy?
+
+- Take scheduled backups.
+- Store backups outside the Jenkins host.
+- Encrypt backups.
+- Retain multiple recovery points.
+- Test restoration regularly.
+- Document plugin versions.
+- Keep JCasC and Jenkinsfiles in Git.
+- Back up credentials securely.
+- Monitor backup success and age.
+
+A backup that has never been restored is not fully trusted.
+
+---
+
+# 19. Performance, Scaling, and Reliability
+
+## Q82. Why is Jenkins slow?
+
+Possible causes:
+
+- Too many builds on the controller.
+- Insufficient CPU or memory.
+- Too many executors.
+- Slow storage.
+- Large workspaces.
+- Excessive console logging.
+- Plugin problems.
+- Large build history.
+- Slow Git checkout.
+- Slow artifact uploads.
+- Too many concurrent pipelines.
+- Memory leaks.
+- Slow external services.
+
+## Q83. How can Jenkins performance be improved?
+
+- Move builds to agents.
+- Tune executor count.
+- Use appropriate agent labels.
+- Clean workspaces.
+- Use shallow Git clones where suitable.
+- Cache dependencies carefully.
+- Archive only required artifacts.
+- Limit build history.
+- Avoid unnecessary polling.
+- Use webhooks.
+- Split heavy workloads across agents.
+- Upgrade hardware where justified.
+- Remove unused plugins.
+- Use pipeline timeouts.
+- Avoid excessive Groovy logic.
+
+## Q84. What is `disableConcurrentBuilds()`?
+
+It prevents multiple builds of the same job from running concurrently.
+
+Example:
+
+```groovy
+options {
+    disableConcurrentBuilds()
+}
+```
+
+Use it when concurrent executions could cause conflicts, such as:
+
+- Deploying the same environment.
+- Modifying shared infrastructure.
+- Using a shared database migration lock.
+- Updating a single release branch.
+
+## Q85. What is throttling?
+
+Throttling limits the number of concurrent executions for a job or category of jobs.
+
+It helps prevent:
+
+- Resource exhaustion.
+- Too many deployments at once.
+- API rate-limit violations.
+- Database overload.
+
+## Q86. How do you scale Jenkins?
+
+Possible approaches:
+
+1. Add more static agents.
+2. Use cloud-based dynamic agents.
+3. Use Kubernetes-based ephemeral agents.
+4. Separate agents by workload.
+5. Increase controller resources.
+6. Reduce controller build execution.
+7. Use artifact repositories.
+8. Optimize plugins and job design.
+9. Apply queue and concurrency controls.
+
+---
+
+# 20. Troubleshooting Scenarios
+
+## Q87. A Jenkins job is stuck in the queue. What do you check?
 
 Check:
 
-- No executor is available.
-- The required label has no matching online agent.
-- An agent is offline or has insufficient executors.
-- A throttle or lock is blocking the job.
-- The job is waiting for an input/approval step.
-- The controller is overloaded.
+1. Is an executor available?
+2. Is the required agent online?
+3. Does the label exist?
+4. Is the agent accepting tasks?
+5. Is the job blocked by throttling?
+6. Is a lockable resource occupied?
+7. Is the node temporarily offline?
+8. Is the controller overloaded?
 
-## Scenario 3: SonarQube stage waits indefinitely
+Useful areas:
+
+- Build queue
+- Manage Nodes
+- System Log
+- Executor status
+- Plugin logs
+
+## Q88. Jenkins says “There are no nodes with the label.”
+
+Possible reasons:
+
+- Typo in label.
+- Agent offline.
+- Label removed.
+- Agent is not accepting tasks.
+- Cloud agent provisioning failed.
+- Job requires a label that no longer exists.
+
+Example:
+
+```groovy
+agent { label 'java-linux' }
+```
+
+Verify the exact label on the agent configuration.
+
+## Q89. Git checkout fails with permission denied. What do you check?
+
+- Credential ID.
+- Credential type.
+- Repository URL.
+- SSH key permissions.
+- Known hosts configuration.
+- Git provider permissions.
+- Branch existence.
+- Network connectivity.
+- Proxy configuration.
+- Token expiry.
+
+For SSH:
+
+```bash
+ssh -T git@github.com
+```
+
+For HTTPS, verify the token and repository access.
+
+## Q90. Maven build fails because the Java version is wrong.
 
 Check:
 
-1. SonarScanner completed successfully.
-2. A Sonar analysis task ID was generated.
-3. `withSonarQubeEnv` references the correct configured server.
-4. SonarQube can reach Jenkins.
-5. The `/sonarqube-webhook/` endpoint is correct.
-6. The Quality Gate task completed in SonarQube.
-7. Jenkins logs show webhook reception or authentication errors.
+```bash
+java -version
+mvn -version
+which java
+which mvn
+```
 
-## Scenario 4: Credentials are printed in console output
+The Java runtime used by Maven may differ from the system default.
+
+In Jenkins, configure the correct tool or agent image and verify the version inside the job itself.
+
+Example:
+
+```groovy
+stage('Verify Toolchain') {
+    steps {
+        sh 'java -version'
+        sh 'mvn -version'
+    }
+}
+```
+
+## Q91. SonarQube Quality Gate waits forever.
+
+Check:
+
+- SonarQube server availability.
+- Scanner task completion.
+- Jenkins SonarQube configuration.
+- Webhook URL.
+- Reverse proxy.
+- Network connectivity.
+- Authentication token.
+- Correct project key.
+- Timeout configuration.
+
+Always use a timeout around `waitForQualityGate`.
+
+## Q92. Jenkins credentials are not available in a Pipeline.
+
+Check:
+
+- Credential ID spelling.
+- Credential scope.
+- Folder-level permissions.
+- Job authorization.
+- Correct credential type.
+- Plugin installation.
+- Whether the step is inside `withCredentials`.
+- Whether the credential is allowed on the selected agent.
+
+## Q93. A Pipeline works manually but fails from a webhook.
+
+Possible differences:
+
+- Different branch.
+- Different parameters.
+- Different user permissions.
+- Different environment variables.
+- Different workspace state.
+- Different credentials context.
+- Webhook event does not contain expected data.
+- Manual build used a different agent.
+
+Compare the build causes, parameters, environment, branch, and console logs.
+
+## Q94. A deployment runs twice. What could cause it?
+
+- Duplicate webhook deliveries.
+- Both webhook and polling enabled.
+- Multiple jobs watching the same repository.
+- Retry logic triggering deployment again.
+- Upstream and downstream jobs both deploying.
+- Multibranch job plus standalone job.
+- User manually triggered a second build.
+
+Mitigations:
+
+- Use idempotent deployment logic.
+- Disable unnecessary triggers.
+- Use `disableConcurrentBuilds()`.
+- Add deployment locks.
+- Track commit SHA and release version.
+
+## Q95. Jenkins disk usage is increasing rapidly.
+
+Check:
+
+```bash
+du -sh /var/lib/jenkins/*
+du -sh /var/lib/jenkins/workspace/*
+df -h
+```
+
+Likely causes:
+
+- Old builds.
+- Large workspaces.
+- Archived artifacts.
+- Console logs.
+- Test reports.
+- Plugin caches.
+- Docker images on agents.
+
+Actions:
+
+- Configure build discarder.
+- Clean workspaces.
+- Remove unused artifacts.
+- Clean agent caches safely.
+- Expand storage if required.
+- Set retention policies.
+
+Example:
+
+```groovy
+options {
+    buildDiscarder(logRotator(numToKeepStr: '20'))
+}
+```
+
+## Q96. A Pipeline is marked `UNSTABLE`. What does it mean?
+
+`UNSTABLE` usually means the build completed but one or more quality conditions were not fully satisfied.
+
+Examples:
+
+- Test failures configured as non-fatal.
+- Coverage below threshold.
+- Warnings or analysis issues.
+- Publisher marked the build unstable.
+
+`UNSTABLE` is different from `FAILURE`: the build may have completed technically, but quality expectations were not met.
+
+---
+
+# 21. L2/L3 Design and Scenario Questions
+
+## Q97. How would you design Jenkins for multiple teams?
+
+Design:
+
+- Separate folders by team or product.
+- Use role-based permissions.
+- Use shared libraries for common patterns.
+- Use standardized agent labels.
+- Use JCasC for controller configuration.
+- Use Job DSL or Multibranch Pipelines for job creation.
+- Use centralized credential policies.
+- Use artifact repositories.
+- Use monitoring and alerting.
+- Define ownership and escalation paths.
+
+Example:
+
+```text
+Jenkins
+├── Platform
+├── Payments
+├── HR
+├── Notifications
+└── Shared Libraries
+```
+
+## Q98. How would you implement a secure production deployment?
+
+Recommended flow:
+
+```text
+Pull Request
+   -> CI validation
+   -> Unit tests
+   -> Security scans
+   -> Quality Gate
+   -> Build immutable artifact
+   -> Publish artifact
+   -> Deploy to QA
+   -> Approval
+   -> Deploy to production
+   -> Smoke test
+   -> Notify
+```
+
+Controls:
+
+- Restricted production permissions.
+- Separate deploy credentials.
+- Approval gate.
+- Audit trail.
+- Artifact checksum/version.
+- Rollback plan.
+- Deployment timeout.
+- Health checks.
+- Post-deployment verification.
+
+## Q99. How would you prevent one faulty build from affecting other teams?
+
+- Use separate agents.
+- Use folder-level permissions.
+- Use resource quotas.
+- Use job throttling.
+- Isolate credentials.
+- Avoid shared mutable workspaces.
+- Use ephemeral agents.
+- Use separate tool versions where required.
+- Apply pipeline timeouts.
+- Monitor resource consumption.
+
+## Q100. How would you migrate UI-configured jobs to Pipeline-as-code?
+
+Steps:
+
+1. Inventory existing jobs.
+2. Identify SCM, triggers, tools, credentials, and post-build actions.
+3. Create a Jenkinsfile.
+4. Reproduce the behavior in stages.
+5. Add tests and validation.
+6. Run old and new jobs in parallel temporarily.
+7. Compare outputs.
+8. Switch triggers.
+9. Disable the old job after verification.
+10. Document rollback.
+
+## Q101. How would you handle a Jenkins controller failure?
 
 Immediate actions:
 
-- Revoke or rotate the exposed credential.
-- Remove it from logs and source code.
-- Check whether it was stored in Git history or artifacts.
-- Use Jenkins Credentials Binding or `withCredentials`.
-- Avoid `echo` of secrets and unsafe shell interpolation.
-- Review access to the build logs.
+1. Confirm service and host status.
+2. Check CPU, memory, disk, and filesystem.
+3. Review Jenkins logs.
+4. Check recent plugin or configuration changes.
+5. Restore service if safe.
+6. Fail over or restore from backup if required.
+7. Validate agents and credentials.
+8. Run a smoke-test job.
+9. Communicate impact and recovery status.
+10. Perform root-cause analysis.
+
+## Q102. How would you design rollback?
+
+Rollback should be based on a known-good immutable version.
+
+Examples:
+
+- Deploy previous artifact version.
+- Revert Kubernetes deployment image tag.
+- Restore previous infrastructure state carefully.
+- Use blue/green or canary deployment.
+- Keep database migrations backward-compatible where possible.
+
+A rollback plan must define:
+
+- Trigger condition.
+- Authorized person.
+- Exact version.
+- Commands or Pipeline stage.
+- Validation steps.
+- Communication process.
 
 ---
 
-# 22. High-value Interview Traps
+# 22. Common Interview Traps
 
-1. **Jenkins is not the build tool.** It orchestrates tools.
-2. **A Jenkinsfile is not a pipeline syntax.** It is the file containing the pipeline; the syntax may be Declarative or Scripted.
-3. **Webhook is not the same as polling.** Webhook is event-driven; polling is scheduled checking.
-4. **SonarQube is not SonarScanner.** One is the analysis server; the other sends analysis results.
-5. **Quality Profile is not Quality Gate.** Rules versus pass/fail policy.
-6. **An online agent is not necessarily available for every job.** Labels, executors, permissions, and tool requirements still matter.
-7. **`post { always }` does not mean the build succeeds.** It means the actions run regardless of result.
-8. **`cleanWs()` removes workspace files, not archived artifacts or external reports.**
-9. **`@NonCPS` is not a performance switch.** It is for non-Pipeline Groovy logic that should not call Pipeline steps.
-10. **Storing a secret in a Jenkinsfile is not safe just because the repository is private.** Use Jenkins Credentials.
-11. **A successful shell command does not prove application correctness.** Tests, quality gates, security checks, and deployment verification are separate concerns.
-12. **A failed downstream job must be handled intentionally.** Decide whether to fail, retry, mark unstable, or continue.
+## Q103. Is Jenkins itself a container?
+
+No. Jenkins is an automation server. It can run:
+
+- Directly on a VM.
+- On a physical server.
+- Inside a container.
+- In Kubernetes.
+
+A Jenkins agent can also run in a container, but Jenkins and a container are not the same concept.
+
+## Q104. Is an agent the same as an executor?
+
+No.
+
+- Agent = execution machine/process.
+- Executor = concurrency slot on that agent.
+
+One agent can have multiple executors.
+
+## Q105. Does Jenkins store source code permanently?
+
+Not necessarily. Jenkins checks out source into a workspace. The workspace may be cleaned after the build. Git remains the source of truth.
+
+## Q106. Does a successful build mean production deployment succeeded?
+
+No. A build may only compile and test code. Deployment is a separate stage and may fail because of:
+
+- Network issues.
+- Credentials.
+- Target health.
+- Configuration.
+- Capacity.
+- Application startup.
+
+## Q107. Is `wait: false` the same as a successful deployment?
+
+No. `wait: false` only means the upstream job does not wait for the downstream job result. The downstream job may later fail.
+
+## Q108. Should every failure be retried?
+
+No. Retry only transient failures such as:
+
+- Temporary network failure.
+- Rate limiting.
+- Short-lived service unavailability.
+
+Do not blindly retry:
+
+- Compilation errors.
+- Failed tests caused by code.
+- Invalid credentials.
+- Syntax errors.
+- Incorrect configuration.
+
+## Q109. Is a Quality Gate the same as a build?
+
+No. A build produces or validates software. A Quality Gate evaluates whether defined quality conditions are satisfied.
+
+## Q110. Is Jenkins a replacement for Git?
+
+No. Git stores source history. Jenkins automates actions performed on that source.
 
 ---
 
-# 23. Quick Revision Tables
+# 23. Full Forms and Quick Revision Tables
 
-## Controller vs Agent
+## Important Full Forms
 
-| Controller | Agent |
+| Short form | Full form |
 |---|---|
-| Orchestrates | Executes |
-| Schedules | Runs commands |
-| Hosts UI/API | Provides build environment |
-| Stores metadata | Uses workspace |
+| CI | Continuous Integration |
+| CD | Continuous Delivery / Continuous Deployment |
+| SCM | Source Code Management |
+| VCS | Version Control System |
+| UI | User Interface |
+| API | Application Programming Interface |
+| CLI | Command-Line Interface |
+| DSL | Domain-Specific Language |
+| JCasC | Jenkins Configuration as Code |
+| JVM | Java Virtual Machine |
+| LDAP | Lightweight Directory Access Protocol |
+| AD | Active Directory |
+| SSO | Single Sign-On |
+| MFA | Multi-Factor Authentication |
+| SAML | Security Assertion Markup Language |
+| OIDC | OpenID Connect |
+| OAuth | Open Authorization |
+| RBAC | Role-Based Access Control |
+| ACL | Access Control List |
+| TLS | Transport Layer Security |
+| SSL | Secure Sockets Layer |
+| HTTP | Hypertext Transfer Protocol |
+| HTTPS | Hypertext Transfer Protocol Secure |
+| REST | Representational State Transfer |
+| JSON | JavaScript Object Notation |
+| YAML | YAML Ain’t Markup Language |
+| RPO | Recovery Point Objective |
+| RTO | Recovery Time Objective |
+| SLA | Service Level Agreement |
+| SLO | Service Level Objective |
+| SLI | Service Level Indicator |
+| MTTR | Mean Time to Recovery/Repair |
+| MTBF | Mean Time Between Failures |
+| SAST | Static Application Security Testing |
+| DAST | Dynamic Application Security Testing |
+| SCA | Software Composition Analysis |
+| PR | Pull Request |
+| SSH | Secure Shell |
+| SMTP | Simple Mail Transfer Protocol |
+| DNS | Domain Name System |
+| NTP | Network Time Protocol |
+| CPS | Continuation Passing Style |
+| JNLP | Java Network Launch Protocol; historically used by Jenkins agents |
 
-## Workspace vs Artifact
+## Quick Comparison: Controller, Agent, Executor
 
-| Workspace | Artifact |
+| Term | Meaning |
 |---|---|
-| Temporary build directory | Retained build output |
-| Used during execution | Used after build |
-| Can be cleaned | Has retention/access requirements |
+| Controller | Coordinates Jenkins operations |
+| Agent | Executes build work |
+| Node | Registered machine/environment |
+| Executor | One concurrent task slot |
+| Workspace | Temporary build directory |
+| Artifact | Build output retained for reuse |
+| Job | Automation configuration |
+| Build | One execution of a job |
 
-## Retry vs Timeout
+## Quick Comparison: Pipeline Types
 
-| Retry | Timeout |
+| Type | Best use |
 |---|---|
-| Repeats operation | Limits duration |
-| For transient failures | Prevents hanging |
-| Must be safe to repeat | Surrounds risky waits |
+| Freestyle | Simple UI-configured automation |
+| Declarative Pipeline | Standard CI/CD workflows |
+| Scripted Pipeline | Complex dynamic Groovy logic |
+| Multibranch Pipeline | Branch and pull-request automation |
+| Shared Library | Reusable Pipeline functions |
 
----
+## Quick Comparison: Trigger Types
 
-# 24. One-Day Revision Order
-
-## First Priority
-
-1. Controller vs agent
-2. Node vs executor
-3. Queue and labels
-4. Workspace
-5. Pipeline structure
-6. Declarative vs Scripted
-7. `agent`, `stage`, `steps`, `post`
-8. Parameters and credentials
-9. Webhook flow
-10. Troubleshooting scenarios
-
-## Second Priority
-
-1. CPS and `@NonCPS`
-2. Restart/resume
-3. Parallel stages
-4. Multibranch Pipeline
-5. Plugin failures
-6. JCasC vs Job DSL
-7. Backup and restore
-8. Performance and scaling
-
----
-
-## Official Reading — Only If Needed
-
-- [Jenkins User Handbook](https://www.jenkins.io/doc/book/)
-- [Pipeline](https://www.jenkins.io/doc/book/pipeline/)
-- [Using Jenkins agents](https://www.jenkins.io/doc/book/using/using-agents/)
-- [Architecting for Scale](https://www.jenkins.io/doc/book/scaling/architecting-for-scale/)
-- [Backing up Jenkins](https://www.jenkins.io/doc/book/system-administration/backing-up/)
-
----
-
-# 25. Final One-Day Revision Checklist
-
-- [ ] Jenkins architecture: controller, agent, executor, workspace.
-- [ ] Job, build, workspace, artifact, node, label.
-- [ ] Freestyle vs Pipeline vs Multibranch Pipeline.
-- [ ] Declarative vs Scripted Pipeline and Jenkinsfile.
-- [ ] CPS, `script {}`, `@NonCPS`, serialization.
-- [ ] Pipeline stages, `post`, `when`, `input`, `timeout`, `retry`, `parallel`.
-- [ ] Git checkout, credentials, webhook, polling, cron, upstream triggers.
-- [ ] Agent labels, executors, offline agents, JNLP/inbound concepts.
-- [ ] Credentials, masking, rotation, least privilege, secret leakage.
-- [ ] LDAP, SSO, authorization strategy, break-glass recovery.
-- [ ] Backup and restore of `JENKINS_HOME`.
-- [ ] SonarQube, SonarScanner, Quality Profile, Quality Gate, webhook.
-- [ ] Unit tests, coverage, static analysis, SCA, secret scan, DAST.
-- [ ] Test reports, artifacts, notifications, cleanup.
-- [ ] Queue troubleshooting, failed builds, stuck stages, missing tools.
-- [ ] Explain one complete CI pipeline from Git push to notification.
-
-## Best final interview answer pattern
-
-For any Jenkins troubleshooting or design question, answer in this order:
-
-1. **State the concept.**
-2. **Explain the expected flow.**
-3. **Name the likely failure points.**
-4. **Give the commands/logs/configuration you would inspect.**
-5. **Explain the corrective action.**
-6. **Mention security, reliability, and maintainability considerations.**
-
-This demonstrates practical L2/L3 thinking instead of only memorized definitions.
-
----
-
-# 24. Concept Clarity Reference — Read Before Interview Questions
-
-This section gives the **meaning, purpose, and relationship** of the terms that are commonly confused in Jenkins interviews.
-
-## 24.1 The Jenkins mental model
-
-```text
-Developer pushes code
-        |
-        v
-Git repository / Pull Request
-        |
-        v
-Webhook or polling triggers Jenkins
-        |
-        v
-Jenkins Controller
-  - reads job/Pipeline configuration
-  - creates a build
-  - places work in the queue
-  - selects a suitable node/agent
-        |
-        v
-Jenkins Agent
-  - receives the work
-  - uses an executor
-  - creates/uses a workspace
-  - runs shell commands and tools
-        |
-        v
-Build result
-  - logs
-  - test reports
-  - artifacts
-  - notifications
-  - downstream jobs
-```
-
-**Important:** Jenkins is the orchestrator. Maven, Gradle, npm, Python, Go, scanners, and deployment tools perform the actual application work.
-
-## 24.2 Core terms in one table
-
-| Term | Clear definition | Example / relationship |
-|---|---|---|
-| **Controller** | Central Jenkins service that manages configuration, scheduling, UI, plugins, queues, and Pipeline coordination. | Decides where a build should run. |
-| **Node** | A machine or runtime registered with Jenkins. | A VM, physical server, or container runtime. |
-| **Agent** | The Jenkins process/environment that executes work on a node. | Runs `mvn test` or `npm build`. |
-| **Executor** | A concurrency slot on a node. | 2 executors can run up to 2 tasks concurrently, if resources permit. |
-| **Label** | A capability or grouping name assigned to nodes. | `linux`, `java`, `docker`, `prod-deploy`. |
-| **Job / Project** | A configured unit of work in Jenkins. | Freestyle job or Pipeline job. |
-| **Build** | One execution of a job. | `my-app #125` is build number 125. |
-| **Workspace** | Working directory used during a build. | Source checkout, temporary files, reports. |
-| **Artifact** | Output produced by a build and retained for later use. | `.jar`, `.war`, package, report, ZIP. |
-| **Pipeline** | The complete CI/CD workflow defined as code. | Build → Test → Scan → Package → Deploy. |
-| **Stage** | A logical phase of a Pipeline. | `Build`, `Test`, `Deploy`. |
-| **Step** | An individual action inside a stage. | `sh 'mvn test'`, `junit`, `archiveArtifacts`. |
-| **Plugin** | Extension that adds Jenkins functionality or integrations. | Git, Pipeline, credentials, SonarQube plugins. |
-| **Folder** | Organizational container for jobs and other folders. | `team-a/backend/service-1`. |
-| **Item** | General Jenkins UI object such as a job, Pipeline, or folder. | A folder and a Pipeline are both items. |
-
-### Easy relationship to remember
-
-```text
-Controller
-  └── Node
-       └── Agent process
-            └── Executor slot
-                 └── Build
-                      └── Workspace
-                           └── Steps inside stages
-```
-
-A **node is the machine**, an **agent is the Jenkins execution process/environment**, and an **executor is the slot that runs one task**.
-
-## 24.3 Job vs Pipeline vs Build vs Stage vs Step
-
-- **Job:** The configured definition of work.
-- **Pipeline:** A job type/workflow that describes the complete delivery process as code.
-- **Build:** One run of that job or Pipeline.
-- **Stage:** A named logical phase within that Pipeline.
-- **Step:** The actual command or Jenkins operation executed in a stage.
-
-Example:
-
-```text
-Job: employee-api-ci
-  Build #42
-    Pipeline
-      Stage: Build
-        Step: mvn clean package
-      Stage: Test
-        Step: mvn test
-      Stage: Scan
-        Step: SonarScanner
-```
-
-## 24.4 Workspace vs artifact
-
-| Workspace | Artifact |
+| Trigger | Best use |
 |---|---|
-| Temporary working area | Build output retained intentionally |
-| Used while executing the build | Used after the build or by another team/job |
-| Can be cleaned or deleted | Stored through artifact storage or another repository |
-| Contains source, caches, temporary files | Contains deliverables such as JAR, WAR, ZIP, reports |
+| Manual | Controlled execution |
+| Webhook | Near-real-time Git events |
+| Poll SCM | Environments where webhook is unavailable |
+| Cron | Scheduled jobs |
+| Upstream trigger | Job dependency chain |
+| Remote API | External automation |
 
-**Interview answer:** Never treat a workspace as permanent artifact storage.
+## Quick Comparison: RPO, RTO, SLA, SLO, SLI
 
----
-
-# 25. Upstream and Downstream Jobs — Must Know
-
-## 25.1 What is an upstream job?
-
-An **upstream job** is a job that runs earlier in a job chain and can trigger another job after it finishes.
-
-Example:
-
-```text
-Build Job  ───────►  Test Job  ───────►  Deploy Job
- upstream            downstream          downstream
-```
-
-In this example, **Build Job is upstream of Test Job**. The same Build Job is also upstream of Deploy Job if it directly triggers Deploy Job.
-
-## 25.2 What is a downstream job?
-
-A **downstream job** is a job triggered by another job and normally depends on the upstream job’s result or output.
-
-Example:
-
-- `app-build` compiles the application and creates a JAR.
-- `app-test` is triggered after `app-build` succeeds.
-- `app-deploy` is triggered after testing succeeds.
-
-Here, `app-test` is downstream of `app-build`, and `app-deploy` is downstream of `app-test`.
-
-## 25.3 How are upstream and downstream jobs configured?
-
-### Freestyle job
-
-- Upstream job: configure **Post-build Actions → Build other projects**.
-- Downstream job: configure **Build Triggers → Build after other projects are built**.
-- Select the required result condition, such as:
-  - Trigger only when upstream is stable.
-  - Trigger even if upstream is unstable.
-  - Trigger regardless of result.
-
-### Pipeline job
-
-Use the `build` step:
-
-```groovy
-stage('Trigger Tests') {
-    steps {
-        build job: 'app-test',
-              wait: true,
-              propagate: true
-    }
-}
-```
-
-Meaning:
-
-- `job`: downstream job name.
-- `wait: true`: upstream Pipeline waits for the downstream job to finish.
-- `propagate: true`: downstream failure causes the current Pipeline to fail.
-
-To trigger without waiting:
-
-```groovy
-build job: 'app-test', wait: false
-```
-
-## 25.4 `wait` vs `propagate`
-
-| Option | Meaning |
+| Term | Meaning |
 |---|---|
-| `wait: true` | Wait for downstream job completion. |
-| `wait: false` | Trigger downstream and continue immediately. |
-| `propagate: true` | Propagate downstream failure to the current Pipeline. |
-| `propagate: false` | Do not automatically fail the current Pipeline because of downstream result; inspect it yourself if required. |
-
-## 25.5 Upstream/downstream jobs vs stages
-
-| Upstream/downstream jobs | Stages in one Pipeline |
-|---|---|
-| Separate Jenkins jobs | Logical sections inside one Pipeline |
-| Separate build records | Usually one Pipeline build record |
-| Can have separate permissions and schedules | Share Pipeline context unless separated intentionally |
-| Communicate through parameters, artifacts, APIs, or job results | Share variables/stashes according to Pipeline rules |
-| Useful for independent ownership or legacy workflows | Usually simpler for one end-to-end workflow |
-
-**Best practice:** Prefer one Pipeline with clear stages for a tightly coupled workflow. Use separate jobs when teams, permissions, lifecycles, or independent execution require separation.
-
-## 25.6 Common interview scenario
-
-**Question:** The upstream build succeeds, but the downstream test job does not start. What do you check?
-
-1. Confirm the downstream trigger is configured correctly.
-2. Check the exact upstream job name and folder path.
-3. Check whether the upstream result satisfies the configured condition.
-4. Check downstream job is enabled and not blocked by permissions.
-5. Check parameters required by the downstream job.
-6. Check queue, labels, executors, locks, and throttling.
-7. Check whether a manual input or disabled trigger is blocking the chain.
-8. Review the upstream console log and downstream build trigger log.
+| RPO | How much data loss is acceptable |
+| RTO | How quickly service must recover |
+| SLA | Contractual service commitment |
+| SLO | Internal target for reliability |
+| SLI | Actual measured reliability indicator |
 
 ---
 
-# 26. Jenkins and DevOps Full Forms
+# Final Interview Preparation Checklist
 
-| Short form | Full form | Meaning in this context |
-|---|---|---|
-| **CI** | Continuous Integration | Frequently integrate code and automatically validate it. |
-| **CD** | Continuous Delivery / Continuous Deployment | Keep software releasable / automatically release validated changes. |
-| **SCM** | Source Code Management | System used to store and version source code, such as Git. |
-| **VCS** | Version Control System | Tool that tracks source-code history and changes. |
-| **UI** | User Interface | Jenkins web console. |
-| **API** | Application Programming Interface | Programmatic way to interact with Jenkins or another service. |
-| **CLI** | Command-Line Interface | Terminal-based interaction with Jenkins or tools. |
-| **DSL** | Domain-Specific Language | Language/syntax designed for a particular purpose, such as Job DSL. |
-| **JCasC** | Jenkins Configuration as Code | Defines Jenkins configuration in YAML/code. |
-| **CPS** | Continuation-Passing Style | Execution transformation used by Jenkins Pipeline to pause and resume. |
-| **JVM** | Java Virtual Machine | Runtime required by Jenkins and Java-based agents/tools. |
-| **JNLP** | Java Network Launch Protocol | Older Jenkins term associated with inbound agent connections; now commonly called inbound agent protocol. |
-| **LDAP** | Lightweight Directory Access Protocol | Directory protocol used for user/group lookup and authentication integration. |
-| **AD** | Active Directory | Microsoft directory service that can expose LDAP and other identity services. |
-| **SSO** | Single Sign-On | One identity-provider login used across multiple applications. |
-| **MFA** | Multi-Factor Authentication | Authentication using two or more factors. |
-| **SAML** | Security Assertion Markup Language | XML-based protocol commonly used for SSO. |
-| **OIDC** | OpenID Connect | Identity layer built on OAuth 2.0. |
-| **OAuth** | Open Authorization | Delegated authorization framework; it is not by itself an authentication protocol. |
-| **RBAC** | Role-Based Access Control | Permissions assigned through roles. |
-| **ACL** | Access Control List | List of identities and permissions for a resource. |
-| **TLS** | Transport Layer Security | Encrypts network communication. |
-| **SSL** | Secure Sockets Layer | Older predecessor of TLS; the term is still used informally. |
-| **HTTP** | Hypertext Transfer Protocol | Web communication protocol. |
-| **HTTPS** | Hypertext Transfer Protocol Secure | HTTP protected with TLS. |
-| **REST** | Representational State Transfer | Common architectural style for APIs. |
-| **JSON** | JavaScript Object Notation | Common data format for APIs and configuration. |
-| **YAML** | YAML Ain’t Markup Language | Human-readable configuration format used by JCasC. |
-| **RPO** | Recovery Point Objective | Maximum acceptable amount of data loss measured in time. |
-| **RTO** | Recovery Time Objective | Target time to restore service after failure. |
-| **SLA** | Service Level Agreement | Contractual commitment made to a customer or stakeholder. |
-| **SLO** | Service Level Objective | Target reliability/performance objective, such as 99.9% availability. |
-| **SLI** | Service Level Indicator | Actual measured metric used to evaluate an SLO. |
-| **MTTR** | Mean Time To Recovery/Repair | Average time to restore service or repair a failure. |
-| **MTBF** | Mean Time Between Failures | Average operating time between failures. |
-| **SAST** | Static Application Security Testing | Finds security issues by analyzing source or compiled code without running the application. |
-| **DAST** | Dynamic Application Security Testing | Tests a running application for security weaknesses. |
-| **SCA** | Software Composition Analysis | Finds vulnerabilities and license issues in third-party dependencies. |
-| **MFA** | Multi-Factor Authentication | Requires multiple independent authentication factors. |
-| **PR** | Pull Request | Proposed code change submitted for review and integration. |
-| **SSH** | Secure Shell | Secure remote command/login protocol. |
-| **SMTP** | Simple Mail Transfer Protocol | Protocol used to send email notifications. |
-| **DNS** | Domain Name System | Resolves names to IP addresses. |
-| **NTP** | Network Time Protocol | Synchronizes system clocks; important for SSO certificates and tokens. |
+Before an L2/L3 Jenkins interview, make sure you can explain and demonstrate:
 
-## 26.1 SLA vs SLO vs SLI — clear concept
+- [ ] Jenkins controller and agent architecture
+- [ ] Node versus agent versus executor
+- [ ] Workspace versus artifact
+- [ ] Job versus build
+- [ ] Upstream and downstream jobs
+- [ ] `wait` versus `propagate`
+- [ ] Webhook versus polling
+- [ ] Cron syntax and `H`
+- [ ] Freestyle versus Pipeline
+- [ ] Declarative versus Scripted Pipeline
+- [ ] `agent`, `stage`, `steps`, `post`, `when`, and `input`
+- [ ] Parameters and environment variables
+- [ ] Credentials binding and secret masking
+- [ ] Git checkout and branch handling
+- [ ] Multibranch Pipeline
+- [ ] Shared Libraries
+- [ ] Plugins and plugin governance
+- [ ] JCasC and Job DSL
+- [ ] Authentication versus authorization
+- [ ] RBAC and Groovy sandbox
+- [ ] SonarQube and Quality Gates
+- [ ] Artifact immutability
+- [ ] Backup, RPO, and RTO
+- [ ] Jenkins performance and scaling
+- [ ] Queue troubleshooting
+- [ ] Agent offline troubleshooting
+- [ ] Git credential failures
+- [ ] Java/Maven version mismatch
+- [ ] Stuck Quality Gate
+- [ ] Duplicate deployments
+- [ ] Disk-space problems
+- [ ] Production approval and rollback design
 
-```text
-SLI = What we measure
-SLO = What target we want
-SLA = What we promise contractually
-```
+## Final Advice
 
-Example:
+For L2/L3 interviews, do not answer only with definitions. Explain:
 
-- **SLI:** Measured application availability is 99.95% this month.
-- **SLO:** Engineering target is 99.9% availability.
-- **SLA:** Customer contract promises 99.5% availability, possibly with service credits.
+1. **What the feature is.**
+2. **Why it is used.**
+3. **How it works internally.**
+4. **A practical Jenkinsfile or command example.**
+5. **What can fail.**
+6. **How you would troubleshoot it.**
+7. **What security or reliability concern exists.**
 
-A Jenkins pipeline may help enforce delivery quality, but **SLA, SLO, and SLI are service reliability concepts**, not Jenkins job types.
-
-## 26.2 RPO vs RTO — clear concept
-
-- **RPO:** How much recent data can be lost? Example: RPO of 15 minutes means backups/replication should limit data loss to approximately 15 minutes.
-- **RTO:** How quickly must service return? Example: RTO of 1 hour means the service should be restored within one hour.
-
-```text
-RPO = acceptable data loss
-RTO = acceptable recovery time
-```
-
----
-
-# 27. Missing Concept Explanations — Interview Ready
-
-## 27.1 Authentication vs authorization
-
-- **Authentication:** “Who are you?”
-- **Authorization:** “What are you allowed to do?”
-
-Example: LDAP/SSO may authenticate a user, while Jenkins authorization decides whether that user can read, build, configure, or administer a job.
-
-## 27.2 Webhook vs Poll SCM
-
-- **Webhook:** Git provider sends an event to Jenkins after a push or pull request. It is event-driven and usually faster.
-- **Poll SCM:** Jenkins periodically asks the Git provider whether anything changed. It is schedule-driven and can create unnecessary traffic.
-
-A webhook delivery being successful does **not** guarantee that a build starts. The Jenkins job trigger, branch filter, permissions, indexing, and event type must also match.
-
-## 27.3 Quality Profile vs Quality Gate
-
-- **Quality Profile:** Which rules should be applied during analysis?
-- **Quality Gate:** Does the analyzed project pass the required conditions?
-
-```text
-Quality Profile = rules used during inspection
-Quality Gate    = pass/fail decision after inspection
-```
-
-## 27.4 `stash` vs artifact repository
-
-`stash` is temporary Pipeline-to-Pipeline-stage file transfer, generally for the same run. It is not a replacement for Nexus, Artifactory, an object store, or another long-term artifact repository.
-
-## 27.5 `archiveArtifacts` vs artifact repository
-
-`archiveArtifacts` stores files with Jenkins build records. An artifact repository is designed for long-term versioned distribution and consumption by many systems. For large production artifacts, prefer a dedicated artifact repository where appropriate.
-
-## 27.6 `post { always }` vs successful build
-
-`post { always }` means the post actions run regardless of whether the Pipeline succeeded or failed. It does **not** mean the Pipeline result is successful.
-
-## 27.7 `retry` vs `timeout`
-
-- **Retry:** Re-execute a failed operation a specified number of times.
-- **Timeout:** Stop waiting/executing after a time limit.
-
-They solve different problems and are often combined:
-
-```groovy
-timeout(time: 10, unit: 'MINUTES') {
-    retry(2) {
-        sh './integration-test.sh'
-    }
-}
-```
-
-Use retries only for transient failures. Do not hide deterministic test or compilation failures with blind retries.
-
-## 27.8 Declarative Pipeline vs Jenkinsfile
-
-A **Jenkinsfile is the file** that stores Pipeline code. **Declarative Pipeline and Scripted Pipeline are two Pipeline syntaxes** that can be stored in a Jenkinsfile.
-
-```text
-Jenkinsfile = storage/file name
-Declarative  = structured Pipeline syntax
-Scripted     = Groovy-based programmatic syntax
-```
-
-## 27.9 Controller restart vs Pipeline failure
-
-A controller restart may interrupt a build, but a Pipeline can sometimes resume because Jenkins persists Pipeline execution state. Resumability depends on the step, plugin, durability settings, and whether the required external state still exists.
-
-## 27.10 Build result vs stage result
-
-A stage can be marked unstable or failed while post actions still execute. The final build result depends on the Pipeline logic and steps used, such as `error`, `catchError`, `returnStatus`, and `post` behavior.
-
----
-
-# 28. Final Completeness Checklist
-
-Before considering Jenkins interview preparation complete, make sure you can explain these without memorizing:
-
-- [ ] Jenkins purpose and why it is an orchestrator.
-- [ ] CI, Continuous Delivery, and Continuous Deployment.
-- [ ] Controller, node, agent, executor, label, queue, and workspace.
-- [ ] Job, build, Pipeline, stage, step, artifact, plugin, folder, and item.
-- [ ] Freestyle vs Pipeline vs Multibranch Pipeline.
-- [ ] Upstream and downstream jobs, including `wait` and `propagate`.
-- [ ] Webhook, Poll SCM, scheduled trigger, manual trigger, and API trigger.
-- [ ] Declarative vs Scripted Pipeline vs Jenkinsfile.
-- [ ] `agent none`, `post`, `when`, `timeout`, `retry`, `parallel`, and `input`.
-- [ ] `params` vs `env` and safe credential handling.
-- [ ] CPS and `@NonCPS`.
-- [ ] Git checkout and webhook troubleshooting.
-- [ ] Plugin and `No such DSL method` troubleshooting.
-- [ ] LDAP, SSO, authentication, authorization, RBAC, and security recovery.
-- [ ] JCasC and Job DSL distinction.
-- [ ] SonarQube, SonarScanner, Quality Profile, Quality Gate, and webhook.
-- [ ] SAST, DAST, SCA, dependency scanning, and credential scanning.
-- [ ] Jenkins backup, restore, RPO, and RTO.
-- [ ] SLA, SLO, and SLI distinction.
-- [ ] Queue, executor, controller-load, and Pipeline-performance diagnosis.
-
-**Interview rule:** For every Jenkins term, answer in this order:
-
-1. Definition.
-2. Why it exists.
-3. How it works.
-4. Practical example.
-5. Common failure or interview trap.
+That structure demonstrates operational understanding rather than memorized theory.
