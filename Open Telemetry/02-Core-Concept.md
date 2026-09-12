@@ -1,4 +1,4 @@
-# Part 02 — OpenTelemetry Core Concepts (Refactored)
+# Part 02 — OpenTelemetry Core Concepts
 
 > **OpenTelemetry Book | OT-Micro-Docker**
 >
