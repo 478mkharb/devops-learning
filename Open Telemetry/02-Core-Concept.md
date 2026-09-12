@@ -1,4 +1,4 @@
-# Part 02 — OpenTelemetry Core Concepts
+# Part 02 — OpenTelemetry Core Concepts (Refactored)
 
 > **OpenTelemetry Book | OT-Micro-Docker**
 >
@@ -489,40 +489,167 @@ Use stable, low-cardinality span names. Do not embed employee IDs in span names.
 
 ### L1
 
-1. What is OpenTelemetry?
-2. Which signals does it support?
-3. Is OTel a backend?
-4. What is instrumentation?
-5. What is an exporter?
-6. What is the Collector?
-7. What is `service.name`?
-8. What are semantic conventions?
-9. What is automatic instrumentation?
-10. What is context propagation?
+#### Q1. What is OpenTelemetry?
+
+**Answer:** OpenTelemetry is an open-source, vendor-neutral framework for generating, collecting, and exporting traces, metrics, and logs.
+
+#### Q2. Which signals does it support?
+
+**Answer:** Traces, metrics, and logs.
+
+#### Q3. Is OpenTelemetry a backend?
+
+**Answer:** No. OpenTelemetry creates, collects, processes, and exports telemetry. A backend stores, queries, visualizes, and alerts on that telemetry.
+
+#### Q4. What is instrumentation?
+
+**Answer:** Instrumentation is adding or enabling telemetry collection for application activity through APIs, SDKs, libraries, agents, or manual code.
+
+#### Q5. What is an exporter?
+
+**Answer:** An exporter sends telemetry to another destination, such as a Collector, backend, or debugging output.
+
+#### Q6. What is the Collector?
+
+**Answer:** The Collector is a separate service that receives, processes, and exports telemetry through receivers, processors, and exporters.
+
+#### Q7. What is `service.name`?
+
+**Answer:** It is a resource attribute identifying the stable logical service producing telemetry, such as `salary-api`.
+
+#### Q8. What are semantic conventions?
+
+**Answer:** They are standardized names and meanings for telemetry attributes, events, and operations.
+
+#### Q9. What is automatic instrumentation?
+
+**Answer:** Automatic instrumentation creates telemetry through supported agents, framework integrations, runtime hooks, or instrumentation packages with minimal business-code changes.
+
+#### Q10. What is context propagation?
+
+**Answer:** Context propagation carries trace context across service, process, thread, and asynchronous boundaries so operations can belong to one distributed trace.
 
 ### L2
 
-1. Explain API versus SDK.
-2. Why is OTel vendor-neutral?
-3. Why use a Collector?
-4. Compare direct export and Collector export.
-5. Why is automatic instrumentation not enough?
-6. Explain resource versus span attributes.
-7. Why should every function not become a span?
-8. What happens if propagation fails?
-9. What is OTLP?
-10. Can automatic and manual instrumentation be combined?
+#### Q1. Explain API versus SDK.
+
+**Answer:** The API defines interfaces used by instrumentation. The SDK implements recording, processing, sampling, and exporting behavior.
+
+```text
+Instrumentation → API → Provider → SDK → Processor/Reader → Exporter
+```
+
+#### Q2. Why is OpenTelemetry vendor-neutral?
+
+**Answer:** It provides common APIs, SDKs, protocols, and semantic conventions, reducing dependence on one observability vendor.
+
+#### Q3. Why use a Collector?
+
+**Answer:** A Collector centralizes batching, filtering, enrichment, retrying, routing, and exporting telemetry to one or more backends.
+
+#### Q4. Compare direct export and Collector export.
+
+**Answer:** Direct export is simpler but distributes backend configuration across applications. Collector export adds an operational component but centralizes processing, routing, retries, and backend migration.
+
+#### Q5. Why is automatic instrumentation not enough?
+
+**Answer:** It may miss business workflows, unsupported libraries, custom retry logic, and domain-specific failures. Manual spans add business context.
+
+#### Q6. Explain resource versus span attributes.
+
+**Answer:** A resource describes who produced telemetry. Span attributes describe what happened during the operation.
+
+```text
+Resource: service.name = salary-api
+Span attribute: business.operation = salary.generate
+```
+
+#### Q7. Why should every function not become a span?
+
+**Answer:** It creates noisy traces, higher overhead, larger telemetry volume, and harder troubleshooting. Spans should represent meaningful operations.
+
+#### Q8. What happens if propagation fails?
+
+**Answer:** One request may appear as multiple unrelated traces, parent-child relationships may be lost, and logs may not correlate correctly.
+
+#### Q9. What is OTLP?
+
+**Answer:** OTLP stands for OpenTelemetry Protocol. It is a standard protocol for transmitting OpenTelemetry telemetry.
+
+#### Q10. Can automatic and manual instrumentation be combined?
+
+**Answer:** Yes. Automatic instrumentation covers supported frameworks and libraries, while manual instrumentation covers important business operations.
 
 ### L3
 
-1. Design an OTel architecture for OT-Micro-Docker.
-2. Explain the complete path of a span.
-3. Troubleshoot a missing trace.
-4. Explain how sampling affects observability.
-5. Prevent salary or personal data from entering telemetry.
-6. Explain what happens when the Collector is unavailable.
-7. Instrument the salary-slip workflow end to end.
-8. Explain how to monitor the Collector itself.
+#### Q1. Design an OTel architecture for OT-Micro-Docker.
+
+**Answer:** Instrument each service, configure stable resource attributes, export OTLP telemetry to a Collector, process it through receiver/processor/exporter pipelines, and send traces, metrics, and logs to suitable backends.
+
+```text
+Applications → OTel API/SDK → OTLP → Collector → Backends → Dashboards/Alerts
+```
+
+#### Q2. Explain the complete path of a span.
+
+**Answer:**
+
+```text
+Application operation
+    ↓
+Instrumentation creates span
+    ↓
+Trace API
+    ↓
+TracerProvider and SDK
+    ↓
+Sampler and span processor
+    ↓
+Span exporter
+    ↓
+Collector receiver
+    ↓
+Collector processors
+    ↓
+Collector exporter
+    ↓
+Trace backend
+```
+
+#### Q3. How would you troubleshoot a missing trace?
+
+**Answer:** Check instrumentation, span creation and ending, provider/SDK configuration, sampling, exporter endpoint, Collector reception, Collector filtering, exporter errors, backend indexing, propagation, and backend query filters.
+
+#### Q4. How does sampling affect observability?
+
+**Answer:** Sampling reduces CPU, memory, network, and storage cost by retaining only selected traces/spans. Aggressive sampling can remove important evidence, so errors and slow requests may need priority.
+
+#### Q5. How do you prevent salary or personal data from entering telemetry?
+
+**Answer:** Avoid recording salary amounts, full request/response bodies, passwords, tokens, email addresses, and unnecessary personal identifiers. Redact sensitive fields, restrict access, and review instrumentation before production.
+
+#### Q6. What happens when the Collector is unavailable?
+
+**Answer:** Depending on configuration, telemetry may be retried, buffered, delayed, or dropped. The application should not become unavailable merely because telemetry export fails.
+
+#### Q7. How would you instrument the salary-slip workflow end to end?
+
+**Answer:** Use automatic HTTP/database instrumentation and manual spans such as:
+
+```text
+salary.generate
+salary.persist
+salary.index
+notification.process
+salary_pdf.generate
+email.send
+```
+
+Use stable, low-cardinality names and do not place employee IDs, email addresses, or salary amounts in span names.
+
+#### Q8. How would you monitor the Collector itself?
+
+**Answer:** Monitor received and exported telemetry, dropped data, receiver/processor/exporter errors, queue size, export latency, retries, CPU, memory, and batch behavior. Alert on sustained failures, growing queues, high memory, and dropped telemetry.
 
 ---
 
