@@ -79,7 +79,7 @@ Example:
 net.core.somaxconn
 ```
 
-This controls the maximum socket listen backlog exposed through the `listen()` API. Current Linux kernel documentation lists a default of 4096 on current kernels and notes that this was 128 before Linux 5.4. citeturn976649search0
+This controls the maximum socket listen backlog exposed through the `listen()` API. Current Linux kernel documentation lists a default of 4096 and notes that older kernels used 128. See the [Linux kernel networking sysctl documentation](https://docs.kernel.org/admin-guide/sysctl/net.html).
 
 Another example:
 
@@ -128,7 +128,7 @@ Change it temporarily:
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
 
-The `sysctl` utility supports both reading and writing kernel parameters, and `sysctl -p` can load settings from a configuration file. citeturn976649search6turn976649search7
+The `sysctl` utility supports reading and writing kernel parameters, and `sysctl -p` can load settings from a configuration file. See the [`sysctl` documentation](https://man7.org/linux/man-pages/man8/sysctl.8.html).
 
 ---
 
@@ -222,7 +222,7 @@ or:
 sysctl -a | grep tcp
 ```
 
-The `sysctl -a` command displays currently available parameters; deprecated/verboten parameters are excluded unless explicitly requested by the relevant option. citeturn976649search6
+The `sysctl -a` command displays currently available parameters. See the [`sysctl` documentation](https://man7.org/linux/man-pages/man8/sysctl.8.html).
 
 ---
 
@@ -303,7 +303,7 @@ Then load it:
 sudo sysctl --system
 ```
 
-`systemd-sysctl` reads `sysctl.d` configuration during boot, while `sysctl --system` loads system configuration files. citeturn976649search3turn976649search6
+`systemd-sysctl` reads `sysctl.d` configuration during boot, while `sysctl --system` loads system configuration files. See the [systemd `sysctl.d` documentation](https://www.freedesktop.org/software/systemd/man/latest/sysctl.d.html) and [`sysctl` documentation](https://man7.org/linux/man-pages/man8/sysctl.8.html).
 
 ---
 
@@ -321,7 +321,7 @@ For example:
 /etc/sysctl.d/99-devops-tuning.conf
 ```
 
-The sysctl configuration lookup order includes `/etc/sysctl.d/`, `/run/sysctl.d/`, `/usr/local/lib/sysctl.d/`, `/usr/lib/sysctl.d/`, `/lib/sysctl.d/`, followed by `/etc/sysctl.conf` for `sysctl --system`; systemd's boot-time handling is documented separately in `sysctl.d(5)`. citeturn976649search1turn976649search3
+The sysctl configuration lookup and precedence rules are documented by `sysctl.d(5)`. See the [systemd `sysctl.d` documentation](https://www.freedesktop.org/software/systemd/man/latest/sysctl.d.html) and the [`sysctl` documentation](https://man7.org/linux/man-pages/man8/sysctl.8.html).
 
 ---
 
@@ -426,7 +426,7 @@ Memory-map areas can be created by:
 * `madvise`
 * Loading shared libraries
 
-The current kernel documentation lists a default of `65530`. citeturn976649search8
+The current Linux kernel documentation lists a default of `65530`. See the [Linux kernel `vm` sysctl documentation](https://docs.kernel.org/admin-guide/sysctl/vm.html).
 
 Read:
 
@@ -642,7 +642,7 @@ Example:
 sudo sysctl -w net.core.somaxconn=4096
 ```
 
-Current Linux kernel documentation lists `4096` as the default and notes that older kernels used `128`. citeturn976649search0
+Current Linux kernel documentation lists `4096` as the default and notes that older kernels used `128`. See the [Linux kernel networking sysctl documentation](https://docs.kernel.org/admin-guide/sysctl/net.html).
 
 ### Use Case
 
@@ -801,7 +801,7 @@ Example:
 sudo sysctl -w net.ipv4.ip_local_reserved_ports="30000-30010,8080"
 ```
 
-The Linux kernel documentation notes that this setting is independent of `ip_local_port_range`; both are considered when selecting automatically allocated ports. citeturn976649search0
+The Linux kernel documentation notes that this setting is independent of `ip_local_port_range`; both are considered when selecting automatically allocated ports. See the [Linux kernel networking sysctl documentation](https://docs.kernel.org/admin-guide/sysctl/net.html).
 
 This is useful when specific ports must remain available for known services.
 
@@ -841,7 +841,7 @@ net.ipv4.tcp_tw_reuse
 
 Controls reuse of `TIME_WAIT` sockets for certain outbound connections.
 
-The Linux kernel exposes this as a TCP sysctl. citeturn976649search5
+The Linux kernel exposes this as a TCP sysctl. See the [Linux kernel networking sysctl documentation](https://docs.kernel.org/admin-guide/sysctl/net.html).
 
 Check:
 
@@ -1674,3 +1674,20 @@ uname -r
 The most important DevOps rule is:
 
 > **Do not tune Linux kernel parameters because a value appears in a tuning guide. Identify the workload bottleneck, inspect the current kernel behavior, change one parameter at a time, measure the result, and only then make the change persistent.**
+
+---
+
+# References
+
+The following official references were used for the kernel/sysctl behavior described in this README:
+
+1. [Linux Kernel — Documentation for `/proc/sys`](https://www.kernel.org/doc/html/latest/admin-guide/sysctl/)
+2. [Linux Kernel — `/proc/sys/fs/`](https://docs.kernel.org/admin-guide/sysctl/fs.html)
+3. [Linux Kernel — `/proc/sys/net/`](https://docs.kernel.org/admin-guide/sysctl/net.html)
+4. [Linux Kernel — `/proc/sys/vm/`](https://docs.kernel.org/admin-guide/sysctl/vm.html)
+5. [Linux Kernel — `/proc/sys/kernel/`](https://docs.kernel.org/admin-guide/sysctl/kernel.html)
+6. [Linux `proc` Filesystem Documentation](https://docs.kernel.org/filesystems/proc.html)
+7. [`sysctl(8)` — Linux manual page](https://man7.org/linux/man-pages/man8/sysctl.8.html)
+8. [`sysctl.d(5)` — systemd documentation](https://www.freedesktop.org/software/systemd/man/latest/sysctl.d.html)
+
+> **Note:** Kernel parameter availability, defaults, and behavior can vary by Linux kernel version and distribution. Check the documentation for the kernel actually running on the target host.
