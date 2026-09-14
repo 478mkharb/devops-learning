@@ -1,4 +1,6 @@
-# VPC & AWS Networking
+# VPC & AWS Networking — Interview Notes
+
+> **Scope:** VPC fundamentals, CIDR, subnets, routing, gateways, VPC connectivity, endpoints, network security controls, hybrid connectivity, and related AWS networking concepts.
 
 ### Q1. What is a VPC?
 
@@ -37,7 +39,7 @@ The `/16` indicates that the first 16 bits represent the network portion of the 
 | Common for ALBs, NAT Gateways, bastions | Common for application servers and databases |
 | Outbound Internet can use the IGW directly | Outbound Internet can use a NAT Gateway if required |
 
-A subnet is **not public simply because an instance has a public IP**; the subnet's route table must provide a path to an Internet Gateway.
+A subnet is considered public when its route table has a route to an Internet Gateway. A public IP alone does not make a subnet public.
 
 ---
 
@@ -83,7 +85,7 @@ This tells AWS to send traffic destined for `10.1.0.0/16` through the VPC peerin
 
 **Answer:** A NAT Gateway enables resources in private subnets to initiate connections to destinations outside the VPC, such as the public Internet, without allowing unsolicited inbound connections to those private resources.
 
-For IPv4 Internet access, a public NAT Gateway is normally placed in a public subnet and routes traffic through an Internet Gateway.
+For IPv4 Internet access, a public NAT Gateway is normally placed in a public subnet. Private-subnet route tables send internet-bound traffic to the NAT Gateway, which uses the Internet Gateway for external connectivity.
 
 ---
 
@@ -214,7 +216,7 @@ Gateway Endpoint
 S3
 ```
 
-Gateway endpoints do not have an hourly endpoint charge.
+Gateway endpoints do not have an hourly endpoint charge, although data-transfer or service-related charges may still apply.
 
 ---
 
@@ -312,7 +314,7 @@ S3 Gateway Endpoint
 S3
 ```
 
-Gateway endpoints have no hourly endpoint charge.
+Gateway endpoints do not have an hourly endpoint charge, although data-transfer or service-related charges may still apply.
 
 ---
 
@@ -416,7 +418,7 @@ VPC
 
 It avoids sending the connection over the public Internet and can provide more consistent network performance than Internet-based connectivity.
 
-Direct Connect by itself does not automatically encrypt traffic.
+Direct Connect is a dedicated private connection, but it does not automatically encrypt application traffic. Encryption may be added separately when required.
 
 ---
 
@@ -444,7 +446,7 @@ VPC Route Table
 
 **Answer:** A route table association links a subnet to a route table.
 
-A subnet can use the routes in its associated route table to determine where traffic should be forwarded.
+A subnet uses the routes in its associated route table to determine where traffic should be forwarded.
 
 A route table can be associated with multiple subnets.
 
@@ -556,3 +558,38 @@ For high availability, an interface endpoint can be configured in multiple Avail
 **Answer:** Yes. PrivateLink can provide private connectivity to a supported endpoint service outside the consumer's VPC, including a service in another AWS account or a supported SaaS provider.
 
 However, it does **not** provide general connectivity to arbitrary networks or the public Internet.
+
+---
+
+## Quick Revision
+
+| Concept | One-Line Answer |
+|---|---|
+| **VPC** | A logically isolated virtual network in AWS. |
+| **CIDR** | Defines an IP address range using a prefix length. |
+| **Subnet** | An IP range inside a VPC and limited to one Availability Zone. |
+| **Public Subnet** | A subnet whose route table has a route to an Internet Gateway. |
+| **Private Subnet** | A subnet without a direct route to an Internet Gateway. |
+| **Route Table** | Maps destination CIDRs to routing targets. |
+| **Internet Gateway** | Provides Internet connectivity for appropriately routed and addressed resources. |
+| **NAT Gateway** | Allows private resources to initiate outbound IPv4 Internet connections. |
+| **VPC Peering** | Private connectivity between two VPCs; it is non-transitive. |
+| **Transit Gateway** | A central regional routing hub for VPCs and supported networks. |
+| **VPC Endpoint** | Private connectivity to supported AWS services or endpoint services. |
+| **Gateway Endpoint** | Route-table-based private access to S3 and DynamoDB. |
+| **Interface Endpoint** | ENI-based private access using AWS PrivateLink. |
+| **PrivateLink** | Technology for private access to a specific service. |
+| **Security Group** | Stateful firewall associated with network interfaces. |
+| **NACL** | Stateless subnet-level traffic filter. |
+| **VPC Flow Logs** | Capture network traffic metadata, not packet contents. |
+| **Site-to-Site VPN** | Encrypted IPsec connectivity between AWS and another network. |
+| **Direct Connect** | Dedicated private network connectivity to AWS. |
+| **Prefix List** | Reusable collection of CIDR blocks. |
+
+> **Interview tip:** Separate these concepts clearly:
+>
+> - **Route table:** Decides where traffic goes based on destination.
+> - **Security Group:** Controls allowed traffic at the network-interface level.
+> - **NACL:** Controls subnet traffic using stateless numbered rules.
+> - **VPC Endpoint:** Provides private access to a supported service.
+> - **NAT Gateway:** Provides outbound IPv4 Internet access for private resources.
