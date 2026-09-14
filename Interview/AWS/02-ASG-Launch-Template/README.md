@@ -372,18 +372,6 @@ An **Application Load Balancer (ALB)** checks whether a target can receive traff
 | Interval | Time between health checks | `30 seconds` |
 | Success codes / Matcher | HTTP codes accepted as successful | `200` or `200-399` |
 
-### Example
-
-```text
-Protocol            = HTTP
-Port                = 8080
-Path                = /health
-Healthy threshold   = 5
-Unhealthy threshold = 2
-Timeout             = 5 seconds
-Interval            = 30 seconds
-Success codes       = 200
-```
 
 ### Health Check Flow
 
