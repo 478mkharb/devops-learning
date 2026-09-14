@@ -1,88 +1,82 @@
-# ELB & Target Groups Interview Notes
+# Elastic Load Balancing (ELB) & Target Groups — Interview Notes
+
+> **Scope:** This document covers only **Elastic Load Balancing (ELB)** and **Target Groups**.  
+> Detailed topics such as listener rules, AWS WAF, Route 53, Security Groups, NACLs, Auto Scaling, TLS certificates, and application architecture are intentionally excluded.
+
+---
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [What is Elastic Load Balancing?](#2-what-is-elastic-load-balancing)
-3. [Why Do We Need a Load Balancer?](#3-why-do-we-need-a-load-balancer)
-4. [Types of AWS Load Balancers](#4-types-of-aws-load-balancers)
-5. [Application Load Balancer](#5-application-load-balancer)
-6. [Network Load Balancer](#6-network-load-balancer)
-7. [Gateway Load Balancer](#7-gateway-load-balancer)
-8. [Classic Load Balancer](#8-classic-load-balancer)
-9. [ALB vs NLB vs GWLB](#9-alb-vs-nlb-vs-gwlb)
-10. [ELB Architecture](#10-elb-architecture)
-11. [Listeners](#11-listeners)
-12. [ALB Listener Rules](#12-alb-listener-rules)
-13. [Target Groups](#13-target-groups)
-14. [Target Types](#14-target-types)
-15. [Health Checks](#15-health-checks)
-16. [Load-Balancing Algorithms](#16-load-balancing-algorithms)
-17. [Session Affinity / Sticky Sessions](#17-session-affinity--sticky-sessions)
-18. [NLB Source-IP Stickiness](#18-nlb-source-ip-stickiness)
-19. [GWLB Flow Stickiness](#19-gwlb-flow-stickiness)
+1. [What is Elastic Load Balancing?](#1-what-is-elastic-load-balancing)
+2. [Why Do We Need ELB?](#2-why-do-we-need-elb)
+3. [Types of AWS Load Balancers](#3-types-of-aws-load-balancers)
+4. [Application Load Balancer](#4-application-load-balancer)
+5. [Network Load Balancer](#5-network-load-balancer)
+6. [Gateway Load Balancer](#6-gateway-load-balancer)
+7. [Classic Load Balancer](#7-classic-load-balancer)
+8. [ELB Comparison](#8-elb-comparison)
+9. [What is a Target Group?](#9-what-is-a-target-group)
+10. [Relationship Between ELB and Target Groups](#10-relationship-between-elb-and-target-groups)
+11. [Target Types](#11-target-types)
+12. [Target Group Protocol and Port](#12-target-group-protocol-and-port)
+13. [Health Checks](#13-health-checks)
+14. [Target Health States](#14-target-health-states)
+15. [Target Registration and Deregistration](#15-target-registration-and-deregistration)
+16. [Deregistration Delay](#16-deregistration-delay)
+17. [Load-Balancing Algorithms](#17-load-balancing-algorithms)
+18. [Sticky Sessions](#18-sticky-sessions)
+19. [Slow Start](#19-slow-start)
 20. [Cross-Zone Load Balancing](#20-cross-zone-load-balancing)
-21. [Deregistration Delay / Connection Draining](#21-deregistration-delay--connection-draining)
-22. [Slow Start](#22-slow-start)
-23. [Weighted Target Groups and Canary Deployments](#23-weighted-target-groups-and-canary-deployments)
-24. [TLS Termination and Certificates](#24-tls-termination-and-certificates)
-25. [Source IP Preservation](#25-source-ip-preservation)
-26. [Proxy Protocol v2](#26-proxy-protocol-v2)
-27. [ALB Authentication and AWS WAF](#27-alb-authentication-and-aws-waf)
-28. [Access Logging and Monitoring](#28-access-logging-and-monitoring)
-29. [Availability Zones and High Availability](#29-availability-zones-and-high-availability)
-30. [Scaling and Quotas](#30-scaling-and-quotas)
-31. [Security Groups and Network ACLs](#31-security-groups-and-network-acls)
-32. [Common Failure Scenarios](#32-common-failure-scenarios)
-33. [Common AWS CLI Commands](#33-common-aws-cli-commands)
-34. [Frequently Asked Interview Questions](#34-frequently-asked-interview-questions)
-35. [One-Line Interview Answers](#35-one-line-interview-answers)
-36. [Official References](#36-official-references)
+21. [Weighted Target Groups](#21-weighted-target-groups)
+22. [Target Group Attributes](#22-target-group-attributes)
+23. [One Target in Multiple Target Groups](#23-one-target-in-multiple-target-groups)
+24. [Common ELB and Target Group Failure Scenarios](#24-common-elb-and-target-group-failure-scenarios)
+25. [Common AWS CLI Commands](#25-common-aws-cli-commands)
+26. [Frequently Asked Interview Questions](#26-frequently-asked-interview-questions)
+27. [One-Line Revision](#27-one-line-revision)
 
 ---
 
-# 1. Introduction
+# 1. What is Elastic Load Balancing?
 
-**Elastic Load Balancing (ELB)** is AWS's managed load-balancing service. It distributes incoming traffic across registered targets and uses health checks so that traffic is normally sent only to healthy targets.
+**Elastic Load Balancing (ELB)** is an AWS managed service that distributes incoming traffic across registered backend targets.
+
+Targets may include:
+
+- EC2 instances
+- Private IP addresses
+- Containers
+- Lambda functions, where supported by the load balancer
+- Another Application Load Balancer, where supported by NLB target groups
+
+ELB can use target health information to avoid sending new traffic to unhealthy targets.
+
+### Basic Architecture
 
 ```text
-Client
-  |
-  v
-Load Balancer
-  |
-  +---- Target 1
-  +---- Target 2
-  +---- Target 3
+                    Clients
+                       |
+                       v
+                Elastic Load Balancer
+                       |
+             +---------+---------+
+             |         |         |
+             v         v         v
+          Target 1  Target 2  Target 3
 ```
 
-ELB is commonly used for:
+### Main Benefits
 
-* High availability
-* Horizontal scaling
-* Rolling deployments
-* Microservices routing
-* TLS termination
-* Health-based traffic distribution
-
----
-
-# 2. What is Elastic Load Balancing?
-
-Elastic Load Balancing distributes incoming traffic across healthy backend targets.
-
-AWS provides:
-
-* **Application Load Balancer (ALB)** — application-layer HTTP/HTTPS routing
-* **Network Load Balancer (NLB)** — transport-layer, high-performance traffic handling
-* **Gateway Load Balancer (GWLB)** — deployment and scaling of virtual network appliances
-* **Classic Load Balancer (CLB)** — legacy/previous-generation option
-
-The load balancer gives clients a stable entry point while backend targets can be added, removed, or replaced.
+- Distributes traffic across multiple targets
+- Improves application availability
+- Supports horizontal scaling
+- Removes unhealthy targets from normal traffic distribution
+- Provides a stable entry point for clients
+- Supports different traffic types depending on the load balancer type
 
 ---
 
-# 3. Why Do We Need a Load Balancer?
+# 2. Why Do We Need ELB?
 
 Without a load balancer:
 
@@ -93,505 +87,642 @@ Client
 Single Server
 ```
 
-Problems:
+Possible problems:
 
-* Single point of failure
-* Limited capacity
-* Difficult horizontal scaling
-* Maintenance can cause downtime
+- The server may become overloaded.
+- The server may become a single point of failure.
+- Scaling requires changing the client-facing endpoint.
+- Maintenance can interrupt traffic.
+- Traffic cannot be distributed across multiple backend servers.
 
-With a load balancer:
-
-```text
-              Load Balancer
-              /     |      \
-             /      |       \
-          App-1    App-2    App-3
-```
-
-The load balancer can stop sending traffic to an unhealthy target while continuing to use healthy targets.
-
----
-
-# 4. Types of AWS Load Balancers
-
-| Load Balancer | Primary Layer | Main Use Case |
-|---|---:|---|
-| ALB | L7 | HTTP/HTTPS, APIs, microservices, application-aware routing |
-| NLB | L4 | TCP/UDP/TLS, low latency, high throughput, static IP requirements |
-| GWLB | L3 appliance model | Firewalls and other network appliances |
-| CLB | Legacy | Older workloads |
-
----
-
-# 5. Application Load Balancer
-
-An **Application Load Balancer (ALB)** operates at **Layer 7** and understands HTTP/HTTPS.
-
-It can route using information such as:
-
-* Host header
-* URL path
-* HTTP method
-* HTTP headers
-* Query string
-* Source IP
-
-Example:
+With ELB:
 
 ```text
-                 ALB
+                 ELB
                   |
-       +----------+----------+
-       |          |          |
-    /api/*    /admin/*   /images/*
-       |          |          |
-    API TG     Admin TG    Web TG
+        +---------+---------+
+        |         |         |
+      Server A  Server B  Server C
 ```
 
-ALB is normally the preferred choice when traffic is HTTP/HTTPS and application-aware routing is required.
+ELB distributes incoming traffic among available targets according to the load balancer and target-group configuration.
 
 ---
 
-# 6. Network Load Balancer
+# 3. Types of AWS Load Balancers
+
+| Load Balancer | Main Layer / Model | Main Use Case |
+|---|---|---|
+| **Application Load Balancer (ALB)** | Layer 7 | HTTP/HTTPS applications and application-aware routing |
+| **Network Load Balancer (NLB)** | Layer 4 | TCP, UDP, TLS, high throughput, and low latency |
+| **Gateway Load Balancer (GWLB)** | Network appliance model | Firewalls and other virtual network appliances |
+| **Classic Load Balancer (CLB)** | Legacy generation | Older workloads |
+
+### Important Interview Point
+
+- **ALB** is generally selected for HTTP/HTTPS applications.
+- **NLB** is generally selected for transport-layer traffic such as TCP, UDP, or TLS.
+- **GWLB** is selected for inserting and scaling virtual network appliances.
+- **CLB** is a legacy option and is normally not selected for new designs.
+
+---
+
+# 4. Application Load Balancer
+
+An **Application Load Balancer (ALB)** operates at **Layer 7** and understands HTTP/HTTPS requests.
+
+ALB is suitable for:
+
+- Web applications
+- REST APIs
+- Microservices
+- Host-based application routing
+- Path-based application routing
+- HTTP-header and method-based routing
+
+### Common ALB Target Types
+
+- `instance`
+- `ip`
+- `lambda`
+
+### ALB Traffic Flow
+
+```text
+Client
+  |
+  v
+ALB
+  |
+  v
+Target Group
+  |
+  +---- EC2 instance
+  +---- EC2 instance
+  +---- IP target
+```
+
+### Important Point
+
+An ALB is designed for HTTP/HTTPS-aware traffic. It is not the normal choice for arbitrary TCP or UDP applications.
+
+---
+
+# 5. Network Load Balancer
 
 A **Network Load Balancer (NLB)** operates primarily at **Layer 4**.
 
-It is designed for:
+NLB supports:
 
-* TCP
-* UDP
-* TLS
-* High throughput
-* Low latency
-* Static IP requirements
-* Source-IP preservation scenarios
+- TCP
+- UDP
+- TLS
+- High-throughput workloads
+- Low-latency workloads
+- Static IP use cases
+- Source-IP preservation scenarios, depending on configuration
 
-NLB creates a network interface in each enabled Availability Zone. For internet-facing designs, an Elastic IP can be associated with each subnet. [AWS NLB documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html)
+### Common NLB Target Types
 
-NLB is not selected when path-based or host-based HTTP routing is required; that is an ALB use case.
+- `instance`
+- `ip`
+- `alb`
+
+### NLB Traffic Flow
+
+```text
+Client
+  |
+  v
+NLB
+  |
+  v
+Target Group
+  |
+  +---- EC2 instance
+  +---- Private IP
+  +---- ALB, where supported
+```
+
+### Important Point
+
+NLB does not provide ALB-style HTTP path-based or host-based routing.
 
 ---
 
-# 7. Gateway Load Balancer
+# 6. Gateway Load Balancer
 
-A **Gateway Load Balancer (GWLB)** is designed to deploy and scale virtual network appliances such as:
+A **Gateway Load Balancer (GWLB)** is designed to deploy, scale, and integrate virtual network appliances.
 
-* Firewalls
-* Intrusion-prevention systems
-* Deep-packet inspection appliances
-* Other security appliances
+Common appliance examples:
 
-GWLB uses **GENEVE** and port **6081** between the GWLB and appliance targets. AWS documents GWLB as operating at Layer 3 for its traffic-appliance model. [AWS GWLB documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/gateway-load-balancers.html)
+- Firewalls
+- Intrusion-prevention systems
+- Deep-packet inspection appliances
+- Security inspection appliances
 
-Simplified:
+GWLB uses the GENEVE protocol and port `6081` between the GWLB and appliance targets.
+
+### Simplified Flow
 
 ```text
 Traffic
-  |
-  v
+   |
+   v
 GWLB Endpoint
-  |
-  v
-  GWLB
-  |
-  v
-Security Appliance Fleet
-  |
-  v
-Destination
+   |
+   v
+GWLB
+   |
+   v
+Virtual Network Appliance Fleet
 ```
+
+### Important Point
+
+GWLB is not a normal HTTP application load balancer. Its purpose is to work with network appliances.
 
 ---
 
-# 8. Classic Load Balancer
+# 7. Classic Load Balancer
 
 **Classic Load Balancer (CLB)** is the earlier generation of Elastic Load Balancing.
 
 It provides basic load-balancing capabilities but does not provide the full feature set of ALB and NLB.
 
-For new architectures, ALB, NLB, or GWLB is normally selected according to workload requirements.
+### Interview Answer
 
-CLB remains relevant mainly for legacy systems and migration work.
+> Classic Load Balancer is a legacy AWS load balancer. For new workloads, ALB, NLB, or GWLB is normally selected based on the traffic and architecture requirements.
 
 ---
 
-# 9. ALB vs NLB vs GWLB
+# 8. ELB Comparison
 
 | Feature | ALB | NLB | GWLB |
 |---|---|---|---|
-| Primary model | L7 | L4 | L3 appliance model |
-| HTTP-aware routing | Yes | No | No |
+| Main model | Layer 7 | Layer 4 | Network appliance model |
+| HTTP-aware | Yes | No | No |
 | Host/path routing | Yes | No | No |
-| TCP/UDP focus | No | Yes | Appliance traffic |
-| TLS termination | Yes | Yes | Appliance-oriented |
-| Static IP requirement | Not the primary reason | Strong fit | Networking model |
-| Security appliances | No | No | Yes |
-| Microservice routing | Excellent | Limited | No |
+| TCP support | Not its primary use | Yes | Appliance traffic |
+| UDP support | No | Yes | Appliance traffic |
+| TLS handling | HTTPS listener support | TLS listener support | Appliance-oriented |
+| Typical target types | Instance, IP, Lambda | Instance, IP, ALB | Appliance targets |
+| Main use case | Web apps and APIs | Transport traffic | Security/network appliances |
 
-### Choose ALB
-
-```text
-HTTP/HTTPS
-+
-Host/path/header rules
-+
-Application-aware routing
-```
-
-### Choose NLB
+### Selection Rule
 
 ```text
-TCP/UDP/TLS
-+
-High throughput / low latency
-+
-Static IP
-+
-Transport-layer load balancing
-```
+HTTP/HTTPS application
+        |
+        v
+       ALB
 
-### Choose GWLB
+TCP/UDP/TLS or static-IP requirement
+        |
+        v
+       NLB
 
-```text
-Need to insert and scale
-firewalls/security appliances
+Firewall or network inspection appliance
+        |
+        v
+      GWLB
 ```
 
 ---
 
-# 10. ELB Architecture
+# 9. What is a Target Group?
 
-The key components are:
+A **target group** is a logical collection of registered backend targets.
+
+A target group is used by a load balancer to determine:
+
+- Which targets can receive traffic
+- The protocol used to forward traffic
+- The port used to forward traffic
+- How target health is checked
+- Which target-selection behavior is used
+- Whether features such as stickiness, slow start, or deregistration delay are enabled
+
+### Example
+
+```text
+Target Group: api-tg
+        |
+        +---- EC2-1
+        +---- EC2-2
+        +---- EC2-3
+```
+
+Another target group may contain a different application:
+
+```text
+Target Group: web-tg
+        |
+        +---- EC2-4
+        +---- EC2-5
+```
+
+### Important Point
+
+A target group is not the same as a load balancer.
+
+- **Load balancer:** Receives client traffic.
+- **Target group:** Organizes backend targets and defines forwarding/health-check behavior.
+- **Target:** Backend destination that receives traffic.
+
+---
+
+# 10. Relationship Between ELB and Target Groups
+
+The general relationship is:
 
 ```text
 Load Balancer
-    |
-    +---- Listener
-    |       |
-    |       +---- Listener Rules
-    |
-    +---- Target Group
-            |
-            +---- Target 1
-            +---- Target 2
-            +---- Target 3
+      |
+      v
+Target Group
+      |
+      v
+Registered Targets
 ```
 
-## Load Balancer
+For an ALB, listener configuration determines which target group receives a request.
 
-The client-facing entry point.
+For an NLB, listener forwarding configuration determines which target group receives traffic.
 
-## Listener
+### Example
 
-Accepts connections on a protocol and port.
+```text
+                  ALB
+                   |
+          +--------+--------+
+          |                 |
+       api-tg            web-tg
+          |                 |
+       EC2-1             EC2-3
+       EC2-2             EC2-4
+```
 
-## Listener Rule
+### Interview Answer
 
-Determines what happens to matching requests, primarily for ALB.
-
-## Target Group
-
-A logical collection of backend targets.
-
-## Target
-
-The backend destination that receives traffic.
+> A load balancer is the traffic entry point, while a target group is the logical collection of backend targets to which the load balancer forwards traffic.
 
 ---
 
-# 11. Listeners
+# 11. Target Types
 
-A **listener** accepts connection requests on a configured protocol and port.
+## 11.1 Instance Targets
 
-Examples:
+The target is registered using an EC2 instance ID.
 
 ```text
-HTTP  : 80
-HTTPS : 443
-TCP   : 80
-TLS   : 443
-UDP   : 53
+Target Type: instance
+Target: i-0123456789abcdef0
 ```
 
-For an ALB:
+Useful when the backend is an EC2 instance.
+
+## 11.2 IP Targets
+
+The target is registered using an IP address.
+
+```text
+Target Type: ip
+Target: 10.0.2.15
+```
+
+Useful for:
+
+- Container IPs
+- Private IP endpoints
+- Pod or service endpoints
+- Hybrid environments
+- Backends not registered by EC2 instance ID
+
+## 11.3 Lambda Targets
+
+ALB can use Lambda functions as targets where supported.
 
 ```text
 Client
   |
   v
-HTTPS :443
-  |
-  v
-Listener
-  |
-  v
-Rules
-  |
-  v
-Target Group
-```
-
-An HTTPS listener requires a server certificate and a TLS security policy. [AWS HTTPS listener documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html)
-
----
-
-# 12. ALB Listener Rules
-
-An ALB listener rule contains:
-
-* Priority
-* Conditions
-* Actions
-* Optional transforms
-
-Rules are evaluated from the lowest priority number to the highest.
-
-Common actions:
-
-* Forward to target group
-* Redirect
-* Fixed response
-
-Example:
-
-```text
-HTTPS :443
-    |
-    +---- Host = api.example.com
-    |          -> API Target Group
-    |
-    +---- Path = /admin/*
-    |          -> Admin Target Group
-    |
-    +---- Default
-               -> Web Target Group
-```
-
-AWS documents host-header, path-pattern, HTTP-method, HTTP-header, query-string, and source-IP conditions for ALB listener rules. [AWS ALB listener rules](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-rules.html)
-
----
-
-# 13. Target Groups
-
-A **target group** is a logical collection of backend targets.
-
-It defines or contains settings for:
-
-* Target type
-* Protocol
-* Port
-* Health checks
-* Routing algorithm
-* Stickiness
-* Deregistration delay
-* Slow start
-* Cross-zone behavior, where applicable
-
-Example:
-
-```text
 ALB
- |
- +---- /api  -> api-tg
- |              +-- EC2-1
- |              +-- EC2-2
- |
- +---- /web  -> web-tg
-                +-- EC2-3
-                +-- EC2-4
+  |
+  v
+Lambda Target
 ```
 
-ALB and NLB target groups use target-group settings to determine how traffic is forwarded and how targets are health checked. [AWS ALB target groups](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) [AWS NLB target groups](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html)
+## 11.4 ALB Targets in NLB Target Groups
+
+NLB supports an ALB target type where supported.
+
+This allows an NLB to forward traffic to an ALB.
+
+### Important Interview Point
+
+Target types depend on the load balancer and target-group configuration. Do not assume every target type is supported by every load balancer.
 
 ---
 
-# 14. Target Types
+# 12. Target Group Protocol and Port
 
-## ALB
+A target group defines the protocol and port used to communicate with registered targets.
 
-Common ALB target types include:
+### Example
 
-* `instance`
-* `ip`
-* `lambda`
+```text
+Target Group
+  Protocol: HTTP
+  Port: 8080
+```
 
-## NLB
+The load balancer forwards traffic to the target on the configured target-group protocol and port, unless a registered target uses an explicitly configured port where supported.
 
-Common NLB target types include:
+### Common Examples
 
-* `instance`
-* `ip`
-* `alb`
+| Application | Target Group Protocol | Target Group Port |
+|---|---|---:|
+| HTTP application | HTTP | 80 |
+| HTTPS application | HTTPS | 443 |
+| Spring Boot application | HTTP | 8080 |
+| Python Flask application | HTTP | 5000 |
+| Node.js application | HTTP | 3000 |
 
-The target type affects how targets are registered and can also affect client-IP behavior. [AWS NLB target types](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html)
+### Important Point
 
-### Why use IP targets?
-
-Useful when the backend is reached by IP rather than an EC2 instance ID, such as:
-
-* Containers
-* Private IP endpoints
-* Pod/service endpoints
-* Hybrid environments
-
----
-
-# 15. Health Checks
-
-A health check periodically tests whether a registered target is healthy.
-
-Common settings include:
-
-* Protocol
-* Port
-* HTTP/HTTPS path
-* Timeout
-* Interval
-* Healthy threshold
-* Unhealthy threshold
-* Success criteria
+The frontend listener port and backend target-group port do not have to be the same.
 
 Example:
 
 ```text
+Client
+  |
+  | HTTPS :443
+  v
+Load Balancer
+  |
+  | HTTP :8080
+  v
 Target Group
-   |
-   +-- EC2-1 -> healthy
-   +-- EC2-2 -> healthy
-   +-- EC2-3 -> unhealthy
+  |
+  v
+Application
 ```
-
-The load balancer normally sends new traffic only to targets that pass health checks. Health checks are configured per target group. [AWS ALB target-group health checks](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html)
 
 ---
 
-# 16. Load-Balancing Algorithms
+# 13. Health Checks
+
+A **health check** periodically tests whether a registered target is healthy.
+
+Health checks are configured at the target-group level.
+
+### Common Health-Check Settings
+
+- Health-check protocol
+- Health-check port
+- Health-check path for HTTP/HTTPS
+- Timeout
+- Interval
+- Healthy threshold
+- Unhealthy threshold
+- Success criteria or matcher
+
+### Example
+
+```text
+Target Group
+      |
+      +---- EC2-1 -> healthy
+      +---- EC2-2 -> healthy
+      +---- EC2-3 -> unhealthy
+```
+
+The load balancer normally sends new traffic only to targets considered healthy.
+
+### Example HTTP Health Check
+
+```text
+Protocol: HTTP
+Port: traffic-port
+Path: /health
+Expected response: 200
+```
+
+### Health-Check Troubleshooting
+
+Check:
+
+1. Is the application running?
+2. Is the application listening on the expected port?
+3. Is the health-check path correct?
+4. Is the health-check protocol correct?
+5. Does the application return the expected status code?
+6. Can the load balancer reach the target?
+7. Is the target registered in the correct target group?
+
+### Interview Answer
+
+> A target-group health check periodically verifies target availability. If a target fails health checks, the load balancer stops sending normal new traffic to it until it becomes healthy again.
+
+---
+
+# 14. Target Health States
+
+Common target health states include:
+
+| State | Meaning |
+|---|---|
+| `initial` | The target is being registered or has not completed health checks |
+| `healthy` | The target is passing health checks |
+| `unhealthy` | The target is failing health checks |
+| `draining` | The target is being deregistered and existing work may continue |
+| `unused` | The target is not currently being used by the load balancer |
+| `unavailable` | Health status cannot currently be determined |
+
+### Typical Lifecycle
+
+```text
+initial
+   |
+   v
+healthy
+   |
+   v
+unhealthy
+   |
+   v
+healthy
+```
+
+During deregistration:
+
+```text
+healthy
+   |
+   v
+draining
+   |
+   v
+unused
+```
+
+---
+
+# 15. Target Registration and Deregistration
+
+## Registering a Target
+
+Registration adds a backend target to a target group.
+
+```bash
+aws elbv2 register-targets \
+  --target-group-arn <target-group-arn> \
+  --targets Id=i-0123456789abcdef0
+```
+
+## Deregistering a Target
+
+Deregistration removes a target from normal new-traffic distribution.
+
+```bash
+aws elbv2 deregister-targets \
+  --target-group-arn <target-group-arn> \
+  --targets Id=i-0123456789abcdef0
+```
+
+### Why Deregister a Target?
+
+- Maintenance
+- Rolling deployment
+- Instance replacement
+- Application troubleshooting
+- Removing an unhealthy or retired backend
+
+---
+
+# 16. Deregistration Delay
+
+**Deregistration delay** is the time allowed for existing in-flight work to complete after a target starts deregistration.
+
+### Behavior
+
+```text
+New requests
+     |
+     X  No new traffic to draining target
+
+Existing requests
+     |
+     v
+Allowed to complete during draining
+```
+
+For ALB target groups, the commonly documented default is **300 seconds**, with a configurable range of **0–3600 seconds**.
+
+### Example
+
+```text
+Target becomes draining
+        |
+        v
+Existing requests continue
+        |
+        v
+Deregistration delay expires
+        |
+        v
+Target becomes unused
+```
+
+### Interview Answer
+
+> Deregistration delay, also called connection draining, allows existing requests to finish gracefully before a target is completely removed from service.
+
+---
+
+# 17. Load-Balancing Algorithms
 
 For ALB target groups, AWS documents these routing algorithms:
 
-## Round Robin
+## 17.1 Round Robin
+
+Requests are distributed sequentially across eligible targets.
 
 ```text
-Request 1 -> A
-Request 2 -> B
-Request 3 -> C
-Request 4 -> A
+Request 1 -> Target A
+Request 2 -> Target B
+Request 3 -> Target C
+Request 4 -> Target A
 ```
 
-Useful when targets have similar capacity and requests have similar cost.
+Useful when targets have similar capacity and requests have similar processing costs.
 
-## Least Outstanding Requests
+## 17.2 Least Outstanding Requests
 
-Routes requests toward targets with fewer in-progress requests.
+Traffic is directed toward targets with fewer in-progress requests.
 
-Useful when request processing times vary.
+Useful when:
 
-## Weighted Random
+- Request processing times vary
+- Some requests are long-running
+- Target workload is uneven
 
-Selects targets randomly using a weighted algorithm. AWS documents Automatic Target Weights anomaly mitigation with this algorithm.
+## 17.3 Weighted Random
 
-Important compatibility note: AWS documents that weighted-random cannot be combined with sticky sessions or slow start for ALB target groups. [AWS ALB routing algorithms](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html)
+Targets are selected using a weighted random algorithm.
+
+AWS also documents Automatic Target Weights anomaly mitigation with this algorithm.
+
+### Important Compatibility Point
+
+For ALB target groups, weighted-random routing cannot be combined with sticky sessions or slow start.
 
 ---
 
-# 17. Session Affinity / Sticky Sessions
+# 18. Sticky Sessions
 
-**Sticky sessions**, also called **session affinity**, bind a client's requests to the same target for a configured period.
+**Sticky sessions**, also called **session affinity**, keep a client's requests associated with the same target for a configured period.
 
-Without stickiness:
-
-```text
-Client
-  |
-  +-- Request 1 -> EC2-1
-  +-- Request 2 -> EC2-2
-  +-- Request 3 -> EC2-3
-```
-
-With stickiness:
+### Without Stickiness
 
 ```text
 Client
   |
-  +-- Request 1 -> EC2-1
-  +-- Request 2 -> EC2-1
-  +-- Request 3 -> EC2-1
+  +---- Request 1 -> Target A
+  +---- Request 2 -> Target B
+  +---- Request 3 -> Target C
 ```
 
-## Why Use Sticky Sessions?
-
-Useful when an application incorrectly or intentionally keeps session state locally on an instance.
-
-Example:
-
-```text
-User Session
-     |
-     v
-  EC2-1 local memory
-```
-
-All requests need to return to EC2-1.
-
-## Better Architecture: Externalize Session State
-
-In a scalable application, prefer:
+### With Stickiness
 
 ```text
 Client
   |
-  v
-ALB
-  |
-  +---- EC2-1
-  +---- EC2-2
-  +---- EC2-3
-            |
-            v
-      Shared Session Store
+  +---- Request 1 -> Target A
+  +---- Request 2 -> Target A
+  +---- Request 3 -> Target A
 ```
-
-This can reduce dependence on stickiness and allows better load distribution.
 
 ## ALB Stickiness Types
 
 ALB supports:
 
-```text
-1. Duration-based cookie
-2. Application-based cookie
-```
+1. Duration-based cookie stickiness
+2. Application-based cookie stickiness
 
-ALB stickiness is configured at target-group level. AWS documents the `AWSALB`-based duration cookie and application-cookie mode. [AWS ALB sticky sessions](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html)
+### Duration-Based Cookie
 
-### Duration-Based Stickiness
+The load balancer generates the cookie.
 
-The load balancer generates the stickiness cookie.
+### Application-Based Cookie
 
-```text
-First Request
-    |
-    v
-ALB selects Target A
-    |
-    v
-AWSALB cookie
-    |
-    v
-Future requests
-    |
-    v
-Target A
-```
+The application provides the cookie, and the load balancer uses it for affinity.
 
-### Application-Based Stickiness
+### Drawback
 
-The application provides the cookie and ALB uses it as the basis for affinity.
-
-### Important Drawback
-
-Stickiness can create uneven distribution:
+Stickiness may create an uneven distribution:
 
 ```text
 Many clients
@@ -603,565 +734,231 @@ Same target
 Hot target
 ```
 
-Use affinity when the application needs it, not simply because it is available.
+Use stickiness only when the application needs session affinity.
 
-AWS documents that ALB sticky sessions require cross-zone load balancing to be enabled. [AWS ALB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html)
+### Important Point
 
----
-
-# 18. NLB Source-IP Stickiness
-
-NLB supports target-group stickiness using `source_ip` for supported configurations.
-
-```text
-Client IP
-   |
-   v
-NLB
-   |
-   v
-Same target
-```
-
-This is different from ALB's cookie-based session affinity.
-
-### NAT Caveat
-
-Suppose:
-
-```text
-Client A --+
-Client B --+--> NAT --> same source IP --> NLB
-Client C --+
-```
-
-Source-IP stickiness can send those clients to the same backend target, creating uneven load.
-
-[AWS NLB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html)
+For ALB, stickiness is configured at target-group level.
 
 ---
 
-# 19. GWLB Flow Stickiness
+# 19. Slow Start
 
-GWLB must preserve a network flow on the same appliance when stateful inspection is involved.
+**Slow start** gradually increases traffic to a newly registered target.
 
-The default flow-stickiness model is **5-tuple**:
-
-```text
-Source IP
-Source Port
-Destination IP
-Destination Port
-Protocol
-```
-
-GWLB can also use:
+### Example
 
 ```text
-3-tuple
-2-tuple
+New Target
+    |
+    v
+Slow Start
+    |
+    +---- Small traffic share
+    +---- Larger traffic share
+    +---- Normal traffic share
 ```
 
-depending on configuration.
+Useful for:
 
-This is different from ALB cookie affinity and NLB source-IP affinity.
+- JVM warm-up
+- Cache warm-up
+- Expensive application startup
+- Newly launched application instances
 
-[AWS GWLB flow stickiness](https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/edit-target-group-attributes.html)
+For ALB target groups, AWS documents a slow-start range of **30–900 seconds**, with `0` meaning disabled.
+
+### Important Point
+
+Slow start gives a new target time to warm up instead of immediately receiving its full share of traffic.
 
 ---
 
 # 20. Cross-Zone Load Balancing
 
-Cross-zone load balancing allows traffic to be distributed across healthy targets in enabled Availability Zones rather than limiting each load-balancer node to local-zone targets.
+Cross-zone load balancing allows traffic to be distributed across healthy targets in enabled Availability Zones rather than restricting each load-balancer node to targets in only its local Availability Zone.
 
-Example without useful cross-zone distribution:
+### Example
 
 ```text
+Without effective cross-zone distribution:
+
 AZ-A
-ALB Node -> A1, A2
+  Load Balancer Node -> A1, A2
 
 AZ-B
-ALB Node -> B1
+  Load Balancer Node -> B1
 ```
 
-If target counts differ significantly, distribution can become uneven.
+If target counts differ between zones, traffic may become uneven.
 
-Cross-zone behavior depends on the load balancer type and target-group configuration, so verify the applicable AWS configuration rather than assuming one universal default.
+### Important Point
 
-[AWS ALB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html) [AWS NLB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html)
+Cross-zone behavior depends on the load balancer type and configuration. Verify the exact behavior for ALB, NLB, or GWLB rather than assuming one universal default.
 
 ---
 
-# 21. Deregistration Delay / Connection Draining
+# 21. Weighted Target Groups
 
-When a target is removed:
+ALB can forward traffic to multiple target groups using relative weights.
 
-```text
-New requests  --X--> Target
-Existing work -----> Target
-```
-
-Elastic Load Balancing allows existing in-flight work time to complete.
-
-Typical target state transition:
+### Example
 
 ```text
-registered
-    |
-    v
- draining
-    |
-    v
- unused
-```
-
-For ALB target groups, the documented default deregistration delay is **300 seconds**, with a configurable range of **0–3600 seconds**. [AWS ALB deregistration delay](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html)
-
-This is important during:
-
-* Rolling deployment
-* Auto Scaling scale-in
-* Instance maintenance
-* Blue/green replacement
-
----
-
-# 22. Slow Start
-
-Slow start gradually increases traffic to a newly registered target.
-
-```text
-New Target
-   |
-   v
-Slow Start
-   |
-   +-- small share
-   +-- larger share
-   +-- full share
-```
-
-For ALB target groups, AWS documents a range of **30–900 seconds**, with `0` meaning disabled. [AWS ALB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html)
-
-Useful for:
-
-* JVM warm-up
-* Cache warm-up
-* Expensive application startup
-* Newly launched Auto Scaling instances
-
----
-
-# 23. Weighted Target Groups and Canary Deployments
-
-ALB can forward to multiple target groups using relative weights.
-
-Example:
-
-```text
-                ALB
-                 |
-          +------+------+
-          |             |
-         v1             v2
-       weight 90     weight 10
+                  ALB
+                   |
+             +-----+-----+
+             |           |
+           v1            v2
+        Weight 90     Weight 10
 ```
 
 Approximate distribution:
 
 ```text
-90% -> v1
-10% -> v2
+90% -> v1 target group
+10% -> v2 target group
 ```
 
 Useful for:
 
-* Canary deployment
-* Blue/green deployment
-* Gradual migration
-* A/B testing
+- Canary deployments
+- Blue/green deployments
+- Gradual migration
+- A/B testing
 
-AWS documents weights from `0` to `999` for ALB forward actions. Importantly, weighted forwarding does **not** automatically fail over to another weighted target group just because one group is empty or all of its targets are unhealthy. [AWS ALB weighted forwarding](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/rule-action-types.html)
+### Important Point
 
----
-
-# 24. TLS Termination and Certificates
-
-## TLS Termination
-
-With TLS termination at the load balancer:
-
-```text
-Client
-  |
-  | HTTPS
-  v
-ALB / NLB
-  |
-  | HTTP or HTTPS/TLS
-  v
-Target
-```
-
-Benefits:
-
-* Centralized certificates
-* Reduced TLS work on targets
-* Simpler application configuration
-
-## ALB HTTPS
-
-An ALB HTTPS listener requires:
-
-* X.509 server certificate
-* TLS security policy
-
-ACM is commonly used for certificate management.
-
-[ALB HTTPS listener](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html) [ALB certificates](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/https-listener-certificates.html)
-
-## SNI
-
-ALB can use Server Name Indication to serve multiple hostnames/certificates on the same secure listener.
-
-```text
-HTTPS :443
-   |
-   +-- api.example.com  -> Cert A
-   +-- app.example.com  -> Cert B
-```
-
-## NLB TLS
-
-NLB can terminate TLS using a TLS listener and a configured security policy.
-
-[AWS NLB TLS security policies](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/describe-ssl-policies.html)
+Weighted forwarding does not automatically fail over to another weighted target group merely because one target group is empty or all its targets are unhealthy.
 
 ---
 
-# 25. Source IP Preservation
+# 22. Target Group Attributes
 
-Source-IP preservation means the backend receives the original client IP rather than only the load balancer's address.
+Depending on the load balancer and target-group type, attributes may include:
 
-Useful for:
+- Deregistration delay
+- Stickiness
+- Slow start
+- Load-balancing algorithm
+- Client-IP preservation, where supported
+- Proxy Protocol v2, where supported
+- Cross-zone behavior, where applicable
 
-* Audit logging
-* IP allowlisting
-* Security policy
-* Rate limiting
-* Application logs
+### Important Point
 
-For NLB, client-IP preservation depends on target type and protocol. AWS documents different behavior for instance and IP target groups. [AWS NLB client IP preservation](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html)
+Not every attribute is supported by every load balancer or target type.
 
-For ALB HTTP applications, client address information is commonly exposed through forwarded headers such as:
+Always verify:
 
-```text
-X-Forwarded-For
-```
-
-The application should only trust forwarded headers from trusted proxy/load-balancer paths.
-
----
-
-# 26. Proxy Protocol v2
-
-Proxy Protocol v2 passes connection metadata from a supported load balancer to the backend.
-
-```text
-Client
-  |
-  v
-NLB
-  |
-  | Proxy Protocol v2
-  v
-Target
-```
-
-NLB exposes:
-
-```text
-proxy_protocol_v2.enabled
-```
-
-as a target-group attribute.
-
-Do not enable it unless the backend understands Proxy Protocol v2; otherwise the backend may treat the proxy header as application data.
-
-[AWS NLB target-group attributes](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html)
+1. Load balancer type
+2. Target type
+3. Protocol
+4. Target-group type
+5. AWS Region
+6. Current AWS documentation
 
 ---
 
-# 27. ALB Authentication and AWS WAF
+# 23. One Target in Multiple Target Groups
 
-## ALB Authentication
+**Yes. A target can belong to multiple target groups**, subject to AWS service limits and configuration requirements.
 
-ALB can authenticate users before forwarding requests when supported by its listener configuration.
-
-This can centralize authentication at the load-balancer layer for suitable web applications.
-
-ALB also supports token-validation features for supported configurations.
-
-[AWS ALB listener rules](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-rules.html)
-
-## AWS WAF
-
-AWS WAF can protect an ALB by inspecting HTTP requests and allowing or blocking traffic based on WAF rules.
+### Example
 
 ```text
-Internet
-   |
-   v
-AWS WAF
-   |
-   v
-ALB
-   |
-   v
-Target Group
+                 EC2 Instance
+                 /           \
+                v             v
+             api-tg         admin-tg
 ```
 
-Typical protections include:
+This can be useful when:
 
-* SQL injection rules
-* XSS rules
-* IP restrictions
-* Rate-based rules
-* Managed rule groups
+- The same instance serves multiple applications
+- Different load balancers use the same backend
+- Different target groups use different health-check settings
+- Different forwarding configurations are required
 
-[AWS ELB infrastructure security](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/infrastructure-security.html)
+### Important Point
+
+Each target-group registration can have its own port and target-group behavior where supported.
 
 ---
 
-# 28. Access Logging and Monitoring
+# 24. Common ELB and Target Group Failure Scenarios
 
-## ALB Access Logs
+## 24.1 Load Balancer Returns 503
 
-ALB access logs can record:
+Common checks:
 
-* Client IP
-* Request path
-* Request timing
-* Status codes
-* Target information
+- Does the target group contain registered targets?
+- Are any targets healthy?
+- Are health checks passing?
+- Is the target-group port correct?
+- Is the application running?
+- Is the target registered in the correct target group?
 
-Traditional access logs can be stored in S3. AWS also provides newer integrations for ALB logs through CloudWatch Logs, Data Firehose, and S3. [AWS ALB access logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html)
+## 24.2 Target is Unhealthy
 
-## Connection Logs
-
-Connection logs can provide:
-
-* Client IP and port
-* Listener port
-* TLS protocol
-* TLS cipher
-* TLS handshake information
-* Connection status
-* Client certificate information
-
-[AWS ALB connection logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-connection-logs.html)
-
-## Health Check Logs
-
-Health-check logs are useful when troubleshooting why a target is unhealthy. [AWS health-check logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-health-check-logs.html)
-
-## CloudWatch Metrics
-
-Common ALB metrics include:
-
-```text
-RequestCount
-TargetResponseTime
-HTTPCode_ELB_4XX_Count
-HTTPCode_ELB_5XX_Count
-HTTPCode_Target_4XX_Count
-HTTPCode_Target_5XX_Count
-HealthyHostCount
-UnHealthyHostCount
-ActiveConnectionCount
-```
-
-AWS publishes ELB metrics through CloudWatch. [AWS ALB CloudWatch metrics](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html)
-
----
-
-# 29. Availability Zones and High Availability
-
-For high availability, deploy the load balancer across multiple Availability Zones.
-
-```text
-             Load Balancer
-              /         \
-            AZ-A       AZ-B
-             |           |
-          Targets      Targets
-```
-
-This helps prevent a single Availability Zone from becoming the only path to the application.
-
-For production designs, also make sure backend target capacity exists in the enabled zones.
-
----
-
-# 30. Scaling and Quotas
-
-Elastic Load Balancing is a managed service that scales load-balancer capacity as traffic changes. [AWS NLB introduction](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html)
-
-Operational considerations include:
-
-* Request volume
-* New connections
-* Active connections
-* Processed bytes
-* Number of rules
-* Number of target groups
-* Number of targets
-* LCU requirements
-
-## LCU
-
-**LCU** means **Load Balancer Capacity Unit** and is part of ELB capacity/pricing measurement.
-
-## Service Quotas
-
-AWS publishes quotas for ALB, NLB, and GWLB, and some quotas are adjustable.
-
-[ALB quotas](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)
-
-[NLB quotas](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-limits.html)
-
----
-
-# 31. Security Groups and Network ACLs
-
-## ALB
-
-A common security model is:
-
-```text
-Internet
-   |
-   v
-ALB Security Group
-   |
-   v
-Target Security Group
-```
-
-Targets should generally accept application/health-check traffic only from the intended load-balancer/client path rather than being unnecessarily exposed to the internet.
-
-## NLB
-
-NLB networking differs because client-IP preservation and target type affect what source address the target sees.
-
-Design the target security group based on the actual protocol, target type, and source-IP behavior.
-
-## NACL
-
-Network ACLs are subnet-level, stateless network filters.
-
-They are separate from:
-
-```text
-Security Groups
-ALB/NLB configuration
-AWS WAF
-```
-
-[AWS ELB infrastructure security](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/infrastructure-security.html)
-
----
-
-# 32. Common Failure Scenarios
-
-## ALB Returns 503
-
-Common first checks:
+Check:
 
 ```text
 Target Group
-   |
-   +-- Are there healthy targets?
-   +-- Are health checks passing?
-   +-- Is the listener rule correct?
+    |
+    +-- Protocol
+    +-- Port
+    +-- Health-check path
+    +-- Expected response
+    +-- Application process
+    +-- Network reachability
 ```
 
-Also verify:
-
-* Health-check port
-* Health-check path
-* Security group
-* NACL
-* Application process
-
-## Target is Unhealthy
-
-Test the application directly from an appropriate network location:
+Test the application from an appropriate network location:
 
 ```bash
 curl http://<target-private-ip>:<port>/<health-path>
 ```
 
-Check:
-
-```text
-Protocol
-Port
-Path
-Expected response
-Application binding
-Security group
-NACL
-```
-
-## Traffic Reaches Only One Target
+## 24.3 Traffic Reaches Only One Target
 
 Possible causes:
 
-* Sticky sessions
-* NLB source-IP stickiness
-* Uneven target capacity
-* Long-lived connections
-* Cross-zone configuration
-* NAT concentration
+- Sticky sessions
+- Uneven target capacity
+- Long-lived connections
+- Cross-zone configuration
+- Target health differences
+- NLB source-IP stickiness, where configured
+- NAT concentration, where source-IP stickiness is used
 
-## Backend Sees Load Balancer IP
-
-Check:
-
-```text
-NLB client-IP preservation
-Proxy Protocol v2
-ALB forwarded headers
-Target type
-```
-
-## Deployment Drops Requests
+## 24.4 Deployment Drops Requests
 
 Check:
 
-```text
-Deregistration delay
-Graceful application shutdown
-Connection draining
-Auto Scaling lifecycle behavior
-```
+- Deregistration delay
+- Graceful application shutdown
+- Target draining state
+- Application termination behavior
+- Whether the target was deregistered before shutdown
 
-## 502 Bad Gateway
+## 24.5 Target Group Has No Healthy Targets
 
-Common investigation areas:
+Check:
 
-* Backend connection failure
-* Protocol mismatch
-* TLS mismatch
-* Invalid backend response
-* Application failure
-
-Confirm the exact failure using target health, load-balancer logs, application logs, and CloudWatch metrics.
+1. Target registration
+2. Target health state
+3. Health-check protocol
+4. Health-check port
+5. Health-check path
+6. Expected response code
+7. Application binding address
+8. Network reachability
+9. Target-group configuration
 
 ---
 
-# 33. Common AWS CLI Commands
+# 25. Common AWS CLI Commands
 
 ## List Load Balancers
 
@@ -1175,18 +972,11 @@ aws elbv2 describe-load-balancers
 aws elbv2 describe-target-groups
 ```
 
-## List Listeners
+## Describe a Target Group
 
 ```bash
-aws elbv2 describe-listeners \
-  --load-balancer-arn <load-balancer-arn>
-```
-
-## List ALB Listener Rules
-
-```bash
-aws elbv2 describe-rules \
-  --listener-arn <listener-arn>
+aws elbv2 describe-target-groups \
+  --target-group-arns <target-group-arn>
 ```
 
 ## Describe Target Health
@@ -1196,7 +986,7 @@ aws elbv2 describe-target-health \
   --target-group-arn <target-group-arn>
 ```
 
-## Register Target
+## Register a Target
 
 ```bash
 aws elbv2 register-targets \
@@ -1204,7 +994,15 @@ aws elbv2 register-targets \
   --targets Id=i-0123456789abcdef0
 ```
 
-## Deregister Target
+## Register a Target on a Specific Port
+
+```bash
+aws elbv2 register-targets \
+  --target-group-arn <target-group-arn> \
+  --targets Id=i-0123456789abcdef0,Port=8080
+```
+
+## Deregister a Target
 
 ```bash
 aws elbv2 deregister-targets \
@@ -1214,8 +1012,6 @@ aws elbv2 deregister-targets \
 
 ## Modify Target-Group Attributes
 
-Example:
-
 ```bash
 aws elbv2 modify-target-group-attributes \
   --target-group-arn <target-group-arn> \
@@ -1223,7 +1019,7 @@ aws elbv2 modify-target-group-attributes \
     Key=deregistration_delay.timeout_seconds,Value=60
 ```
 
-Enable ALB stickiness:
+## Enable ALB Stickiness
 
 ```bash
 aws elbv2 modify-target-group-attributes \
@@ -1233,134 +1029,77 @@ aws elbv2 modify-target-group-attributes \
     Key=stickiness.lb_cookie.duration_seconds,Value=300
 ```
 
-Enable NLB client-IP preservation where supported:
-
-```bash
-aws elbv2 modify-target-group-attributes \
-  --target-group-arn <target-group-arn> \
-  --attributes \
-    Key=preserve_client_ip.enabled,Value=true
-```
-
 ---
 
-# 34. Frequently Asked Interview Questions
+# 26. Frequently Asked Interview Questions
 
 | Question | Answer |
 |---|---|
-| **What is Elastic Load Balancing?** | AWS service that distributes incoming traffic across healthy registered targets. |
+| **What is ELB?** | AWS managed service that distributes traffic across registered backend targets. |
 | **What types of ELB exist?** | ALB, NLB, GWLB, and legacy Classic Load Balancer. |
-| **What is ALB?** | A Layer 7 HTTP/HTTPS load balancer with application-aware routing. |
-| **What is NLB?** | A Layer 4 load balancer for high-performance TCP/UDP/TLS and related transport workloads. |
-| **What is GWLB?** | A load balancer used to deploy and scale virtual network appliances. |
-| **Why choose ALB over NLB?** | When HTTP-aware routing such as host, path, header, or method matching is required. |
-| **Why choose NLB over ALB?** | When Layer 4 performance, TCP/UDP, low latency, static IPs, or source-IP preservation are important. |
-| **What is a listener?** | A configuration that accepts connections on a protocol and port and applies its default action/rules. |
-| **What is an ALB listener rule?** | A priority-ordered set of conditions and actions used to route HTTP/HTTPS requests. |
-| **What is a target group?** | A logical collection of backend targets with forwarding and health-check configuration. |
-| **What is a target?** | The backend destination receiving traffic. |
-| **What is a health check?** | A periodic test that determines whether a target is healthy enough to receive traffic. |
-| **What happens when a target fails health checks?** | The load balancer stops routing new traffic to that target until it becomes healthy again. |
-| **What is deregistration delay?** | The period used to allow in-flight work to complete when a target is being removed. |
-| **What is connection draining?** | Preventing new traffic while allowing existing in-flight work to finish during deregistration. |
-| **What is sticky session / session affinity?** | A mechanism that keeps a client's traffic associated with the same backend target. |
-| **How does ALB stickiness work?** | ALB supports duration-based load-balancer cookies and application-based cookies. |
-| **What is NLB source-IP stickiness?** | A target-selection method that uses the source IP as the stickiness key for supported NLB target groups. |
-| **What is GWLB flow stickiness?** | Keeping a network flow on the same appliance using a configured 5-, 3-, or 2-tuple model. |
-| **What is cross-zone load balancing?** | Distributing traffic across healthy targets in enabled Availability Zones instead of restricting each load-balancer node to local targets. |
+| **What is ALB?** | A Layer 7 load balancer for HTTP/HTTPS applications. |
+| **What is NLB?** | A Layer 4 load balancer for TCP, UDP, TLS, high throughput, and low latency. |
+| **What is GWLB?** | A load balancer for deploying and scaling virtual network appliances. |
+| **What is a target group?** | A logical collection of backend targets with forwarding and health-check settings. |
+| **What is a target?** | A backend destination that receives traffic from the load balancer. |
+| **Can a target group contain EC2 instances?** | Yes, when the target type is `instance`. |
+| **Can a target group contain IP addresses?** | Yes, when the target type is `ip` and supported by the load balancer. |
+| **Can ALB use Lambda as a target?** | Yes, ALB supports Lambda targets. |
+| **Can NLB use an ALB as a target?** | Yes, NLB supports the `alb` target type where supported. |
+| **What is a health check?** | A periodic test used to determine whether a target is healthy. |
+| **Where are health checks configured?** | At target-group level. |
+| **What happens when a target becomes unhealthy?** | The load balancer normally stops sending new traffic to that target. |
+| **What is deregistration delay?** | The grace period that allows existing work to finish while a target is removed. |
+| **What is connection draining?** | Another term commonly used for graceful target deregistration. |
 | **What is slow start?** | Gradually increasing traffic to a newly registered target. |
-| **What are weighted target groups?** | Forwarding traffic to multiple target groups using relative weights, useful for canary/blue-green deployment. |
-| **Do weighted target groups automatically fail over if one group is unhealthy?** | No. AWS documents that weighted forwarding does not automatically fail over merely because another weighted group is empty or unhealthy. |
-| **What is TLS termination?** | Decrypting client TLS at the load balancer and forwarding to the target using the configured backend protocol. |
-| **What is source-IP preservation?** | Preserving the original client IP so the target can identify the client under supported configurations. |
-| **What is Proxy Protocol v2?** | A protocol that passes connection metadata from a supported proxy/load balancer to the backend. |
-| **What is SNI?** | Server Name Indication lets a TLS client indicate the hostname so the correct certificate can be selected. |
-| **What is AWS WAF with ALB?** | A web application firewall layer that can allow/block requests using WAF rules. |
-| **What is ALB access logging?** | Detailed logging of HTTP request activity for troubleshooting and traffic analysis. |
-| **What is CloudWatch used for with ELB?** | Monitoring load-balancer and target metrics and creating alarms. |
-| **Can one target belong to multiple target groups?** | Yes. A target can be registered with multiple target groups. |
-| **Can one ALB serve multiple applications?** | Yes. Host/path/header/source-IP rules can route requests to different target groups. |
-| **Can an NLB do path-based routing?** | No. Path/host routing is an ALB capability. |
-| **Can ALB handle arbitrary TCP applications?** | No. ALB is designed for HTTP/HTTPS-aware traffic; use NLB for generic Layer 4 workloads. |
-| **Why deploy load balancers across multiple AZs?** | To improve availability and avoid a single-AZ dependency. |
-| **Can NLB have static IP addresses?** | Yes. NLB supports per-AZ static IP capability and can associate Elastic IPs for internet-facing designs. |
-| **What is LCU?** | Load Balancer Capacity Unit, used in ELB capacity/pricing measurements. |
-| **What is the difference between 502 and 503 at a high level?** | 502 commonly points to a bad/invalid upstream connection or response, while 503 commonly indicates no usable healthy target capacity; confirm with logs and metrics. |
+| **What is stickiness?** | Keeping a client's requests associated with the same target. |
+| **Where is ALB stickiness configured?** | At target-group level. |
+| **What is round robin?** | Sequentially distributing requests across eligible targets. |
+| **What is least outstanding requests?** | Preferring targets with fewer in-progress requests. |
+| **What is weighted random?** | Selecting targets randomly using a weighted algorithm. |
+| **Can one target belong to multiple target groups?** | Yes, subject to service limits and configuration requirements. |
+| **Can the frontend and backend ports differ?** | Yes. The listener port and target-group port can be different. |
+| **What causes a target to become unhealthy?** | Incorrect protocol, port, path, response, application status, or network reachability. |
+| **What is a 503 commonly associated with?** | No usable healthy target capacity, though logs and target health should confirm the cause. |
+| **What is the difference between ELB and a target group?** | ELB receives and distributes traffic; a target group organizes backend targets and health-check behavior. |
+| **What is weighted target-group forwarding?** | Sending different proportions of traffic to multiple target groups. |
+| **Does weighted forwarding automatically fail over if one group is unhealthy?** | No, not merely because the group is empty or unhealthy. |
+| **What is cross-zone load balancing?** | Distributing traffic across healthy targets in enabled Availability Zones, depending on configuration. |
 
 ---
 
-# 35. One-Line Interview Answers
+# 27. One-Line Revision
 
 | Concept | One-Line Answer |
 |---|---|
-| **ELB** | AWS managed service for distributing traffic across healthy targets. |
+| **ELB** | AWS managed service for distributing traffic across registered targets. |
 | **ALB** | Layer 7 HTTP/HTTPS load balancer. |
-| **NLB** | Layer 4 high-performance transport load balancer. |
-| **GWLB** | Load balancer for scaling and inserting virtual network appliances. |
-| **Listener** | Accepts connections on a configured protocol and port. |
-| **Listener Rule** | Matches conditions and executes an action. |
+| **NLB** | Layer 4 TCP/UDP/TLS load balancer. |
+| **GWLB** | Load balancer for virtual network appliances. |
+| **CLB** | Legacy load balancer generation. |
 | **Target Group** | Logical collection of backend targets. |
 | **Target** | Backend destination receiving traffic. |
+| **Instance Target** | Target registered by EC2 instance ID. |
+| **IP Target** | Target registered by IP address. |
+| **Lambda Target** | Lambda function used as an ALB target. |
 | **Health Check** | Determines whether a target should receive new traffic. |
-| **Sticky Session** | Keeps a client associated with the same target. |
-| **Session Affinity** | Another name for sticky-session behavior. |
-| **Cross-Zone** | Allows distribution across healthy targets in enabled Availability Zones. |
-| **Deregistration Delay** | Grace period for in-flight traffic during target removal. |
-| **Slow Start** | Gradually increases traffic to new targets. |
-| **Weighted Target Groups** | Sends different traffic proportions to different target groups. |
-| **TLS Termination** | Load balancer decrypts frontend TLS traffic. |
-| **Source-IP Preservation** | Backend receives the original client IP under supported configurations. |
-| **Proxy Protocol v2** | Carries connection metadata to supported targets. |
-| **SNI** | Allows TLS certificate selection by hostname. |
-| **WAF** | Filters web requests using security rules. |
-| **CloudWatch** | Provides ELB monitoring metrics and alarms. |
-| **Access Logs** | Detailed request/connection logging for troubleshooting and analysis. |
-| **LCU** | Load Balancer Capacity Unit used in ELB capacity/pricing measurements. |
-| **Round Robin** | Sequentially distributes traffic across healthy targets. |
+| **Healthy** | Target is passing health checks. |
+| **Unhealthy** | Target is failing health checks. |
+| **Draining** | Target is being removed while existing work may finish. |
+| **Deregistration Delay** | Grace period for existing traffic during target removal. |
+| **Round Robin** | Sequential target selection. |
 | **Least Outstanding Requests** | Prefers targets with fewer in-progress requests. |
-| **Weighted Random** | Selects targets randomly using a weighted routing algorithm. |
+| **Weighted Random** | Random target selection using weights. |
+| **Sticky Session** | Keeps a client's requests on the same target. |
+| **Slow Start** | Gradually increases traffic to a new target. |
+| **Cross-Zone Load Balancing** | Distributes traffic across healthy targets in enabled zones. |
+| **Weighted Target Groups** | Sends different traffic proportions to target groups. |
 
 ---
 
-# 36. Official References
-
-The following AWS documentation should be used to verify current ELB features, defaults, quotas, and target-group behavior.
-
-## Elastic Load Balancing
-
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html
-
-## Application Load Balancer
-
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-target-group-attributes.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-rules.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/rule-action-types.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/https-listener-certificates.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/describe-ssl-policies.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-monitoring.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
-
-## Network Load Balancer
-
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-listeners.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/describe-ssl-policies.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-limits.html
-
-## Gateway Load Balancer
-
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/gateway-load-balancers.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/edit-target-group-attributes.html
-
-## Security and Quotas
-
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/infrastructure-security.html
-- https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html
-
-> **Note:** AWS ELB capabilities, defaults, target types, quotas, and listener behavior can change. Always verify the exact behavior for the load balancer type, protocol, target type, and AWS Region used in production.
+> **Final interview tip:**  
+> Always distinguish these three terms:
+>
+> - **Load Balancer:** Receives client traffic.
+> - **Target Group:** Organizes backend targets and defines forwarding/health-check behavior.
+> - **Target:** The actual backend destination receiving traffic.
