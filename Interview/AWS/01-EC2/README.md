@@ -17,21 +17,6 @@
 
 ---
 
-# Amazon EC2 Interview & Practical Notes
-
-> **Scope:** Amazon EC2 and its directly related capabilities only.  
-> **Audience:** DevOps Engineers, Cloud Engineers, System Administrators, and AWS interview candidates.
-
-[![AWS](https://img.shields.io/badge/AWS-EC2-orange?logo=amazonaws)](https://aws.amazon.com/ec2/)
-[![Focus](https://img.shields.io/badge/Focus-Interview%20%2B%20Hands--On-blue)](#learning-roadmap)
-
----
-
----
-
----
-
-
 # 1. EC2 Fundamentals
 
 ## What is Amazon EC2?
