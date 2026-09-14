@@ -1,5 +1,24 @@
 # Amazon EC2 Interview & Practical Notes
 
+> **Scope:** EC2 service concepts only. This document intentionally excludes EBS, IAM, VPC networking, ENI, NAT Gateway, Security Groups, NACLs, CloudWatch, Load Balancers, Auto Scaling, and other separate AWS services.
+> **Audience:** DevOps Engineers, Cloud Engineers, System Administrators, and AWS interview candidates.
+
+## Table of Contents
+
+| Stage | Topic |
+|---:|---|
+| 1 | [EC2 Fundamentals](#1-ec2-fundamentals) |
+| 2 | [Instance Types](#2-instance-types) |
+| 3 | [EC2 Lifecycle](#6-ec2-lifecycle) |
+| 4 | [EC2 Pricing Options](#7-ec2-pricing-options) |
+| 5 | [Placement Groups and Tenancy](#8-placement-groups-and-tenancy) |
+| 6 | [Final Interview Revision](#14-final-interview-revision) |
+| 7 | [References](#15-references) |
+
+---
+
+# Amazon EC2 Interview & Practical Notes
+
 > **Scope:** Amazon EC2 and its directly related capabilities only.  
 > **Audience:** DevOps Engineers, Cloud Engineers, System Administrators, and AWS interview candidates.
 
@@ -8,38 +27,10 @@
 
 ---
 
-## Table of Contents
-
-| Stage | Topic |
-|---:|---|
-| 1 | [EC2 Fundamentals](#1-ec2-fundamentals) |
-| 2 | [AMI and Instance Types](#2-ami-and-instance-types) |
-| 3 | [User Data, Metadata and IAM](#3-user-data-metadata-and-iam) |
-| 4 | [EC2 Networking](#4-ec2-networking) |
-| 5 | [EC2 Storage](#5-ec2-storage) |
-| 6 | [EC2 Lifecycle](#6-ec2-lifecycle) |
-| 7 | [EC2 Pricing Options](#7-ec2-pricing-options) |
-| 8 | [Placement Groups and Tenancy](#8-placement-groups-and-tenancy) |
-| 9 | [Security Groups and Key Pairs](#9-security-groups-and-key-pairs) |
-| 10 | [Monitoring and Troubleshooting](#10-monitoring-and-troubleshooting) |
-| 11 | [Launch Templates and Auto Scaling](#11-launch-templates-and-auto-scaling) |
-| 12 | [High Availability Architecture](#12-high-availability-architecture) |
-| 13 | [AWS CLI and Linux Cheat Sheet](#13-aws-cli-and-linux-cheat-sheet) |
-| 14 | [Final Interview Revision](#14-final-interview-revision) |
-| 15 | [References](#15-references) |
+---
 
 ---
 
-## Learning Roadmap
-
-| Level | Study order | Expected outcome |
-|---|---|---|
-| Beginner | Fundamentals → AMI → Instance Type → User Data | Launch and explain an EC2 instance |
-| Intermediate | Networking → Storage → Lifecycle → IAM | Operate and secure an EC2 server |
-| Advanced | Spot → Placement → Monitoring → ASG | Design resilient and cost-efficient EC2 workloads |
-| Interview-ready | Troubleshooting → Architecture → Scenario questions | Explain decisions, not only definitions |
-
----
 
 # 1. EC2 Fundamentals
 
@@ -124,53 +115,13 @@ aws ec2 run-instances \
 | Why is EC2 called elastic? | Capacity can be increased, decreased, started, stopped, or replaced according to workload needs. |
 | What is an EC2 instance? | A virtual server created from an AMI using an instance type and launch configuration. |
 | What are the main EC2 launch components? | AMI, instance type, VPC/subnet, security group, IAM profile, storage and user data. |
-| What is the shared responsibility model for EC2? | AWS manages the underlying cloud infrastructure; the customer manages the guest OS, applications, data and configuration. |
-| What is the difference between vertical and horizontal scaling? | Vertical scaling increases the size of one instance; horizontal scaling adds more instances. |
 
 ---
 
-# 2. AMI and Instance Types
 
-## Amazon Machine Image (AMI)
+# 2. Instance Types
 
-An **AMI** is a template used to launch EC2 instances.
-
-| AMI contains or defines | Explanation |
-|---|---|
-| Root volume template | OS and installed software |
-| Block-device mapping | Volumes attached during launch |
-| Launch permissions | Private, shared or public access |
-| Boot configuration | Information needed to boot the instance |
-
-### Golden AMI pattern
-
-```text
-Base AMI
-  ↓
-Install dependencies
-  ↓
-Configure application
-  ↓
-Apply security hardening
-  ↓
-Create Golden AMI
-  ↓
-Launch consistent EC2 instances
-```
-
-### Example: create an AMI
-
-```bash
-aws ec2 create-image \
-  --instance-id i-xxxxxxxxxxxxxxxxx \
-  --name "dev-web-golden-v1" \
-  --description "NGINX and monitoring preinstalled" \
-  --no-reboot
-```
-
-> `--no-reboot` can preserve uptime but may produce an inconsistent image if applications are actively writing data. Use it carefully.
-
-## Instance Type
+## Instance Types
 
 An instance type defines the compute characteristics exposed to an EC2 instance.
 
@@ -183,7 +134,7 @@ An instance type defines the compute characteristics exposed to an EC2 instance.
 | Accelerators | GPU, FPGA, Inferentia or Trainium |
 | Local storage | Instance Store, where supported |
 
-## Instance Type Naming Convention
+## Naming Convention
 
 Example:
 
@@ -217,413 +168,52 @@ Common suffixes:
 | `z` | High CPU frequency |
 | `metal` | Bare-metal instance |
 
-## How to choose a family
+## EC2 Instance Family Classification
 
-| Bottleneck or requirement | Recommended family |
-|---|---|
-| Balanced web/application server | M |
-| Low and variable CPU usage | T |
-| CPU-intensive workload | C |
-| Large memory footprint | R or X |
-| Terabytes of memory | U |
-| High memory plus high CPU frequency | Z |
-| High local storage I/O | I |
-| Dense local storage capacity | D |
-| GPU compute or ML training | P |
-| Graphics or ML inference | G |
-| FPGA acceleration | F |
-| Inferentia inference | Inf |
-| Trainium training | Trn |
-| Video transcoding | VT |
-| HPC simulation | Hpc |
+EC2 instance families are grouped by the workload they are designed to run.
 
-### Example: selecting an EC2 type
-
-| Workload | Reasoning | Choice |
+| Category | Families | Primary use |
 |---|---|---|
-| Jenkins controller for a small lab | Balanced, low-to-medium usage | `t3.small` or `m7i.large` |
-| CPU-heavy build workers | CPU is the bottleneck | C family |
-| Redis or large in-memory cache | RAM is the bottleneck | R family |
-| Large SAP/HANA-style memory workload | Very large RAM requirement | U/X family |
-| ML model training | GPU acceleration | P family |
-| High-performance local database scratch | Local I/O | I family |
+| **General Purpose** | **A, M, T, Mac** | Balanced CPU, memory and networking; Arm, burstable and macOS workloads |
+| **Compute Optimized** | **C** | CPU-intensive applications, batch processing and high-performance web servers |
+| **Memory Optimized** | **R, X, Z, U** | In-memory databases, large datasets and high-memory workloads |
+| **Storage Optimized** | **I, D, H, Im, Is** | High local I/O, low-latency storage and dense local storage capacity |
+| **Accelerated Computing** | **P, G, F, Inf, Trn, VT, Dl** | GPU, graphics, FPGA, ML, video and specialized acceleration |
+| **High Performance Computing** | **Hpc** | Scientific simulations and tightly coupled HPC workloads |
 
-### Interview Checkpoint — AMI and Instance Families
+### Family-by-family explanation
+
+| Family | Explanation | Example workload |
+|---|---|---|
+| **A** | Arm-based general-purpose instances | Cost-efficient Arm-compatible applications |
+| **M** | Balanced general-purpose instances | Web servers, application servers and backend services |
+| **T** | Burstable general-purpose instances using CPU credits | Development servers and variable CPU workloads |
+| **Mac** | macOS instances | iOS/macOS build and testing |
+| **C** | Compute-optimized instances | CPU-heavy services, batch processing and encoding |
+| **R** | Memory-optimized instances | Caches, analytics and in-memory databases |
+| **X** | Very memory-intensive instances | Large in-memory datasets |
+| **Z** | High-memory instances with high CPU frequency | Low-latency, memory-intensive workloads |
+| **U** | High-memory instances with very large RAM capacity | Enterprise databases requiring terabytes of memory |
+| **I** | Storage-optimized instances, commonly with high-performance local SSD/NVMe storage | Databases and distributed storage |
+| **D** | Dense-storage instances | Large local storage capacity |
+| **H** | HDD-storage-optimized instances | High-throughput, data-intensive workloads |
+| **Im / Is** | Storage-optimized variants with different memory-to-vCPU ratios | Storage-heavy workloads |
+| **P** | GPU-accelerated instances | ML training and GPU computing |
+| **G** | Graphics-optimized GPU instances | Graphics, visualization and ML inference |
+| **F** | FPGA instances | Custom hardware acceleration and specialized analytics |
+| **Inf** | AWS Inferentia-based instances | Machine-learning inference |
+| **Trn** | AWS Trainium-based instances | Machine-learning training |
+| **VT** | Video-transcoding instances | Video encoding and media processing |
+| **Dl** | Deep-learning-focused instances | Deep-learning training and inference |
+| **Hpc** | High-performance computing instances | Scientific and engineering simulations |
+
+
+### Interview Checkpoint
 
 | Question | Interview-ready answer |
 |---|---|
-| What is an AMI? | A template containing the OS/software image and block-device mappings used to launch EC2 instances. |
-| What is an instance type? | A predefined combination of CPU, memory, network, storage and accelerator capabilities. |
-| What is the difference between an instance family and generation? | The family describes workload optimization; the generation identifies the hardware generation. |
-| What is the T family? | Burstable-performance instances that use CPU credits to burst above baseline performance. |
-| What is the difference between M and C? | M is balanced general purpose; C is optimized for CPU-intensive workloads. |
-| What is the difference between R and X? | Both are memory-focused, but X targets very large memory-intensive workloads and R is the common memory-optimized family. |
-| What is the U family? | High-memory instances designed for extremely large memory workloads. |
-| What is special about Z instances? | They combine high memory with high CPU frequency. |
-| What is the I family used for? | Storage-intensive workloads requiring high local I/O and low latency. |
-| P vs G? | P is GPU accelerated for compute/ML; G is graphics-intensive and also supports suitable ML workloads. |
-| What is F used for? | FPGA-based hardware acceleration. |
-| What are Inf and Trn? | AWS purpose-built chips for ML inference and training respectively. |
-| What does `d` mean in an instance type? | It commonly indicates local instance-store volumes. |
-| What does `n` mean? | It commonly indicates enhanced network and EBS performance. |
-| How do you select an instance type? | Measure CPU, memory, network, storage and accelerator requirements, then validate price and performance in the target Region. |
+| How do you select an instance family? | Match the workload bottleneck—CPU, memory, storage, accelerator or burstability—then validate the choice using performance metrics, cost and scaling requirements. |
 
-## 🎯 Interview Checkpoint: EC2 Instance Families
-
-| # | Frequently Asked Question | Clear Interview Answer |
-|---:|---|---|
-| 1 | What are the major EC2 instance categories? | General purpose, compute optimized, memory optimized, storage optimized, accelerated computing, and high-performance computing. |
-| 2 | What is the use of the `T` family? | `T` instances are burstable general-purpose instances. They provide a baseline CPU performance and can burst above that baseline using CPU credits. |
-| 3 | What is the difference between `T`, `M`, and `C` instances? | `T` is burstable and cost-effective for variable workloads; `M` provides balanced CPU, memory, and networking; `C` is optimized for high CPU requirements. |
-| 4 | When would you choose an `M` instance? | For balanced workloads such as application servers, web servers, backend services, and small-to-medium databases. |
-| 5 | When would you choose a `C` instance? | For CPU-intensive workloads such as batch processing, high-performance web servers, encoding, and compute-heavy applications. |
-| 6 | What is the purpose of the `R` family? | `R` instances are memory optimized and are suitable for workloads that need a high memory-to-vCPU ratio, such as in-memory databases and caching. |
-| 7 | What is the difference between `R` and `X` instances? | Both are memory optimized. `X` instances are designed for extremely memory-intensive workloads and generally provide a higher memory capacity than typical `R` instances. |
-| 8 | What are `U` instances used for? | `U` instances are high-memory instances used for very large in-memory databases and enterprise workloads requiring terabytes of RAM. |
-| 9 | What is the purpose of the `Z` family? | `Z` instances are optimized for high CPU frequency and are useful for workloads that benefit from fast per-core performance and low latency. |
-| 10 | What are `I` instances used for? | `I` instances are storage optimized, especially for workloads requiring high local NVMe SSD performance, such as databases, analytics, and distributed storage systems. |
-| 11 | What is the difference between `I`, `D`, and `H` instances? | `I` focuses on high-performance local SSD storage; `D` provides dense local storage capacity; `H` is designed for high-disk-throughput workloads. |
-| 12 | What are `P` instances used for? | `P` instances use GPUs for machine learning training, high-performance computing, and other GPU-accelerated workloads. |
-| 13 | What is the difference between `P` and `G` instances? | `P` instances are primarily optimized for high-performance GPU computing and ML training; `G` instances are commonly used for graphics, visualization, inference, and graphics-intensive applications. |
-| 14 | What are `F` instances used for? | `F` instances use FPGA acceleration for specialized workloads such as financial analytics, genomics, signal processing, and custom hardware acceleration. |
-| 15 | What are `Inf` and `Trn` instances used for? | `Inf` instances use AWS Inferentia for machine-learning inference, while `Trn` instances use AWS Trainium for machine-learning training. |
-| 16 | What are `VT` instances used for? | `VT` instances are designed for video transcoding and media-processing workloads. |
-| 17 | What does the `g` suffix mean in an instance name? | It generally indicates an AWS Graviton-based processor. |
-| 18 | What does the `a` suffix mean? | It generally indicates an AMD-based processor. |
-| 19 | What does the `i` suffix mean? | It generally indicates an Intel-based processor. |
-| 20 | What does the `d` suffix mean? | It indicates additional local instance-store storage. |
-| 21 | What does the `n` suffix mean? | It indicates enhanced networking or networking/EBS optimization, depending on the instance generation. |
-| 22 | What does `metal` mean in an EC2 instance type? | A bare-metal instance gives the operating system direct access to the physical server without a traditional virtualized guest layer. |
-| 23 | Explain `m7i-flex.large`. | `m` means general purpose; `7` is the generation; `i` indicates Intel; `flex` indicates a flexible instance variant; `large` is the instance size. |
-| 24 | Which family would you select for a Jenkins controller? | Usually `T` for a small, low-to-moderate workload or `M` for a more consistent workload. The final choice depends on build concurrency, memory, disk, and CPU usage. |
-| 25 | Which family would you select for Elasticsearch? | Usually a memory-optimized `R` instance when heap and memory pressure are significant. Storage-optimized `I` instances may be suitable when local high-performance storage is the main requirement. |
-| 26 | Which family would you select for a machine-learning training server? | A GPU-accelerated `P` or `Trn` instance, depending on the framework and accelerator support. |
-| 27 | Which family would you select for a high-throughput database using local NVMe disks? | An `I` family instance is a common choice because it is optimized for high-performance local storage. |
-| 28 | Are instance-family names alone enough to select an instance? | No. Also evaluate vCPUs, RAM, network bandwidth, EBS bandwidth, local storage, architecture, accelerator type, pricing, and workload behavior. |
-
-### Scenario-Based Interview Questions
-
-| Scenario | Recommended Direction |
-|---|---|
-| A small development server has low CPU usage but occasional spikes. | Start with a `T` instance and monitor CPU credit usage. |
-| A backend service is consistently CPU-bound. | Consider a `C` instance. |
-| An application frequently runs out of RAM but CPU usage is moderate. | Consider an `R` instance. |
-| A database needs several terabytes of RAM. | Consider a high-memory `U` or suitable `X` instance. |
-| A workload requires high-speed local NVMe storage. | Consider an `I` instance. |
-| A machine-learning model requires GPU training. | Consider a `P` or `Trn` instance. |
-| A video-processing workload needs hardware acceleration. | Consider a `G` or `VT` instance based on the workload. |
-| A workload requires specialized programmable hardware acceleration. | Consider an `F` instance. |
-
-### Interviewer Follow-up
-
-> **How do you select the right EC2 instance type in production?**
-
-**Answer:**  
-I first identify the workload profile: CPU-intensive, memory-intensive, storage-intensive, network-intensive, GPU-based, or burstable. Then I compare vCPUs, memory, EBS bandwidth, network bandwidth, architecture, local storage, accelerator support, price, and scaling requirements. I deploy a representative workload, monitor CloudWatch metrics such as CPU utilization, memory, network, disk, and CPU credit usage where applicable, and then right-size the instance based on observed performance.
-
-# 3. User Data, Metadata and IAM
-
-## EC2 User Data
-
-User data is launch-time bootstrap information, commonly a shell script on Linux.
-
-### Common uses
-
-| Use | Example |
-|---|---|
-| Install packages | Install NGINX |
-| Configure files | Create application config |
-| Start services | Enable and start systemd service |
-| Install agents | SSM, monitoring or security agent |
-| Register instance | Register with a target or configuration system |
-
-### Example: Linux user data
-
-```bash
-#!/bin/bash
-set -eux
-
-apt-get update -y
-apt-get install -y nginx
-
-systemctl enable nginx
-systemctl start nginx
-
-echo "Hello from EC2" > /var/www/html/index.html
-```
-
-### Important points
-
-| Point | Explanation |
-|---|---|
-| Execution | Usually runs during first boot |
-| Secret storage | Do not store passwords or access keys in user data |
-| Debugging | Check cloud-init logs |
-| Repeatability | Make scripts idempotent where possible |
-
-Useful logs:
-
-```bash
-sudo cloud-init status --long
-sudo tail -f /var/log/cloud-init-output.log
-```
-
-## Instance Metadata and IMDSv2
-
-The Instance Metadata Service provides information about the running instance.
-
-| Metadata example | Use |
-|---|---|
-| Instance ID | Identify the current server |
-| Local IPv4 | Internal networking |
-| Availability Zone | Placement awareness |
-| IAM role credentials | Temporary AWS credentials |
-| Instance identity document | Instance verification |
-
-### IMDSv2 example
-
-```bash
-TOKEN=$(curl -sS -X PUT \
-  "http://169.254.169.254/latest/api/token" \
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-
-curl -sS \
-  -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/meta-data/instance-id
-```
-
-## IAM Role and Instance Profile
-
-Use an IAM role instead of long-lived AWS access keys on the server.
-
-```text
-IAM Role
-  ↓
-Instance Profile
-  ↓
-EC2 Instance
-  ↓
-IMDS
-  ↓
-Temporary Credentials
-  ↓
-Application
-  ↓
-AWS API
-```
-
-| Term | Meaning |
-|---|---|
-| IAM role | Identity with permissions and trust policy |
-| Instance profile | Container used to pass a role to EC2 |
-| Temporary credentials | Short-lived credentials delivered to the instance |
-| Least privilege | Grant only the permissions required |
-
-### Interview Checkpoint — Bootstrap, Metadata and IAM
-
-| Question | Answer |
-|---|---|
-| What is user data? | Launch-time bootstrap configuration. |
-| Is user data secure for passwords? | No. Use Secrets Manager, Parameter Store or IAM roles. |
-| What is IMDS? | A service that provides instance information from inside EC2. |
-| What is the difference between IMDSv1 and IMDSv2? | IMDSv2 uses a session token and provides stronger protection against certain credential-access paths. |
-| Why use IAM roles on EC2? | They provide temporary credentials without storing permanent access keys. |
-| What is an instance profile? | The mechanism that associates an IAM role with an EC2 instance. |
-| How can you troubleshoot user data? | Check cloud-init status and `/var/log/cloud-init-output.log`. |
-
----
-
-# 4. EC2 Networking
-
-## Network hierarchy
-
-```text
-Region
-  ↓
-Availability Zone
-  ↓
-VPC
-  ↓
-Subnet
-  ↓
-ENI
-  ↓
-EC2 Instance
-```
-
-| Component | Responsibility |
-|---|---|
-| VPC | Logical network boundary |
-| Subnet | IP range within one AZ |
-| Route table | Determines next hop |
-| Internet Gateway | Internet connectivity for public routing |
-| NAT Gateway | Outbound internet access from private subnets |
-| ENI | Network interface attached to EC2 |
-| Security group | Stateful instance-level filtering |
-| NACL | Stateless subnet-level filtering |
-
-## Private IPv4, Public IPv4 and Elastic IP
-
-| Property | Private IPv4 | Auto-assigned public IPv4 | Elastic IP |
-|---|---|---|---|
-| VPC communication | Yes | Yes | Yes |
-| Internet-routable | No | Yes | Yes |
-| Stable across stop/start | Usually yes | No | Yes |
-| Typical use | Internal traffic | Temporary public access | Stable public endpoint |
-
-> Prefer DNS names over hard-coding public IP addresses for application endpoints.
-
-## Public subnet vs private subnet
-
-| Public subnet | Private subnet |
-|---|---|
-| Route to an Internet Gateway | No direct route to an Internet Gateway |
-| Instance may have public IPv4 | Instance normally has no public IPv4 |
-| Suitable for public-facing components | Suitable for backend systems |
-| Inbound access still requires security rules | Outbound internet may use NAT Gateway |
-
-### Private subnet internet access
-
-```text
-Private EC2
-  ↓
-Private route table
-  ↓
-NAT Gateway
-  ↓
-Internet Gateway
-  ↓
-Internet
-```
-
-A public IP alone is not enough. Routing, security groups, NACLs and the gateway path must also be correct.
-
-## Elastic Network Interface (ENI)
-
-An ENI can contain:
-
-| ENI attribute | Example |
-|---|---|
-| Primary private IPv4 | `10.0.1.10` |
-| Secondary private IPv4s | Additional application addresses |
-| IPv6 addresses | IPv6 connectivity |
-| Security groups | Traffic control |
-| MAC address | Interface identity |
-| Subnet association | Network placement |
-
-### Interview Checkpoint — Networking
-
-| Question | Answer |
-|---|---|
-| Can a subnet span multiple AZs? | No. A subnet belongs to one Availability Zone. |
-| Is a public IP enough for internet access? | No. A valid route through an Internet Gateway and appropriate security rules are also required. |
-| How does a private EC2 instance download patches? | Route outbound traffic through a NAT Gateway, or use suitable VPC endpoints where supported. |
-| What is an ENI? | A virtual network interface with IP addresses, security groups and subnet association. |
-| What happens to an auto-assigned public IP after stop/start? | It is released on stop and a new one may be assigned on start. |
-| How do you retain a stable public IPv4? | Associate an Elastic IP when a static address is genuinely required. |
-| What is the difference between SG and NACL? | SG is stateful and attached to ENIs; NACL is stateless and applies at subnet level. |
-| Why is a private subnet preferred for backend EC2? | It reduces direct internet exposure and allows controlled access through load balancers, bastions, SSM or private connectivity. |
-
----
-
-# 5. EC2 Storage
-
-## Storage models
-
-| Storage | Description | Use |
-|---|---|---|
-| EBS | Persistent network-attached block storage | OS, databases, application data |
-| Instance Store | Local ephemeral block storage | Cache, scratch and temporary data |
-
-## EBS
-
-Amazon Elastic Block Store provides persistent block storage for EC2.
-
-| Capability | EBS |
-|---|---|
-| Root volume | Supported |
-| Data volume | Supported |
-| Encryption | Supported |
-| Snapshots | Supported |
-| Resize | Supported for supported configurations |
-| Persistence | Independent of normal instance stop/start |
-
-### Example: format and mount a Linux EBS volume
-
-```bash
-lsblk
-
-sudo mkfs.ext4 /dev/xvdf
-sudo mkdir -p /data
-sudo mount /dev/xvdf /data
-
-df -h
-```
-
-> Confirm the device name with `lsblk`. Formatting the wrong device destroys data.
-
-## Instance Store
-
-Instance Store is local storage available only on supported instance types.
-
-| Advantage | Limitation |
-|---|---|
-| Very low latency | Ephemeral |
-| High local I/O | Not durable application storage |
-| High throughput | Data can be lost when the instance or host lifecycle requires it |
-
-Good uses:
-
-- Cache
-- Scratch space
-- Temporary processing files
-- Re-creatable intermediate data
-
-Bad use:
-
-```text
-Only copy of important database data
-```
-
-## EBS vs Instance Store
-
-| Feature | EBS | Instance Store |
-|---|---|---|
-| Attachment | Network-attached | Host-local |
-| Persistence | Persistent | Ephemeral |
-| Survives normal stop | Yes | No |
-| Snapshot support | Yes | No EBS-style snapshot |
-| Best for | OS and durable data | Cache and scratch |
-| Performance | Good to very high | Very high local I/O |
-
-## gp3
-
-`gp3` is a general-purpose SSD EBS volume type.
-
-| Property | Typical gp3 baseline/limit |
-|---|---:|
-| Size | 1 GiB–64 TiB |
-| Baseline IOPS | 3,000 |
-| Baseline throughput | 125 MiB/s |
-| Maximum provisioned IOPS | Up to 80,000 |
-| Maximum provisioned throughput | Up to 2,000 MiB/s |
-
-Actual limits depend on the volume, instance and Region.
-
-### Interview Checkpoint — Storage
-
-| Question | Answer |
-|---|---|
-| What is EBS? | Persistent block storage designed for EC2. |
-| What is Instance Store? | Local ephemeral storage available on supported instance types. |
-| When should EBS be used? | When data must survive instance stop/start and host lifecycle changes. |
-| When should Instance Store be used? | For temporary, cache or recreatable high-performance data. |
-| What is gp3? | General-purpose SSD EBS with independently provisioned storage, IOPS and throughput. |
-| What is the difference between EBS and Instance Store? | EBS is persistent network storage; Instance Store is local and ephemeral. |
-| What is a snapshot? | A point-in-time backup of an EBS volume stored in AWS. |
-| What happens to EBS on termination? | Deletion depends on the volume’s `DeleteOnTermination` setting. |
-
----
 
 # 6. EC2 Lifecycle
 
@@ -679,11 +269,9 @@ aws ec2 describe-instances \
 | Difference between stop and terminate? | A stopped instance can be started again; a terminated instance is permanently removed. |
 | What happens to private IP on stop/start? | The private IP on the persistent ENI is normally retained. |
 | What happens to auto-assigned public IP? | It is released on stop and may change after start. |
-| What is hibernation? | RAM state is saved to the root EBS volume and restored later, where supported. |
-| What is `DeleteOnTermination`? | An EBS setting that controls whether a volume is deleted with the instance. |
-| Do EBS charges stop when an instance is stopped? | No. EBS storage charges continue while the volume exists. |
 
 ---
+
 
 # 7. EC2 Pricing Options
 
@@ -731,11 +319,9 @@ A normal Spot interruption provides a two-minute notice. A **rebalance recommend
 | What is a Reserved Instance? | A pricing commitment for eligible EC2 configurations, not a separate instance type. |
 | What is a Savings Plan? | A commitment to eligible compute spend in exchange for discounted pricing. |
 | What is a Spot Instance? | Discounted spare EC2 capacity that can be interrupted. |
-| How much normal Spot interruption notice is provided? | Two minutes. |
-| What is a rebalance recommendation? | A signal that the instance has elevated interruption risk. |
-| How do you design resilient Spot capacity? | Use multiple instance types, AZs and capacity pools, plus checkpointing and replacement. |
 
 ---
+
 
 # 8. Placement Groups and Tenancy
 
@@ -762,419 +348,5 @@ A normal Spot interruption provides a two-minute notice. A **rebalance recommend
 | Cluster vs Spread? | Cluster optimizes low latency; Spread isolates individual instances. |
 | What is Partition placement? | It separates instances into partitions to reduce correlated failures. |
 | Which placement group suits Kafka? | Partition placement is commonly suitable for distributed systems such as Kafka. |
-| Dedicated Instance vs Dedicated Host? | Dedicated Instance provides dedicated hardware for instances; Dedicated Host allocates the entire physical server. |
-
----
-
-# 9. Security Groups and Key Pairs
-
-## Security Groups
-
-A Security Group is a **stateful virtual firewall** associated with an ENI.
-
-| Characteristic | Security Group |
-|---|---|
-| Scope | ENI/resource level |
-| State | Stateful |
-| Rules | Allow only |
-| Explicit deny | Not supported |
-| Return traffic | Automatically allowed for permitted flows |
-| Evaluation | All applicable rules are evaluated |
-
-### Recommended application pattern
-
-```text
-Internet
-  ↓ HTTPS 443
-Application Load Balancer
-  ↓ Application port
-EC2 Target Security Group
-```
-
-The EC2 security group should normally allow application traffic from the ALB security group rather than from `0.0.0.0/0`.
-
-## Key pairs
-
-Key pairs are commonly used for SSH access to Linux EC2 instances.
-
-```bash
-chmod 400 devops.pem
-ssh -i devops.pem ubuntu@<public-ip>
-```
-
-Best practices:
-
-| Practice | Reason |
-|---|---|
-| Never commit private keys | Prevent credential exposure |
-| Restrict SSH source IPs | Reduce attack surface |
-| Prefer SSM Session Manager | Avoid direct SSH and key distribution |
-| Use least privilege | Limit impact of compromise |
-
-### Interview Checkpoint — Security
-
-| Question | Answer |
-|---|---|
-| What is a Security Group? | A stateful virtual firewall attached to an ENI. |
-| Can a Security Group contain deny rules? | No, it supports allow rules only. |
-| What does stateful mean? | Return traffic for an allowed connection is automatically permitted. |
-| How should EC2 be protected behind an ALB? | Allow the backend SG to receive application traffic from the ALB SG. |
-| What is a key pair? | A public/private key pair used for supported EC2 access methods such as SSH. |
-| Why prefer SSM over SSH? | It reduces exposed ports and avoids managing private SSH keys on administrators’ machines. |
-
----
-
-# 10. Monitoring and Troubleshooting
-
-## EC2 status checks
-
-| Check | Detects |
-|---|---|
-| System status check | Underlying AWS infrastructure or host problems |
-| Instance status check | Guest OS, boot or networking problems |
-| EBS status information | Storage I/O-related issues where reported |
-
-## Useful CloudWatch metrics
-
-| Metric | Meaning |
-|---|---|
-| `CPUUtilization` | CPU usage |
-| `NetworkIn` | Incoming network bytes |
-| `NetworkOut` | Outgoing network bytes |
-| `DiskReadOps` | Read operations |
-| `DiskWriteOps` | Write operations |
-| `DiskReadBytes` | Read bytes |
-| `DiskWriteBytes` | Write bytes |
-| `StatusCheckFailed` | Failed status checks |
-
-> Standard EC2 metrics do not automatically provide guest OS memory utilization. Install an agent for memory metrics.
-
-## Troubleshooting: application unreachable
-
-| Check order | Command or area |
-|---:|---|
-| 1 | Instance state |
-| 2 | Security group |
-| 3 | NACL |
-| 4 | Route table and gateway |
-| 5 | Application listener |
-| 6 | OS firewall |
-| 7 | Load balancer target health |
-
-```bash
-ss -lntp
-curl http://localhost:<port>
-sudo systemctl status <service>
-sudo journalctl -u <service> -n 100 --no-pager
-```
-
-## Troubleshooting: SSH timeout
-
-| Check | Why |
-|---|---|
-| Instance running | Server may be stopped |
-| Public IP or bastion path | Correct destination |
-| SG TCP 22 | Inbound SSH access |
-| Route table | Return and forward path |
-| NACL | Stateless traffic rules |
-| OS firewall | Local filtering |
-| Key and username | Authentication after connectivity works |
-| SSM | Alternative access method |
-
-> A timeout usually indicates a connectivity/path problem, not necessarily an authentication problem.
-
-## Troubleshooting: EC2 has no internet access
-
-| Requirement | Check |
-|---|---|
-| Public subnet | Route to Internet Gateway |
-| Private subnet | Route to NAT Gateway or VPC endpoint |
-| Security group | Egress rules |
-| NACL | Both directions because it is stateless |
-| DNS | Resolver and hostname resolution |
-| Instance route | `ip route` |
-
-## Troubleshooting: AWS API access fails
-
-```text
-IAM Role
-  ↓
-Instance Profile
-  ↓
-IMDS / Credentials
-  ↓
-IAM Permissions
-  ↓
-Network path to AWS API
-```
-
-Do not solve this by placing permanent access keys on the instance.
-
-### Interview Checkpoint — Monitoring and Troubleshooting
-
-| Scenario question | Expected answer structure |
-|---|---|
-| EC2 is running but app is unreachable | Check SG → NACL → route → listener → OS firewall → target health. |
-| SSH times out | Check state, route, SG TCP 22, NACL, public/bastion path and OS firewall. |
-| Private EC2 cannot download packages | Check NAT route, NAT subnet, IGW, SG/NACL and DNS. |
-| AWS CLI works locally but not on EC2 | Check instance profile, IAM permissions, IMDS and network access. |
-| EC2 stopped unexpectedly | Check CloudTrail, state-change events, Spot events and ASG activity. |
-| CPU is normal but application is slow | Check memory, disk I/O, network, application logs and dependency latency. |
-
----
-
-# 11. Launch Templates and Auto Scaling
-
-## Launch Template
-
-A Launch Template defines how EC2 instances should be launched.
-
-| Setting | Example |
-|---|---|
-| AMI | Golden application AMI |
-| Instance type | `t3.small` |
-| Security groups | Application SG |
-| IAM profile | EC2 SSM role |
-| User data | Bootstrap script |
-| EBS mappings | Root and data volumes |
-| Network settings | Subnet/ENI configuration |
-| Monitoring | Detailed monitoring |
-| Metadata options | IMDSv2 requirement |
-
-## Auto Scaling Group (ASG)
-
-An ASG maintains a desired number of EC2 instances and can replace unhealthy instances or scale capacity.
-
-Example:
-
-| Setting | Value |
-|---|---:|
-| Minimum capacity | 2 |
-| Desired capacity | 3 |
-| Maximum capacity | 6 |
-
-```text
-Application Load Balancer
-          ↓
-Auto Scaling Group
-     ┌────┼────┐
-     ↓    ↓    ↓
-   EC2-1 EC2-2 EC2-3
-```
-
-### Replacement flow
-
-```text
-3 instances
-  ↓
-One instance fails
-  ↓
-2 healthy instances
-  ↓
-ASG launches replacement
-  ↓
-3 healthy instances
-```
-
-### Interview Checkpoint — Launch Templates and ASG
-
-| Question | Answer |
-|---|---|
-| What is a Launch Template? | A reusable definition for launching EC2 instances. |
-| Why use Launch Templates? | They standardize configuration and reduce manual errors. |
-| What is an ASG? | A construct that maintains and scales a fleet of EC2 instances. |
-| What is desired capacity? | The number of instances the ASG attempts to maintain. |
-| What happens when an ASG instance becomes unhealthy? | The ASG can terminate and replace it according to health-check configuration. |
-| Why combine ASG with ALB? | ALB distributes traffic while ASG scales and replaces instances. |
-| Why use multiple AZs in an ASG? | To reduce dependence on a single AZ and improve availability. |
-
----
-
-# 12. High Availability Architecture
-
-## Recommended production pattern
-
-```text
-                         Internet
-                            ↓
-                           ALB
-                       /         \
-                    AZ-A         AZ-B
-                      ↓            ↓
-                    EC2-1        EC2-2
-                      \            /
-                       Auto Scaling
-                            ↓
-                     Application tier
-```
-
-| Component | Role |
-|---|---|
-| ALB | Distributes traffic and performs health checks |
-| Target Group | Registers and checks EC2 targets |
-| Launch Template | Defines consistent instance configuration |
-| ASG | Maintains and scales capacity |
-| Multiple AZs | Reduces single-AZ dependency |
-| Security Groups | Restricts traffic paths |
-| CloudWatch | Metrics and alarms |
-| IAM Roles | Least-privilege AWS API access |
-
-### Interview Checkpoint — Architecture
-
-| Scenario question | Strong answer |
-|---|---|
-| Design a highly available EC2 web tier | ALB across AZs, ASG across multiple AZs, Launch Template, target health checks and restricted SGs. |
-| How do you avoid configuration drift? | Build and test a Golden AMI and use a Launch Template. |
-| How do you handle instance failure? | ASG health checks replace failed instances; ALB routes traffic only to healthy targets. |
-| How do you secure backend EC2? | Private subnets where appropriate, no direct public access, ALB-to-EC2 SG references and SSM access. |
-| How do you reduce cost for batch jobs? | Use Spot capacity with checkpointing and multiple capacity pools. |
-| How do you improve operational access? | Use Systems Manager Session Manager instead of exposing SSH broadly. |
-
----
-
-# 13. AWS CLI and Linux Cheat Sheet
-
-## EC2 lifecycle commands
-
-```bash
-aws ec2 describe-instances
-
-aws ec2 start-instances \
-  --instance-ids i-xxxxxxxxxxxxxxxxx
-
-aws ec2 stop-instances \
-  --instance-ids i-xxxxxxxxxxxxxxxxx
-
-aws ec2 reboot-instances \
-  --instance-ids i-xxxxxxxxxxxxxxxxx
-
-aws ec2 terminate-instances \
-  --instance-ids i-xxxxxxxxxxxxxxxxx
-```
-
-## Discovery commands
-
-```bash
-aws ec2 describe-instance-types
-aws ec2 describe-images --owners self
-aws ec2 describe-security-groups
-aws ec2 describe-network-interfaces
-aws ec2 describe-volumes
-aws ec2 describe-snapshots --owner-ids self
-aws ec2 describe-instance-status
-aws ec2 describe-tags
-```
-
-## Linux diagnostics
-
-| Purpose | Command |
-|---|---|
-| Host/kernel | `uname -a` |
-| Hostname | `hostname` |
-| IP addresses | `ip addr` |
-| Routes | `ip route` |
-| Listening ports | `ss -lntp` |
-| Disk devices | `lsblk` |
-| Disk usage | `df -h` |
-| Memory | `free -h` |
-| Load | `uptime` |
-| Processes | `top` |
-| Service status | `systemctl status <service>` |
-| Service logs | `journalctl -u <service>` |
-| Local application test | `curl http://localhost:<port>` |
-
----
-
-# 14. Final Interview Revision
-
-## Frequently Asked Questions
-
-| Question | Short answer |
-|---|---|
-| EC2 vs Lambda? | EC2 provides server control; Lambda runs event-driven code without server management. |
-| AMI vs snapshot? | AMI launches EC2; an EBS snapshot backs up a volume. |
-| Private IP vs Elastic IP? | Private IP is internal; Elastic IP is a static public IPv4. |
-| SG vs NACL? | SG is stateful/ENI-level; NACL is stateless/subnet-level. |
-| Stop vs terminate? | Stop allows restart; terminate permanently removes the instance. |
-| EBS vs Instance Store? | EBS is persistent; Instance Store is ephemeral. |
-| On-Demand vs Spot? | On-Demand is predictable capacity; Spot is discounted and interruptible. |
-| Launch Template vs AMI? | AMI is the image; Launch Template defines the complete launch configuration. |
-| ASG vs Launch Template? | Launch Template defines instances; ASG maintains and scales the fleet. |
-| Why multiple AZs? | To improve availability and reduce failure-domain dependency. |
-| Why use IAM role? | To avoid long-lived credentials on the instance. |
-| Why use IMDSv2? | It adds token-based protection for metadata access. |
-| What is gp3? | General-purpose SSD EBS with separately provisioned performance. |
-| What is user data? | Launch-time bootstrap configuration. |
-| What is a Golden AMI? | A tested, preconfigured image for consistent deployments. |
-
-## Scenario-Based Questions
-
-| Scenario | What the interviewer expects |
-|---|---|
-| EC2 is running but port 8080 is unreachable | Network path, SG, NACL, route, listener and OS firewall analysis |
-| Private EC2 cannot run `apt update` | NAT Gateway route, gateway path, DNS and egress checks |
-| EC2 cannot access S3 | IAM role, instance profile, IMDS, endpoint/NAT and bucket permissions |
-| Public IP changed after restart | Explain auto-assigned public IPv4 behavior and Elastic IP |
-| ASG keeps replacing instances | Check health checks, bootstrap failure, AMI, user data and target health |
-| Spot instance is interrupted | Checkpoint, drain, replace and diversify capacity |
-| Disk is full | `df -h`, `du`, log cleanup, volume expansion and filesystem resize |
-| Application is slow but CPU is low | Memory, disk I/O, network, dependencies and application logs |
-| Need secure admin access without SSH | SSM Session Manager with IAM permissions and agent connectivity |
-| Need identical servers across environments | Golden AMI plus Launch Template and automated provisioning |
-
-## Interview Answer Framework
-
-Use this structure for scenario questions:
-
-| Step | Explain |
-|---:|---|
-| 1 | State the likely failure domain |
-| 2 | Explain the checks in order |
-| 3 | Give one or two commands |
-| 4 | Explain the fix |
-| 5 | Mention the preventive design |
-
-Example:
-
-> **Question:** EC2 is running but the application is unreachable.  
-> **Answer:** I first verify instance state and target health. Then I check the security group, NACL, route table, subnet gateway path, application listener and OS firewall. I use `ss -lntp` and `curl localhost:<port>` to separate an application issue from a network issue. Finally, I review logs and add monitoring or health checks to prevent recurrence.
-
----
-
-# 15. References
-
-## Official AWS documentation
-
-| Topic | Reference |
-|---|---|
-| EC2 User Guide | [AWS EC2 User Guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/) |
-| Instance Types | [EC2 Instance Types](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-types.html) |
-| AMIs | [Amazon Machine Images](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) |
-| User Data | [EC2 User Data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) |
-| Metadata | [EC2 Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) |
-| IMDS retrieval | [Access Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html) |
-| IAM roles | [IAM Roles for EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) |
-| Lifecycle | [EC2 Instance Lifecycle](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html) |
-| Stop/Start | [Stop and Start EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/how-ec2-instance-stop-start-works.html) |
-| EBS | [Amazon EBS User Guide](https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html) |
-| gp3 | [EBS General Purpose SSD](https://docs.aws.amazon.com/ebs/latest/userguide/general-purpose.html) |
-| Spot | [EC2 Spot Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html) |
-| Placement Groups | [EC2 Placement Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html) |
-| Security Groups | [EC2 Security Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html) |
-| Launch Templates | [EC2 Launch Templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html) |
-| Auto Scaling | [EC2 Auto Scaling](https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html) |
-| Pricing | [Amazon EC2 Pricing](https://aws.amazon.com/ec2/pricing/) |
-
-## Interview research
-
-The interview checkpoints were expanded around recurring themes found in:
-
-- [GeeksforGeeks — AWS Interview Questions](https://www.geeksforgeeks.org/cloud-computing/aws-interview-questions/)
-- [GeeksforGeeks — AWS Solutions Architect Interview Questions](https://www.geeksforgeeks.org/blogs/aws-solution-architect-associate-job-interview-questions-and-answers/)
-- [EC2 Interview Questions — InterviewQuestions.guru](https://interviewquestions.guru/aws-ec2-interview-questions/)
-- [AWS EC2 Interview Questions — MyInternships](https://myinternships.in/aws-interview-questions/ec2)
-
-> **Note:** AWS limits, supported instance families, pricing, defaults and service behavior can change. Verify production decisions against current AWS documentation for the exact Region, instance type and configuration.
-
 
 ---
