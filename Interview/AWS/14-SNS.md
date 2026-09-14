@@ -1,4 +1,4 @@
-# Amazon SNS — Senior DevOps Notes
+# Amazon SNS
 
 ## 1. What is Amazon SNS?
 
