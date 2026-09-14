@@ -1,4 +1,4 @@
-# AWS Lambda — Senior DevOps Notes
+# AWS Lambda
 
 ## 1. Lambda Fundamentals
 
