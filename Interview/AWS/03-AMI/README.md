@@ -80,6 +80,7 @@ EBS-backed AMI
     v
 New EC2 instance with new EBS volume
 ```
+---
 
 ## 5. What happens to EBS snapshots when an AMI is created?
 
@@ -128,20 +129,25 @@ aws ec2 create-image \
 ## 8. Can an AMI be deleted while instances launched from it are running?
 
 **Answer:** Yes. Deregistering an AMI does not terminate existing instances launched from it. Those instances continue running, but the deregistered AMI cannot be used for new launches.
-
 ---
 
 ## 9. Can AMIs be copied across Regions?
 
 **Answer:** Yes. EBS-backed AMIs can be copied to another AWS Region. AWS copies the required snapshots to the destination Region and creates a new AMI there.
 
+---
+
 ## 10. Does copying an AMI preserve the AMI ID?
 
 **Answer:** No. The copied AMI receives a different AMI ID in the destination Region.
 
+---
+
 ## 11. Can AMIs be shared with another AWS account?
 
 **Answer:** Yes. An AMI owner can grant launch permissions to specific AWS accounts. Sharing does not transfer ownership.
+
+---
 
 ## 12. What is an AMI launch permission?
 
@@ -167,6 +173,8 @@ An AMI can be:
 - Standard configuration
 - Security hardening
 - Validation results
+
+---
 
 ## 14. Why use a golden AMI?
 
@@ -241,6 +249,8 @@ Keep:
 - Baseline security settings
 - Reusable application dependencies
 
+---
+
 ## 17. Why should secrets not be baked into an AMI?
 
 **Answer:** Every instance launched from the AMI may inherit the baked-in secret. This increases the impact of image sharing, copying, accidental exposure, and compromise.
@@ -262,6 +272,8 @@ Use a secure runtime configuration mechanism instead of embedding secrets in the
 - Distribution settings
 
 It can install updates and software, apply configuration, run validation tests, and distribute the resulting AMI to selected Regions or accounts.
+
+---
 
 ## 19. What are the main EC2 Image Builder concepts?
 
