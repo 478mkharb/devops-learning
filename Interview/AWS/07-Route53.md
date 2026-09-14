@@ -42,6 +42,8 @@ The VPC must have DNS resolution and DNS hostnames appropriately enabled for nor
 
 **Answer:** An authoritative DNS server stores the definitive DNS records for a DNS zone and provides authoritative answers for names within that zone.
 
+<img width="582" height="445" alt="image" src="https://github.com/user-attachments/assets/96daecf7-4225-4301-9204-5f3f6a272919" />
+
 In Route 53, the name servers assigned to a public hosted zone are authoritative for that zone.
 
 ---
