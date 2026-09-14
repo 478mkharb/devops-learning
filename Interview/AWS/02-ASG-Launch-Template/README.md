@@ -1,404 +1,647 @@
-# Auto Scaling Group & Launch Template
+# AWS Launch Templates & Auto Scaling Groups — Interview and Practical Notes
 
-### Q1. What is a Launch Template?
+> **Scope:** This document covers only **Amazon EC2 Launch Templates** and **EC2 Auto Scaling Groups (ASGs)**, including how they work together.  
+> **Excluded:** Detailed EC2 fundamentals, EBS, IAM, VPC networking, ENI, Security Groups, NACLs, Load Balancers, CloudWatch, and other separate AWS services.
 
-**Answer:** A Launch Template is a reusable EC2 launch specification. It can define the AMI, instance type, IAM instance profile, networking and security groups, EBS mappings, user data, monitoring, and instance metadata options. It is versioned so ASGs and other launch mechanisms can use a controlled configuration.
+## Table of Contents
 
----
-
-### Q2. What information belongs in a Launch Template?
-
-**Answer:** A Launch Template can contain the AMI, instance type, key pair if used, IAM instance profile, network interfaces and security groups, EBS volume mappings, user data, monitoring settings, and instance metadata options. It can therefore provide a complete, repeatable instance-launch definition.
-
----
-
-### Q3. Why is a Launch Template preferred over a Launch Configuration?
-
-**Answer:** A Launch Configuration is the older Auto Scaling launch specification. It defines settings used when launching instances, but it is less capable than Launch Templates and does not provide Launch Template versioning. Launch Templates are the preferred choice for new designs.
-
----
-
-### Q4. What is Launch Template versioning?
-
-**Answer:** Each Launch Template can have multiple numbered versions. A new version records a new launch configuration without changing earlier versions, which allows controlled rollouts and rollback to a known configuration.
+1. [Launch Templates](#1-launch-templates)
+2. [Auto Scaling Groups](#2-auto-scaling-groups)
+3. [Launch Template and ASG Relationship](#3-launch-template-and-asg-relationship)
+4. [ASG Capacity Settings](#4-asg-capacity-settings)
+5. [Scaling Policies](#5-scaling-policies)
+6. [Health Checks and Instance Replacement](#6-health-checks-and-instance-replacement)
+7. [Instance Refresh and Rolling Replacement](#7-instance-refresh-and-rolling-replacement)
+8. [Common Operational Scenarios](#8-common-operational-scenarios)
+9. [AWS CLI Examples](#9-aws-cli-examples)
+10. [Interview Checkpoints](#10-interview-checkpoints)
 
 ---
 
-### Q5. How does an ASG select a Launch Template version?
+# 1. Launch Templates
 
-**Answer:** An ASG references a Launch Template together with a version. The version can be a specific numbered version or a special reference such as the default/latest version, depending on the ASG configuration. Using an explicit version gives the most predictable launches.
+## What is a Launch Template?
 
----
+An **EC2 Launch Template** is a reusable definition of how EC2 instances should be launched.
 
-### Q6. What is an Auto Scaling Group?
+It stores launch parameters so that the same configuration can be reused consistently by an ASG, EC2 console, CLI, or other AWS services.
 
-**Answer:** An Auto Scaling Group (ASG) maintains a fleet of EC2 instances within configured minimum, desired, and maximum capacity. It can launch and terminate instances, replace unhealthy instances, and change capacity in response to scaling policies or schedules.
+## Common Launch Template settings
 
----
-
-### Q7. Explain minimum, desired, and maximum capacity.
-
-**Answer:** Minimum capacity is the lowest number of instances the ASG should maintain. Desired capacity is the current target number of instances. Maximum capacity is the upper limit to which the ASG can scale.
-
-**Example:**
-
-```text
-Min     = 2
-Desired = 4
-Max     = 10
-```
-
-The ASG normally maintains 4 instances. It can scale out up to 10 and should not scale below 2.
-
----
-
-### Q8. What is health-check replacement?
-
-**Answer:** ASG health-check replacement means the group terminates an instance that is considered unhealthy and launches a replacement so the group can return to its desired capacity. The group can use EC2 status checks and, when configured, ELB health checks.
-
----
-
-### Q9. How does an ASG replace an unhealthy instance?
-
-**Answer:** When the ASG determines that an instance is unhealthy, it marks the instance for replacement, terminates it, and launches a replacement according to the group's Launch Template and capacity settings. With ELB health checks enabled, an instance can also be replaced when the load balancer reports it unhealthy.
-
----
-
-### Q10. What is a warm pool?
-
-**Answer:** An ASG warm pool keeps pre-initialized instances outside the active InService fleet so they can be brought into service faster during scale-out. It is especially useful when application initialization or bootstrapping takes significant time.
-
----
-
-### Q11. What is target tracking scaling?
-
-**Answer:** Target tracking scaling automatically adjusts ASG capacity to keep a selected metric near a target value, such as average CPU utilization or request count per target. It is generally the simplest policy when the goal is to maintain a stable metric target.
-
-**Example:**
-
-```text
-Target CPU = 50%
-
-CPU rises to 70% → ASG scales out
-CPU falls to 30% → ASG can scale in
-Goal             → Keep CPU around 50%
-```
-
-You specify the target rather than manually defining the number of instances to add for every metric value.
-
----
-
-### Q12. What is step scaling?
-
-**Answer:** Step scaling uses CloudWatch alarm breaches and different scaling adjustments for different ranges of metric deviation. For example, a severe CPU breach can add more instances than a small breach.
-
-**Example:**
-
-| CPU utilization | Scaling action |
-|---|---:|
-| 50%–60% | Add 1 instance |
-| 60%–70% | Add 2 instances |
-| Above 70% | Add 3 instances |
-
-The important point is that **the size of the scaling action depends on the size of the metric breach**.
-
----
-
-### Q13. What is simple scaling?
-
-**Answer:** Simple scaling performs a single scaling adjustment when a CloudWatch alarm is breached and historically relies on a cooldown period before another simple scaling action. Target tracking and step scaling are generally preferred for modern ASGs.
-
-**Example:**
-
-```text
-CPU > 70%
-    ↓
-CloudWatch alarm
-    ↓
-Add 2 instances
-    ↓
-Cooldown
-```
-
-Unlike step scaling, the same predefined adjustment is used rather than defining different adjustments for different breach ranges.
-
----
-
-### Q14. What is scheduled scaling?
-
-**Answer:** Scheduled scaling changes ASG capacity at predefined times. It is appropriate when demand is predictable, such as a workload that consistently needs more instances during business hours.
-
-**Example:**
-
-```text
-08:00 → Desired capacity = 5
-20:00 → Desired capacity = 2
-```
-
-This is useful when the traffic pattern is known in advance.
-
----
-
-### Q15. What is predictive scaling?
-
-**Answer:** Predictive scaling uses historical utilization patterns and forecasting to prepare EC2 capacity ahead of expected demand. It is useful for recurring traffic patterns and complements reactive scaling policies.
-
-**Example:**
-
-```text
-Historical traffic
-       ↓
-AWS forecasting
-       ↓
-Expected traffic increase at 09:00
-       ↓
-Capacity prepared before demand arrives
-```
-
-The key difference from scheduled scaling is that predictive scaling uses **forecasted demand**, while scheduled scaling uses a **predefined schedule**.
-
----
-
-### Q16. Compare target tracking, step, simple, scheduled, and predictive scaling.
-
-**Answer:** Each policy answers a different scaling requirement.
-
-| Policy | Trigger | Scaling decision | Example |
-|---|---|---|---|
-| **Target tracking** | Metric moves away from target | AWS automatically adjusts capacity toward the target | Keep CPU around 50% |
-| **Step scaling** | CloudWatch alarm + size of metric breach | Different adjustments for different breach ranges | CPU 60% → +1, CPU 80% → +3 |
-| **Simple scaling** | CloudWatch alarm | One predefined adjustment | CPU > 70% → +2 |
-| **Scheduled scaling** | Predetermined time | Predefined capacity/adjustment | 08:00 → 5 instances |
-| **Predictive scaling** | Forecasted future demand | Prepares capacity ahead of expected demand | Forecast traffic spike → scale before spike |
-
-### Quick distinction
-
-```text
-Target Tracking → "Keep the metric at X"
-Step Scaling    → "How far did the metric breach?"
-Simple Scaling  → "Alarm fired → perform this action"
-Scheduled       → "At this time → change capacity"
-Predictive      → "Demand is forecasted → prepare capacity"
-```
-
----
-
-### Q17. Which policy is generally simplest for maintaining a target metric?
-
-**Answer:** **Target tracking scaling** is generally the simplest choice when the requirement is to maintain a metric around a target.
-
-For example:
-
-```text
-Target CPU = 50%
-```
-
-The ASG automatically adjusts capacity to keep the metric close to that target.
-
----
-
-### Q18. Can an ASG use multiple scaling policies?
-
-**Answer:** Yes. An ASG can have multiple scaling policies, for example target tracking for CPU utilization and another policy for request count. The policies operate within the group's minimum and maximum capacity limits, and scale-in behavior is coordinated to avoid unnecessarily aggressive reduction.
-
-**Example:**
-
-```text
-                    ASG
-                     │
-          ┌──────────┴──────────┐
-          ↓                     ↓
-   CPU Target Tracking    Request-based policy
-       CPU = 50%          Requests/Target
-          │                     │
-          └──────────┬──────────┘
-                     ↓
-              ASG capacity
-```
-
-Multiple policies are useful when different signals provide important information about application load.
-
----
-
-### Q19. What is a mixed instances policy?
-
-**Answer:** A mixed instances policy allows an ASG to launch multiple EC2 instance types and combine purchasing options such as On-Demand and Spot. This improves capacity flexibility and can reduce cost.
-
-**Example:**
-
-```text
-ASG
-├── c7i.large
-├── c7a.large
-└── c6i.large
-
-Purchasing:
-├── On-Demand base capacity
-└── Spot additional capacity
-```
-
-This reduces dependence on a single instance type or Spot capacity pool.
-
----
-
-### Q20. How do On-Demand and Spot instances work together in an ASG?
-
-**Answer:** A mixed instances policy lets an ASG combine On-Demand and Spot instances. You can specify a base amount of On-Demand capacity and use Spot for additional capacity, with allocation strategies selecting suitable Spot pools. This balances availability and cost.
-
-**Example:**
-
-```text
-Desired capacity = 6
-On-Demand base   = 2
-Remaining        = 4 Spot
-
-Possible fleet:
-2 On-Demand + 4 Spot
-```
-
-The exact fleet can change as Spot capacity availability changes.
-
----
-
-### Q21. What are termination policies?
-
-**Answer:** ASG termination policies determine which instances are selected when the group needs to scale in. They can consider factors such as Availability Zone balance, launch-template version or configuration age, and instance age. The goal is to remove capacity while maintaining a balanced and predictable fleet.
-
-**Example:**
-
-If an ASG has:
-
-```text
-AZ-a → 4 instances
-AZ-b → 2 instances
-```
-
-and needs to terminate one instance, the termination process considers Availability Zone balance before selecting an instance to remove.
-
----
-
-### Q22. What is instance refresh?
-
-**Answer:** Instance Refresh replaces existing ASG instances with instances launched from a new Launch Template configuration. It supports controlled rollouts using health thresholds, warm-up, checkpoints, and rollback-related controls.
-
-**Example:**
-
-```text
-Old Launch Template v1
-        ↓
-ASG instances
-  EC2-1 EC2-2 EC2-3
-        ↓
-Instance Refresh
-        ↓
-Launch Template v2
-        ↓
-New instances replace old instances gradually
-```
-
-This is commonly used for AMI updates, application configuration changes, or security patches.
-
----
-
-### Q23. What are lifecycle hooks?
-
-**Answer:** A lifecycle hook pauses an EC2 instance during an ASG launch or termination transition. This gives time for custom actions such as bootstrapping, registration, connection draining, log collection, or cleanup before the instance continues to InService or terminates.
-
-**Example:**
-
-```text
-Launch
-  ↓
-Pending:Wait
-  ↓
-Install/configure application
-  ↓
-Complete lifecycle action
-  ↓
-InService
-```
-
-For termination:
-
-```text
-InService
-  ↓
-Terminating:Wait
-  ↓
-Drain connections / collect logs
-  ↓
-Complete lifecycle action
-  ↓
-Terminated
-```
-
----
-
-### Q24. How can lifecycle hooks delay termination or launch completion?
-
-**Answer:** During launch, a lifecycle hook can keep an instance in a pending lifecycle state while initialization or registration completes. During termination, it can keep the instance in a terminating state while connections are drained or cleanup runs. The lifecycle action must eventually be completed or it will time out according to the hook configuration.
-
----
-
-### Q25. What is a cooldown period?
-
-**Answer:** A scaling cooldown is a period intended to allow a previous scaling action to take effect before another simple scaling action occurs. Modern target tracking uses instance warmup to help prevent new instances from skewing scaling decisions.
-
-**Important distinction:**
-
-| Concept | Purpose |
+| Setting | Purpose |
 |---|---|
-| **Cooldown** | Historically associated with simple scaling; prevents another simple scaling action immediately after a previous one |
-| **Instance warmup** | Gives newly launched instances time to initialize before their metrics are fully considered for scaling decisions |
+| AMI ID | Defines the operating system and initial software |
+| Instance type | Defines the compute size, such as `t3.small` |
+| Key pair | Optional SSH login configuration |
+| Network settings | Defines subnet, network interfaces, and related launch settings |
+| Security groups | Defines the security groups attached during launch |
+| IAM instance profile | Defines the instance role, if required |
+| User data | Runs bootstrap commands during first boot |
+| Block device mappings | Defines attached storage devices |
+| Monitoring | Enables detailed EC2 monitoring, where configured |
+| Tags | Applies tags to launched resources |
+| Market options | Supports On-Demand or Spot launch settings |
+
+> A Launch Template can contain settings related to other AWS services. This document mentions them only as launch-template fields and does not explain those services separately.
+
+## Why use a Launch Template?
+
+- Avoids repeating the same launch configuration.
+- Reduces configuration drift.
+- Provides versioning.
+- Allows controlled updates.
+- Supports Auto Scaling Groups.
+- Makes instance replacement more consistent.
+- Helps standardize DevOps deployments.
+
+## Launch Template versions
+
+A Launch Template can have multiple versions.
+
+Example:
+
+```text
+Launch Template: dev-otms-notification-lt
+
+Version 1 → Ubuntu AMI + t3.small + old application configuration
+Version 2 → New AMI + t3.small + updated application configuration
+Version 3 → New AMI + t3.medium + updated configuration
+```
+
+One version can be marked as the **default version**.
+
+An ASG can use:
+
+- A specific Launch Template version.
+- The default version.
+- The latest version, when explicitly configured using the appropriate version reference.
+
+### Important point
+
+Creating a new Launch Template version does **not automatically replace existing ASG instances**. The ASG must be updated and, if required, an instance refresh or another replacement process must be initiated.
+
+## Launch Template vs Launch Configuration
+
+| Launch Template | Launch Configuration |
+|---|---|
+| Current recommended option | Older legacy option |
+| Supports versioning | No versioning |
+| Supports newer EC2 features | More limited |
+| Can be used with ASGs | Can be used with ASGs |
+| Preferred for new designs | Avoid for new designs |
 
 ---
 
-### Q26. What is default instance warmup?
+# 2. Auto Scaling Groups
 
-**Answer:** Default instance warmup is the ASG setting that specifies how long a newly launched instance is considered to be warming up before its metrics are fully considered for scaling decisions.
+## What is an Auto Scaling Group?
 
-The value is **configured for the ASG**; it should not be confused with the cooldown period. The effective warm-up behavior can also be influenced by scaling-policy and instance-refresh settings.
+An **Auto Scaling Group (ASG)** is a logical group of EC2 instances that maintains the desired number of instances and can automatically increase or decrease capacity according to scaling policies.
+
+An ASG helps provide:
+
+- Automatic instance replacement.
+- Capacity management.
+- Horizontal scaling.
+- Better workload resilience.
+- Controlled rolling replacement.
+- Distribution of instances across configured Availability Zones.
+
+## Main ASG settings
+
+| Setting | Meaning |
+|---|---|
+| Minimum capacity | Lowest number of instances the ASG should maintain |
+| Desired capacity | Target number of running instances |
+| Maximum capacity | Highest number of instances the ASG may launch |
+| Launch Template | Defines how new instances are launched |
+| Health check type | Determines how instance health is evaluated |
+| Health check grace period | Time allowed for a new instance to initialize |
+| Scaling policies | Rules for increasing or decreasing capacity |
+| Instance protection | Prevents selected instances from being terminated by scale-in |
+| Availability Zones | Locations in which ASG instances may be launched |
+| Termination policy | Helps select which instance to terminate during scale-in |
+
+## ASG capacity example
+
+```text
+Minimum capacity = 1
+Desired capacity = 2
+Maximum capacity = 4
+```
+
+Meaning:
+
+- The ASG tries to maintain 2 instances.
+- It should not normally go below 1 instance.
+- It can scale out up to 4 instances.
+- If an instance becomes unhealthy, the ASG can replace it.
+
+## ASG lifecycle
+
+```text
+ASG created
+    ↓
+Launches instances using Launch Template
+    ↓
+Instances enter service
+    ↓
+ASG checks desired capacity and health
+    ↓
+Scale out / scale in / replace unhealthy instances
+    ↓
+ASG maintains the required capacity
+```
 
 ---
 
-### Q27. What is the difference between cooldown and instance warmup?
+# 3. Launch Template and ASG Relationship
 
-**Answer:** They solve different problems.
+## How do they work together?
 
-| Feature | Cooldown | Instance warmup |
+The Launch Template defines **how an instance should be created**.
+
+The ASG defines **how many instances should exist and when capacity should change**.
+
+```text
+Launch Template
+    │
+    │ Defines instance configuration
+    ▼
+Auto Scaling Group
+    │
+    ├── Maintains desired capacity
+    ├── Launches new instances
+    ├── Replaces unhealthy instances
+    ├── Scales out
+    └── Scales in
+```
+
+## Example architecture
+
+```text
+Launch Template
+    ├── AMI
+    ├── Instance type
+    ├── User data
+    └── Instance configuration
+             │
+             ▼
+Auto Scaling Group
+    ├── Min = 1
+    ├── Desired = 2
+    ├── Max = 4
+    └── Scaling policies
+             │
+             ▼
+      EC2 Instances
+```
+
+## What happens when the Launch Template is updated?
+
+Example:
+
+```text
+Current:
+Launch Template version 1 → AMI v1
+
+Updated:
+Launch Template version 2 → AMI v2
+```
+
+The existing instances normally continue running with AMI v1.
+
+New instances launched after the ASG uses version 2 will use AMI v2.
+
+To replace existing instances with AMI v2, use an **instance refresh** or another controlled replacement strategy.
+
+## Recommended update sequence
+
+```text
+Create new Launch Template version
+            ↓
+Test the new version
+            ↓
+Update ASG to use the new version
+            ↓
+Start instance refresh
+            ↓
+Replace instances gradually
+            ↓
+Validate application health
+```
+
+---
+
+# 4. ASG Capacity Settings
+
+## Minimum, Desired, and Maximum
+
+| Setting | Example | Explanation |
+|---|---:|---|
+| Minimum | 1 | ASG should maintain at least one instance |
+| Desired | 2 | ASG attempts to maintain two instances |
+| Maximum | 4 | ASG cannot scale beyond four instances |
+
+## Scale-out
+
+Scale-out means increasing the number of instances.
+
+```text
+Desired capacity: 2
+        ↓
+High workload
+        ↓
+ASG launches instances
+        ↓
+Desired capacity: 3 or 4
+```
+
+## Scale-in
+
+Scale-in means decreasing the number of instances.
+
+```text
+Desired capacity: 4
+        ↓
+Low workload
+        ↓
+ASG terminates selected instances
+        ↓
+Desired capacity: 2
+```
+
+## Important rules
+
+- Desired capacity must be between minimum and maximum capacity.
+- The ASG cannot normally scale below minimum capacity.
+- The ASG cannot normally scale above maximum capacity.
+- Scaling policies can change desired capacity.
+- Manual desired-capacity changes can also affect the number of instances.
+- Updating the desired capacity is not the same as changing the minimum or maximum limits.
+
+---
+
+# 5. Scaling Policies
+
+## What is a scaling policy?
+
+A scaling policy defines when and how an ASG should change its desired capacity.
+
+## Common scaling policy types
+
+| Policy | Explanation | Typical use |
 |---|---|---|
-| Main purpose | Prevent rapid repeated simple scaling actions | Allow a newly launched instance to initialize |
-| Primarily associated with | Simple scaling | Target tracking and other modern ASG operations |
-| Applies to | Scaling action timing | Newly launched instances |
-| Goal | Let a previous scaling action settle | Prevent incomplete/new-instance metrics from misleading scaling decisions |
+| Manual scaling | Operator changes desired capacity | Planned capacity changes |
+| Simple scaling | Adds or removes a fixed amount after an alarm | Basic workloads |
+| Step scaling | Uses different adjustments for different alarm levels | Workloads with varying pressure |
+| Target tracking | Tries to maintain a target metric value | CPU or request-based scaling |
+| Scheduled scaling | Changes capacity at a known time | Predictable traffic |
+| Predictive scaling | Uses forecasting to plan capacity | Repeating usage patterns |
 
----
-
-### Q28. Give a practical example of choosing the right ASG scaling policy.
-
-**Answer:** Consider an e-commerce application:
+## Target tracking example
 
 ```text
-Normal traffic:
-50 requests/second
+Target average CPU = 50%
 
-Business-hour traffic:
-200 requests/second
-
-Known sale:
-Every Friday at 20:00
+Average CPU rises to 75%
+        ↓
+ASG increases desired capacity
+        ↓
+Average CPU moves toward 50%
 ```
 
-A reasonable design could be:
+Target tracking does not guarantee that the metric will remain exactly at the target. It attempts to keep the metric near the configured target.
 
-| Requirement | Suitable policy |
-|---|---|
-| Keep CPU around 50% during normal operation | Target tracking |
-| Add more capacity when CPU becomes severely overloaded | Step scaling |
-| Prepare for a known recurring Friday event | Scheduled scaling |
-| Prepare for recurring demand based on historical patterns | Predictive scaling |
-| Basic legacy alarm → fixed capacity adjustment | Simple scaling |
+## Scheduled scaling example
 
-In practice, you would not automatically configure every policy. Select the policy or combination that matches the workload's **traffic pattern, scaling signal, and response requirements**.
+```text
+09:00 → Desired capacity = 4
+18:00 → Desired capacity = 1
+```
+
+This is useful when traffic is predictable, such as business-hour workloads.
+
+## Scaling cooldown and warm-up
+
+Scaling decisions should account for instance startup time.
+
+If new instances need time to initialize, scaling too quickly can cause unnecessary launches.
+
+Important concepts include:
+
+- Instance warm-up.
+- Cooldown behavior.
+- Health check grace period.
+- Application initialization time.
 
 ---
+
+# 6. Health Checks and Instance Replacement
+
+## Why does an ASG use health checks?
+
+An ASG uses health checks to determine whether an instance should remain in service.
+
+If an instance is unhealthy, the ASG can terminate it and launch a replacement.
+
+## EC2 health check vs ELB health check
+
+| Health check | Meaning |
+|---|---|
+| EC2 health check | Checks the health status reported by EC2 |
+| Load Balancer health check | Checks application availability through the load balancer |
+
+An ASG can be configured to use EC2 health checks or, when integrated with a load balancer, additional load-balancer health information.
+
+## Health check grace period
+
+The grace period gives a newly launched instance time to initialize before health evaluation can cause replacement.
+
+Example:
+
+```text
+Instance launched
+    ↓
+Application starts
+    ↓
+Bootstrap completes
+    ↓
+Grace period ends
+    ↓
+Normal health evaluation
+```
+
+A grace period that is too short may cause healthy-but-slow instances to be replaced.
+
+A grace period that is too long may delay replacement of genuinely unhealthy instances.
+
+## Unhealthy instance replacement
+
+```text
+ASG desired capacity = 2
+
+Instance A → Healthy
+Instance B → Unhealthy
+        ↓
+ASG terminates Instance B
+        ↓
+ASG launches replacement Instance C
+        ↓
+ASG returns to desired capacity = 2
+```
+
+---
+
+# 7. Instance Refresh and Rolling Replacement
+
+## What is instance refresh?
+
+**Instance refresh** is an ASG feature used to replace existing instances gradually, usually after changing the Launch Template version.
+
+Common reasons:
+
+- New AMI.
+- Updated user data.
+- New application image.
+- New instance type.
+- Updated launch configuration.
+- Security or OS patching through a new image.
+
+## Instance refresh flow
+
+```text
+Create new Launch Template version
+            ↓
+Update ASG
+            ↓
+Start instance refresh
+            ↓
+Launch replacement instance
+            ↓
+Validate replacement
+            ↓
+Terminate old instance
+            ↓
+Repeat until refresh completes
+```
+
+## Minimum healthy percentage
+
+The minimum healthy percentage controls how much of the group should remain healthy during replacement.
+
+Example:
+
+```text
+ASG desired capacity = 4
+Minimum healthy percentage = 75%
+```
+
+The ASG should try to keep at least 3 instances healthy during the refresh.
+
+## Important operational checks
+
+Before starting an instance refresh:
+
+- Confirm the new Launch Template version works.
+- Verify bootstrap commands.
+- Check application startup time.
+- Ensure minimum healthy capacity is appropriate.
+- Confirm the ASG maximum capacity allows the replacement strategy.
+- Monitor refresh progress.
+- Stop or cancel the refresh if the new version is unhealthy.
+
+---
+
+# 8. Common Operational Scenarios
+
+## Scenario 1: ASG is launching the wrong AMI
+
+Possible causes:
+
+- ASG is using an older Launch Template version.
+- The ASG is configured to use the default version.
+- The new Launch Template version was created but not assigned to the ASG.
+- Existing instances were not replaced after the update.
+
+Check:
+
+```bash
+aws autoscaling describe-auto-scaling-groups \
+  --auto-scaling-group-names dev-otms-notification-asg \
+  --query "AutoScalingGroups[0].LaunchTemplate"
+```
+
+## Scenario 2: Launch Template was updated but running instances did not change
+
+This is expected behavior.
+
+A Launch Template version affects future launches. Existing instances are not automatically recreated merely because a new version exists.
+
+Solution:
+
+1. Update the ASG to the required version.
+2. Start an instance refresh.
+3. Monitor replacement health.
+
+## Scenario 3: ASG keeps replacing instances
+
+Possible causes:
+
+- Incorrect AMI.
+- User data failure.
+- Application startup failure.
+- Health check grace period too short.
+- Load-balancer health check failure.
+- Instance launch configuration problem.
+- Insufficient capacity for the selected instance type.
+
+## Scenario 4: ASG does not scale out
+
+Check:
+
+- Maximum capacity has not already been reached.
+- Scaling policy is attached to the correct ASG.
+- The scaling metric or alarm is functioning.
+- The ASG can launch the configured instance.
+- The Launch Template version is valid.
+- The scaling policy adjustment is appropriate.
+
+## Scenario 5: ASG does not scale in
+
+Check:
+
+- Desired capacity is already equal to minimum capacity.
+- Scale-in protection is enabled.
+- The scaling policy is not requesting scale-in.
+- The ASG is in the middle of an instance refresh.
+- Termination policies and lifecycle hooks are delaying termination.
+
+---
+
+# 9. AWS CLI Examples
+
+## Create a Launch Template
+
+```bash
+aws ec2 create-launch-template \
+  --launch-template-name dev-otms-notification-lt \
+  --version-description "Initial version" \
+  --launch-template-data '{
+    "ImageId": "ami-xxxxxxxxxxxxxxxxx",
+    "InstanceType": "t3.small",
+    "UserData": "BASE64_ENCODED_USER_DATA"
+  }'
+```
+
+## Create a new Launch Template version
+
+```bash
+aws ec2 create-launch-template-version \
+  --launch-template-name dev-otms-notification-lt \
+  --source-version 1 \
+  --version-description "Updated AMI" \
+  --launch-template-data '{
+    "ImageId": "ami-yyyyyyyyyyyyyyyyy"
+  }'
+```
+
+## View Launch Template versions
+
+```bash
+aws ec2 describe-launch-template-versions \
+  --launch-template-name dev-otms-notification-lt
+```
+
+## Create an ASG
+
+```bash
+aws autoscaling create-auto-scaling-group \
+  --auto-scaling-group-name dev-otms-notification-asg \
+  --launch-template \
+    LaunchTemplateName=dev-otms-notification-lt,Version='$Latest' \
+  --min-size 1 \
+  --desired-capacity 1 \
+  --max-size 1 \
+  --vpc-zone-identifier "subnet-xxxxxxxx,subnet-yyyyyyyy"
+```
+
+## Update ASG to use a specific Launch Template version
+
+```bash
+aws autoscaling update-auto-scaling-group \
+  --auto-scaling-group-name dev-otms-notification-asg \
+  --launch-template \
+    LaunchTemplateName=dev-otms-notification-lt,Version=2
+```
+
+## Start an instance refresh
+
+```bash
+aws autoscaling start-instance-refresh \
+  --auto-scaling-group-name dev-otms-notification-asg \
+  --preferences \
+    MinHealthyPercentage=75,InstanceWarmup=300
+```
+
+## Check instance refresh status
+
+```bash
+aws autoscaling describe-instance-refreshes \
+  --auto-scaling-group-name dev-otms-notification-asg
+```
+
+## Update desired capacity
+
+```bash
+aws autoscaling set-desired-capacity \
+  --auto-scaling-group-name dev-otms-notification-asg \
+  --desired-capacity 2
+```
+
+## Describe an ASG
+
+```bash
+aws autoscaling describe-auto-scaling-groups \
+  --auto-scaling-group-names dev-otms-notification-asg
+```
+
+---
+
+# 10. Interview Checkpoints
+
+| Question | Interview-ready answer |
+|---|---|
+| What is a Launch Template? | A reusable, versioned definition of how EC2 instances should be launched. |
+| What is an ASG? | A logical group that maintains EC2 capacity and can scale or replace instances automatically. |
+| What is the difference between a Launch Template and an ASG? | The Launch Template defines instance configuration; the ASG manages instance count, health, and scaling. |
+| Does creating a new Launch Template version replace running instances? | No. Existing instances continue running until an instance refresh or another replacement process is performed. |
+| What are minimum, desired, and maximum capacity? | Minimum is the lower limit, desired is the target capacity, and maximum is the upper limit. |
+| What is scale-out? | Increasing the number of EC2 instances in the ASG. |
+| What is scale-in? | Decreasing the number of EC2 instances in the ASG. |
+| Why is instance refresh used? | To replace existing instances gradually after a Launch Template or AMI update. |
+| What happens when an ASG instance becomes unhealthy? | The ASG can terminate the unhealthy instance and launch a replacement to maintain desired capacity. |
+| What is target tracking? | A scaling policy that attempts to maintain a selected metric near a target value. |
+| What is the difference between Launch Template and Launch Configuration? | Launch Templates support versioning and newer features and are preferred for new deployments. |
+| Why might an ASG repeatedly replace instances? | The instance may fail startup, bootstrap, EC2, or configured application health checks. |
+
+---
+
+## Final Revision
+
+```text
+Launch Template
+    = How to launch an EC2 instance
+
+Auto Scaling Group
+    = How many instances should run
+
+Scaling Policy
+    = When capacity should change
+
+Health Check
+    = Whether an instance is healthy
+
+Instance Refresh
+    = How to replace existing instances safely
+```
