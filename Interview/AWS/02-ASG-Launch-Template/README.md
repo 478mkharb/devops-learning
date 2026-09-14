@@ -290,37 +290,38 @@ A scaling policy defines when and how an ASG should change its desired capacity.
 
 ## Common scaling policy types
 
-| Policy | Explanation | Typical use |
+| Policy | Explanation | Example |
 |---|---|---|
-| Manual scaling | Operator changes desired capacity | Planned capacity changes |
-| Simple scaling | Adds or removes a fixed amount after an alarm | Basic workloads |
-| Step scaling | Uses different adjustments for different alarm levels | Workloads with varying pressure |
-| Target tracking | Tries to maintain a target metric value | CPU or request-based scaling |
-| Scheduled scaling | Changes capacity at a known time | Predictable traffic |
-| Predictive scaling | Uses forecasting to plan capacity | Repeating usage patterns |
+| Manual scaling | Operator changes desired capacity | Increase desired capacity from 2 to 4 before a planned event |
+| Simple scaling | Adds or removes a fixed amount after an alarm | CPU alarm triggers; add 2 instances |
+| Step scaling | Uses different adjustments for different alarm levels | CPU 70% → add 1; CPU 90% → add 3 |
+| Target tracking | Tries to maintain a target metric value | Maintain average CPU near 50% |
+| Scheduled scaling | Changes capacity at a known time | 09:00 → 5 instances; 18:00 → 2 instances |
+| Predictive scaling | Uses forecasting to plan capacity | Forecasted morning traffic causes capacity to increase in advance |
 
-## Target tracking example
-
-```text
-Target average CPU = 50%
-
-Average CPU rises to 75%
-        ↓
-ASG increases desired capacity
-        ↓
-Average CPU moves toward 50%
-```
-
-Target tracking does not guarantee that the metric will remain exactly at the target. It attempts to keep the metric near the configured target.
-
-## Scheduled scaling example
+### Quick examples
 
 ```text
-09:00 → Desired capacity = 4
-18:00 → Desired capacity = 1
-```
+Manual:
+Operator changes Desired capacity: 2 → 4
 
-This is useful when traffic is predictable, such as business-hour workloads.
+Simple:
+CPU alarm → Add 2 instances
+
+Step:
+CPU 70% → Add 1 instance
+CPU 90% → Add 3 instances
+
+Target tracking:
+Target CPU = 50% → ASG adds/removes instances to stay near 50%
+
+Scheduled:
+09:00 → Desired = 5
+18:00 → Desired = 2
+
+Predictive:
+Forecasted traffic spike tomorrow → Increase capacity before the spike
+```
 
 ## Scaling cooldown and warm-up
 
@@ -345,14 +346,60 @@ An ASG uses health checks to determine whether an instance should remain in serv
 
 If an instance is unhealthy, the ASG can terminate it and launch a replacement.
 
-## EC2 health check vs ELB health check
+## EC2 Health Check vs ELB Health Check
 
-| Health check | Meaning |
-|---|---|
-| EC2 health check | Checks the health status reported by EC2 |
-| Load Balancer health check | Checks application availability through the load balancer |
+### ASG Health Check Settings
 
-An ASG can be configured to use EC2 health checks or, when integrated with a load balancer, additional load-balancer health information.
+| Parameter | Meaning | Example |
+|---|---|---|
+| **Health check type** | Health information used by the ASG | `EC2` or `ELB` |
+| **Health check grace period** | Time given to a new instance to initialize | `300 seconds` |
+
+> With `EC2` health checks, the ASG uses EC2 status checks. With `ELB` health checks, it also considers the load balancer target health.
+
+## ALB Health Check Parameters
+
+An **Application Load Balancer (ALB)** checks whether a target can receive traffic.
+
+| Parameter | Meaning | Example |
+|---|---|---|
+| Protocol | Protocol used for the health check | `HTTP` or `HTTPS` |
+| Port | Port on which the check runs | `80` or `8080` |
+| Path | Application endpoint to check | `/health` |
+| Healthy threshold | Consecutive successful checks required | `5` |
+| Unhealthy threshold | Consecutive failed checks required | `2` |
+| Timeout | Time allowed for a response | `5 seconds` |
+| Interval | Time between health checks | `30 seconds` |
+| Success codes / Matcher | HTTP codes accepted as successful | `200` or `200-399` |
+
+### Example
+
+```text
+Protocol            = HTTP
+Port                = 8080
+Path                = /health
+Healthy threshold   = 5
+Unhealthy threshold = 2
+Timeout             = 5 seconds
+Interval            = 30 seconds
+Success codes       = 200
+```
+
+### Health Check Flow
+
+```text
+ALB sends GET /health
+        ↓
+Target returns HTTP 200
+        ↓
+After 5 successful checks → Healthy
+        ↓
+After 2 failed checks → Unhealthy
+        ↓
+ALB stops routing traffic to that target
+```
+
+> The health-check path must exist and the application must return an accepted success code.
 
 ## Health check grace period
 
