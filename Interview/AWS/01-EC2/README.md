@@ -1,1776 +1,1084 @@
-# EC2 Interview Notes
+# Amazon EC2 Interview & Practical Notes
+
+> **Scope:** Amazon EC2 and its directly related capabilities only.  
+> **Audience:** DevOps Engineers, Cloud Engineers, System Administrators, and AWS interview candidates.
+
+[![AWS](https://img.shields.io/badge/AWS-EC2-orange?logo=amazonaws)](https://aws.amazon.com/ec2/)
+[![Focus](https://img.shields.io/badge/Focus-Interview%20%2B%20Hands--On-blue)](#learning-roadmap)
+
+---
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [What is Amazon EC2?](#2-what-is-amazon-ec2)
-3. [What is an EC2 Instance?](#3-what-is-an-ec2-instance)
-4. [EC2 Launch Components](#4-ec2-launch-components)
-5. [What is an AMI?](#5-what-is-an-ami)
-6. [What is an Instance Type?](#6-what-is-an-instance-type)
-7. [EC2 Instance Families](#7-ec2-instance-families)
-8. [User Data](#8-user-data)
-9. [Instance Metadata and IMDSv2](#9-instance-metadata-and-imdsv2)
-10. [IAM Role and Instance Profile](#10-iam-role-and-instance-profile)
-11. [EC2 Networking](#11-ec2-networking)
-12. [Private IPv4, Public IPv4, and Elastic IP](#12-private-ipv4-public-ipv4-and-elastic-ip)
-13. [Elastic Network Interface (ENI)](#13-elastic-network-interface-eni)
-14. [EC2 Storage](#14-ec2-storage)
-15. [EBS](#15-ebs)
-16. [Instance Store](#16-instance-store)
-17. [EBS vs Instance Store](#17-ebs-vs-instance-store)
-18. [gp3 EBS Volume](#18-gp3-ebs-volume)
-19. [EC2 Lifecycle](#19-ec2-lifecycle)
-20. [Stop, Start, Reboot, Hibernate, and Terminate](#20-stop-start-reboot-hibernate-and-terminate)
-21. [EBS DeleteOnTermination](#21-ebs-deleteontermination)
-22. [Spot Instances](#22-spot-instances)
-23. [Spot Interruption and Rebalance Recommendation](#23-spot-interruption-and-rebalance-recommendation)
-24. [On-Demand, Reserved Instances, and Savings Plans](#24-on-demand-reserved-instances-and-savings-plans)
-25. [Dedicated Instances and Dedicated Hosts](#25-dedicated-instances-and-dedicated-hosts)
-26. [Placement Groups](#26-placement-groups)
-27. [Security Groups](#27-security-groups)
-28. [EC2 Key Pairs](#28-ec2-key-pairs)
-29. [Monitoring and Status Checks](#29-monitoring-and-status-checks)
-30. [Auto Scaling with EC2](#30-auto-scaling-with-ec2)
-31. [Launch Template](#31-launch-template)
-32. [EC2 High Availability Architecture](#32-ec2-high-availability-architecture)
-33. [Common EC2 Failure Scenarios](#33-common-ec2-failure-scenarios)
-34. [Useful AWS CLI Commands](#34-useful-aws-cli-commands)
-35. [Frequently Asked Interview Questions](#35-frequently-asked-interview-questions)
-36. [One-Line Interview Answers](#36-one-line-interview-answers)
-37. [Official References](#37-official-references)
+| Stage | Topic |
+|---:|---|
+| 1 | [EC2 Fundamentals](#1-ec2-fundamentals) |
+| 2 | [AMI and Instance Types](#2-ami-and-instance-types) |
+| 3 | [User Data, Metadata and IAM](#3-user-data-metadata-and-iam) |
+| 4 | [EC2 Networking](#4-ec2-networking) |
+| 5 | [EC2 Storage](#5-ec2-storage) |
+| 6 | [EC2 Lifecycle](#6-ec2-lifecycle) |
+| 7 | [EC2 Pricing Options](#7-ec2-pricing-options) |
+| 8 | [Placement Groups and Tenancy](#8-placement-groups-and-tenancy) |
+| 9 | [Security Groups and Key Pairs](#9-security-groups-and-key-pairs) |
+| 10 | [Monitoring and Troubleshooting](#10-monitoring-and-troubleshooting) |
+| 11 | [Launch Templates and Auto Scaling](#11-launch-templates-and-auto-scaling) |
+| 12 | [High Availability Architecture](#12-high-availability-architecture) |
+| 13 | [AWS CLI and Linux Cheat Sheet](#13-aws-cli-and-linux-cheat-sheet) |
+| 14 | [Final Interview Revision](#14-final-interview-revision) |
+| 15 | [References](#15-references) |
 
 ---
 
-# 1. Introduction
+## Learning Roadmap
 
-**Amazon EC2 (Elastic Compute Cloud)** is an AWS service that provides resizable compute capacity in the AWS Cloud.
+| Level | Study order | Expected outcome |
+|---|---|---|
+| Beginner | Fundamentals → AMI → Instance Type → User Data | Launch and explain an EC2 instance |
+| Intermediate | Networking → Storage → Lifecycle → IAM | Operate and secure an EC2 server |
+| Advanced | Spot → Placement → Monitoring → ASG | Design resilient and cost-efficient EC2 workloads |
+| Interview-ready | Troubleshooting → Architecture → Scenario questions | Explain decisions, not only definitions |
 
-An EC2 instance is a virtual server running on AWS infrastructure.
+---
 
-When launching an instance, you typically select:
+# 1. EC2 Fundamentals
+
+## What is Amazon EC2?
+
+**Amazon Elastic Compute Cloud (EC2)** provides resizable virtual compute capacity in AWS.
+
+| EC2 provides | Customer responsibility |
+|---|---|
+| Physical infrastructure | Guest OS |
+| Hypervisor and underlying hardware | OS patches and packages |
+| Instance provisioning | Application and configuration |
+| Availability-zone infrastructure | Data, permissions and workload |
+
+### Common use cases
+
+| Workload | Example |
+|---|---|
+| Web server | NGINX or Apache |
+| Application server | Java, Python, Go or Node.js |
+| CI/CD worker | Jenkins agent |
+| Monitoring | Prometheus or exporters |
+| Batch processing | Parallel jobs |
+| Database | Self-managed database on EC2 |
+| Development | Temporary test environment |
+
+## What is an EC2 instance?
+
+An EC2 instance is a virtual server launched from an AMI with a selected instance type and configuration.
+
+| Component | Purpose |
+|---|---|
+| AMI | OS and initial software |
+| Instance type | vCPU, memory and network capability |
+| VPC/Subnet | Network placement |
+| ENI | Network connectivity |
+| Security group | Stateful traffic filtering |
+| EBS/Instance Store | Storage |
+| IAM instance profile | AWS API permissions |
+| User data | Bootstrap configuration |
+
+### EC2 launch flow
 
 ```text
 AMI
-   ↓
+  ↓
 Instance Type
-   ↓
+  ↓
 VPC / Subnet
-   ↓
+  ↓
 Security Group
-   ↓
+  ↓
 IAM Instance Profile
-   ↓
+  ↓
 Storage
-   ↓
+  ↓
 User Data
-```
-
-AWS manages the underlying physical infrastructure, while the customer is responsible for the guest operating system, applications, configuration, and workload.
-
----
-
-# 2. What is Amazon EC2?
-
-Amazon EC2 provides on-demand, resizable compute capacity.
-
-It allows organizations to provision virtual machines without purchasing physical servers.
-
-Typical EC2 workloads include:
-
-* Web servers
-* Application servers
-* CI/CD agents
-* Jenkins workers
-* Databases
-* Containers
-* Batch processing
-* Data processing
-* Monitoring systems
-* Development environments
-
-Simplified:
-
-```text
-AWS Infrastructure
-        │
-        ▼
-      EC2
-        │
-   ┌────┴────┐
-   ▼         ▼
-Instance  Instance
-   │         │
-   ▼         ▼
-Application Application
-```
-
----
-
-# 3. What is an EC2 Instance?
-
-An **EC2 instance** is a running virtual server provisioned from an AMI using a selected instance type and configuration.
-
-Example:
-
-```text
+  ↓
 EC2 Instance
-├── AMI
-├── vCPU
-├── Memory
-├── Network Interface
-├── Security Groups
-├── EBS Volumes
-├── IAM Role / Instance Profile
-└── Optional User Data
 ```
 
-Important components:
+### Example: launch an instance
 
-| Component | Determines |
+```bash
+aws ec2 run-instances \
+  --image-id ami-xxxxxxxxxxxxxxxxx \
+  --instance-type t3.small \
+  --subnet-id subnet-xxxxxxxx \
+  --security-group-ids sg-xxxxxxxx \
+  --iam-instance-profile Name=ec2-ssm-profile \
+  --tag-specifications \
+    'ResourceType=instance,Tags=[{Key=Name,Value=dev-web-01}]'
+```
+
+> Replace example IDs with values from your AWS account and Region.
+
+### Interview Checkpoint — Fundamentals
+
+| Frequently asked question | Interview-ready answer |
 |---|---|
-| AMI | OS and initial software |
-| Instance Type | vCPU, memory, network, accelerator characteristics |
-| EBS / Instance Store | Storage |
-| ENI | Network connectivity |
-| Security Group | Network access control |
-| IAM Role | AWS API permissions |
+| What is EC2? | A service that provides resizable virtual compute capacity in AWS. |
+| Why is EC2 called elastic? | Capacity can be increased, decreased, started, stopped, or replaced according to workload needs. |
+| What is an EC2 instance? | A virtual server created from an AMI using an instance type and launch configuration. |
+| What are the main EC2 launch components? | AMI, instance type, VPC/subnet, security group, IAM profile, storage and user data. |
+| What is the shared responsibility model for EC2? | AWS manages the underlying cloud infrastructure; the customer manages the guest OS, applications, data and configuration. |
+| What is the difference between vertical and horizontal scaling? | Vertical scaling increases the size of one instance; horizontal scaling adds more instances. |
 
 ---
 
-# 4. EC2 Launch Components
+# 2. AMI and Instance Types
 
-A typical launch decision looks like:
+## Amazon Machine Image (AMI)
 
-```text
-1. Select AMI
-       ↓
-2. Select Instance Type
-       ↓
-3. Select VPC / Subnet
-       ↓
-4. Configure Network / ENI
-       ↓
-5. Configure Security Groups
-       ↓
-6. Attach IAM Instance Profile
-       ↓
-7. Configure Storage
-       ↓
-8. Configure User Data
-       ↓
-9. Launch
-```
+An **AMI** is a template used to launch EC2 instances.
 
-The final behavior of the instance depends on the complete configuration, not just the instance type.
+| AMI contains or defines | Explanation |
+|---|---|
+| Root volume template | OS and installed software |
+| Block-device mapping | Volumes attached during launch |
+| Launch permissions | Private, shared or public access |
+| Boot configuration | Information needed to boot the instance |
 
----
-
-# 5. What is an AMI?
-
-**AMI (Amazon Machine Image)** is a template used to launch EC2 instances.
-
-An AMI defines the software image and block-device mapping used during launch.
-
-It can contain:
-
-* Operating system
-* Installed packages
-* Application software
-* Configuration
-* Boot configuration
-
-Example:
-
-```text
-Golden AMI
-    │
-    ├── Ubuntu
-    ├── Java
-    ├── Nginx
-    ├── Monitoring Agent
-    └── Security Configuration
-           │
-           ▼
-      EC2 Instances
-```
-
-AMI sources can include:
-
-* AWS-provided images
-* Custom images
-* Marketplace images
-* Shared images
-* Images copied between Regions, where supported
-
-## Golden AMI Pattern
-
-A common DevOps pattern is:
+### Golden AMI pattern
 
 ```text
 Base AMI
-   ↓
-Install Dependencies
-   ↓
-Configure Application
-   ↓
-Security Hardening
-   ↓
+  ↓
+Install dependencies
+  ↓
+Configure application
+  ↓
+Apply security hardening
+  ↓
 Create Golden AMI
-   ↓
-Launch Multiple EC2 Instances
+  ↓
+Launch consistent EC2 instances
 ```
 
-This reduces configuration drift between instances.
+### Example: create an AMI
+
+```bash
+aws ec2 create-image \
+  --instance-id i-xxxxxxxxxxxxxxxxx \
+  --name "dev-web-golden-v1" \
+  --description "NGINX and monitoring preinstalled" \
+  --no-reboot
+```
+
+> `--no-reboot` can preserve uptime but may produce an inconsistent image if applications are actively writing data. Use it carefully.
+
+## Instance Type
+
+An instance type defines the compute characteristics exposed to an EC2 instance.
+
+| Characteristic | Examples |
+|---|---|
+| CPU | vCPUs |
+| Memory | RAM |
+| Network | Network bandwidth |
+| EBS | EBS bandwidth and limits |
+| Accelerators | GPU or other accelerators |
+| Local storage | Instance Store, where supported |
+
+### Instance families
+
+| Family | Optimization | Typical workload |
+|---|---|---|
+| T | Burstable general purpose | Dev/test, low or variable traffic |
+| M | Balanced general purpose | Web and application servers |
+| C | Compute optimized | CPU-heavy jobs, batch processing |
+| R | Memory optimized | Caches, in-memory databases |
+| I/D/H | Storage optimized | High local I/O and data processing |
+| P/G/Inf/Trn | Accelerated computing | ML, graphics and parallel workloads |
+
+### Selection rule
+
+| Bottleneck | Choose |
+|---|---|
+| CPU | Compute optimized |
+| Memory | Memory optimized |
+| Storage I/O | Storage optimized |
+| GPU/accelerator | Accelerated computing |
+| Balanced workload | General purpose |
+| Low or variable CPU usage | Burstable general purpose |
+
+### Example
+
+| Instance | Typical decision |
+|---|---|
+| `t3.small` | Small development server |
+| `m7i.large` | Balanced application server |
+| `c7i.large` | CPU-intensive workload |
+| `r7i.large` | Memory-intensive workload |
+
+### Interview Checkpoint — AMI and Instance Types
+
+| Question | Answer |
+|---|---|
+| What is an AMI? | A launch template containing the OS/software image and block-device mappings. |
+| Can one AMI launch multiple instances? | Yes, an AMI can be used to launch many instances. |
+| What is a Golden AMI? | A tested, preconfigured image used to launch consistent servers. |
+| What happens if the AMI used for launch is deregistered? | New launches depending on it fail because the image is unavailable. |
+| What is an instance type? | A predefined combination of compute, memory, network and storage capabilities. |
+| When should you use a T-family instance? | For workloads with low or variable CPU usage that can use CPU credits. |
+| How do you select an instance type? | Measure CPU, memory, network, storage and accelerator requirements, then validate cost and performance. |
 
 ---
 
-# 6. What is an Instance Type?
+# 3. User Data, Metadata and IAM
 
-An EC2 instance type defines the compute characteristics presented to the instance.
+## EC2 User Data
 
-It influences:
+User data is launch-time bootstrap information, commonly a shell script on Linux.
 
-* vCPUs
-* Memory
-* Network performance
-* EBS performance capability
-* Accelerator availability
-* Local instance-store availability on supported types
+### Common uses
 
-Example notation:
+| Use | Example |
+|---|---|
+| Install packages | Install NGINX |
+| Configure files | Create application config |
+| Start services | Enable and start systemd service |
+| Install agents | SSM, monitoring or security agent |
+| Register instance | Register with a target or configuration system |
 
-```text
-t3.small
-c7i.large
-r7i.large
-```
-
-The family indicates the general optimization, while the size indicates the relative capacity within that family.
-
----
-
-# 7. EC2 Instance Families
-
-## General Purpose
-
-Examples:
-
-```text
-T
-M
-```
-
-Used for:
-
-* Web servers
-* Application servers
-* Development environments
-* General-purpose workloads
-
-## Compute Optimized
-
-Example:
-
-```text
-C
-```
-
-Used for:
-
-* CPU-heavy workloads
-* Batch processing
-* High-performance web services
-* Video processing
-* Scientific workloads
-
-## Memory Optimized
-
-Example:
-
-```text
-R
-```
-
-Used for:
-
-* In-memory databases
-* Large caches
-* Real-time analytics
-* Memory-intensive applications
-
-## Storage Optimized
-
-Examples include supported storage-optimized families.
-
-Used for:
-
-* High local storage I/O
-* Data processing
-* Local caching
-* Temporary high-throughput datasets
-
-## Accelerated Computing
-
-Examples include GPU/accelerator families.
-
-Used for:
-
-* Machine learning
-* Deep learning
-* Graphics
-* Scientific simulations
-* Parallel compute workloads
-
-### Selection Rule
-
-Choose the instance family based on the **actual bottleneck**:
-
-```text
-CPU bottleneck      → Compute optimized
-Memory bottleneck   → Memory optimized
-Storage I/O         → Storage optimized
-GPU workload        → Accelerated computing
-Balanced workload   → General purpose
-```
-
----
-
-# 8. User Data
-
-**EC2 user data** is information provided during instance launch, commonly a shell script on Linux or PowerShell/cloud-init-related configuration on Windows.
-
-Typical uses:
-
-* Install packages
-* Create configuration files
-* Start services
-* Register systems
-* Bootstrap agents
-* Perform first-boot configuration
-
-Example:
+### Example: Linux user data
 
 ```bash
 #!/bin/bash
+set -eux
 
-apt update -y
-apt install -y nginx
+apt-get update -y
+apt-get install -y nginx
+
 systemctl enable nginx
 systemctl start nginx
+
+echo "Hello from EC2" > /var/www/html/index.html
 ```
 
-Flow:
+### Important points
 
-```text
-EC2 Launch
-    │
-    ▼
-User Data
-    │
-    ▼
-Bootstrap
-    │
-    ├── Install packages
-    ├── Configure application
-    └── Start services
-```
+| Point | Explanation |
+|---|---|
+| Execution | Usually runs during first boot |
+| Secret storage | Do not store passwords or access keys in user data |
+| Debugging | Check cloud-init logs |
+| Repeatability | Make scripts idempotent where possible |
 
-### Important Considerations
-
-User data is not a secret-management mechanism. AWS documentation warns that instance metadata and user data are accessible from inside the instance, so sensitive credentials should not be placed in user data.
-
-For sensitive configuration, use services such as:
-
-```text
-IAM Roles
-AWS Secrets Manager
-SSM Parameter Store
-```
-
----
-
-# 9. Instance Metadata and IMDSv2
-
-**Instance Metadata Service (IMDS)** provides information about the running EC2 instance.
-
-Examples include:
-
-* Instance ID
-* Local IP
-* Availability Zone
-* Network information
-* Instance identity information
-
-Applications can access metadata from inside the instance.
-
-A common IMDSv2 flow is:
-
-```text
-Application
-    │
-    ▼
-Request IMDSv2 token
-    │
-    ▼
-IMDS
-    │
-    ▼
-Instance metadata
-```
-
-## IMDSv2
-
-IMDSv2 uses a session-oriented token mechanism.
-
-Example on a Linux instance:
+Useful logs:
 
 ```bash
-TOKEN=$(curl -X PUT \
+sudo cloud-init status --long
+sudo tail -f /var/log/cloud-init-output.log
+```
+
+## Instance Metadata and IMDSv2
+
+The Instance Metadata Service provides information about the running instance.
+
+| Metadata example | Use |
+|---|---|
+| Instance ID | Identify the current server |
+| Local IPv4 | Internal networking |
+| Availability Zone | Placement awareness |
+| IAM role credentials | Temporary AWS credentials |
+| Instance identity document | Instance verification |
+
+### IMDSv2 example
+
+```bash
+TOKEN=$(curl -sS -X PUT \
   "http://169.254.169.254/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-```
 
-Then:
-
-```bash
-curl \
+curl -sS \
   -H "X-aws-ec2-metadata-token: $TOKEN" \
   http://169.254.169.254/latest/meta-data/instance-id
 ```
 
-IMDSv2 is recommended because it provides stronger protection against some credential-access attack paths.
+## IAM Role and Instance Profile
 
----
-
-# 10. IAM Role and Instance Profile
-
-An EC2 application should use an IAM role instead of long-lived AWS access keys stored on the instance.
-
-The relationship is:
+Use an IAM role instead of long-lived AWS access keys on the server.
 
 ```text
 IAM Role
-   ↓
+  ↓
 Instance Profile
-   ↓
+  ↓
 EC2 Instance
-   ↓
+  ↓
 IMDS
-   ↓
+  ↓
 Temporary Credentials
-   ↓
+  ↓
 Application
-   ↓
-AWS APIs
+  ↓
+AWS API
 ```
 
-Example:
+| Term | Meaning |
+|---|---|
+| IAM role | Identity with permissions and trust policy |
+| Instance profile | Container used to pass a role to EC2 |
+| Temporary credentials | Short-lived credentials delivered to the instance |
+| Least privilege | Grant only the permissions required |
 
-```text
-EC2
- │
- └── IAM Role: S3ReadRole
-          │
-          ▼
-       S3 API
-```
+### Interview Checkpoint — Bootstrap, Metadata and IAM
 
-This allows an application to access AWS APIs without embedding permanent credentials in configuration files.
+| Question | Answer |
+|---|---|
+| What is user data? | Launch-time bootstrap configuration. |
+| Is user data secure for passwords? | No. Use Secrets Manager, Parameter Store or IAM roles. |
+| What is IMDS? | A service that provides instance information from inside EC2. |
+| What is the difference between IMDSv1 and IMDSv2? | IMDSv2 uses a session token and provides stronger protection against certain credential-access paths. |
+| Why use IAM roles on EC2? | They provide temporary credentials without storing permanent access keys. |
+| What is an instance profile? | The mechanism that associates an IAM role with an EC2 instance. |
+| How can you troubleshoot user data? | Check cloud-init status and `/var/log/cloud-init-output.log`. |
 
 ---
 
-# 11. EC2 Networking
+# 4. EC2 Networking
 
-An EC2 instance is connected to a VPC through one or more **Elastic Network Interfaces (ENIs)**.
-
-Basic structure:
+## Network hierarchy
 
 ```text
 Region
-  │
-  ▼
+  ↓
 Availability Zone
-  │
-  ▼
+  ↓
 VPC
-  │
-  ▼
+  ↓
 Subnet
-  │
-  ▼
+  ↓
 ENI
-  │
-  ▼
+  ↓
 EC2 Instance
 ```
 
-Important networking concepts include:
+| Component | Responsibility |
+|---|---|
+| VPC | Logical network boundary |
+| Subnet | IP range within one AZ |
+| Route table | Determines next hop |
+| Internet Gateway | Internet connectivity for public routing |
+| NAT Gateway | Outbound internet access from private subnets |
+| ENI | Network interface attached to EC2 |
+| Security group | Stateful instance-level filtering |
+| NACL | Stateless subnet-level filtering |
 
-* VPC
-* Subnet
-* ENI
-* Private IPv4
-* Public IPv4
-* Elastic IP
-* IPv6
-* Route Tables
-* Internet Gateway
-* NAT Gateway
-* Security Groups
-* Network ACLs
+## Private IPv4, Public IPv4 and Elastic IP
 
----
-
-# 12. Private IPv4, Public IPv4, and Elastic IP
-
-## Private IPv4
-
-Used for communication inside the VPC and connected networks.
-
-```text
-10.0.1.10
-```
-
-Private addresses are normally retained across stop/start operations because the ENI remains attached.
-
-## Public IPv4
-
-Provides Internet-routable addressing when the routing and security configuration permit it.
-
-An automatically assigned public IPv4 address is normally released on stop and a new one can be assigned on a subsequent start.
-
-## Elastic IP
-
-An **Elastic IP (EIP)** is a static public IPv4 address allocated to the account.
-
-Use it when a stable public IPv4 address is required.
-
-However:
-
-> For most application endpoints, DNS is preferable to hard-coding public IP addresses.
-
-### Comparison
-
-| Property | Private IPv4 | Public IPv4 | Elastic IP |
+| Property | Private IPv4 | Auto-assigned public IPv4 | Elastic IP |
 |---|---|---|---|
-| VPC communication | ✅ | ✅ | ✅ |
-| Internet-routable | ❌ | ✅ | ✅ |
-| Stable across stop/start | ✅ | Usually no | ✅ |
-| Typical use | Internal traffic | Internet access | Stable public IPv4 |
+| VPC communication | Yes | Yes | Yes |
+| Internet-routable | No | Yes | Yes |
+| Stable across stop/start | Usually yes | No | Yes |
+| Typical use | Internal traffic | Temporary public access | Stable public endpoint |
+
+> Prefer DNS names over hard-coding public IP addresses for application endpoints.
+
+## Public subnet vs private subnet
+
+| Public subnet | Private subnet |
+|---|---|
+| Route to an Internet Gateway | No direct route to an Internet Gateway |
+| Instance may have public IPv4 | Instance normally has no public IPv4 |
+| Suitable for public-facing components | Suitable for backend systems |
+| Inbound access still requires security rules | Outbound internet may use NAT Gateway |
+
+### Private subnet internet access
+
+```text
+Private EC2
+  ↓
+Private route table
+  ↓
+NAT Gateway
+  ↓
+Internet Gateway
+  ↓
+Internet
+```
+
+A public IP alone is not enough. Routing, security groups, NACLs and the gateway path must also be correct.
+
+## Elastic Network Interface (ENI)
+
+An ENI can contain:
+
+| ENI attribute | Example |
+|---|---|
+| Primary private IPv4 | `10.0.1.10` |
+| Secondary private IPv4s | Additional application addresses |
+| IPv6 addresses | IPv6 connectivity |
+| Security groups | Traffic control |
+| MAC address | Interface identity |
+| Subnet association | Network placement |
+
+### Interview Checkpoint — Networking
+
+| Question | Answer |
+|---|---|
+| Can a subnet span multiple AZs? | No. A subnet belongs to one Availability Zone. |
+| Is a public IP enough for internet access? | No. A valid route through an Internet Gateway and appropriate security rules are also required. |
+| How does a private EC2 instance download patches? | Route outbound traffic through a NAT Gateway, or use suitable VPC endpoints where supported. |
+| What is an ENI? | A virtual network interface with IP addresses, security groups and subnet association. |
+| What happens to an auto-assigned public IP after stop/start? | It is released on stop and a new one may be assigned on start. |
+| How do you retain a stable public IPv4? | Associate an Elastic IP when a static address is genuinely required. |
+| What is the difference between SG and NACL? | SG is stateful and attached to ENIs; NACL is stateless and applies at subnet level. |
+| Why is a private subnet preferred for backend EC2? | It reduces direct internet exposure and allows controlled access through load balancers, bastions, SSM or private connectivity. |
 
 ---
 
-# 13. Elastic Network Interface (ENI)
+# 5. EC2 Storage
 
-An **ENI** is a virtual network interface in a VPC.
+## Storage models
 
-It can contain:
+| Storage | Description | Use |
+|---|---|---|
+| EBS | Persistent network-attached block storage | OS, databases, application data |
+| Instance Store | Local ephemeral block storage | Cache, scratch and temporary data |
 
-* Primary private IPv4 address
-* Secondary private IPv4 addresses
-* IPv6 addresses
-* Security groups
-* MAC address
-* Subnet association
-* Elastic IP association through supported configurations
+## EBS
 
-An EC2 instance can have one or more ENIs depending on the instance type and configuration.
+Amazon Elastic Block Store provides persistent block storage for EC2.
 
-Simplified:
+| Capability | EBS |
+|---|---|
+| Root volume | Supported |
+| Data volume | Supported |
+| Encryption | Supported |
+| Snapshots | Supported |
+| Resize | Supported for supported configurations |
+| Persistence | Independent of normal instance stop/start |
 
-```text
-EC2
- │
- ├── eth0 / Primary ENI
- │
- └── eth1 / Secondary ENI
-```
-
-ENIs are useful for:
-
-* Multi-homed instances
-* Network separation
-* Application/network appliances
-* Failover designs
-* Secondary interfaces
-
----
-
-# 14. EC2 Storage
-
-EC2 can use two major storage models:
-
-```text
-EC2 Storage
-├── EBS
-└── Instance Store
-```
-
-### EBS
-
-Persistent network-attached block storage.
-
-### Instance Store
-
-Local ephemeral block storage physically attached to the host.
-
----
-
-# 15. EBS
-
-**Amazon Elastic Block Store (EBS)** provides persistent block storage for EC2.
-
-Typical uses:
-
-* Root volume
-* Application filesystem
-* Database storage
-* Persistent application data
-
-EBS supports:
-
-* Snapshots
-* Encryption
-* Different volume types
-* Elastic volume modifications for supported configurations
-
-Example:
-
-```text
-EC2
- │
- ├── Root EBS
- │
- └── Data EBS
-```
-
-An EBS volume can be formatted with a filesystem:
+### Example: format and mount a Linux EBS volume
 
 ```bash
+lsblk
+
 sudo mkfs.ext4 /dev/xvdf
-sudo mkdir /data
+sudo mkdir -p /data
 sudo mount /dev/xvdf /data
+
+df -h
 ```
 
----
+> Confirm the device name with `lsblk`. Formatting the wrong device destroys data.
 
-# 16. Instance Store
+## Instance Store
 
-Instance Store is **local ephemeral storage** attached to supported EC2 instance types.
+Instance Store is local storage available only on supported instance types.
 
-Advantages:
-
-* Very high local I/O
-* Low latency
-* High throughput
-
-Disadvantages:
-
-* Ephemeral
-* Data is not persistent like EBS
-* Cannot be treated as durable application storage
+| Advantage | Limitation |
+|---|---|
+| Very low latency | Ephemeral |
+| High local I/O | Not durable application storage |
+| High throughput | Data can be lost when the instance or host lifecycle requires it |
 
 Good uses:
 
-* Cache
-* Scratch space
-* Temporary processing data
-* Intermediate files
+- Cache
+- Scratch space
+- Temporary processing files
+- Re-creatable intermediate data
 
 Bad use:
 
 ```text
-Only copy of database data
+Only copy of important database data
 ```
 
----
-
-# 17. EBS vs Instance Store
+## EBS vs Instance Store
 
 | Feature | EBS | Instance Store |
 |---|---|---|
-| Storage | Network-attached block | Local host-attached block |
-| Persistence | ✅ | ❌ |
-| Survives normal stop | ✅ | ❌ |
-| Snapshot | ✅ | ❌ EBS-style snapshot |
-| High local I/O | Good to very high depending on volume/instance | Very high |
-| Typical use | OS, database, persistent data | Cache, scratch, temporary data |
+| Attachment | Network-attached | Host-local |
+| Persistence | Persistent | Ephemeral |
+| Survives normal stop | Yes | No |
+| Snapshot support | Yes | No EBS-style snapshot |
+| Best for | OS and durable data | Cache and scratch |
+| Performance | Good to very high | Very high local I/O |
 
-### Interview Answer
-
-> Use EBS when data must persist independently of the instance lifecycle. Use Instance Store for temporary or recreatable data where local performance matters.
-
----
-
-# 18. gp3 EBS Volume
+## gp3
 
 `gp3` is a general-purpose SSD EBS volume type.
 
-Current AWS documentation states:
-
-```text
-Size:
-1 GiB → 64 TiB
-
-Baseline IOPS:
-3,000
-
-Baseline Throughput:
-125 MiB/s
-```
-
-Additional performance can be provisioned up to:
-
-```text
-80,000 IOPS
-2,000 MiB/s
-```
-
-subject to the volume and EC2 instance limits. citeturn912561search0
-
-Example:
-
-```text
-gp3
- ├── Storage = 100 GiB
- ├── IOPS    = 6000
- └── Throughput = 250 MiB/s
-```
-
-One important advantage of gp3 is that storage size, IOPS, and throughput can be provisioned more independently than gp2.
-
----
-
-# 19. EC2 Lifecycle
-
-EC2 instance states include:
-
-```text
-pending
-   ↓
-running
-   ↓
-stopping
-   ↓
-stopped
-   ↓
-pending
-   ↓
-running
-```
-
-Or:
-
-```text
-running
-   ↓
-shutting-down
-   ↓
-terminated
-```
-
-Simplified:
-
-```text
-                 ┌──────────────┐
-                 │   pending    │
-                 └──────┬───────┘
-                        ▼
-                 ┌──────────────┐
-                 │   running    │
-                 └──┬────────┬──┘
-                    │        │
-                 stop       terminate
-                    │        │
-                    ▼        ▼
-                stopped   terminated
-```
-
----
-
-# 20. Stop, Start, Reboot, Hibernate, and Terminate
-
-## Reboot
-
-Restarts the operating system.
-
-```text
-Running
-   ↓
-Reboot
-   ↓
-Running
-```
-
-The instance generally remains on the same host computer.
-
-## Stop
-
-For EBS-backed instances:
-
-```text
-Running
-   ↓
-Stopped
-```
-
-EBS volumes and ENIs persist, while RAM, instance-store data, and the automatically assigned public IPv4 are lost. citeturn912561search3turn912561search5
-
-## Start
-
-Starts a stopped EBS-backed instance.
-
-The private IPv4 normally remains the same, while an automatically assigned public IPv4 can change. citeturn912561search3turn912561search5
-
-## Hibernate
-
-Hibernation saves RAM state to the root EBS volume and later restores it when the instance starts, subject to the supported instance/AMI configuration.
-
-## Terminate
-
-Permanently removes the instance.
-
-Whether attached EBS volumes are deleted depends on `DeleteOnTermination`.
-
----
-
-# 21. EBS DeleteOnTermination
-
-When an EBS-backed EC2 instance is terminated:
-
-```text
-DeleteOnTermination = true
-        ↓
-Volume deleted
-
-DeleteOnTermination = false
-        ↓
-Volume preserved
-```
-
-Check the attribute before terminating important systems.
-
-Example:
-
-```bash
-aws ec2 describe-instances \
-  --instance-ids <instance-id> \
-  --query "Reservations[].Instances[].BlockDeviceMappings[].{Device:DeviceName,DeleteOnTermination:Ebs.DeleteOnTermination}"
-```
-
----
-
-# 22. Spot Instances
-
-Spot Instances use spare EC2 capacity at a potentially large discount compared with On-Demand.
-
-They are appropriate when applications can tolerate interruption.
-
-Good workloads:
-
-* Batch processing
-* CI/CD workers
-* Rendering
-* Distributed data processing
-* Stateless application capacity
-* Parallel jobs
-
-Architecture:
-
-```text
-Auto Scaling Group
-        │
-   ┌────┼────┐
-   ▼    ▼    ▼
- Spot Spot Spot
-```
-
-A resilient design should use multiple capacity pools rather than depending on a single Spot instance.
-
----
-
-# 23. Spot Interruption and Rebalance Recommendation
-
-When AWS needs to reclaim Spot capacity, a normal Spot interruption provides a **two-minute interruption notice**.
-
-Recommended response:
-
-```text
-Interruption Notice
-       ↓
-Stop accepting work
-       ↓
-Checkpoint state
-       ↓
-Drain active work
-       ↓
-Terminate / Replace
-```
-
-AWS can also issue a **rebalance recommendation** before an interruption when a Spot Instance is at elevated risk.
-
-The two signals differ:
-
-| Signal | Meaning |
-|---|---|
-| Rebalance Recommendation | Increased interruption risk |
-| Interruption Notice | Interruption has been scheduled |
-
-Spot therefore should always be treated as:
-
-> **Interruptible capacity, not guaranteed capacity.**
-
----
-
-# 24. On-Demand, Reserved Instances, and Savings Plans
-
-## On-Demand
-
-Pay for compute without a long-term commitment.
-
-Best for:
-
-* Unpredictable workloads
-* Short-term environments
-* Development/testing
-* New workloads
-
-## Reserved Instances
-
-Commit to an eligible configuration in exchange for a pricing discount.
-
-Best for:
-
-* Predictable, steady workloads
-* Stable EC2 usage
-
-Important:
-
-> Reserved Instances are primarily a billing discount mechanism, not a unique instance type.
-
-## Savings Plans
-
-Commit to a consistent compute spend per hour in exchange for discounted pricing.
-
-Compared with standard Reserved Instances, Savings Plans can provide more flexibility around eligible compute usage, depending on the plan type.
-
-AWS currently recommends considering Savings Plans for their flexibility. citeturn912561search2
-
-### Comparison
-
-| Option | Commitment | Best Use |
-|---|---|---|
-| On-Demand | None | Variable usage |
-| Reserved Instance | Eligible configuration | Stable configuration |
-| Savings Plan | Hourly compute spend | Stable spend with greater compute flexibility |
-| Spot | No long-term commitment | Interruptible workloads |
-
----
-
-# 25. Dedicated Instances and Dedicated Hosts
-
-## Dedicated Instance
-
-Runs instances on hardware dedicated to a single AWS account.
-
-Use cases can include:
-
-* Isolation requirements
-* Certain compliance requirements
-
-## Dedicated Host
-
-Provides an entire physical server dedicated to the account.
-
-Useful for:
-
-* Certain software licensing requirements
-* Compliance
-* Host-level placement/visibility needs
-
-### Difference
-
-```text
-Dedicated Instance
-→ Dedicated hardware, but you manage instances
-
-Dedicated Host
-→ Entire physical server allocated to your account
-```
-
----
-
-# 26. Placement Groups
-
-Placement groups influence how EC2 instances are physically placed.
-
-There are three common strategies:
-
-| Strategy | Main Purpose |
-|---|---|
-| Cluster | Low-latency, high-throughput networking |
-| Spread | Individual instance failure isolation |
-| Partition | Failure-domain separation for distributed systems |
-
-## Cluster
-
-```text
-Node 1
-Node 2
-Node 3
-   │
-   ▼
-Close placement
-```
-
-Useful for tightly coupled workloads.
-
-## Spread
-
-```text
-Node 1 → Hardware A
-Node 2 → Hardware B
-Node 3 → Hardware C
-```
-
-Useful when each individual instance should be isolated from others.
-
-## Partition
-
-```text
-Partition 1 → Group of hardware
-Partition 2 → Group of hardware
-Partition 3 → Group of hardware
-```
-
-Useful for distributed systems such as Kafka and Cassandra where correlated hardware failures should be reduced.
-
----
-
-# 27. Security Groups
-
-A **Security Group** is a stateful virtual firewall associated with an EC2 network interface.
-
-Characteristics:
-
-| Characteristic | Security Group |
-|---|---|
-| Scope | ENI / resource |
-| State | Stateful |
-| Inbound rules | Allow |
-| Outbound rules | Allow |
-| Explicit deny | Not supported |
-| Return traffic | Automatically allowed for permitted stateful flows |
-
-Example:
-
-```text
-Internet
-   │
-   │ HTTPS 443
-   ▼
-ALB
-   │
-   │ Application port
-   ▼
-EC2 Security Group
-```
-
-A common architecture is:
-
-```text
-Internet
-   ↓
-ALB SG
-   ↓
-EC2 Target SG
-```
-
-The EC2 security group should normally permit application traffic from the appropriate ALB security group rather than exposing the backend directly.
-
----
-
-# 28. EC2 Key Pairs
-
-A key pair is used for SSH access to Linux EC2 instances or corresponding administrative access patterns for supported instance configurations.
-
-Typical flow:
-
-```text
-EC2 Launch
-    │
-    ▼
-Key Pair
-    │
-    ▼
-Private Key
-    │
-    ▼
-SSH
-```
-
-Example:
-
-```bash
-chmod 400 devops.pem
-
-ssh -i devops.pem ubuntu@<public-ip>
-```
-
-### Important
-
-Do not store private keys in Git repositories.
-
-Also, when using AWS Systems Manager Session Manager, direct SSH key-based access may not be required.
-
----
-
-# 29. Monitoring and Status Checks
-
-EC2 provides status checks and CloudWatch monitoring.
-
-## System Status Check
-
-Checks the underlying AWS infrastructure.
-
-Example failures can indicate:
-
-* Host hardware problems
-* Power issues
-* AWS networking problems
-
-## Instance Status Check
-
-Checks whether the instance's guest OS and networking stack are functioning correctly.
-
-## EBS Status Check
-
-EBS can also report I/O-related status information for supported scenarios.
-
-## CloudWatch
-
-Useful EC2 metrics include:
-
-```text
-CPUUtilization
-NetworkIn
-NetworkOut
-DiskReadOps
-DiskWriteOps
-DiskReadBytes
-DiskWriteBytes
-StatusCheckFailed
-```
-
-For memory utilization, install an agent because standard EC2 CloudWatch metrics do not provide guest OS memory utilization automatically.
-
----
-
-# 30. Auto Scaling with EC2
-
-An **Auto Scaling Group (ASG)** can automatically maintain a desired number of EC2 instances.
-
-Simplified architecture:
-
-```text
-            Load Balancer
-                 │
-                 ▼
-          Auto Scaling Group
-           /       |       \
-          ▼        ▼        ▼
-        EC2-1    EC2-2    EC2-3
-```
-
-ASG can maintain:
-
-```text
-Desired Capacity = 3
-Minimum Capacity = 2
-Maximum Capacity = 6
-```
-
-If one instance fails:
-
-```text
-3 instances
-    │
-Instance fails
-    ↓
-2 instances
-    │
-    ▼
-ASG launches replacement
-    │
-    ▼
-3 instances
-```
-
----
-
-# 31. Launch Template
-
-A **Launch Template** defines how new EC2 instances should be launched.
-
-It can contain:
-
-* AMI
-* Instance type
-* Security groups
-* IAM instance profile
-* User data
-* Block device mappings
-* Network configuration
-* Monitoring settings
-* Metadata options
-
-Example:
-
-```text
-Launch Template
-      │
-      ├── AMI
-      ├── t3.small
-      ├── Security Group
-      ├── IAM Role
-      ├── User Data
-      └── EBS
-            │
-            ▼
-       Auto Scaling Group
-            │
-            ▼
-         EC2 Fleet
-```
-
-A Launch Template is commonly preferred for modern EC2/ASG designs.
-
----
-
-# 32. EC2 High Availability Architecture
-
-A production application should avoid depending on a single instance.
-
-Example:
-
-```text
-                 Internet
-                    │
-                    ▼
-                   ALB
-               /         \
-             AZ-A       AZ-B
-              │           │
-           EC2-1        EC2-2
-              │           │
-              └─────┬─────┘
-                    ▼
-               Application
-```
-
-Combine:
-
-```text
-ALB
- +
-Target Groups
- +
-ASG
- +
-Multiple AZs
- +
-Health Checks
-```
-
-This provides:
-
-* Automatic replacement
-* Horizontal scaling
-* Failure isolation
-* Better availability
-
----
-
-# 33. Common EC2 Failure Scenarios
-
-## Scenario 1: EC2 is Running but Application Is Not Reachable
-
-Check:
-
-```text
-Security Group
-   ↓
-NACL
-   ↓
-Route Table
-   ↓
-Subnet
-   ↓
-Application listening port
-   ↓
-OS firewall
-```
-
-Use:
-
-```bash
-ss -lntp
-```
-
-and:
-
-```bash
-curl http://localhost:<port>
-```
-
----
-
-## Scenario 2: SSH Times Out
-
-Check:
-
-```text
-Is instance running?
-        ↓
-Does it have network connectivity?
-        ↓
-Security Group TCP 22
-        ↓
-Subnet route
-        ↓
-NACL
-        ↓
-Public IP / Bastion / SSM
-```
-
-A timeout is not automatically an authentication failure.
-
----
-
-## Scenario 3: EC2 Has No Public Internet Access
-
-A public IP alone is not enough.
-
-For Internet access, check:
-
-```text
-Public IP
-   +
-Route Table
-   +
-Internet Gateway
-   +
-Security Group
-   +
-NACL
-```
-
-For private subnets:
-
-```text
-EC2
- ↓
-Private Subnet
- ↓
-NAT Gateway
- ↓
-Internet Gateway
- ↓
-Internet
-```
-
----
-
-## Scenario 4: Application Cannot Call AWS APIs
-
-Check:
-
-```text
-IAM Role
-   ↓
-Instance Profile
-   ↓
-IMDS / Credentials
-   ↓
-IAM Permissions
-```
-
-Do not solve this by placing permanent AWS access keys on the server.
-
----
-
-## Scenario 5: EC2 Stops Unexpectedly
-
-Check:
-
-```text
-CloudTrail
-CloudWatch
-EC2 state-change events
-Spot interruption events
-Auto Scaling activity
-```
-
-Determine whether the instance was:
-
-```text
-Stopped
-Rebooted
-Terminated
-Interrupted as Spot
-```
-
----
-
-# 34. Useful AWS CLI Commands
-
-## Describe Instances
-
-```bash
-aws ec2 describe-instances
-```
-
-Specific instance:
-
-```bash
-aws ec2 describe-instances \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Start Instance
-
-```bash
-aws ec2 start-instances \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Stop Instance
-
-```bash
-aws ec2 stop-instances \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Reboot Instance
-
-```bash
-aws ec2 reboot-instances \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Terminate Instance
-
-```bash
-aws ec2 terminate-instances \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Describe Instance Types
-
-```bash
-aws ec2 describe-instance-types
-```
-
-## Describe AMIs
-
-```bash
-aws ec2 describe-images \
-  --owners self
-```
-
-## Describe Security Groups
-
-```bash
-aws ec2 describe-security-groups
-```
-
-## Describe ENIs
-
-```bash
-aws ec2 describe-network-interfaces
-```
-
-## Describe EBS Volumes
-
-```bash
-aws ec2 describe-volumes
-```
-
-## Describe Snapshots
-
-```bash
-aws ec2 describe-snapshots \
-  --owner-ids self
-```
-
-## Describe Instance Status
-
-```bash
-aws ec2 describe-instance-status \
-  --instance-ids i-0123456789abcdef0
-```
-
-## Describe Spot Requests
-
-```bash
-aws ec2 describe-spot-instance-requests
-```
-
-## Describe Tags
-
-```bash
-aws ec2 describe-tags
-```
-
----
-
-# 35. Frequently Asked Interview Questions
+| Property | Typical gp3 baseline/limit |
+|---|---:|
+| Size | 1 GiB–64 TiB |
+| Baseline IOPS | 3,000 |
+| Baseline throughput | 125 MiB/s |
+| Maximum provisioned IOPS | Up to 80,000 |
+| Maximum provisioned throughput | Up to 2,000 MiB/s |
+
+Actual limits depend on the volume, instance and Region.
+
+### Interview Checkpoint — Storage
 
 | Question | Answer |
 |---|---|
-| **What is EC2?** | AWS service providing resizable virtual compute capacity. |
-| **What is an EC2 instance?** | A running virtual server provisioned from an AMI using a selected instance type and configuration. |
-| **What is an AMI?** | A template used to launch EC2 instances containing the OS/software configuration and block-device mappings needed for launch. |
-| **What is an instance type?** | A definition of the compute characteristics exposed to the instance, such as vCPU, memory, and network capability. |
-| **What is user data?** | Launch-time configuration or bootstrap data used to initialize an instance. |
-| **What is instance metadata?** | Information about the running EC2 instance available through the Instance Metadata Service. |
-| **What is IMDSv2?** | A session-oriented version of the EC2 Instance Metadata Service that provides stronger protection against certain credential-access attacks. |
-| **Why use IAM roles with EC2?** | To provide temporary AWS credentials to applications without storing long-lived access keys on the instance. |
-| **What is an instance profile?** | The container used to associate an IAM role with an EC2 instance. |
-| **What is an ENI?** | A virtual network interface providing network connectivity and addresses/security-group associations. |
-| **What is EBS?** | Persistent block storage designed for EC2. |
-| **What is Instance Store?** | Local ephemeral block storage available on supported instance types. |
-| **When should EBS be used?** | When data must persist independently of the instance's host lifecycle. |
-| **When should Instance Store be used?** | For temporary, cache, scratch, or recreatable high-performance data. |
-| **What is gp3?** | General-purpose SSD EBS volume type with independent provisioning of storage, IOPS, and throughput within its supported limits. |
-| **What is the baseline gp3 performance?** | 3,000 IOPS and 125 MiB/s throughput, with higher provisioned limits available within supported constraints. |
-| **What is the difference between stop and reboot?** | Reboot restarts the OS; stop shuts down an EBS-backed instance and releases compute capacity until it is started again. |
-| **What is the difference between stop and terminate?** | Stop preserves the EBS-backed instance resources for restart; terminate permanently removes the instance and may delete EBS volumes depending on DeleteOnTermination. |
-| **What happens to a private IPv4 on stop/start?** | The private IPv4 on the persistent ENI is retained. |
-| **What happens to an automatically assigned public IPv4 on stop/start?** | It is released on stop and a new public IPv4 may be assigned on start. |
-| **How do you keep a stable public IPv4?** | Associate an Elastic IP, when a static public IPv4 is actually required. |
-| **What is a Security Group?** | A stateful virtual firewall associated with a resource's ENI. |
-| **Can Security Groups have deny rules?** | No. Security Groups support allow rules; explicit deny rules are not supported. |
-| **What is a placement group?** | An EC2 placement strategy that controls instance placement for latency, isolation, or distributed-workload failure domains. |
-| **What are the placement group strategies?** | Cluster, Spread, and Partition. |
-| **What is a Spot Instance?** | EC2 capacity offered at a discount that can be interrupted by AWS. |
-| **How much interruption notice does Spot normally provide?** | Two minutes for normal Spot interruption handling. |
-| **What is a Spot rebalance recommendation?** | A signal that a Spot instance is at elevated interruption risk, allowing proactive replacement or draining. |
-| **Do Spot Instances have a fixed lifetime?** | No. They can continue while capacity is available and until an interruption or other lifecycle event occurs. |
-| **What is an On-Demand instance?** | EC2 capacity without a long-term commitment. |
-| **What is a Reserved Instance?** | A billing discount commitment for eligible EC2 configurations. |
-| **What is a Savings Plan?** | A compute-spend commitment that provides discounted pricing with greater flexibility than some RI models. |
-| **What is a Dedicated Instance?** | An EC2 instance running on hardware dedicated to the AWS account. |
-| **What is a Dedicated Host?** | An entire physical server dedicated to the AWS account, useful for certain licensing, compliance, and host-level requirements. |
-| **What is a Launch Template?** | A reusable EC2 launch configuration used by EC2 launches and commonly by Auto Scaling Groups. |
-| **What is an Auto Scaling Group?** | A service construct that maintains a desired number of EC2 instances and can scale/replace them according to policies and health. |
-| **Why use multiple Availability Zones?** | To reduce dependency on a single AZ and improve application availability. |
-| **What is the difference between EBS root and Instance Store root?** | EBS root storage can support stop/start; Instance Store root is ephemeral and cannot be stopped/started in the same way. |
-| **What happens when an EC2 instance is terminated?** | The instance is permanently removed; EBS volumes are deleted or retained according to DeleteOnTermination. |
-| **What is DeleteOnTermination?** | EBS volume behavior that determines whether a volume is deleted with the EC2 instance. |
-| **What is EC2 user data used for?** | Bootstrapping and first-start configuration. |
-| **Should passwords be stored in user data?** | No. Use IAM roles, Secrets Manager, or Parameter Store for sensitive information. |
-| **What is the difference between private IP and Elastic IP?** | Private IP is used for internal VPC communication; Elastic IP is a static public IPv4 address. |
-| **What is an ENI used for?** | Network connectivity, secondary IPs, security groups, and multi-interface networking. |
-| **What is a status check?** | AWS health checks that identify underlying system or instance-level problems. |
-| **How do you troubleshoot an unreachable EC2 server?** | Check instance state, routes, security groups, NACLs, application listeners, OS firewall, and connectivity path. |
-| **What is the purpose of an AMI in an ASG?** | It provides a consistent machine image for launching replacement and scaling instances. |
-| **Why use Launch Templates instead of manually configuring every instance?** | They standardize and automate the instance configuration used for repeated launches and Auto Scaling. |
+| What is EBS? | Persistent block storage designed for EC2. |
+| What is Instance Store? | Local ephemeral storage available on supported instance types. |
+| When should EBS be used? | When data must survive instance stop/start and host lifecycle changes. |
+| When should Instance Store be used? | For temporary, cache or recreatable high-performance data. |
+| What is gp3? | General-purpose SSD EBS with independently provisioned storage, IOPS and throughput. |
+| What is the difference between EBS and Instance Store? | EBS is persistent network storage; Instance Store is local and ephemeral. |
+| What is a snapshot? | A point-in-time backup of an EBS volume stored in AWS. |
+| What happens to EBS on termination? | Deletion depends on the volume’s `DeleteOnTermination` setting. |
 
 ---
 
-# 36. One-Line Interview Answers
+# 6. EC2 Lifecycle
 
-| Concept | One-Line Answer |
+## Instance states
+
+| State | Meaning |
 |---|---|
-| **EC2** | AWS service providing resizable virtual compute capacity. |
-| **Instance** | Running EC2 virtual server. |
-| **AMI** | Template used to launch EC2 instances. |
-| **Instance Type** | Defines vCPU, memory, networking, and other instance capabilities. |
-| **User Data** | Launch-time bootstrap configuration. |
-| **IMDS** | Service providing metadata about the running EC2 instance. |
-| **IMDSv2** | Token/session-oriented version of EC2 metadata access. |
-| **IAM Role** | Identity whose permissions can be used by workloads. |
-| **Instance Profile** | Mechanism associating an IAM role with an EC2 instance. |
-| **ENI** | Virtual network interface attached to a VPC resource. |
-| **Private IPv4** | Internal VPC address. |
-| **Public IPv4** | Internet-routable IPv4 address. |
-| **Elastic IP** | Static public IPv4 allocated to an account. |
-| **EBS** | Persistent network-attached block storage. |
-| **Instance Store** | Local ephemeral block storage. |
-| **gp3** | General-purpose SSD EBS volume with independently provisioned performance. |
-| **Security Group** | Stateful virtual firewall. |
-| **Placement Group** | Controls instance placement for performance or failure isolation. |
-| **Spot** | Discounted, interruptible EC2 capacity. |
-| **On-Demand** | EC2 capacity without long-term commitment. |
-| **Reserved Instance** | Commitment-based pricing discount for eligible configurations. |
-| **Savings Plan** | Commitment-based compute-spend discount. |
-| **Launch Template** | Reusable EC2 launch configuration. |
-| **Auto Scaling Group** | Maintains and scales a fleet of EC2 instances. |
-| **Stop** | Stops an EBS-backed instance while preserving eligible persistent resources. |
-| **Start** | Starts a stopped EBS-backed instance. |
-| **Reboot** | Restarts the operating system. |
-| **Hibernate** | Saves memory state and later restores it, where supported. |
-| **Terminate** | Permanently removes the EC2 instance. |
-| **DeleteOnTermination** | Controls whether an EBS volume is deleted when the instance terminates. |
-| **Status Check** | Indicates whether AWS infrastructure and/or the instance are healthy. |
+| `pending` | Being prepared for launch |
+| `running` | Operating and consuming compute capacity |
+| `stopping` | Being stopped |
+| `stopped` | Not consuming instance compute capacity |
+| `shutting-down` | Being terminated |
+| `terminated` | Permanently removed |
+
+```text
+pending → running → stopped → pending → running
+                  └────────→ shutting-down → terminated
+```
+
+## Stop vs Start vs Reboot vs Hibernate vs Terminate
+
+| Action | Result | EBS | Public IPv4 |
+|---|---|---|---|
+| Reboot | Restarts OS | Preserved | Usually unchanged |
+| Stop | Releases compute capacity | Preserved by default | Auto public IP released |
+| Start | Starts stopped instance | Reattached | New auto public IP may be assigned |
+| Hibernate | Saves RAM to root EBS and stops | Preserved, if supported | Auto public IP released |
+| Terminate | Permanently removes instance | Depends on `DeleteOnTermination` | Released |
+
+### DeleteOnTermination
+
+```text
+DeleteOnTermination = true
+  → Volume deleted with instance
+
+DeleteOnTermination = false
+  → Volume preserved
+```
+
+Check before termination:
+
+```bash
+aws ec2 describe-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx \
+  --query "Reservations[].Instances[].BlockDeviceMappings[].{Device:DeviceName,DeleteOnTermination:Ebs.DeleteOnTermination}"
+```
+
+### Interview Checkpoint — Lifecycle
+
+| Question | Answer |
+|---|---|
+| Difference between stop and reboot? | Reboot restarts the OS; stop shuts down the instance and releases compute capacity. |
+| Difference between stop and terminate? | A stopped instance can be started again; a terminated instance is permanently removed. |
+| What happens to private IP on stop/start? | The private IP on the persistent ENI is normally retained. |
+| What happens to auto-assigned public IP? | It is released on stop and may change after start. |
+| What is hibernation? | RAM state is saved to the root EBS volume and restored later, where supported. |
+| What is `DeleteOnTermination`? | An EBS setting that controls whether a volume is deleted with the instance. |
+| Do EBS charges stop when an instance is stopped? | No. EBS storage charges continue while the volume exists. |
 
 ---
 
-# Practical EC2 Cheat Sheet
+# 7. EC2 Pricing Options
 
-## Identify the Host
+| Option | Commitment | Best fit |
+|---|---|---|
+| On-Demand | None | Variable or short-term workloads |
+| Reserved Instance | Eligible configuration commitment | Predictable steady usage |
+| Savings Plan | Consistent compute spend commitment | Stable usage with flexibility |
+| Spot | Interruptible spare capacity | Fault-tolerant workloads |
 
-```bash
-uname -a
-hostname
+## Spot Instances
+
+Spot Instances use spare EC2 capacity at a discount but can be interrupted.
+
+Good workloads:
+
+- Batch jobs
+- CI/CD workers
+- Rendering
+- Distributed processing
+- Stateless capacity
+- Parallel workloads
+
+### Spot interruption flow
+
+```text
+Interruption notice
+  ↓
+Stop accepting new work
+  ↓
+Checkpoint state
+  ↓
+Drain active work
+  ↓
+Replace capacity
 ```
 
-## Check Network
+A normal Spot interruption provides a two-minute notice. A **rebalance recommendation** indicates increased interruption risk and allows proactive action.
 
-```bash
-ip addr
-ip route
+### Interview Checkpoint — Pricing
+
+| Question | Answer |
+|---|---|
+| When should you use On-Demand? | For unpredictable, short-term or non-interruptible workloads. |
+| What is a Reserved Instance? | A pricing commitment for eligible EC2 configurations, not a separate instance type. |
+| What is a Savings Plan? | A commitment to eligible compute spend in exchange for discounted pricing. |
+| What is a Spot Instance? | Discounted spare EC2 capacity that can be interrupted. |
+| How much normal Spot interruption notice is provided? | Two minutes. |
+| What is a rebalance recommendation? | A signal that the instance has elevated interruption risk. |
+| How do you design resilient Spot capacity? | Use multiple instance types, AZs and capacity pools, plus checkpointing and replacement. |
+
+---
+
+# 8. Placement Groups and Tenancy
+
+## Placement group strategies
+
+| Strategy | Purpose | Typical use |
+|---|---|---|
+| Cluster | Low latency and high throughput within one AZ | HPC and tightly coupled workloads |
+| Spread | Separate instances across hardware | Critical independent instances |
+| Partition | Separate groups into failure domains | Kafka, Cassandra and distributed systems |
+
+## Dedicated tenancy
+
+| Option | Meaning | Use case |
+|---|---|---|
+| Dedicated Instance | Instance runs on hardware dedicated to one AWS account | Certain isolation requirements |
+| Dedicated Host | Entire physical server dedicated to the account | Licensing, compliance and host-level visibility |
+
+### Interview Checkpoint — Placement and Tenancy
+
+| Question | Answer |
+|---|---|
+| What is a placement group? | A strategy controlling how EC2 instances are placed on AWS infrastructure. |
+| Cluster vs Spread? | Cluster optimizes low latency; Spread isolates individual instances. |
+| What is Partition placement? | It separates instances into partitions to reduce correlated failures. |
+| Which placement group suits Kafka? | Partition placement is commonly suitable for distributed systems such as Kafka. |
+| Dedicated Instance vs Dedicated Host? | Dedicated Instance provides dedicated hardware for instances; Dedicated Host allocates the entire physical server. |
+
+---
+
+# 9. Security Groups and Key Pairs
+
+## Security Groups
+
+A Security Group is a **stateful virtual firewall** associated with an ENI.
+
+| Characteristic | Security Group |
+|---|---|
+| Scope | ENI/resource level |
+| State | Stateful |
+| Rules | Allow only |
+| Explicit deny | Not supported |
+| Return traffic | Automatically allowed for permitted flows |
+| Evaluation | All applicable rules are evaluated |
+
+### Recommended application pattern
+
+```text
+Internet
+  ↓ HTTPS 443
+Application Load Balancer
+  ↓ Application port
+EC2 Target Security Group
 ```
 
-## Check Listening Ports
+The EC2 security group should normally allow application traffic from the ALB security group rather than from `0.0.0.0/0`.
+
+## Key pairs
+
+Key pairs are commonly used for SSH access to Linux EC2 instances.
+
+```bash
+chmod 400 devops.pem
+ssh -i devops.pem ubuntu@<public-ip>
+```
+
+Best practices:
+
+| Practice | Reason |
+|---|---|
+| Never commit private keys | Prevent credential exposure |
+| Restrict SSH source IPs | Reduce attack surface |
+| Prefer SSM Session Manager | Avoid direct SSH and key distribution |
+| Use least privilege | Limit impact of compromise |
+
+### Interview Checkpoint — Security
+
+| Question | Answer |
+|---|---|
+| What is a Security Group? | A stateful virtual firewall attached to an ENI. |
+| Can a Security Group contain deny rules? | No, it supports allow rules only. |
+| What does stateful mean? | Return traffic for an allowed connection is automatically permitted. |
+| How should EC2 be protected behind an ALB? | Allow the backend SG to receive application traffic from the ALB SG. |
+| What is a key pair? | A public/private key pair used for supported EC2 access methods such as SSH. |
+| Why prefer SSM over SSH? | It reduces exposed ports and avoids managing private SSH keys on administrators’ machines. |
+
+---
+
+# 10. Monitoring and Troubleshooting
+
+## EC2 status checks
+
+| Check | Detects |
+|---|---|
+| System status check | Underlying AWS infrastructure or host problems |
+| Instance status check | Guest OS, boot or networking problems |
+| EBS status information | Storage I/O-related issues where reported |
+
+## Useful CloudWatch metrics
+
+| Metric | Meaning |
+|---|---|
+| `CPUUtilization` | CPU usage |
+| `NetworkIn` | Incoming network bytes |
+| `NetworkOut` | Outgoing network bytes |
+| `DiskReadOps` | Read operations |
+| `DiskWriteOps` | Write operations |
+| `DiskReadBytes` | Read bytes |
+| `DiskWriteBytes` | Write bytes |
+| `StatusCheckFailed` | Failed status checks |
+
+> Standard EC2 metrics do not automatically provide guest OS memory utilization. Install an agent for memory metrics.
+
+## Troubleshooting: application unreachable
+
+| Check order | Command or area |
+|---:|---|
+| 1 | Instance state |
+| 2 | Security group |
+| 3 | NACL |
+| 4 | Route table and gateway |
+| 5 | Application listener |
+| 6 | OS firewall |
+| 7 | Load balancer target health |
 
 ```bash
 ss -lntp
+curl http://localhost:<port>
+sudo systemctl status <service>
+sudo journalctl -u <service> -n 100 --no-pager
 ```
 
-## Check Disk
+## Troubleshooting: SSH timeout
 
-```bash
-lsblk
-df -h
+| Check | Why |
+|---|---|
+| Instance running | Server may be stopped |
+| Public IP or bastion path | Correct destination |
+| SG TCP 22 | Inbound SSH access |
+| Route table | Return and forward path |
+| NACL | Stateless traffic rules |
+| OS firewall | Local filtering |
+| Key and username | Authentication after connectivity works |
+| SSM | Alternative access method |
+
+> A timeout usually indicates a connectivity/path problem, not necessarily an authentication problem.
+
+## Troubleshooting: EC2 has no internet access
+
+| Requirement | Check |
+|---|---|
+| Public subnet | Route to Internet Gateway |
+| Private subnet | Route to NAT Gateway or VPC endpoint |
+| Security group | Egress rules |
+| NACL | Both directions because it is stateless |
+| DNS | Resolver and hostname resolution |
+| Instance route | `ip route` |
+
+## Troubleshooting: AWS API access fails
+
+```text
+IAM Role
+  ↓
+Instance Profile
+  ↓
+IMDS / Credentials
+  ↓
+IAM Permissions
+  ↓
+Network path to AWS API
 ```
 
-## Check Memory
+Do not solve this by placing permanent access keys on the instance.
 
-```bash
-free -h
+### Interview Checkpoint — Monitoring and Troubleshooting
+
+| Scenario question | Expected answer structure |
+|---|---|
+| EC2 is running but app is unreachable | Check SG → NACL → route → listener → OS firewall → target health. |
+| SSH times out | Check state, route, SG TCP 22, NACL, public/bastion path and OS firewall. |
+| Private EC2 cannot download packages | Check NAT route, NAT subnet, IGW, SG/NACL and DNS. |
+| AWS CLI works locally but not on EC2 | Check instance profile, IAM permissions, IMDS and network access. |
+| EC2 stopped unexpectedly | Check CloudTrail, state-change events, Spot events and ASG activity. |
+| CPU is normal but application is slow | Check memory, disk I/O, network, application logs and dependency latency. |
+
+---
+
+# 11. Launch Templates and Auto Scaling
+
+## Launch Template
+
+A Launch Template defines how EC2 instances should be launched.
+
+| Setting | Example |
+|---|---|
+| AMI | Golden application AMI |
+| Instance type | `t3.small` |
+| Security groups | Application SG |
+| IAM profile | EC2 SSM role |
+| User data | Bootstrap script |
+| EBS mappings | Root and data volumes |
+| Network settings | Subnet/ENI configuration |
+| Monitoring | Detailed monitoring |
+| Metadata options | IMDSv2 requirement |
+
+## Auto Scaling Group (ASG)
+
+An ASG maintains a desired number of EC2 instances and can replace unhealthy instances or scale capacity.
+
+Example:
+
+| Setting | Value |
+|---|---:|
+| Minimum capacity | 2 |
+| Desired capacity | 3 |
+| Maximum capacity | 6 |
+
+```text
+Application Load Balancer
+          ↓
+Auto Scaling Group
+     ┌────┼────┐
+     ↓    ↓    ↓
+   EC2-1 EC2-2 EC2-3
 ```
 
-## Check CPU / Load
+### Replacement flow
 
-```bash
-uptime
-top
+```text
+3 instances
+  ↓
+One instance fails
+  ↓
+2 healthy instances
+  ↓
+ASG launches replacement
+  ↓
+3 healthy instances
 ```
 
-## Query Instance Metadata with IMDSv2
+### Interview Checkpoint — Launch Templates and ASG
 
-```bash
-TOKEN=$(curl -X PUT \
-  "http://169.254.169.254/latest/api/token" \
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+| Question | Answer |
+|---|---|
+| What is a Launch Template? | A reusable definition for launching EC2 instances. |
+| Why use Launch Templates? | They standardize configuration and reduce manual errors. |
+| What is an ASG? | A construct that maintains and scales a fleet of EC2 instances. |
+| What is desired capacity? | The number of instances the ASG attempts to maintain. |
+| What happens when an ASG instance becomes unhealthy? | The ASG can terminate and replace it according to health-check configuration. |
+| Why combine ASG with ALB? | ALB distributes traffic while ASG scales and replaces instances. |
+| Why use multiple AZs in an ASG? | To reduce dependence on a single AZ and improve availability. |
 
-curl \
-  -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/meta-data/instance-id
+---
+
+# 12. High Availability Architecture
+
+## Recommended production pattern
+
+```text
+                         Internet
+                            ↓
+                           ALB
+                       /         \
+                    AZ-A         AZ-B
+                      ↓            ↓
+                    EC2-1        EC2-2
+                      \            /
+                       Auto Scaling
+                            ↓
+                     Application tier
 ```
 
-## Check Instance Identity
+| Component | Role |
+|---|---|
+| ALB | Distributes traffic and performs health checks |
+| Target Group | Registers and checks EC2 targets |
+| Launch Template | Defines consistent instance configuration |
+| ASG | Maintains and scales capacity |
+| Multiple AZs | Reduces single-AZ dependency |
+| Security Groups | Restricts traffic paths |
+| CloudWatch | Metrics and alarms |
+| IAM Roles | Least-privilege AWS API access |
 
-```bash
-curl \
-  -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/dynamic/instance-identity/document
-```
+### Interview Checkpoint — Architecture
 
-## AWS CLI
+| Scenario question | Strong answer |
+|---|---|
+| Design a highly available EC2 web tier | ALB across AZs, ASG across multiple AZs, Launch Template, target health checks and restricted SGs. |
+| How do you avoid configuration drift? | Build and test a Golden AMI and use a Launch Template. |
+| How do you handle instance failure? | ASG health checks replace failed instances; ALB routes traffic only to healthy targets. |
+| How do you secure backend EC2? | Private subnets where appropriate, no direct public access, ALB-to-EC2 SG references and SSM access. |
+| How do you reduce cost for batch jobs? | Use Spot capacity with checkpointing and multiple capacity pools. |
+| How do you improve operational access? | Use Systems Manager Session Manager instead of exposing SSH broadly. |
+
+---
+
+# 13. AWS CLI and Linux Cheat Sheet
+
+## EC2 lifecycle commands
 
 ```bash
 aws ec2 describe-instances
-aws ec2 describe-volumes
-aws ec2 describe-network-interfaces
+
+aws ec2 start-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx
+
+aws ec2 stop-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx
+
+aws ec2 reboot-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx
+
+aws ec2 terminate-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx
+```
+
+## Discovery commands
+
+```bash
+aws ec2 describe-instance-types
+aws ec2 describe-images --owners self
 aws ec2 describe-security-groups
+aws ec2 describe-network-interfaces
+aws ec2 describe-volumes
+aws ec2 describe-snapshots --owner-ids self
 aws ec2 describe-instance-status
+aws ec2 describe-tags
 ```
+
+## Linux diagnostics
+
+| Purpose | Command |
+|---|---|
+| Host/kernel | `uname -a` |
+| Hostname | `hostname` |
+| IP addresses | `ip addr` |
+| Routes | `ip route` |
+| Listening ports | `ss -lntp` |
+| Disk devices | `lsblk` |
+| Disk usage | `df -h` |
+| Memory | `free -h` |
+| Load | `uptime` |
+| Processes | `top` |
+| Service status | `systemctl status <service>` |
+| Service logs | `journalctl -u <service>` |
+| Local application test | `curl http://localhost:<port>` |
 
 ---
 
-# EC2 Architecture to Remember
+# 14. Final Interview Revision
 
-```text
-                           AWS Region
-                               │
-                    ┌──────────┴──────────┐
-                    │                     │
-                   AZ-A                  AZ-B
-                    │                     │
-                 Subnet                Subnet
-                    │                     │
-                  EC2-1                 EC2-2
-                    │                     │
-              ┌─────┼─────┐         ┌─────┼─────┐
-              │     │     │         │     │     │
-             ENI   EBS  SG          ENI   EBS  SG
-                    │                     │
-                    └──────────┬──────────┘
-                               │
-                              ALB
-                               │
-                            Clients
-```
+## Frequently Asked Questions
 
-A production architecture commonly combines:
+| Question | Short answer |
+|---|---|
+| EC2 vs Lambda? | EC2 provides server control; Lambda runs event-driven code without server management. |
+| AMI vs snapshot? | AMI launches EC2; an EBS snapshot backs up a volume. |
+| Private IP vs Elastic IP? | Private IP is internal; Elastic IP is a static public IPv4. |
+| SG vs NACL? | SG is stateful/ENI-level; NACL is stateless/subnet-level. |
+| Stop vs terminate? | Stop allows restart; terminate permanently removes the instance. |
+| EBS vs Instance Store? | EBS is persistent; Instance Store is ephemeral. |
+| On-Demand vs Spot? | On-Demand is predictable capacity; Spot is discounted and interruptible. |
+| Launch Template vs AMI? | AMI is the image; Launch Template defines the complete launch configuration. |
+| ASG vs Launch Template? | Launch Template defines instances; ASG maintains and scales the fleet. |
+| Why multiple AZs? | To improve availability and reduce failure-domain dependency. |
+| Why use IAM role? | To avoid long-lived credentials on the instance. |
+| Why use IMDSv2? | It adds token-based protection for metadata access. |
+| What is gp3? | General-purpose SSD EBS with separately provisioned performance. |
+| What is user data? | Launch-time bootstrap configuration. |
+| What is a Golden AMI? | A tested, preconfigured image for consistent deployments. |
 
-```text
-AMI
- +
-Launch Template
- +
-Auto Scaling Group
- +
-Multiple AZs
- +
-Load Balancer
- +
-Target Groups
- +
-Security Groups
- +
-CloudWatch
- +
-IAM Roles
-```
+## Scenario-Based Questions
 
-This provides:
+| Scenario | What the interviewer expects |
+|---|---|
+| EC2 is running but port 8080 is unreachable | Network path, SG, NACL, route, listener and OS firewall analysis |
+| Private EC2 cannot run `apt update` | NAT Gateway route, gateway path, DNS and egress checks |
+| EC2 cannot access S3 | IAM role, instance profile, IMDS, endpoint/NAT and bucket permissions |
+| Public IP changed after restart | Explain auto-assigned public IPv4 behavior and Elastic IP |
+| ASG keeps replacing instances | Check health checks, bootstrap failure, AMI, user data and target health |
+| Spot instance is interrupted | Checkpoint, drain, replace and diversify capacity |
+| Disk is full | `df -h`, `du`, log cleanup, volume expansion and filesystem resize |
+| Application is slow but CPU is low | Memory, disk I/O, network, dependencies and application logs |
+| Need secure admin access without SSH | SSM Session Manager with IAM permissions and agent connectivity |
+| Need identical servers across environments | Golden AMI plus Launch Template and automated provisioning |
 
-* Consistent instance configuration
-* Horizontal scaling
-* Failure replacement
-* High availability
-* Centralized monitoring
-* Least-privilege AWS API access
+## Interview Answer Framework
+
+Use this structure for scenario questions:
+
+| Step | Explain |
+|---:|---|
+| 1 | State the likely failure domain |
+| 2 | Explain the checks in order |
+| 3 | Give one or two commands |
+| 4 | Explain the fix |
+| 5 | Mention the preventive design |
+
+Example:
+
+> **Question:** EC2 is running but the application is unreachable.  
+> **Answer:** I first verify instance state and target health. Then I check the security group, NACL, route table, subnet gateway path, application listener and OS firewall. I use `ss -lntp` and `curl localhost:<port>` to separate an application issue from a network issue. Finally, I review logs and add monitoring or health checks to prevent recurrence.
 
 ---
 
-# Official References
+# 15. References
 
-The following AWS documentation should be used to verify current EC2 behavior, limits, defaults, and pricing features:
+## Official AWS documentation
 
-1. [Amazon EC2 User Guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/)
-2. [EC2 Instance Types](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-types.html)
-3. [Amazon Machine Images (AMIs)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)
-4. [EC2 User Data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html)
-5. [EC2 Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)
-6. [Access EC2 Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html)
-7. [EC2 IAM Roles and Instance Profiles](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
-8. [EC2 Instance Lifecycle](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html)
-9. [Stop and Start EC2 Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/how-ec2-instance-stop-start-works.html)
-10. [Amazon EBS User Guide](https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html)
-11. [Amazon EBS General Purpose SSD (gp3)](https://docs.aws.amazon.com/ebs/latest/userguide/general-purpose.html)
-12. [EC2 Spot Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html)
-13. [EC2 Placement Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html)
-14. [EC2 Security Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html)
-15. [EC2 Launch Templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html)
-16. [EC2 Auto Scaling](https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html)
-17. [Amazon EC2 Pricing](https://aws.amazon.com/ec2/pricing/)
-18. [AWS Savings Plans](https://aws.amazon.com/savingsplans/)
-19. [Amazon EC2 Reserved Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html)
+| Topic | Reference |
+|---|---|
+| EC2 User Guide | [AWS EC2 User Guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/) |
+| Instance Types | [EC2 Instance Types](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-types.html) |
+| AMIs | [Amazon Machine Images](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) |
+| User Data | [EC2 User Data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) |
+| Metadata | [EC2 Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) |
+| IMDS retrieval | [Access Instance Metadata](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html) |
+| IAM roles | [IAM Roles for EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) |
+| Lifecycle | [EC2 Instance Lifecycle](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html) |
+| Stop/Start | [Stop and Start EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/how-ec2-instance-stop-start-works.html) |
+| EBS | [Amazon EBS User Guide](https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html) |
+| gp3 | [EBS General Purpose SSD](https://docs.aws.amazon.com/ebs/latest/userguide/general-purpose.html) |
+| Spot | [EC2 Spot Instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html) |
+| Placement Groups | [EC2 Placement Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html) |
+| Security Groups | [EC2 Security Groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html) |
+| Launch Templates | [EC2 Launch Templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html) |
+| Auto Scaling | [EC2 Auto Scaling](https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html) |
+| Pricing | [Amazon EC2 Pricing](https://aws.amazon.com/ec2/pricing/) |
 
-> **Note:** AWS instance families, limits, supported features, EBS performance, pricing models, and service behavior can change. Always verify production decisions against the current AWS documentation for the specific Region, instance type, and configuration you are using.
+## Interview research
+
+The interview checkpoints were expanded around recurring themes found in:
+
+- [GeeksforGeeks — AWS Interview Questions](https://www.geeksforgeeks.org/cloud-computing/aws-interview-questions/)
+- [GeeksforGeeks — AWS Solutions Architect Interview Questions](https://www.geeksforgeeks.org/blogs/aws-solution-architect-associate-job-interview-questions-and-answers/)
+- [EC2 Interview Questions — InterviewQuestions.guru](https://interviewquestions.guru/aws-ec2-interview-questions/)
+- [AWS EC2 Interview Questions — MyInternships](https://myinternships.in/aws-interview-questions/ec2)
+
+> **Note:** AWS limits, supported instance families, pricing, defaults and service behavior can change. Verify production decisions against current AWS documentation for the exact Region, instance type and configuration.
