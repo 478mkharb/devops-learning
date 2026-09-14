@@ -126,9 +126,12 @@ aws ec2 create-image \
 
 > Delete snapshots only after confirming that they are not required by another AMI, backup process, or recovery plan.
 
+---
+
 ## 8. Can an AMI be deleted while instances launched from it are running?
 
 **Answer:** Yes. Deregistering an AMI does not terminate existing instances launched from it. Those instances continue running, but the deregistered AMI cannot be used for new launches.
+
 ---
 
 ## 9. Can AMIs be copied across Regions?
