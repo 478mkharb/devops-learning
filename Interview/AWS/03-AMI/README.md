@@ -1,4 +1,4 @@
-# Amazon Machine Images (AMI) — Interview and Practical Notes
+# Amazon Machine Images (AMI)
 
 
 ## 1. What is an AMI?
