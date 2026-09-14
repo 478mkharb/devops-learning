@@ -42,8 +42,6 @@ The VPC must have DNS resolution and DNS hostnames appropriately enabled for nor
 
 **Answer:** An authoritative DNS server stores the definitive DNS records for a DNS zone and provides authoritative answers for names within that zone.
 
-<img width="582" height="445" alt="image" src="https://github.com/user-attachments/assets/96daecf7-4225-4301-9204-5f3f6a272919" />
-
 In Route 53, the name servers assigned to a public hosted zone are authoritative for that zone.
 
 ---
@@ -184,6 +182,8 @@ Lower numeric priority values are preferred over higher values.
 ### Q15. What is an NS record?
 
 **Answer:** An NS (Name Server) record identifies the authoritative name servers for a DNS zone.
+
+<img width="582" height="445" alt="image" src="https://github.com/user-attachments/assets/96daecf7-4225-4301-9204-5f3f6a272919" />
 
 For a public Route 53 hosted zone, the assigned Route 53 name servers are published through DNS delegation so resolvers know where to obtain authoritative answers.
 
