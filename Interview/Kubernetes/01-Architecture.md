@@ -40,11 +40,11 @@ The Control Plane manages the cluster and makes decisions. Worker Nodes run appl
       Control Plane                       Worker Nodes
           |                         -------------------------
   -----------------------           | Node 1 | Node 2 | ... |
-  | API Server           |           |        |        |     |
-  | etcd                 |           | kubelet| kubelet|    |
-  | Scheduler            |           | runtime| runtime|    |
-  | Controller Manager   |           | kube-proxy        |
-  | Cloud Controller     |           | Pods              |
+  | API Server           |          |        |        |     |
+  | etcd                 |          | kubelet| kubelet|     |
+  | Scheduler            |          | runtime| runtime|     |
+  | Controller Manager   |          | kube-proxy            |
+  | Cloud Controller     |          | Pods                  |
   -----------------------           -------------------------
 ```
 
