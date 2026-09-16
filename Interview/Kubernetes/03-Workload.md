@@ -576,6 +576,7 @@ database-1.database.default.svc.cluster.local
 **Answer:**
 
 A DaemonSet ensures that a Pod runs on each eligible node.
+DaemonSets are managed by the DaemonSet controller, which creates Pods for eligible nodes. Those Pods are generally scheduled through the kube-scheduler, while the kubelet runs them on the assigned nodes.
 
 Typical use cases include:
 
