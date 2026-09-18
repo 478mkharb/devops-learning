@@ -2,6 +2,57 @@
 
 ## Overview
 
+## Important Terminology Clarification
+
+Do not confuse these two different concepts:
+
+```yaml
+key: topology.kubernetes.io/zone
+```
+
+and:
+
+```yaml
+topologyKey: kubernetes.io/hostname
+```
+
+They are not the same field.
+
+- `key` is used in **Node Affinity** to inspect a node label.
+- `topologyKey` is used in **Pod Affinity** and **Pod Anti-Affinity** to define the topology domain.
+- `topologyKey` is also used by **Topology Spread Constraints**, which is a separate scheduling feature.
+- Normal `nodeAffinity` does **not** contain a `topologyKey` field.
+
+For example, this is valid Node Affinity:
+
+```yaml
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+              - us-east-1a
+```
+
+Here, `topology.kubernetes.io/zone` is simply the name of a node label.
+
+By contrast, this is Pod Anti-Affinity:
+
+```yaml
+podAntiAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          app: myapp
+      topologyKey: kubernetes.io/hostname
+```
+
+Here, `topologyKey` defines the placement boundary as the node.
+
+---
+
 Kubernetes affinity rules control where Pods are scheduled in relation to:
 
 - **Node properties** — using **Node Affinity**
