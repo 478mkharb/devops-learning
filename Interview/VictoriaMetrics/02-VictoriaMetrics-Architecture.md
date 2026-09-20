@@ -1109,59 +1109,7 @@ The exact point at which a deployment should move from single-node to cluster de
 
 ---
 
-# 28. Where This Fits With the Other READMEs
-
-You now have a logical learning sequence:
-
-```text
-01 — Fundamentals
-        |
-        v
-What is a time series?
-Cardinality?
-Churn?
-        |
-        v
-02 — Architecture
-        |
-        +--> Single Node
-        |
-        +--> vminsert
-        |
-        +--> vmstorage
-        |
-        +--> vmselect
-        |
-        v
-03 — vmagent
-        |
-        v
-How metrics are collected
-        |
-        v
-04 — Storage
-        |
-        v
-How vmstorage stores data
-        |
-        v
-05 — Cardinality & Churn
-        |
-        v
-Why series growth matters
-        |
-        v
-06 — Query Engine
-        |
-        v
-How vmselect processes queries
-```
-
-This prevents the topics from becoming mixed together.
-
----
-
-# 29. Important Interview Questions
+# 28. Important Interview Questions
 
 ## Q1. What are the three main components of VictoriaMetrics Cluster?
 
@@ -1275,13 +1223,13 @@ More vmstorage nodes
 
 ---
 
-# 30. Interview Answer — Short Version
+# 29. Interview Answer — Short Version
 
 > VictoriaMetrics supports both single-node and cluster architectures. In single-node mode, one VictoriaMetrics process handles ingestion, storage, and querying. In cluster mode, these responsibilities are separated into `vminsert`, `vmstorage`, and `vmselect`. `vminsert` receives incoming metrics and distributes them across `vmstorage` nodes, `vmstorage` stores the time-series data, and `vmselect` handles queries by fetching the required data from the storage nodes. Because these layers are separated, they can be scaled independently according to ingestion, storage, or query requirements.
 
 ---
 
-# 31. Revision Notes
+# 30. Revision Notes
 
 ## Architecture in 30 Seconds
 
