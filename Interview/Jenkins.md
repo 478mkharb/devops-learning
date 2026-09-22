@@ -406,7 +406,7 @@ This means approximately every 15 minutes, using Jenkins’ hashed distribution 
 ## Q17. What is a Jenkinsfile?
 
 ### Clear definition
-A **Jenkinsfile is a text file that defines Jenkins Pipeline logic as code.**
+A Jenkinsfile is a text file that defines the Jenkins Pipeline as code, specifying the stages, steps, and logic required to automate the CI/CD process.
 
 ### Explanation
 It can be stored in source control and reviewed like application code. This provides versioning, auditability, repeatability, and code review.
