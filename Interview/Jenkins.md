@@ -365,7 +365,7 @@ Upstream/downstream describes **job dependency direction**. It is not the same a
 - **Polling:** Jenkins periodically checks the repository for changes.
 
 ### Explanation
-Webhooks are generally faster and reduce unnecessary repository checks. Polling is useful when webhooks cannot be configured, but it creates periodic load and delay.
+Webhooks are generally faster because they trigger actions immediately when an event occurs, reducing unnecessary repository checks. Polling can be used when webhooks cannot be configured, but it periodically checks for changes, which can introduce delays and generate additional load.
 
 ### Example
 ```text
