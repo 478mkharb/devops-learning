@@ -65,9 +65,9 @@ Jenkins is an **orchestrator**, not a replacement for Git, Maven, SonarQube, Ter
 ## Q2. What is Continuous Integration, Continuous Delivery, and Continuous Deployment?
 
 ### Clear definition
-- **Continuous Integration (CI):** Developers frequently merge code, and every change is automatically built and tested.
-- **Continuous Delivery:** The application is always kept in a releasable state, but production deployment may require approval.
-- **Continuous Deployment:** Every change that passes the required checks is automatically deployed to production.
+- **Continuous Integration (CI):** Continuous Integration is a software development practice where developers frequently integrate their code changes into a shared repository. Whenever code is committed, an automated CI pipeline builds the application, runs tests, performs code-quality and security checks, and validates the changes. The main goal is to detect integration and code-related issues early.
+- **Continuous Delivery:** Continuous Delivery is an extension of Continuous Integration where successfully validated application changes are automatically packaged and deployed to environments such as development, QA, or staging. Additional testing and security validation are performed so that the application remains production-ready. Production deployment generally requires a manual approval.
+- **Continuous Deployment:** Continuous Deployment is a software delivery practice where every change that successfully passes the automated build, testing, security, and validation stages is automatically deployed to production without requiring manual approval.
 
 ### Explanation
 CI detects defects early. Continuous Delivery adds release readiness and controlled promotion. Continuous Deployment removes the manual production approval step.
