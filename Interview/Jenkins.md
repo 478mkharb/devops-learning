@@ -361,7 +361,7 @@ Upstream/downstream describes **job dependency direction**. It is not the same a
 ## Q15. What is the difference between webhook and polling?
 
 ### Clear definition
-- **Webhook:** The source-control system sends an event to Jenkins when a change occurs.
+- **Webhook:** A webhook is an event-driven mechanism where a source application sends an HTTP request to a configured endpoint whenever a specific event occurs. In CI/CD, for example, a Git push can trigger a webhook from GitHub to Jenkins, which automatically starts the pipeline.
 - **Polling:** Jenkins periodically checks the repository for changes.
 
 ### Explanation
