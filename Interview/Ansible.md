@@ -4,7 +4,7 @@ This README is organized for **L2 DevOps / Ansible interviews**. P1 topics are t
 
 | Priority | Questions | Main Focus |
 |---|---:|---|
-| 🔴 P1 - High | 1–44 | Core Ansible, YAML, inventory, modules, idempotency, variables, execution control, handlers, roles, security, troubleshooting, cloud and production scenarios |
+| 🔴 P1 - High | 1–44, 72–89 | Core Ansible, YAML, inventory, modules, idempotency, variables, execution control, handlers, roles, security, troubleshooting, cloud and production scenarios, plus GFG gap questions |
 | 🟠 P2 - Medium | 45–66 | Supporting features, debugging, safe deployments and operational practices |
 | 🟢 P3 - Low | 67–71 | Other automation/configuration-management tools and their models |
 
@@ -2268,6 +2268,502 @@ A concise answer:
 Then mention that the tools overlap and modern deployments can use additional mechanisms, so the distinction is about their **common architecture and operational model**, not an absolute rule for every feature.
 
 ---
+
+
+
+---
+
+# 13. Additional Questions From GeeksforGeeks Not Already Covered
+
+> These questions were added only where the supplied README did not already cover the same interview topic. Existing topics such as architecture, idempotency, inventory, roles, Vault, callbacks, Tower, ad-hoc commands, delegation, performance, debugging, and rolling deployments were not duplicated.
+
+## 72. What Are the Key Features of Ansible?
+
+**Answer:**
+
+- **Agentless:** Ansible normally manages Linux/Unix hosts over SSH and Windows hosts through supported Windows connection mechanisms without installing a traditional Ansible agent.
+- **YAML-based:** Playbooks use human-readable YAML syntax.
+- **Idempotent:** State-aware modules aim to make repeated runs converge on the desired state.
+- **Playbooks:** Automation is defined as reusable, version-controlled playbooks.
+- **Modules:** Modules provide operations for packages, files, services, users, cloud resources, and more.
+- **Inventory:** Hosts can be organized using static inventories or dynamic inventory plugins.
+- **Extensible:** Roles, collections, modules, and plugins support reusable automation.
+
+---
+
+## 73. What Is Infrastructure as Code (IaC), and How Does Ansible Align With It?
+
+**Answer:**
+
+- **Infrastructure as Code (IaC)** means managing infrastructure and configuration through code instead of manual procedures.
+- Ansible uses **YAML playbooks** to define repeatable infrastructure and configuration tasks.
+- Playbooks can be stored in **Git** for version control, review, and rollback.
+- **Roles and collections** promote reusable automation.
+- Idempotent modules make repeated execution predictable.
+- Ansible can therefore be used as an IaC/configuration-management tool alongside provisioning tools such as Terraform.
+
+---
+
+## 74. How Would You Automate Installing Packages on Debian Systems and Disabling a Service on RedHat Systems?
+
+**Answer:**
+
+- Use **Ansible facts** to identify the target operating system.
+- Use a loop to install multiple packages on Debian-based systems.
+- Use a conditional task to disable the required service on RedHat-based systems.
+
+```yaml
+- name: Install packages on Debian
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - vim
+    - git
+    - htop
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Disable cockpit on RedHat
+  ansible.builtin.systemd_service:
+    name: cockpit.socket
+    enabled: false
+    state: stopped
+  when: ansible_facts['os_family'] == 'RedHat'
+```
+
+---
+
+## 75. How Do You Set Up a Basic Ansible Playbook to Install a Package on a Group of Servers?
+
+**Answer:**
+
+- Define the target group in the `hosts` field.
+- Use the appropriate package module for the operating system.
+- Use `become: true` when elevated privileges are required.
+
+```yaml
+- name: Install package
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+```
+
+Run it with:
+
+```bash
+ansible-playbook -i inventory site.yml
+```
+
+---
+
+## 76. What Command Do You Use to Run an Ansible Playbook With a Specific Inventory File?
+
+**Answer:**
+
+- Use the `-i` option with `ansible-playbook`.
+
+```bash
+ansible-playbook -i /path/to/inventory site.yml
+```
+
+- `-i` tells Ansible which inventory source to use for that execution.
+
+---
+
+## 77. How Can You Check the Status of a Service on Multiple Servers Using Ansible?
+
+**Answer:**
+
+- Target the required server group.
+- Use `service_facts` to gather service information.
+- Use `debug` to display the service state.
+
+```yaml
+- name: Check nginx status
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Display nginx state
+      ansible.builtin.debug:
+        var: ansible_facts.services['nginx.service'].state
+```
+
+---
+
+## 78. How Do You Set Up a Jump Host in Ansible?
+
+**Answer:**
+
+- A **jump host/bastion host** provides an SSH path to private servers that the control node cannot reach directly.
+- Configure SSH `ProxyJump` or use `ansible_ssh_common_args`.
+
+Example:
+
+```ini
+[private_servers]
+app01 ansible_host=10.0.2.10
+```
+
+```yaml
+all:
+  vars:
+    ansible_ssh_common_args: '-o ProxyJump=bastion'
+```
+
+- The control node connects to the bastion first and then reaches the private target.
+
+```text
+Ansible Control Node
+        |
+        | SSH
+        v
+     Bastion
+        |
+        | SSH
+        v
+   Private Server
+```
+
+---
+
+## 79. How Can You Loop Over Hosts in an Ansible Inventory Group?
+
+**Answer:**
+
+- Use the special `groups` variable to access hosts belonging to an inventory group.
+- Combine it with `loop` and `delegate_to` when the play itself targets another host.
+
+```yaml
+- name: Run from controller
+  hosts: localhost
+
+  tasks:
+    - name: Ping every web server
+      ansible.builtin.ping:
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['webservers'] }}"
+```
+
+- `groups['webservers']` returns the hosts in the `webservers` inventory group.
+
+---
+
+## 80. How Do You Install Nginx Using an Ansible Playbook?
+
+**Answer:**
+
+- Update the package cache.
+- Install Nginx.
+- Start and enable the service.
+
+```yaml
+- name: Install Nginx
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+```
+
+---
+
+## 81. How Can You Programmatically Access a Variable Name in Ansible?
+
+**Answer:**
+
+- Ansible/Jinja can inspect dictionary data and dynamically select keys.
+- For example, `dict2items` can convert a dictionary into key/value items that can then be filtered.
+
+```yaml
+- name: Find variable name
+  ansible.builtin.set_fact:
+    var_name: >-
+      {{ my_variables
+         | dict2items
+         | selectattr('value', 'equalto', my_value)
+         | map(attribute='key')
+         | first }}
+```
+
+- This is useful when the variable/key must be selected dynamically rather than hardcoded.
+
+---
+
+## 82. How Do You Generate an Encrypted Password Using the `password_hash` Filter?
+
+**Answer:**
+
+- Use the Jinja2/Ansible `password_hash` filter to generate a Unix-compatible password hash.
+- `sha512` is commonly used for this purpose.
+
+Example:
+
+```yaml
+- name: Generate password hash
+  ansible.builtin.set_fact:
+    password_hash: "{{ 'MyPassword123' | password_hash('sha512') }}"
+```
+
+- The resulting hash can be supplied to the `user` module's `password` parameter.
+- For real credentials, avoid placing the plaintext password directly in a committed playbook; use Vault or another secret-management mechanism.
+
+---
+
+## 83. What Is the Difference Between Dot Notation and Bracket/Array Notation in Ansible?
+
+**Answer:**
+
+- **Dot notation** is concise and readable for simple dictionary keys.
+
+```jinja2
+{{ user.name }}
+```
+
+- **Bracket notation** is useful for keys containing spaces/special characters or when the key is dynamic.
+
+```jinja2
+{{ user['first name'] }}
+{{ users[item] }}
+```
+
+- Bracket notation is generally safer when variable names are dynamic or do not form valid dot-notation identifiers.
+
+---
+
+## 84. What Enterprise Problems Do AWX and Red Hat Ansible Automation Platform Solve?
+
+**Answer:**
+
+- Provide a **centralized web interface** for Ansible automation.
+- Provide **RBAC** for multi-user environments.
+- Centralize **credentials and secret management**.
+- Provide **job scheduling** and workflow orchestration.
+- Provide centralized **logging and auditing**.
+- Expose APIs for **CI/CD and ITSM integration**.
+- **AWX** is the upstream open-source project.
+- **Red Hat Ansible Automation Platform (AAP)** is the supported enterprise platform with additional enterprise components and Red Hat support.
+
+---
+
+## 85. What Is Ansible Registry?
+
+**Answer:**
+
+- Ansible does **not** have a built-in feature officially called an "Ansible Registry."
+- The term is sometimes used informally for mechanisms that store and reuse data during automation.
+- `register` stores the result of a task in a variable.
+- `set_fact` creates variables dynamically during execution.
+- Host/group variables store configuration data.
+- Fact caching can persist gathered facts between playbook runs.
+
+Example:
+
+```yaml
+- name: Check disk
+  ansible.builtin.command: df -h
+  register: disk_result
+
+- name: Display result
+  ansible.builtin.debug:
+    var: disk_result
+```
+
+---
+
+## 86. How Is Ansible Used in a Continuous Delivery Pipeline?
+
+**Answer:**
+
+- Ansible can automate **deployment, configuration, infrastructure changes, and post-deployment validation**.
+- A CI/CD tool such as Jenkins can trigger an Ansible playbook after a successful build or approval.
+- The playbook can deploy the artifact, update configuration, restart/reload services, and run health checks.
+- The same automation can be reused across Dev, QA, and Production with different inventories and variables.
+
+```text
+Git
+ ↓
+Jenkins / CI
+ ↓
+Build + Test
+ ↓
+Ansible Playbook
+ ↓
+Deploy
+ ↓
+Health Check
+ ↓
+Production
+```
+
+---
+
+## 87. How Can You Create a LAMP Stack and Deploy a Webpage Using Ansible?
+
+**Answer:**
+
+- Use Ansible to install and configure the **Linux host, Apache, MySQL/MariaDB, and PHP** components.
+- Start and enable the required services.
+- Copy the website files into the Apache document root.
+- Configure firewall/network access if required.
+- Validate that the webpage is reachable.
+
+```text
+Ansible
+   |
+   +--> Apache
+   +--> MySQL/MariaDB
+   +--> PHP
+   +--> Web files
+```
+
+A production implementation would normally separate these responsibilities into roles such as:
+
+```text
+roles/
+├── apache/
+├── database/
+├── php/
+└── application/
+```
+
+---
+
+## 88. How Would You Design an Ansible Rolling Update for a Multi-Tier Application Behind a Load Balancer?
+
+**Answer:**
+
+- Use a master playbook to coordinate the deployment across application tiers.
+- Apply database migrations using a backward-compatible migration strategy.
+- Deploy API servers in controlled batches using `serial`.
+- Drain each server from the load balancer before updating it.
+- Deploy the new version.
+- Run health checks using `uri` or `wait_for`.
+- Return the healthy server to the load balancer.
+- Use `block`/`rescue` for failure handling and rollback actions.
+
+```text
+Load Balancer
+      |
+      v
+Drain Server
+      ↓
+Deploy
+      ↓
+Health Check
+   /       \
+ PASS      FAIL
+  ↓          ↓
+Re-enable   Rollback /
+            Stop rollout
+```
+
+Example:
+
+```yaml
+- name: Rolling API deployment
+  hosts: api
+  serial: 1
+
+  tasks:
+    - name: Remove host from load balancer
+      # LB-specific module/API call
+
+    - name: Deploy application
+      # deployment role/tasks
+
+    - name: Check application health
+      ansible.builtin.uri:
+        url: "http://localhost:8080/health"
+        status_code: 200
+
+    - name: Return host to load balancer
+      # LB-specific module/API call
+```
+
+---
+
+## 89. How Would You Install Different Packages Based on the Target Operating System?
+
+**Answer:**
+
+- Use Ansible facts such as `ansible_facts['os_family']` or `ansible_facts['distribution']`.
+- Use `when` conditions to select the correct package manager and package list.
+
+```yaml
+- name: Install Debian packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - vim
+    - git
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install RedHat packages
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - vim
+    - git
+  when: ansible_facts['os_family'] == 'RedHat'
+```
+
+- This keeps the playbook OS-aware instead of hardcoding one package manager for every host.
+
+---
+
+## GFG Coverage Check
+
+The following GeeksforGeeks topics were **already present in the original README and were intentionally not duplicated**:
+
+- Ansible architecture and agentless/push model
+- Idempotency
+- Ansible features at the architectural/module level
+- Variable precedence
+- Handlers
+- Roles and role structure
+- Package/service automation concepts
+- Inventory and dynamic inventory
+- Ad-hoc commands
+- Jump-host-related connection concepts where already covered
+- Ansible Vault
+- Callback plugins
+- Ansible Tower
+- Encrypted user passwords
+- Callback configuration
+- Performance tuning, including forks/fact caching/async/free strategy
+- Debugging
+- `delegate_to`
+- Rolling/low-downtime deployments
+- OS-specific conditional automation concepts
+- Ansible vs. Puppet
+- Fact caching and async/free strategy as supporting performance topics
+
+**Source used for the gap check:** GeeksforGeeks' current Ansible interview page, last updated 17 Oct 2025. citeturn0view0
+
 
 # 13. Frequently Used Ansible Modules in DevOps
 
