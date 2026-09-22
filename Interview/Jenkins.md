@@ -495,7 +495,7 @@ Declarative Pipeline emphasizes a defined structure. Scripted Pipeline provides 
 ## Q20. What is the difference between a stage and a step?
 
 ### Clear definition
-- **Stage:** A logical phase of the delivery process.
+- **Stage:** A logical phase of a Jenkins Pipeline that groups related tasks.
 - **Step:** An individual operation executed inside a stage.
 
 ### Example
